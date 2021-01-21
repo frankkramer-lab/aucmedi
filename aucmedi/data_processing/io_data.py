@@ -21,40 +21,20 @@
 #-----------------------------------------------------#
 # External libraries
 import os
-from PIL import Image
-import json
 import numpy as np
 import pandas as pd
+# Internal libraries
+import aucmedi.data_processing.io_data.io_interfaces as io
 
 #-----------------------------------------------------#
-#           I/O Data Interface based on CSV           #
+#                   Static Variables                  #
 #-----------------------------------------------------#
-""" Data I/O Interface for loading a dataset via a CSV and an image directory.
-    This function allow simple parsing of class annotations encoded in a CSV.
+ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif"]
 
-    CSV Format 1)
-        - Name Column: "SAMPLE" -> String Value
-        - Class Column: "CLASS" -> Sparse Categorical Classes (String/Integers)
-        - Optional Meta Columns possible
 
-    CSV Format 2)
-        - Name Column: "SAMPLE"
-        - One-Hot Encoded Class Columns:
-            -> If OHE parameter provides column index values -> use these
-            -> Else try to use all other columns as OHE columns
-        - Optional Meta Columns only possible if OHE parameter provided
 
-Arguments:
-    path_csv (String):          Path to the csv file.
-    path_imagedir (String):     Path to the directory containing the images.
-    training (Boolean):         Boolean option whether annotation data is available.
-    ohe (Integer list):         List of column index values if annotation encoded in OHE.
-"""
-def iointerface_csv(path_csv, path_imagedir, training=True, ohe=None):
-    pass
-    # check if CLASS column exist -> take this
-    # else: OHE -> check if ohe integers are provided else all
-
+# io class
+# communication interface to data generator
 
 # modi training
 # - load from csv & single image dir
@@ -65,12 +45,4 @@ def iointerface_csv(path_csv, path_imagedir, training=True, ohe=None):
 # load all images from a single directory
 
 
-# list of indices
-# list of class annotation
-# Number of classes
-# list of classification names
-
-
-
-
-# how to handle binary/categorical/multi-label data?
+# handles io for data loading and inference

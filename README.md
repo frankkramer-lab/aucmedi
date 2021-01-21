@@ -1,6 +1,10 @@
-# AUCMEDI - Automated Classification of Medical Images
+# AUCMEDI - A Framework for Automated Classification of Medical Images
 
 description bla bla
+
+For multi-label classification:
+- Sigmoid instead of softmax
+- Use binary_crossentropy instead of categorical
 
 ## Getting started: 60 seconds to automated medical image classification
 

@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2020 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2021 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -20,45 +20,41 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from abc import ABC, abstractmethod
+import numpy as np
+from tensorflow.keras.applications import imagenet_utils
+# Internal libraries/scripts
+from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
 #-----------------------------------------------------#
-#         Abstract Base Class for Subfunctions        #
+#           Subfunction class: Standardize            #
 #-----------------------------------------------------#
-""" An abstract base class for a preprocessing Subfunction class.
+""" A Standardization method which utilizes the Keras preprocess_input() functionality
+    in order to normalize intensity value ranges to be suitable for neural networks.
+
+    Default mode: "tf"
+    Possible modes: ["tf", "caffe", "torch"]
+
+    Source: https://www.tensorflow.org/api_docs/python/tf/keras/applications/imagenet_utils/preprocess_input
+    caffe: will convert the images from RGB to BGR, then will zero-center each color channel with respect to the ImageNet dataset, without scaling.
+    tf: will scale pixels between -1 and 1, sample-wise.
+    torch: will scale pixels between 0 and 1 and then will normalize each channel with respect to the ImageNet dataset.
 
 Methods:
-    __init__                Object creation function.
-    transform:              Transform the imaging data.
+    __init__                Object creation function
+    transform:              Standardize an image input according to selected mode.
 """
-class Subfunction_Base(ABC):
+class Standardize(Subfunction_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    """ Functions which will be called during the Subfunction object creation.
-        This function can be used to pass variables and options in the Subfunction instance.
-        The are no mandatory required parameters for the initialization.
+    def __init__(self, mode="tf"):
+        self.mode = mode
 
-        Parameter:
-            None
-        Return:
-            None
-    """
-    @abstractmethod
-    def __init__(self):
-        pass
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#
-    """ Transform the image according to the subfunction during preprocessing (training + prediction).
-        It is required to return the transformed image object (as NumPy array).
-        It is possible to pass configurations through the initialization function for this class.
-
-        Parameter:
-            image (Numpy Array):        Image encoded as NumPy matrix with 1 or 3 channels.
-        Return:
-            image (Numpy Array):        Transformed image encoded as NumPy matrix with 1 or 3 channels.
-    """
-    @abstractmethod
     def transform(self, image):
-        return image
+        # Perform architecture standardization
+        image_norm = imagenet_utils.preprocess_input(image, mode=self.mode)
+        # Return standardized image
+        return image_norm

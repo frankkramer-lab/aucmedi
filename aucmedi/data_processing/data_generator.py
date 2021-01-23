@@ -47,6 +47,7 @@ ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif"]
     - Image Loading
     - Optional application of Data Augmentation
     - Optional application of Subfunctions
+    - Standardize image
     - Stacking processed images to a batch
 
     Build on top of Keras Iterator:
@@ -62,29 +63,60 @@ class DataGenerator(Iterator):
         Data augmentation is applied even for prediction if a DataAugmentation object is provided!
 
         Arguments:
-            samples (List of Strings):
+            samples (List of Strings):      List of sample/index encoded as Strings.
             path_imagedir (String):         Path to the directory containing the images.
-            labels (NumPy Array):           Path to the index/class annotation file if required. (csv/json)
-            data_aug (DataAugmentation):    Boolean option whether annotation data is available.
+            labels (NumPy Array):           Classification list with One-Hot Encoding.
+            data_aug (DataAugmentation):    Data Augmentation class instance which performs diverse data augmentation techniques.
             subfunctions (List of Subfunctions):
-                                            Boolean option whether annotation data is sparse categorical or one-hot encoded.
-            batch_size (Integer):           Additional parameters for the format interfaces.
-            shuffle (Boolean):              Additional parameters for the format interfaces.
-            grayscale (Boolean):            Additional parameters for the format interfaces.
-            prepare_images (Boolean):       Additional parameters for the format interfaces.
-            sample_weights (List of Floats):Additional parameters for the format interfaces.
-            seed (Integer):                 Additional parameters for the format interfaces.
+                                            List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
+            standardize_mode (String):      Standardization modus in which image intensity values are scaled.
+            batch_size (Integer):           Number of samples inside a single batch.
+            shuffle (Boolean):              Boolean, whether dataset should be shuffled.
+            grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
+            prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
+            sample_weights (List of Floats):List of weights for samples.
+            seed (Integer):                 Seed to ensure reproducibility for random function.
     """
-    def __init__(self, samples, path_imagedir, labels=None, data_aug=None,
-                 subfunctions=[], batch_size=32, shuffle=False, grayscale=False,
-                 prepare_images=False, sample_weights=None, seed=None):
+    def __init__(self, samples, path_imagedir, labels=None, batch_size=32,
+                 data_aug=None, subfunctions=[], standardize_mode="tf",
+                 shuffle=False, grayscale=False, prepare_images=False,
+                 sample_weights=None, seed=None):
+        # Cache class variables
+        self.samples = samples
+        self.path_imagedir = path_imagedir
+        self.labels = labels
+        self.data_aug = data_aug
+        self.subfunctions = subfunctions
+        self.grayscale = grayscale
+        self.prepare_images = prepare_images
+        self.sample_weights = sample_weights
+        #
+
+
         # Return the
         super(ImageIterator, self).__init__(len(samples), batch_size, shuffle, seed)
 
 
-
+    #-----------------------------------------------------#
+    #              Batch Generation Function              #
+    #-----------------------------------------------------#
+    """adasd
+    """
     def _get_batches_of_transformed_samples(self, index_array):
+        # batch_x = [None] * len(index_array)
+
+        # for i in index_array:
+            # if prepared:
+                # -> load prepared image
+            # else:
+                # -> load image
+                # -> get or run subfunctions on dataset (possible caching)
+                # -> data augmentation
+                # -> apply standardize
+
         return None
+
+
 
     # for loop over index_array list:
     # -> load image np.array(Image.open(filepath))

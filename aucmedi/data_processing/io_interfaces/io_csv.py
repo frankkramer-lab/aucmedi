@@ -27,7 +27,7 @@ import pandas as pd
 #-----------------------------------------------------#
 #          Data Loader Interface based on CSV         #
 #-----------------------------------------------------#
-""" Data I/O Interface for loading a dataset via a CSV and an image directory.
+""" Data Input Interface for loading a dataset via a CSV and an image directory.
     This function allow simple parsing of class annotations encoded in a CSV.
 
     CSV Format 1:
@@ -43,28 +43,30 @@ import pandas as pd
         - Optional Meta Columns only possible if OHE parameter provided
 
 Arguments:
-    path_csv (String):                      Path to the csv file.
+    path_data (String):                     Path to the csv file.
     path_imagedir (String):                 Path to the directory containing the images.
-    allowed_image_formats (String list):    List of allowed imaging formats.
+    allowed_image_formats (String list):    List of allowed imaging formats. (provided by IO_Interface)
     training (Boolean):                     Boolean option whether annotation data is available.
-    ohe (Integer list):                     List of column index values if annotation encoded in OHE.
-    col_sample (String):                    Index column name for the sample name column.
-    col_class (String):                     Index column name for the sparse categorical classes column.
+    ohe (Boolean):                          Boolean option whether annotation data is sparse categorical or one-hot encoded.
+    ohe_range (String list):                List of column name values if annotation encoded in OHE. Example: ["classA", "classB", "classC"]
+    col_sample (String):                    Index column name for the sample name column. Default: 'SAMPLE'
+    col_class (String):                     Index column name for the sparse categorical classes column. Default: 'CLASS'
 """
-def csv_loader(path_csv, path_imagedir, allowed_image_formats, training=True,
-               ohe=None, col_sample="SAMPLE", col_class="CLASS"):
+def csv_loader(path_data, path_imagedir, allowed_image_formats,
+               training=True, ohe=True, ohe_range=None,
+               col_sample="SAMPLE", col_class="CLASS"):
     # Load CSV file
-    dt = pd.read_csv(path_csv, sep=",", header=0)
+    dt = pd.read_csv(path_data, sep=",", header=0)
     # Check if image index column exist and parse it
     if col_sample in dt.columns : index_list = dt[col_sample].tolist()
     else : raise Exception("Sample column (" + str(col_sample) + \
-                           ") not available in CSV file!", path_csv)
+                           ") not available in CSV file!", path_data)
     # Identify image format by peaking first image
     image_format = None
     for file in os.listdir(path_imagedir):
         format = file.split(".")[-1]
-        if format.lower() in ACCEPTABLE_IMAGE_FORMATS or \
-           format.upper() in ACCEPTABLE_IMAGE_FORMATS:
+        if format.lower() in allowed_image_formats or \
+           format.upper() in allowed_image_formats:
            image_format = format
            break
     # Raise Exception if image format is unknown
@@ -87,7 +89,10 @@ def csv_loader(path_csv, path_imagedir, allowed_image_formats, training=True,
     if not training : return index_list, None, None, None, image_format
 
     # Try parsing with a sparse categorical class format (CSV Format 1)
-    if col_class in dt.columns:
+    if not ohe:
+        # Verify if provided classification column in in dataframe
+        if col_class not in dt.columns:
+            raise Exception("Provided classification column not in dataset!")
         # Obtain class information
         classes_sparse = dt[col_class].tolist()
         class_names = np.unique(classes_sparse).tolist()
@@ -97,8 +102,8 @@ def csv_loader(path_csv, path_imagedir, allowed_image_formats, training=True,
     # Try parsing one-hot encoded format (CSV Format 2)
     else:
         # Identify OHE columns
-        if ohe is None : ohe_columns = dt.loc[:, dt.columns != col_sample]
-        else : ohe_columns = dt.loc[:, ohe]
+        if ohe_range is None : ohe_columns = dt.loc[:, dt.columns != col_sample]
+        else : ohe_columns = dt.loc[:, ohe_range]
         # Parse information
         class_names = list(ohe_columns.columns)
         class_n = len(class_names)

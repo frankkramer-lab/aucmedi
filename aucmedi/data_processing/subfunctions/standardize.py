@@ -20,7 +20,6 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import numpy as np
 from tensorflow.keras.applications import imagenet_utils
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base

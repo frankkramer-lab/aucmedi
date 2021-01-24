@@ -20,12 +20,11 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import os
+from tensorflow.keras.preprocessing.image import Iterator
 import numpy as np
-import pandas as pd
-from PIL import Image
 # Internal libraries
-import aucmedi.data_processing.io_interfaces as io
+from aucmedi.data_processing.io_data import image_loader
+from aucmedi.data_processing.subfunctions import Standardize, Resize
 
 #-----------------------------------------------------#
 #                   Static Variables                  #
@@ -61,6 +60,7 @@ class DataGenerator(Iterator):
 
         If using for prediction, the 'labels' parameter have to be None.
         Data augmentation is applied even for prediction if a DataAugmentation object is provided!
+        Applying 'None' to resize will result into no image resizing. Default (224, 224)
 
         Arguments:
             samples (List of Strings):      List of sample/index encoded as Strings.
@@ -71,58 +71,101 @@ class DataGenerator(Iterator):
                                             List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
             standardize_mode (String):      Standardization modus in which image intensity values are scaled.
             batch_size (Integer):           Number of samples inside a single batch.
+            resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
             shuffle (Boolean):              Boolean, whether dataset should be shuffled.
             grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
             prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
             sample_weights (List of Floats):List of weights for samples.
             seed (Integer):                 Seed to ensure reproducibility for random function.
     """
-    def __init__(self, samples, path_imagedir, labels=None, batch_size=32,
-                 data_aug=None, subfunctions=[], standardize_mode="tf",
-                 shuffle=False, grayscale=False, prepare_images=False,
-                 sample_weights=None, seed=None):
+    def __init__(self, samples, path_imagedir, labels=None, image_format=None,
+                 batch_size=32, resize=(224, 224), data_aug=None, shuffle=False,
+                 grayscale=False, subfunctions=[], standardize_mode="tf",
+                 prepare_images=False, sample_weights=None, seed=None):
         # Cache class variables
         self.samples = samples
         self.path_imagedir = path_imagedir
         self.labels = labels
+        self.image_format = image_format
+        self.resize = resize
         self.data_aug = data_aug
         self.subfunctions = subfunctions
         self.grayscale = grayscale
         self.prepare_images = prepare_images
         self.sample_weights = sample_weights
-        #
+        # Initialize Standardization Subfunction
+        if standardize_mode is not None:
+            self.sf_standardize = Standardize(mode=standardize_mode)
+        else : self.sf_standardize = None
+        # Initialize Resizing Subfunction
+        if resize is not None : self.sf_resize = Resize(shape=resize)
+        else : self.sf_resize = None
+        # Sanity check for label correctness
+        if labels is not None and len(samples) != len(labels):
+            raise ValueError("Samples and labels do not have same size!",
+                             len(samples), len(labels))
+        # Sanity check for sample weights correctness
+        if sample_weights is not None and len(samples) != len(sample_weights):
+            raise ValueError("Samples and sample weights do not have same size!",
+                             len(samples), len(sample_weights))
 
+        # to-do: prepartion modus
 
-        # Return the
-        super(ImageIterator, self).__init__(len(samples), batch_size, shuffle, seed)
+        # Pass initialization parameters to parent Iterator class
+        size = len(samples)
+        super(DataGenerator, self).__init__(size, batch_size, shuffle, seed)
 
 
     #-----------------------------------------------------#
     #              Batch Generation Function              #
     #-----------------------------------------------------#
-    """adasd
-    """
+    """Function for batch generation given a list of random selected samples."""
     def _get_batches_of_transformed_samples(self, index_array):
-        # batch_x = [None] * len(index_array)
+        # Initialize Batch stack
+        batch_stack = ([],)
+        if self.labels is not None : batch_stack += ([],)
+        if self.sample_weights is not None : batch_stack += ([],)
 
-        # for i in index_array:
-            # if prepared:
-                # -> load prepared image
-            # else:
-                # -> load image
-                # -> get or run subfunctions on dataset (possible caching)
-                # -> data augmentation
-                # -> apply standardize
+        # Process image for each index
+        for i in index_array:
+            # Load prepared image from disk
+            if self.prepare_images:
+                pass
+            # Preprocess image during runtime
+            else:
+                # Load image
+                img = image_loader(self.samples[i], self.path_imagedir,
+                                   image_format=self.image_format,
+                                   grayscale=self.grayscale)
+                # Apply subfunctions on image
+                for sf in self.subfunctions:
+                    img = sf.transform(img)
+                # Apply data augmentation on image if activated
+                if self.data_aug is not None:
+                    img = self.data_aug.transform(img)
+                # Apply resizing on image if activated
+                if self.sf_resize is not None:
+                    img = self.sf_resize.transform(img)
+                # Apply standardization on image if activated
+                if self.sf_standardize is not None:
+                    img = self.sf_standardize.transform(img)
 
-        return None
+            # Add preprocessed image to batch
+            batch_stack[0].append(img)
+            # Add classification to batch if available
+            if self.labels is not None:
+                batch_stack[1].append(self.labels[i])
+            # Add sample weight to batch if available
+            if self.sample_weights is not None:
+                batch_stack[2].append(self.sample_weights[i])
 
-
-
-    # for loop over index_array list:
-    # -> load image np.array(Image.open(filepath))
-    # -> data augmentation
-    # -> get or run subfunctions on dataset (possible caching)
-    # return batch(img, class, weight)
-
-
-# multiprocessing: for loop via map
+        # Stack images together into a batch
+        batch = (np.stack(batch_stack[0], axis=0), )
+        # Stack classifications together into a batch if available
+        if self.labels is not None:
+            batch += (np.stack(batch_stack[1], axis=0), )
+        # Stack sample weights together into a batch if available
+        if self.sample_weights is not None:
+            batch += (np.stack(batch_stack[2], axis=0), )
+        # Return generated Batch
+        return batch

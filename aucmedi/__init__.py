@@ -17,3 +17,4 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 from aucmedi.data_processing.io_data import input_interface
+from aucmedi.data_processing.data_generator import DataGenerator

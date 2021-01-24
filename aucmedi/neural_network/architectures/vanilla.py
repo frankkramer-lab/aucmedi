@@ -42,20 +42,20 @@ class Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                   __init__                  #
     #---------------------------------------------#
-    def __init__(self):
-        pass
+    def __init__(self, channels, input_shape=(224, 224)):
+        self.input = input_shape + (channels,)
 
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, input_shape=(224, 224, 3), dropout=True,
-                     out_activation="softmax", pretrained_weights=False):
+    def create_model(self, n_labels, dropout=True, out_activation="softmax",
+                     pretrained_weights=False):
         # Initialize model
         model = Sequential()
 
         # Add 4x convolutional layers with increasing filters
         model.add(Conv2D(filters=32, kernel_size=3, padding='same',
-                         activation='relu', input_shape=input_shape))
+                         activation='relu', input_shape=self.input))
         model.add(MaxPooling2D(pool_size=2))
 
         model.add(Conv2D(filters=64, kernel_size=3, padding='same',

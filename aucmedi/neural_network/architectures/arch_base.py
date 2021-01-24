@@ -37,16 +37,18 @@ class Architecture_Base(ABC):
     #---------------------------------------------#
     """ Functions which will be called during the Architecture object creation.
         This function can be used to pass variables and options in the Architecture instance.
-        The are no mandatory required parameters for the initialization.
+        The are no other mandatory required parameters for the initialization except for
+        the number of channels and the input shape (x, y).
 
         Parameter:
-            None
+            channels (Integer):             Number of channels. Grayscale:1 or RGB:3.
+            input_shape (Tuple):            Input shape of the image data for the first model layer (including channel axis).
         Return:
             None
     """
     @abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self, channels, input_shape=(224, 224)):
+        self.input = input_shape + (channels,)
 
     #---------------------------------------------#
     #                Create Model                 #
@@ -60,7 +62,6 @@ class Architecture_Base(ABC):
 
         Parameter:
             n_labels (Integer):             Number of classes/labels (important for the last layer).
-            input_shape (Tuple):            Input shape of the image data for the first model layer (including channel axis).
             dropout (Boolean):              Option whether to utilize a dropout layer in the last classification layer.
             out_activation (String):        Activation function which should be used in the last classification layer.
             pretrained_weights (Boolean):   Option whether to utilize pretrained weights e.g. for ImageNet.
@@ -68,6 +69,6 @@ class Architecture_Base(ABC):
             model (Keras model):        A Keras model
     """
     @abstractmethod
-    def create_model(self, n_labels, input_shape=(224, 224, 3), dropout=True,
-                     out_activation="softmax", pretrained_weights=False):
+    def create_model(self, n_labels, dropout=True, out_activation="softmax",
+                     pretrained_weights=False):
         return None

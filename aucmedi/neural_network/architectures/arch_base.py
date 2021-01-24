@@ -60,16 +60,14 @@ class Architecture_Base(ABC):
 
         Parameter:
             n_labels (Integer):             Number of classes/labels (important for the last layer).
-            channels (Integer):             Number of channels in the image (RGB:3, Grayscale:1).
-            input_shape (Tuple):            Input shape of the image data for the first model layer.
+            input_shape (Tuple):            Input shape of the image data for the first model layer (including channel axis).
+            dropout (Boolean):              Option whether to utilize a dropout layer in the last classification layer.
             out_activation (String):        Activation function which should be used in the last classification layer.
             pretrained_weights (Boolean):   Option whether to utilize pretrained weights e.g. for ImageNet.
-            dropout (Boolean):              Option whether to utilize a dropout layer in the last classification layer.
         Return:
             model (Keras model):        A Keras model
     """
     @abstractmethod
-    def create_model(self, n_labels, channels=3, input_shape=(224, 224),
-                     out_activation="softmax", pretrained_weights=False,
-                     dropout=True):
+    def create_model(self, n_labels, input_shape=(224, 224, 3), dropout=True,
+                     out_activation="softmax", pretrained_weights=False):
         return None

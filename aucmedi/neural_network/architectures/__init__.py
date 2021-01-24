@@ -16,3 +16,11 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+# Abstract Base Class for Architectures
+from aucmedi.neural_network.architectures.arch_base import Architecture_Base
+
+#-----------------------------------------------------#
+#                    Architectures                    #
+#-----------------------------------------------------#
+# Vanilla Classifier
+from aucmedi.neural_network.architectures.vanilla import Vanilla

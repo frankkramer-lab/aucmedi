@@ -21,6 +21,7 @@
 #-----------------------------------------------------#
 # External libraries
 from skimage.transform import resize
+from skimage import img_as_ubyte
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
@@ -52,5 +53,7 @@ class Resize(Subfunction_Base):
     def transform(self, image):
         # Perform resizing into desired shape
         image_resized = resize(image, self.shape)
+        # Transform image intensity values from [0,1] back to [0,255]
+        image_resized = img_as_ubyte(image_resized)
         # Return resized image
         return image_resized

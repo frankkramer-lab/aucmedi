@@ -110,64 +110,45 @@ class Neural_Network:
         during the training process (after each epoch).
 
     Args:
-        training_samples (list of indices):     A list of sample indicies which will be used for training
-        validation_samples (list of indices):   A list of sample indicies which will be used for validation
+        training_generator (DataGenerator):     A data generator which will be used for training.
+        validation_generator (DataGenerator):   A data generator which will be used for validation.
         epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
                                                 the complete data set.
         iterations (integer):                   Number of iterations (batches) in a single epoch.
         callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
         class_weight (dictionary or list):      A list or dictionary of float values to handle class unbalance.
+
+    Returns:
+        A Keras history object (dictionary) which contains several logs.
     """
     # Training the Neural Network model
     def train(self, training_generator, validation_generator=None, epochs=20,
               iterations=None, callbacks=[], class_weight=None):
         # Run training process with the Keras fit function
-        self.model.fit(training_generator, validation_data=validation_generator,
-                       callbacks=callbacks, epochs=epochs,
-                       class_weight=class_weight, workers=self.workers,
-                       max_queue_size=self.batch_queue_size)
+        history = self.model.fit(training_generator,
+                                 validation_data=validation_generator,
+                                 callbacks=callbacks, epochs=epochs,
+                                 steps_per_epoch=iterations,
+                                 class_weight=class_weight, workers=self.workers,
+                                 max_queue_size=self.batch_queue_size)
+        # Return logged history object
+        return history
 
     #---------------------------------------------#
     #                 Prediction                  #
     #---------------------------------------------#
-    """ Prediction function for the Neural Network model. The fitted model will predict a segmentation
-        for the provided list of sample indices.
+    """ Prediction function for the Neural Network model. The fitted model will predict classifications
+        for the provided data generator.
 
     Args:
-        sample_list (list of indices):  A list of sample indicies for which a segmentation prediction will be computed.
-        return_output (boolean):        Parameter which decides, if computed predictions will be output as the return of this
-                                        function or if the predictions will be saved with the save_prediction method defined
-                                        in the provided Data I/O interface.
-        activation_output (boolean):    Parameter which decides, if model output (activation function, normally softmax) will
-                                        be saved/outputed (if FALSE) or if the resulting class label (argmax) should be outputed.
+        prediction_generator (DataGenerator):   A data generator which will be used for training.
     """
-    def predict(self, pred_gen):
-        # Initialize result array for direct output
-        if return_output : results = []
-        # Iterate over each sample
-        for sample in sample_list:
-            # Initialize Keras Data Generator for generating batches
-            dataGen = DataGenerator([sample], self.preprocessor,
-                                    training=False, validation=False,
-                                    shuffle=False, iterations=None)
-            # Run prediction process with Keras predict
-            pred_list = []
-            for batch in dataGen:
-                pred_batch = self.model.predict_on_batch(batch)
-                pred_list.append(pred_batch)
-            pred_seg = np.concatenate(pred_list, axis=0)
-            # Postprocess prediction
-            pred_seg = self.preprocessor.postprocessing(sample, pred_seg,
-                                                        activation_output)
-            # Backup predicted segmentation
-            if return_output : results.append(pred_seg)
-            else : self.preprocessor.data_io.save_prediction(pred_seg, sample)
-            # Clean up temporary files if necessary
-            if self.preprocessor.prepare_batches or self.preprocessor.prepare_subfunctions:
-                self.preprocessor.data_io.batch_cleanup()
-        # Output predictions results if direct output modus is active
-        if return_output : return results
-
+    def predict(self, prediction_generator):
+        # Run inference process with the Keras predict function
+        preds = predict(prediction_generator, workers=self.workers,
+                        max_queue_size=self.batch_queue_size)
+        # Output predictions results
+        return preds
 
     #---------------------------------------------#
     #               Model Management              #
@@ -187,8 +168,3 @@ class Neural_Network:
         # Compile model
         self.model.compile(optimizer=Adam(lr=self.learninig_rate),
                            loss=self.loss, metrics=self.metrics)
-
-
-# train (with & without validation)
-# predict (with & without augmentation)
-# class weights?

@@ -116,20 +116,21 @@ class Neural_Network:
                                                 the complete data set.
         iterations (integer):                   Number of iterations (batches) in a single epoch.
         callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-        class_weight (dictionary or list):      A list or dictionary of float values to handle class unbalance.
+        class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
 
     Returns:
         A Keras history object (dictionary) which contains several logs.
     """
     # Training the Neural Network model
     def train(self, training_generator, validation_generator=None, epochs=20,
-              iterations=None, callbacks=[], class_weight=None):
+              iterations=None, callbacks=[], class_weights=None):
         # Run training process with the Keras fit function
         history = self.model.fit(training_generator,
                                  validation_data=validation_generator,
                                  callbacks=callbacks, epochs=epochs,
                                  steps_per_epoch=iterations,
-                                 class_weight=class_weight, workers=self.workers,
+                                 class_weight=class_weights,
+                                 workers=self.workers,
                                  max_queue_size=self.batch_queue_size)
         # Return logged history object
         return history

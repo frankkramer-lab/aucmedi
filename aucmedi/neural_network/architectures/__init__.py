@@ -24,3 +24,20 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #-----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.vanilla import Vanilla
+
+
+#-----------------------------------------------------#
+#       Access Functions to Architecture Classes      #
+#-----------------------------------------------------#
+# Architecture Dictionary
+architecture_dict = {"Vanilla": Vanilla
+}
+# List of implemented architectures
+architectures = list(architecture_dict.keys())
+
+#-----------------------------------------------------#
+#       Meta Information of Architecture Classes      #
+#-----------------------------------------------------#
+# Utilized standardize mode of architectures required for Transfer Learning
+supported_standardize_mode = {
+}

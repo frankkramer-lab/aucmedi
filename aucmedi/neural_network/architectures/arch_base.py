@@ -42,7 +42,7 @@ class Architecture_Base(ABC):
 
         Parameter:
             channels (Integer):             Number of channels. Grayscale:1 or RGB:3.
-            input_shape (Tuple):            Input shape of the image data for the first model layer (including channel axis).
+            input_shape (Tuple):            Input shape of the image data for the first model layer (excluding channel axis).
         Return:
             None
     """

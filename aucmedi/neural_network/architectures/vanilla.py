@@ -71,9 +71,10 @@ class Vanilla(Architecture_Base):
         model.add(MaxPooling2D(pool_size=2))
 
         # Classification Head
-        model.add(GlobalAveragePooling2D())
         if dropout : model.add(Dropout(rate=0.3))
-        model.add(Dense(n_labels, activation=out_activation, name="preds"))
+        model.add(GlobalAveragePooling2D())
+        model.add(Dense(n_labels, name="preds"))
+        model.add(Activation('softmax', name='probs'))
 
         # Return created model
         return model

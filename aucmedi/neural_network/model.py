@@ -182,7 +182,7 @@ class Neural_Network:
                                loss=self.loss, metrics=self.metrics)
             # Reset data generators
             training_generator.reset()
-            if validation_generator not None : validation_generator.reset()
+            if validation_generator is not None : validation_generator.reset()
             # Run second training with unfreezed layers
             history_end = self.model.fit(training_generator,
                                          validation_data=validation_generator,

@@ -66,11 +66,6 @@ class Architecture_ResNet50(Architecture_Base):
                               pooling=None)
         top_model = base_model.output
 
-        # # Freeze all layers in the base model if using pretrained weights
-        # if pretrained_weights:
-        #     for layer in base_model.layers:
-        #         layer.trainable = False
-
         # Add classification head as top model
         top_model = layers.GlobalAveragePooling2D(name="avg_pool")(top_model)
         if fcl_dropout:

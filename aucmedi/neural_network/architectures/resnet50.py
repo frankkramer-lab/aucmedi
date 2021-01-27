@@ -71,14 +71,6 @@ class Architecture_ResNet50(Architecture_Base):
         #     for layer in base_model.layers:
         #         layer.trainable = False
 
-        # Classification Head
-        if dropout : model.add(Dropout(rate=0.3))
-        model.add(GlobalAveragePooling2D())
-
-        x = Dense(512, activation='relu')(x)
-        model.add(Dense(n_labels, name="preds"))
-        model.add(Activation('softmax', name='probs'))
-
         # Add classification head as top model
         top_model = layers.GlobalAveragePooling2D(name="avg_pool")(top_model)
         if fcl_dropout:

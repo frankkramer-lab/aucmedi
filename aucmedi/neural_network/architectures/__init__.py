@@ -24,13 +24,15 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #-----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.vanilla import Vanilla
-
+# ResNet
+from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50 as ResNet50
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
 #-----------------------------------------------------#
 # Architecture Dictionary
-architecture_dict = {"Vanilla": Vanilla
+architecture_dict = {"Vanilla": Vanilla,
+                     "ResNet50": ResNet50
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -39,5 +41,6 @@ architectures = list(architecture_dict.keys())
 #       Meta Information of Architecture Classes      #
 #-----------------------------------------------------#
 # Utilized standardize mode of architectures required for Transfer Learning
-supported_standardize_mode = {
+supported_standardize_mode = {"Vanilla": "tf",
+                              "ResNet50": "caffe"
 }

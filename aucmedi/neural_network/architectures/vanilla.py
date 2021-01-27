@@ -48,7 +48,7 @@ class Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
                      pretrained_weights=False):
         # Initialize model
         model = Sequential()
@@ -70,11 +70,13 @@ class Vanilla(Architecture_Base):
                          activation='relu'))
         model.add(MaxPooling2D(pool_size=2))
 
-        # Classification Head
-        if dropout : model.add(Dropout(rate=0.3))
+        # Add classification head
         model.add(GlobalAveragePooling2D())
+        if fcl_dropout:
+            model.add(Dense(units=512))
+            model.add(Dropout(rate=0.3))
         model.add(Dense(n_labels, name="preds"))
-        model.add(Activation('softmax', name='probs'))
+        model.add(Activation(out_activation, name="probs"))
 
         # Return created model
         return model

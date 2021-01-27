@@ -59,16 +59,17 @@ class Architecture_Base(ABC):
         by this function.
 
         Modi for out_activation: Check Keras activation function documentation.
+        The fully connected layer and dropout option utilizes a 512 unit Dense layer with 30% Dropout.
 
         Parameter:
             n_labels (Integer):             Number of classes/labels (important for the last layer).
-            dropout (Boolean):              Option whether to utilize a dropout layer in the last classification layer.
+            fcl_dropout (Boolean):          Option whether to utilize a Dense & Dropout layer in the last classification layer.
             out_activation (String):        Activation function which should be used in the last classification layer.
             pretrained_weights (Boolean):   Option whether to utilize pretrained weights e.g. for ImageNet.
         Return:
             model (Keras model):        A Keras model
     """
     @abstractmethod
-    def create_model(self, n_labels, dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
                      pretrained_weights=False):
         return None

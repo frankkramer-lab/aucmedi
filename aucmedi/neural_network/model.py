@@ -55,12 +55,13 @@ class Neural_Network:
         learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
         batch_queue_size (integer):             The batch queue size is the number of previously prepared batches in the cache during runtime.
         Number of workers (integer):            Number of workers/threads which preprocess batches during runtime.
+        verbose (integer):                      Option (0/1) how much information should be written to stdout.
     """
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
                  dropout=True, learninig_rate=0.001, batch_queue_size=10,
-                 workers=1):
+                 workers=1, verbose=1):
         # Cache parameters
         self.n_labels = n_labels
         self.channels = channels
@@ -72,6 +73,7 @@ class Neural_Network:
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.dropout = dropout
+        self.verbose = verbose
 
         # Assemble architecture parameters
         arch_paras = {"channels":channels}
@@ -131,7 +133,8 @@ class Neural_Network:
                                  steps_per_epoch=iterations,
                                  class_weight=class_weights,
                                  workers=self.workers,
-                                 max_queue_size=self.batch_queue_size)
+                                 max_queue_size=self.batch_queue_size,
+                                 verbose=self.verbose)
         # Return logged history object
         return history
 
@@ -146,8 +149,9 @@ class Neural_Network:
     """
     def predict(self, prediction_generator):
         # Run inference process with the Keras predict function
-        preds = predict(prediction_generator, workers=self.workers,
-                        max_queue_size=self.batch_queue_size)
+        preds = self.model.predict(prediction_generator, workers=self.workers,
+                                   max_queue_size=self.batch_queue_size,
+                                   verbose=self.verbose)
         # Output predictions results
         return preds
 

@@ -103,6 +103,14 @@ class Neural_Network:
         self.initialization_weights = self.model.get_weights()
 
     #---------------------------------------------#
+    #               Class Variables               #
+    #---------------------------------------------#
+    # Transfer Learning configurations
+    tf_epochs = 3
+    tf_lr_start = 1e-4
+    tf_lr_end = 1e-5
+
+    #---------------------------------------------#
     #                  Training                   #
     #---------------------------------------------#
     """ Fitting function for the Neural Network model performing a training process.
@@ -110,6 +118,10 @@ class Neural_Network:
 
         If an optional validation generator is provided, a validation set is analyzed regularly
         during the training process (after each epoch).
+
+        The transfer learning training runs two fitting proesses.
+        The first one with freezed base model layers and a high learning rate,
+        whereas the second one with unfreezed layers and a small learning rate.
 
     Args:
         training_generator (DataGenerator):     A data generator which will be used for training.
@@ -119,24 +131,70 @@ class Neural_Network:
         iterations (integer):                   Number of iterations (batches) in a single epoch.
         callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
         class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+        transfer_learning (boolean):            Option whether a transfer learning training should be performed.
 
     Returns:
         A Keras history object (dictionary) which contains several logs.
     """
     # Training the Neural Network model
     def train(self, training_generator, validation_generator=None, epochs=20,
-              iterations=None, callbacks=[], class_weights=None):
-        # Run training process with the Keras fit function
-        history = self.model.fit(training_generator,
-                                 validation_data=validation_generator,
-                                 callbacks=callbacks, epochs=epochs,
-                                 steps_per_epoch=iterations,
-                                 class_weight=class_weights,
-                                 workers=self.workers,
-                                 max_queue_size=self.batch_queue_size,
-                                 verbose=self.verbose)
-        # Return logged history object
-        return history
+              iterations=None, callbacks=[], class_weights=None,
+              transfer_learning=False):
+        # Running a standard training process
+        if not transfer_learning:
+            # Run training process with the Keras fit function
+            history = self.model.fit(training_generator,
+                                     validation_data=validation_generator,
+                                     callbacks=callbacks, epochs=epochs,
+                                     steps_per_epoch=iterations,
+                                     class_weight=class_weights,
+                                     workers=self.workers,
+                                     max_queue_size=self.batch_queue_size,
+                                     verbose=self.verbose)
+            # Return logged history object
+            return history
+
+        # Running a transfer learning training process
+        else:
+            # Freeze all base model layers (all layers after "avg_pool")
+            lever = False
+            for layer in reversed(self.model.layers):
+                if not lever and layer.name == "avg_pool" : lever = True
+                elif lever : layer.trainable = False
+            # Compile model with high learning rate
+            self.model.compile(optimizer=Adam(lr=self.tf_lr_start),
+                               loss=self.loss, metrics=self.metrics)
+            # Run first training with freezed layers
+            history_start = self.model.fit(training_generator,
+                                           validation_data=validation_generator,
+                                           callbacks=callbacks,
+                                           epochs=self.tf_epochs,
+                                           steps_per_epoch=iterations,
+                                           class_weight=class_weights,
+                                           workers=self.workers,
+                                           max_queue_size=self.batch_queue_size,
+                                           verbose=self.verbose)
+            # Unfreeze base model layers again
+            for layer in self.model.layers:
+                layer.trainable = True
+            # Compile model with lower learning rate
+            self.model.compile(optimizer=Adam(lr=self.tf_lr_end),
+                               loss=self.loss, metrics=self.metrics)
+            # Reset data generators
+            training_generator.reset()
+            if validation_generator not None : validation_generator.reset()
+            # Run second training with unfreezed layers
+            history_end = self.model.fit(training_generator,
+                                         validation_data=validation_generator,
+                                         callbacks=callbacks, epochs=epochs,
+                                         initial_epoch=self.tf_epochs,
+                                         steps_per_epoch=iterations,
+                                         class_weight=class_weights,
+                                         workers=self.workers,
+                                         max_queue_size=self.batch_queue_size,
+                                         verbose=self.verbose)
+            # Return logged history objects
+            return (history_start, history_end)
 
     #---------------------------------------------#
     #                 Prediction                  #

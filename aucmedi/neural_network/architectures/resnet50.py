@@ -77,7 +77,7 @@ class Architecture_ResNet50(Architecture_Base):
             top_model = layers.Dense(units=512)(top_model)
             top_model = layers.Dropout(0.3)(top_model)
         top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(out_activation, name="probs")
+        top_model = layers.Activation(out_activation, name="probs")(top_model)
 
         # Create model
         model = Model(inputs=base_model.input, outputs=top_model)

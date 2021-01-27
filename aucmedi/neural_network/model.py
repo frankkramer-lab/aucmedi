@@ -51,7 +51,7 @@ class Neural_Network:
                                                 Any Metric Function defined in Keras or any custom metric function, which follows the Keras
                                                 metric guidelines, can be used.
         out_activation (String):                Activation function which should be used in the last classification layer.
-        dropout (Boolean):                      Option whether to utilize a dropout layer in the last classification layer.
+        fcl_dropout (Boolean):                  Option whether to utilize a Dense & Dropout layer in the last classification layer.
         learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
         batch_queue_size (integer):             The batch queue size is the number of previously prepared batches in the cache during runtime.
         Number of workers (integer):            Number of workers/threads which preprocess batches during runtime.
@@ -60,7 +60,7 @@ class Neural_Network:
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
-                 dropout=True, learninig_rate=0.001, batch_queue_size=10,
+                 fcl_dropout=True, learninig_rate=0.001, batch_queue_size=10,
                  workers=1, verbose=1):
         # Cache parameters
         self.n_labels = n_labels
@@ -72,7 +72,7 @@ class Neural_Network:
         self.workers = workers
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
-        self.dropout = dropout
+        self.fcl_dropout = fcl_dropout
         self.verbose = verbose
 
         # Assemble architecture parameters
@@ -88,7 +88,7 @@ class Neural_Network:
         else : self.architecture = architecture
 
         # Build model utilizing the selected architecture
-        model_paras = {"n_labels": n_labels, "dropout": dropout,
+        model_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
                        "out_activation": activation_output,
                        "pretrained_weights": pretrained_weights}
         self.model = self.architecture.create_model(**model_paras)

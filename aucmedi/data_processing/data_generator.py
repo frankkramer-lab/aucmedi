@@ -142,7 +142,7 @@ class DataGenerator(Iterator):
                     img = sf.transform(img)
                 # Apply data augmentation on image if activated
                 if self.data_aug is not None:
-                    img = self.data_aug.transform(img)
+                    img = self.data_aug.apply(img)
                 # Apply resizing on image if activated
                 if self.sf_resize is not None:
                     img = self.sf_resize.transform(img)

@@ -86,18 +86,20 @@ class Image_Augmentation():
     # Augmentation: Gaussian Noise
     aug_gaussianNoise = False
     aug_gaussianNoise_p = 0.5
-    # Augmentation:
-
-    # Augmentation:
-
-    # Augmentation:
-
-    # Augmentation:
-
-
-
-
-
+    # Augmentation: Gaussian Blur
+    aug_gaussianBlur = False
+    aug_gaussianBlur_p = 0.5
+    # Augmentation: Downscale
+    aug_downscaling = False
+    aug_downscaling_p = 0.5
+    aug_downscaling_effect = 0.10
+    # Augmentation: Gamma
+    aug_gamma = False
+    aug_gamma_p = 0.5
+    aug_gamma_limit = (90, 110)
+    # Augmentation: Elastic Transformation
+    aug_elasticTransform = False
+    aug_elasticTransform_p = 0.5
 
     #-----------------------------------------------------#
     #                    Initialization                   #
@@ -110,9 +112,9 @@ class Image_Augmentation():
     """
     def __init__(self, flip=True, rotate=True, brightness=True, contrast=True,
                  saturation=True, hue=True, scale=True, crop=False,
-                 grid_distortion=False,compression=False, gaussian_noise=False,
-                 downscaling=False, gamma=False, elastic_transform=False,
-                 gaussian_blur=False):
+                 grid_distortion=False, compression=False, gaussian_noise=False,
+                 gaussian_blur=False, downscaling=False, gamma=False,
+                 elastic_transform=False):
         # Cache class variables
         self.aug_flip = flip
         self.aug_rotate = rotate
@@ -159,10 +161,6 @@ class Image_Augmentation():
             tf = ai.RandomContrast(limit=self.aug_contrast_limits,
                                    p=self.aug_contrast_p)
             transforms.append(tf)
-        if self.aug_scale:
-            tf = ai.RandomScale(scale_limit=self.aug_scale_limits,
-                                p=self.aug_scale_p)
-            transforms.append(tf)
         if self.aug_saturation:
             tf = ai.ColorJitter(brightness=0, contrast=0, hue=0,
                                 saturation=self.aug_saturation_limits,
@@ -173,13 +171,17 @@ class Image_Augmentation():
                                 hue=self.aug_hue_limits,
                                 p=self.aug_hue_p)
             transforms.append(tf)
-        if self.aug_gridDistortion:
-            tf = ai.GridDistortion(p=self.aug_gridDistortion_p)
+        if self.aug_scale:
+            tf = ai.RandomScale(scale_limit=self.aug_scale_limits,
+                                p=self.aug_scale_p)
             transforms.append(tf)
         if self.aug_crop:
             tf = ai.RandomCrop(width=self.aug_crop_shape[0],
                                height=self.aug_crop_shape[1],
                                p=self.aug_crop_p)
+            transforms.append(tf)
+        if self.aug_gridDistortion:
+            tf = ai.GridDistortion(p=self.aug_gridDistortion_p)
             transforms.append(tf)
         if self.aug_compression:
             tf = ai.ImageCompression(quality_lower=self.aug_compression_limits[0],
@@ -189,23 +191,21 @@ class Image_Augmentation():
         if self.aug_gaussianNoise:
             tf = ai.GaussNoise(p=self.aug_gaussianNoise_p)
             transforms.append(tf)
-        if self.aug_:
-            tf = ai.
+        if self.aug_gaussianBlur:
+            tf = ai.GlassBlur(p=self.aug_gaussianBlur_p)
             transforms.append(tf)
-        if self.aug_:
-            tf = ai.
+        if self.aug_downscaling:
+            tf = ai.Downscale(scale_min=self.aug_downscaling_effect,
+                              scale_max=self.aug_downscaling_effect,
+                              p=self.aug_downscaling_p)
             transforms.append(tf)
-        if self.aug_:
-            tf = ai.
+        if self.aug_gamma:
+            tf = ai.RandomGamma(gamma_limit=self.aug_gamma_limit,
+                                p=self.aug_gamma_p)
             transforms.append(tf)
-        if self.aug_:
-            tf = ai.
+        if self.aug_elasticTransform:
+            tf = ai.ElasticTransform(p=self.aug_elasticTransform_p)
             transforms.append(tf)
-        if self.aug_:
-            tf = ai.
-            transforms.append(tf)
-
-
 
         # Compose transforms
         self.operator = ia.Compose(transforms)

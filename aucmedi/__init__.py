@@ -18,4 +18,5 @@
 #==============================================================================#
 from aucmedi.data_processing.io_data import input_interface
 from aucmedi.data_processing.data_generator import DataGenerator
+from aucmedi.data_processing.augmentation import Image_Augmentation
 from aucmedi.neural_network.model import Neural_Network

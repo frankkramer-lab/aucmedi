@@ -63,7 +63,7 @@ class Image_Augmentation():
     # Augmentation: Saturation shift
     aug_saturation = False
     aug_saturation_p = 0.5
-    aug_saturation_limits = (-0.1, 0.1)
+    aug_saturation_limits = 0.1
     # Augmentation: Hue shift
     aug_hue = False
     aug_hue_p = 0.5
@@ -154,12 +154,14 @@ class Image_Augmentation():
             tf = ai.RandomRotate90(p=self.aug_rotate_p)
             transforms.append(tf)
         if self.aug_brightness:
-            tf = ai.RandomBrightness(limit=self.aug_brightness_limits,
-                                     p=self.aug_brightness_p)
+            tf = ai.RandomBrightnessContrast(brightness_limit=self.aug_brightness_limits,
+                                             contrast_limit=0,
+                                             p=self.aug_brightness_p)
             transforms.append(tf)
         if self.aug_contrast:
-            tf = ai.RandomContrast(limit=self.aug_contrast_limits,
-                                   p=self.aug_contrast_p)
+            tf = ai.RandomBrightnessContrast(contrast_limit=self.aug_contrast_limits,
+                                             brightness_limit=0,
+                                             p=self.aug_contrast_p)
             transforms.append(tf)
         if self.aug_saturation:
             tf = ai.ColorJitter(brightness=0, contrast=0, hue=0,
@@ -208,7 +210,7 @@ class Image_Augmentation():
             transforms.append(tf)
 
         # Compose transforms
-        self.operator = ia.Compose(transforms)
+        self.operator = Compose(transforms)
 
     #-----------------------------------------------------#
     #                 Perform Augmentation                #
@@ -223,6 +225,6 @@ class Image_Augmentation():
     """
     def apply(self, image):
         # Perform image augmentation
-        aug_image = transform(image=image)["image"]
+        aug_image = self.operator(image=image)["image"]
         # Return augmented image
         return aug_image

@@ -140,12 +140,12 @@ class DataGenerator(Iterator):
                 # Apply subfunctions on image
                 for sf in self.subfunctions:
                     img = sf.transform(img)
-                # Apply resizing on image if activated
-                if self.sf_resize is not None:
-                    img = self.sf_resize.transform(img)
                 # Apply data augmentation on image if activated
                 if self.data_aug is not None:
                     img = self.data_aug.transform(img)
+                # Apply resizing on image if activated
+                if self.sf_resize is not None:
+                    img = self.sf_resize.transform(img)
                 # Apply standardization on image if activated
                 if self.sf_standardize is not None:
                     img = self.sf_standardize.transform(img)

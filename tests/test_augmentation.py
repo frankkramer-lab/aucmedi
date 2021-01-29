@@ -49,7 +49,7 @@ class AugmentationTEST(unittest.TestCase):
         self.assertIsInstance(data_aug, Image_Augmentation)
 
     # Application
-    def test_AUGMENTATION_BASE_create(self):
+    def test_AUGMENTATION_BASE_application(self):
         data_aug = Image_Augmentation()
         img_augGRAY = data_aug.apply(self.imgGRAY)
         img_augRGB= data_aug.apply(self.imgRGB)
@@ -57,7 +57,7 @@ class AugmentationTEST(unittest.TestCase):
         self.assertFalse(np.array_equal(img_augRGB, self.imgRGB))
 
     # Rebuild Augmentation Operator
-    def test_AUGMENTATION_BASE_create(self):
+    def test_AUGMENTATION_BASE_rebuild(self):
         data_aug = Image_Augmentation(flip=False, rotate=False,
                      brightness=False, contrast=False, saturation=False,
                      hue=False, scale=False, crop=False, grid_distortion=False,

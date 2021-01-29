@@ -50,10 +50,6 @@ class DataGeneratorTEST(unittest.TestCase):
             self.sampleList_gray.append(index)
 
         # Create RGB data
-        img_rgb = np.random.rand(16, 16, 3) * 254
-        self.imgRGB = np.float32(img_rgb)
-
-        # Create RGB data
         self.sampleList_rgb = []
         for i in range(0, 25):
             img_rgb = np.random.rand(16, 16, 3) * 255
@@ -63,14 +59,23 @@ class DataGeneratorTEST(unittest.TestCase):
             imgRGB_pillow.save(path_sampleRGB)
             self.sampleList_rgb.append(index)
 
+        # Create classification labels
+        self.labels_ohe = np.zeros((25, 4), dtype=np.uint8)
+        for i in range(0, 25):
+            class_index = np.random.randint(0, 4)
+            self.labels_ohe[i][class_index] = 1
+
     #-------------------------------------------------#
-    #                Base Functionality               #
+    #           Initialization Functionality          #
     #-------------------------------------------------#
     # Class Creation
     def test_DATAGENERATOR_BASE_create(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name)
         self.assertIsInstance(data_gen, DataGenerator)
 
+    #-------------------------------------------------#
+    #            Application Functionality            #
+    #-------------------------------------------------#
     # Usage: Grayscale without Labels
     def test_DATAGENERATOR_BASE_run_GRAYSCALE_noLabel(self):
         data_gen = DataGenerator(self.sampleList_gray, self.tmp_data.name,
@@ -88,3 +93,13 @@ class DataGeneratorTEST(unittest.TestCase):
             batch = next(data_gen)
             self.assertTrue(len(batch), 1)
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 3)))
+
+    # Usage: With Labels
+    def test_DATAGENERATOR_BASE_run_withLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                 labels=self.labels_ohe,
+                                 grayscale=False, batch_size=5)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 2)
+            self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))

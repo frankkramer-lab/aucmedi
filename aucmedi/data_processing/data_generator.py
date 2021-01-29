@@ -66,14 +66,15 @@ class DataGenerator(Iterator):
             samples (List of Strings):      List of sample/index encoded as Strings.
             path_imagedir (String):         Path to the directory containing the images.
             labels (NumPy Array):           Classification list with One-Hot Encoding.
+            image_format (String):          Image format to add at the end of the sample index for image loading.
+            batch_size (Integer):           Number of samples inside a single batch.
+            resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
             data_aug (DataAugmentation):    Data Augmentation class instance which performs diverse data augmentation techniques.
+            shuffle (Boolean):              Boolean, whether dataset should be shuffled.
+            grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
             subfunctions (List of Subfunctions):
                                             List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
             standardize_mode (String):      Standardization modus in which image intensity values are scaled.
-            batch_size (Integer):           Number of samples inside a single batch.
-            resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
-            shuffle (Boolean):              Boolean, whether dataset should be shuffled.
-            grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
             prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
             sample_weights (List of Floats):List of weights for samples.
             seed (Integer):                 Seed to ensure reproducibility for random function.
@@ -114,7 +115,6 @@ class DataGenerator(Iterator):
         # Pass initialization parameters to parent Iterator class
         size = len(samples)
         super(DataGenerator, self).__init__(size, batch_size, shuffle, seed)
-
 
     #-----------------------------------------------------#
     #              Batch Generation Function              #
@@ -169,3 +169,9 @@ class DataGenerator(Iterator):
             batch += (np.stack(batch_stack[2], axis=0), )
         # Return generated Batch
         return batch
+
+    #-----------------------------------------------------#
+    #                    Prepare Image                    #
+    #-----------------------------------------------------#
+    def prepare_image(self, index):
+        pass

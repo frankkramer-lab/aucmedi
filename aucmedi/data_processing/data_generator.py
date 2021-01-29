@@ -83,6 +83,11 @@ class DataGenerator(Iterator):
                  batch_size=32, resize=(224, 224), data_aug=None, shuffle=False,
                  grayscale=False, subfunctions=[], standardize_mode="tf",
                  prepare_images=False, sample_weights=None, seed=None):
+        # Sanity check if labels and sample weights are NumPy arrays
+        if labels is not None and not isinstance(labels, np.ndarray):
+            labels = np.asarray(labels)
+        if sample_weights is not None and not isinstance(sample_weights, np.ndarray):
+            sample_weights = np.asarray(sample_weights)
         # Cache class variables
         self.samples = samples
         self.path_imagedir = path_imagedir
@@ -128,36 +133,15 @@ class DataGenerator(Iterator):
 
         # Process image for each index
         for i in index_array:
-            # Load prepared image from disk
-            if self.prepare_images:
-                pass
-            # Preprocess image during runtime
-            else:
-                # Load image
-                img = image_loader(self.samples[i], self.path_imagedir,
-                                   image_format=self.image_format,
-                                   grayscale=self.grayscale)
-                # Apply subfunctions on image
-                for sf in self.subfunctions:
-                    img = sf.transform(img)
-                # Apply data augmentation on image if activated
-                if self.data_aug is not None:
-                    img = self.data_aug.apply(img)
-                # Apply resizing on image if activated
-                if self.sf_resize is not None:
-                    img = self.sf_resize.transform(img)
-                # Apply standardization on image if activated
-                if self.sf_standardize is not None:
-                    img = self.sf_standardize.transform(img)
-
             # Add preprocessed image to batch
-            batch_stack[0].append(img)
-            # Add classification to batch if available
-            if self.labels is not None:
-                batch_stack[1].append(self.labels[i])
-            # Add sample weight to batch if available
-            if self.sample_weights is not None:
-                batch_stack[2].append(self.sample_weights[i])
+            batch_stack[0].append(self.prepare_image(i))
+
+        # Add classification to batch if available
+        if self.labels is not None:
+            batch_stack[1].extend(self.labels[index_array])
+        # Add sample weight to batch if available
+        if self.sample_weights is not None:
+            batch_stack[2].extend(self.sample_weights[index_array])
 
         # Stack images together into a batch
         batch = (np.stack(batch_stack[0], axis=0), )
@@ -174,4 +158,26 @@ class DataGenerator(Iterator):
     #                    Prepare Image                    #
     #-----------------------------------------------------#
     def prepare_image(self, index):
-        pass
+        # Load prepared image from disk
+        if self.prepare_images:
+            pass
+        # Preprocess image during runtime
+        else:
+            # Load image
+            img = image_loader(self.samples[index], self.path_imagedir,
+                               image_format=self.image_format,
+                               grayscale=self.grayscale)
+            # Apply subfunctions on image
+            for sf in self.subfunctions:
+                img = sf.transform(img)
+            # Apply data augmentation on image if activated
+            if self.data_aug is not None:
+                img = self.data_aug.apply(img)
+            # Apply resizing on image if activated
+            if self.sf_resize is not None:
+                img = self.sf_resize.transform(img)
+            # Apply standardization on image if activated
+            if self.sf_standardize is not None:
+                img = self.sf_standardize.transform(img)
+        # Return preprocessed image
+        return img

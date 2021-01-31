@@ -22,6 +22,7 @@
 # External libraries
 from tensorflow.keras.preprocessing.image import Iterator
 import numpy as np
+import multiprocessing as mp
 # Internal libraries
 from aucmedi.data_processing.io_data import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
@@ -78,16 +79,13 @@ class DataGenerator(Iterator):
             prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
             sample_weights (List of Floats):List of weights for samples.
             seed (Integer):                 Seed to ensure reproducibility for random function.
+            workers (Integer):              Number of workers. If n_workers > 1 = use multi-processing for image preprocessing.
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), data_aug=None, shuffle=False,
                  grayscale=False, subfunctions=[], standardize_mode="tf",
-                 prepare_images=False, sample_weights=None, seed=None):
-        # Sanity check if labels and sample weights are NumPy arrays
-        if labels is not None and not isinstance(labels, np.ndarray):
-            labels = np.asarray(labels)
-        if sample_weights is not None and not isinstance(sample_weights, np.ndarray):
-            sample_weights = np.asarray(sample_weights)
+                 prepare_images=False, sample_weights=None, seed=None,
+                 workers=1):
         # Cache class variables
         self.samples = samples
         self.path_imagedir = path_imagedir
@@ -99,6 +97,7 @@ class DataGenerator(Iterator):
         self.grayscale = grayscale
         self.prepare_images = prepare_images
         self.sample_weights = sample_weights
+        self.workers = workers
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
             self.sf_standardize = Standardize(mode=standardize_mode)
@@ -114,6 +113,12 @@ class DataGenerator(Iterator):
         if sample_weights is not None and len(samples) != len(sample_weights):
             raise ValueError("Samples and sample weights do not have same size!",
                              len(samples), len(sample_weights))
+        # Verify that labels and sample weights are NumPy arrays
+        if labels is not None and not isinstance(labels, np.ndarray):
+            self.labels = np.asarray(self.labels)
+        if sample_weights is not None and not isinstance(sample_weights,
+                                                         np.ndarray):
+            self.sample_weights = np.asarray(self.sample_weights)
 
         # to-do: prepartion modus
 
@@ -131,10 +136,31 @@ class DataGenerator(Iterator):
         if self.labels is not None : batch_stack += ([],)
         if self.sample_weights is not None : batch_stack += ([],)
 
-        # Process image for each index
-        for i in index_array:
-            # Add preprocessed image to batch
-            batch_stack[0].append(self.prepare_image(i))
+
+        config = {}
+
+        # Process image for each index - Sequential
+        if self.workers == 1 or self.workers == 0:
+            for i in index_array:
+                batch_stack[0].append(prepare_image(config, i))
+        # Process image for each index - Multiprocessing
+        else:
+
+            from functools import partial
+            from itertools import repeat
+            from itertools import product
+            # from pathos.multiprocessing import ProcessingPool as Pool
+
+
+            with mp.Pool(self.workers) as pool:
+                # pool.starmap(DataGenerator.test_asd, zip(repeat(self), index_array))
+                # DataGenerator
+                test = partial(index_array, repeat(config))
+                print(test)
+                pool.starmap(prepare_image, test)
+            pool.close()
+            pool.join()
+            print(preprocessed_images)
 
         # Add classification to batch if available
         if self.labels is not None:
@@ -157,27 +183,52 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #                    Prepare Image                    #
     #-----------------------------------------------------#
-    def prepare_image(self, index):
-        # Load prepared image from disk
-        if self.prepare_images:
-            pass
-        # Preprocess image during runtime
-        else:
-            # Load image
-            img = image_loader(self.samples[index], self.path_imagedir,
-                               image_format=self.image_format,
-                               grayscale=self.grayscale)
-            # Apply subfunctions on image
-            for sf in self.subfunctions:
-                img = sf.transform(img)
-            # Apply data augmentation on image if activated
-            if self.data_aug is not None:
-                img = self.data_aug.apply(img)
-            # Apply resizing on image if activated
-            if self.sf_resize is not None:
-                img = self.sf_resize.transform(img)
-            # Apply standardization on image if activated
-            if self.sf_standardize is not None:
-                img = self.sf_standardize.transform(img)
-        # Return preprocessed image
-        return img
+    # def prepare_image(self, index):
+    #     # Load prepared image from disk
+    #     if self.prepare_images:
+    #         pass
+    #     # Preprocess image during runtime
+    #     else:
+    #         # Load image
+    #         img = image_loader(self.samples[index], self.path_imagedir,
+    #                            image_format=self.image_format,
+    #                            grayscale=self.grayscale)
+    #         # Apply subfunctions on image
+    #         for sf in self.subfunctions:
+    #             img = sf.transform(img)
+    #         # Apply data augmentation on image if activated
+    #         if self.data_aug is not None:
+    #             img = self.data_aug.apply(img)
+    #         # Apply resizing on image if activated
+    #         if self.sf_resize is not None:
+    #             img = self.sf_resize.transform(img)
+    #         # Apply standardization on image if activated
+    #         if self.sf_standardize is not None:
+    #             img = self.sf_standardize.transform(img)
+    #     # Return preprocessed image
+    #     return img
+
+def prepare_image(index, config):
+    # Load prepared image from disk
+    if self.prepare_images:
+        pass
+    # Preprocess image during runtime
+    else:
+        # Load image
+        img = image_loader(self.samples[index], self.path_imagedir,
+                           image_format=self.image_format,
+                           grayscale=self.grayscale)
+        # Apply subfunctions on image
+        for sf in self.subfunctions:
+            img = sf.transform(img)
+        # Apply data augmentation on image if activated
+        if self.data_aug is not None:
+            img = self.data_aug.apply(img)
+        # Apply resizing on image if activated
+        if self.sf_resize is not None:
+            img = self.sf_resize.transform(img)
+        # Apply standardization on image if activated
+        if self.sf_standardize is not None:
+            img = self.sf_standardize.transform(img)
+    # Return preprocessed image
+    return img

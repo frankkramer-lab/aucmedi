@@ -77,7 +77,7 @@ class DataGeneratorTEST(unittest.TestCase):
     #            Application Functionality            #
     #-------------------------------------------------#
     # Usage: Grayscale without Labels
-    def test_DATAGENERATOR_BASE_run_GRAYSCALE_noLabel(self):
+    def test_DATAGENERATOR_RUN_GRAYSCALE_noLabel(self):
         data_gen = DataGenerator(self.sampleList_gray, self.tmp_data.name,
                                  grayscale=True, batch_size=5)
         for i in range(0, 10):
@@ -86,7 +86,7 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 1)))
 
     # Usage: RGB without Labels
-    def test_DATAGENERATOR_BASE_run_RGB_noLabel(self):
+    def test_DATAGENERATOR_RUN_RGB_noLabel(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  grayscale=False, batch_size=5)
         for i in range(0, 10):
@@ -95,10 +95,22 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 3)))
 
     # Usage: With Labels
-    def test_DATAGENERATOR_BASE_run_withLabel(self):
+    def test_DATAGENERATOR_RUN_withLabel(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 2)
+            self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
+
+    #-------------------------------------------------#
+    #                 Multi-Processing                #
+    #-------------------------------------------------#
+    def test_DATAGENERATOR_MP(self):
+        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                 labels=self.labels_ohe,
+                                 grayscale=False, batch_size=5, workers=2)
         for i in range(0, 10):
             batch = next(data_gen)
             self.assertTrue(len(batch), 2)

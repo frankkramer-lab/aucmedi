@@ -45,7 +45,7 @@ Methods:
     __init__                Object creation function
     create_model:           Creating the DenseNet169 model for classification
 """
-class Architecture_DenseNet169(Abstract_Architecture):
+class Architecture_DenseNet169(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#

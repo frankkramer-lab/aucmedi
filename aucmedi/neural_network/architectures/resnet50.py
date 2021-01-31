@@ -42,7 +42,7 @@ from aucmedi.neural_network.architectures import Architecture_Base
 
 Methods:
     __init__                Object creation function
-    create_model_2D:        Creating the ResNet model for classification
+    create_model:           Creating the ResNet model for classification
 """
 class Architecture_ResNet50(Architecture_Base):
     #---------------------------------------------#

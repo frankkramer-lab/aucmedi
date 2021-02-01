@@ -206,12 +206,12 @@ def preprocess_image(index, config, prepared_batch=False):
         img = image_loader(config["samples"][index], config["path_imagedir"],
                            image_format=config["image_format"],
                            grayscale=config["grayscale"])
-        # Apply subfunctions on image
-        for sf in config["subfunctions"]:
-            img = sf.transform(img)
         # Apply data augmentation on image if activated
         if config["img_aug"] is not None:
             img = config["img_aug"].apply(img)
+        # Apply subfunctions on image
+        for sf in config["subfunctions"]:
+            img = sf.transform(img)
         # Apply resizing on image if activated
         if config["sf_resize"] is not None:
             img = config["sf_resize"].transform(img)

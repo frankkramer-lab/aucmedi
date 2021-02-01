@@ -24,7 +24,9 @@ from tensorflow.keras.preprocessing.image import Iterator
 import numpy as np
 import multiprocessing as mp
 from itertools import repeat
-# from functools import partial
+import tempfile
+import pickle
+import os
 # Internal libraries
 from aucmedi.data_processing.io_data import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
@@ -124,7 +126,15 @@ class DataGenerator(Iterator):
                                                          np.ndarray):
             self.sample_weights = np.asarray(self.sample_weights)
 
-        # to-do: prepartion modus
+        # Preprocess images beforehand and store them to disk
+        self.tmp_data = tempfile.TemporaryDirectory(prefix="aucmedi.tmp.",
+                                                    suffix=".data")
+        for i in samples:
+            preproc_img = preprocess_image(index=i, config=self.params,
+                                           prepared_batch=False)
+            path_img = os.path.join(self.tmp_data.name, "img_" + str(i))
+            with open(path_img + ".pickle", "wb") as pickle_writer:
+                pickle.dump(preproc_img, pickle_writer)
 
         # Pass initialization parameters to parent Iterator class
         size = len(samples)
@@ -175,10 +185,18 @@ class DataGenerator(Iterator):
 #-----------------------------------------------------#
 #                 Image Preprocessing                 #
 #-----------------------------------------------------#
+"""Preprocessing function for applying subfunctions, augmentation, resizing and standardization
+   on an image given its index and the associated config parameters.
+
+   The corresponding parameter config dictionary is automatically created by the DataGenerator class
+   and is stored as the class variable 'params'.
+"""
 def preprocess_image(index, config, prepared_batch=False):
     # Load prepared image from disk
     if prepared_batch:
-        pass
+        path_img = os.path.join(self.tmp_data.name, "img_" + str(index))
+        with open(path_img + ".pickle", "rb") as pickle_loader:
+            img = pickle.load(pickle_loader)
     # Preprocess image during runtime
     else:
         # Load image

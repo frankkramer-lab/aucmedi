@@ -26,10 +26,10 @@ import numpy as np
 from aucmedi import Image_Augmentation
 
 #-----------------------------------------------------#
-#             Unittest: Data Augmentation             #
+#             Unittest: Image Augmentation            #
 #-----------------------------------------------------#
 class AugmentationTEST(unittest.TestCase):
-    # Create random imaging and segmentation data
+    # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
@@ -44,12 +44,12 @@ class AugmentationTEST(unittest.TestCase):
     #                Base Functionality               #
     #-------------------------------------------------#
     # Class Creation
-    def test_AUGMENTATION_BASE_create(self):
+    def test_BASE_create(self):
         data_aug = Image_Augmentation()
         self.assertIsInstance(data_aug, Image_Augmentation)
 
     # Application
-    def test_AUGMENTATION_BASE_application(self):
+    def test_BASE_application(self):
         data_aug = Image_Augmentation()
         img_augGRAY = data_aug.apply(self.imgGRAY)
         img_augRGB= data_aug.apply(self.imgRGB)
@@ -57,7 +57,7 @@ class AugmentationTEST(unittest.TestCase):
         self.assertFalse(np.array_equal(img_augRGB, self.imgRGB))
 
     # Rebuild Augmentation Operator
-    def test_AUGMENTATION_BASE_rebuild(self):
+    def test_BASE_rebuild(self):
         data_aug = Image_Augmentation(flip=False, rotate=False,
                      brightness=False, contrast=False, saturation=False,
                      hue=False, scale=False, crop=False, grid_distortion=False,

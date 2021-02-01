@@ -33,7 +33,7 @@ from aucmedi import DataGenerator
 #             Unittest: Data Augmentation             #
 #-----------------------------------------------------#
 class DataGeneratorTEST(unittest.TestCase):
-    # Create random imaging and segmentation data
+    # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
@@ -70,7 +70,7 @@ class DataGeneratorTEST(unittest.TestCase):
     #           Initialization Functionality          #
     #-------------------------------------------------#
     # Class Creation
-    def test_DATAGENERATOR_BASE_create(self):
+    def test_BASE_create(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name)
         self.assertIsInstance(data_gen, DataGenerator)
 
@@ -78,7 +78,7 @@ class DataGeneratorTEST(unittest.TestCase):
     #            Application Functionality            #
     #-------------------------------------------------#
     # Usage: Grayscale without Labels
-    def test_DATAGENERATOR_RUN_GRAYSCALE_noLabel(self):
+    def test_RUN_GRAYSCALE_noLabel(self):
         data_gen = DataGenerator(self.sampleList_gray, self.tmp_data.name,
                                  grayscale=True, batch_size=5)
         for i in range(0, 10):
@@ -87,7 +87,7 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 1)))
 
     # Usage: RGB without Labels
-    def test_DATAGENERATOR_RUN_RGB_noLabel(self):
+    def test_RUN_RGB_noLabel(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  grayscale=False, batch_size=5)
         for i in range(0, 10):
@@ -96,7 +96,7 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 3)))
 
     # Usage: With Labels
-    def test_DATAGENERATOR_RUN_withLabel(self):
+    def test_RUN_withLabel(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5)
@@ -108,7 +108,7 @@ class DataGeneratorTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                 Multi-Processing                #
     #-------------------------------------------------#
-    def test_DATAGENERATOR_MP(self):
+    def test_MP(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5, workers=5)
@@ -120,7 +120,7 @@ class DataGeneratorTEST(unittest.TestCase):
     #-------------------------------------------------#
     #             Beforehand Preprocessing            #
     #-------------------------------------------------#
-    def test_DATAGENERATOR_PrepareImages(self):
+    def test_PrepareImages(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  labels=self.labels_ohe, prepare_images=True,
                                  grayscale=False, batch_size=5)

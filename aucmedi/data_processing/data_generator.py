@@ -70,7 +70,7 @@ class DataGenerator(Iterator):
             image_format (String):          Image format to add at the end of the sample index for image loading.
             batch_size (Integer):           Number of samples inside a single batch.
             resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
-            data_aug (DataAugmentation):    Data Augmentation class instance which performs diverse data augmentation techniques.
+            img_aug (ImageAugmentation):    Image Augmentation class instance which performs diverse data augmentation techniques.
             shuffle (Boolean):              Boolean, whether dataset should be shuffled.
             grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
             subfunctions (List of Subfunctions):
@@ -82,7 +82,7 @@ class DataGenerator(Iterator):
             workers (Integer):              Number of workers. If n_workers > 1 = use multi-processing for image preprocessing.
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
-                 batch_size=32, resize=(224, 224), data_aug=None, shuffle=False,
+                 batch_size=32, resize=(224, 224), img_aug=None, shuffle=False,
                  grayscale=False, subfunctions=[], standardize_mode="tf",
                  prepare_images=False, sample_weights=None, seed=None,
                  workers=1):
@@ -92,7 +92,7 @@ class DataGenerator(Iterator):
         self.labels = labels
         self.image_format = image_format
         self.resize = resize
-        self.data_aug = data_aug
+        self.img_aug = img_aug
         self.subfunctions = subfunctions
         self.grayscale = grayscale
         self.prepare_images = prepare_images
@@ -136,8 +136,20 @@ class DataGenerator(Iterator):
         if self.labels is not None : batch_stack += ([],)
         if self.sample_weights is not None : batch_stack += ([],)
 
-
-        config = {}
+# samples
+# path_imagedir
+# image_format
+# grayscale
+# subfunctions
+# data_aug
+# sf_resize
+# sf_standardize
+        self.params = {"samples": self.samples,
+                       "path_imagedir": self.path_imagedir,
+                       "image_format": self.image_format,
+                       "grayscale": self.grayscale,
+                       "subfunctions": self.subfunctions,
+                       "data_aug": }
 
         # Process image for each index - Sequential
         if self.workers == 1 or self.workers == 0:
@@ -222,8 +234,8 @@ def prepare_image(index, config):
         for sf in self.subfunctions:
             img = sf.transform(img)
         # Apply data augmentation on image if activated
-        if self.data_aug is not None:
-            img = self.data_aug.apply(img)
+        if self.img_aug is not None:
+            img = self.img_aug.apply(img)
         # Apply resizing on image if activated
         if self.sf_resize is not None:
             img = self.sf_resize.transform(img)

@@ -34,10 +34,10 @@ class SubfunctionsTEST(unittest.TestCase):
     def setUpClass(self):
         np.random.seed(1234)
         # Create Grayscale data
-        img_gray = np.random.rand(16, 16, 1) * 255
+        img_gray = np.random.rand(16, 24, 1) * 255
         self.imgGRAY = np.int8(img_gray)
         # Create RGB data
-        img_rgb = np.random.rand(16, 16, 3) * 255
+        img_rgb = np.random.rand(16, 24, 3) * 255
         self.imgRGB = np.int8(img_rgb)
 
     #-------------------------------------------------#
@@ -55,6 +55,9 @@ class SubfunctionsTEST(unittest.TestCase):
         sf = Padding(shape=(8, 32), mode="constant")
         img_ppRGB = sf.transform(self.imgRGB.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (16, 32, 3)))
+        sf = Padding(mode="square")
+        img_ppRGB = sf.transform(self.imgRGB.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (24, 24, 3)))
 
     #-------------------------------------------------#
     #               Subfunction: Resize               #

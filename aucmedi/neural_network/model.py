@@ -106,7 +106,7 @@ class Neural_Network:
     #               Class Variables               #
     #---------------------------------------------#
     # Transfer Learning configurations
-    tf_epochs = 3
+    tf_epochs = 5
     tf_lr_start = 1e-4
     tf_lr_end = 1e-5
 

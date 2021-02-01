@@ -24,7 +24,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 # Internal libraries/scripts
-from aucmedi.neural_network.architectures import architecture_dict, Vanilla
+from aucmedi.neural_network.architectures import architecture_dict, Architecture_Vanilla
 
 #-----------------------------------------------------#
 #            Neural Network (model) class             #
@@ -80,7 +80,7 @@ class Neural_Network:
         if input_shape is not None : arch_paras["input_shape"] = input_shape
         # Initialize architecture if None provided
         if architecture is None:
-            self.architecture = Vanilla(**arch_paras)
+            self.architecture = Architecture_Vanilla(**arch_paras)
         # Initialize passed architecture from aucmedi library
         elif isinstance(architecture, str) and architecture in architecture_dict:
             self.architecture = architecture_dict[architecture](**arch_paras)

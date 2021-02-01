@@ -126,15 +126,18 @@ class DataGenerator(Iterator):
                                                          np.ndarray):
             self.sample_weights = np.asarray(self.sample_weights)
 
-        # Preprocess images beforehand and store them to disk
-        self.tmp_data = tempfile.TemporaryDirectory(prefix="aucmedi.tmp.",
-                                                    suffix=".data")
-        for i in samples:
-            preproc_img = preprocess_image(index=i, config=self.params,
-                                           prepared_batch=False)
-            path_img = os.path.join(self.tmp_data.name, "img_" + str(i))
-            with open(path_img + ".pickle", "wb") as pickle_writer:
-                pickle.dump(preproc_img, pickle_writer)
+        # If prepare_image modus activated
+        # -> Preprocess images beforehand and store them to disk for fast usage later
+        if self.prepare_images:
+            tmp_dir = tempfile.mkdtemp(prefix="aucmedi.tmp.", suffix=".data")
+            self.params["prepare_dir"] = tmp_dir
+            for i in range(0, len(samples)):
+                preproc_img = preprocess_image(index=i, config=self.params,
+                                               prepared_batch=False)
+                path_img = os.path.join(tmp_dir, "img_" + str(i))
+                with open(path_img + ".pickle", "wb") as pickle_writer:
+                    pickle.dump(preproc_img, pickle_writer)
+            print("A directory for image preparation was created:", tmp_dir)
 
         # Pass initialization parameters to parent Iterator class
         size = len(samples)
@@ -194,7 +197,7 @@ class DataGenerator(Iterator):
 def preprocess_image(index, config, prepared_batch=False):
     # Load prepared image from disk
     if prepared_batch:
-        path_img = os.path.join(self.tmp_data.name, "img_" + str(index))
+        path_img = os.path.join(config["prepare_dir"], "img_" + str(index))
         with open(path_img + ".pickle", "rb") as pickle_loader:
             img = pickle.load(pickle_loader)
     # Preprocess image during runtime

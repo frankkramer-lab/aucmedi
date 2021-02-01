@@ -23,6 +23,8 @@
 from tensorflow.keras.preprocessing.image import Iterator
 import numpy as np
 import multiprocessing as mp
+from itertools import repeat
+# from functools import partial
 # Internal libraries
 from aucmedi.data_processing.io_data import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
@@ -146,23 +148,11 @@ class DataGenerator(Iterator):
                 batch_stack[0].append(batch_img)
         # Process image for each index - Multiprocessing
         else:
-            pass
-            #
-            # from functools import partial
-            # from itertools import repeat
-            # from itertools import product
-            # # from pathos.multiprocessing import ProcessingPool as Pool
-            #
-            #
-            # with mp.Pool(self.workers) as pool:
-            #     # pool.starmap(DataGenerator.test_asd, zip(repeat(self), index_array))
-            #     # DataGenerator
-            #     test = partial(index_array, repeat(config))
-            #     print(test)
-            #     pool.starmap(prepare_image, test)
-            # pool.close()
-            # pool.join()
-            # print(preprocessed_images)
+            with mp.Pool(self.workers) as pool:
+                mp_params = zip(index_array, repeat(self.params),
+                                repeat(self.prepare_images))
+                batches_img = pool.starmap(preprocess_image, mp_params)
+            batch_stack[0].extend(batches_img)
 
         # Add classification to batch if available
         if self.labels is not None:

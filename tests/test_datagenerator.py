@@ -110,7 +110,7 @@ class DataGeneratorTEST(unittest.TestCase):
     def test_DATAGENERATOR_MP(self):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  labels=self.labels_ohe,
-                                 grayscale=False, batch_size=5, workers=2)
+                                 grayscale=False, batch_size=5, workers=5)
         for i in range(0, 10):
             batch = next(data_gen)
             self.assertTrue(len(batch), 2)

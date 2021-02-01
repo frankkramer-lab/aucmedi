@@ -24,11 +24,20 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #-----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.vanilla import Architecture_Vanilla
-# ResNet
-from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
 # DenseNet
 from aucmedi.neural_network.architectures.densenet121 import Architecture_DenseNet121
 from aucmedi.neural_network.architectures.densenet169 import Architecture_DenseNet169
+# EfficientNet
+# from aucmedi.neural_network.architectures.efficientnetb0 import Architecture_EfficientNetB0
+# from aucmedi.neural_network.architectures.efficientnetb1 import Architecture_EfficientNetB1
+from aucmedi.neural_network.architectures.efficientnetb2 import Architecture_EfficientNetB2
+# from aucmedi.neural_network.architectures.efficientnetb3 import Architecture_EfficientNetB3
+# from aucmedi.neural_network.architectures.efficientnetb4 import Architecture_EfficientNetB4
+# from aucmedi.neural_network.architectures.efficientnetb5 import Architecture_EfficientNetB5
+# from aucmedi.neural_network.architectures.efficientnetb6 import Architecture_EfficientNetB6
+# from aucmedi.neural_network.architectures.efficientnetb7 import Architecture_EfficientNetB7
+# ResNet
+from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -37,7 +46,8 @@ from aucmedi.neural_network.architectures.densenet169 import Architecture_DenseN
 architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "ResNet50": Architecture_ResNet50,
                      "DenseNet121": Architecture_DenseNet121,
-                     "DenseNet169": Architecture_DenseNet169
+                     "DenseNet169": Architecture_DenseNet169,
+                     "EfficientNetB2": Architecture_EfficientNetB2
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -49,5 +59,6 @@ architectures = list(architecture_dict.keys())
 supported_standardize_mode = {"Vanilla": "tf",
                               "ResNet50": "caffe",
                               "DenseNet121": "torch",
-                              "DenseNet169": "torch"
+                              "DenseNet169": "torch",
+                              "EfficientNetB2": "caffe"
 }

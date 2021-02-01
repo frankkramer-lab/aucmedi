@@ -148,3 +148,21 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB2          #
+    #-------------------------------------------------#
+    def test_EfficientNetB2(self):
+        arch = Architecture_EfficientNetB2(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB2(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB2",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB2"] == "caffe")

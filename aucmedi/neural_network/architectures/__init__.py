@@ -23,7 +23,7 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #                    Architectures                    #
 #-----------------------------------------------------#
 # Vanilla Classifier
-from aucmedi.neural_network.architectures.vanilla import Vanilla
+from aucmedi.neural_network.architectures.vanilla import Architecture_Vanilla
 # ResNet
 from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
 # DenseNet
@@ -34,7 +34,7 @@ from aucmedi.neural_network.architectures.densenet169 import Architecture_DenseN
 #       Access Functions to Architecture Classes      #
 #-----------------------------------------------------#
 # Architecture Dictionary
-architecture_dict = {"Vanilla": Vanilla,
+architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "ResNet50": Architecture_ResNet50,
                      "DenseNet121": Architecture_DenseNet121,
                      "DenseNet169": Architecture_DenseNet169

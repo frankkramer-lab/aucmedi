@@ -38,7 +38,7 @@ Methods:
     __init__                Object creation function
     create_model:           Creating a Keras model
 """
-class Vanilla(Architecture_Base):
+class Architecture_Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                   __init__                  #
     #---------------------------------------------#

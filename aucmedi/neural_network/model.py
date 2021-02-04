@@ -54,14 +54,15 @@ class Neural_Network:
         fcl_dropout (Boolean):                  Option whether to utilize a Dense & Dropout layer in the last classification layer.
         learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
         batch_queue_size (integer):             The batch queue size is the number of previously prepared batches in the cache during runtime.
-        Number of workers (integer):            Number of workers/threads which preprocess batches during runtime.
+        workers (integer):                      Number of workers/threads which preprocess batches during runtime.
+        multiprocessing (boolean):              Option whether to utilize multi-processing for workers instead of threading .
         verbose (integer):                      Option (0/1) how much information should be written to stdout.
     """
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
                  fcl_dropout=True, learninig_rate=0.001, batch_queue_size=10,
-                 workers=1, verbose=1):
+                 workers=1, multiprocessing=False, verbose=1):
         # Cache parameters
         self.n_labels = n_labels
         self.channels = channels
@@ -70,6 +71,7 @@ class Neural_Network:
         self.learninig_rate = learninig_rate
         self.batch_queue_size = batch_queue_size
         self.workers = workers
+        self.multiprocessing = multiprocessing
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
@@ -149,6 +151,7 @@ class Neural_Network:
                                      steps_per_epoch=iterations,
                                      class_weight=class_weights,
                                      workers=self.workers,
+                                     use_multiprocessing=self.multiprocessing,
                                      max_queue_size=self.batch_queue_size,
                                      verbose=self.verbose)
             # Return logged history object
@@ -172,6 +175,7 @@ class Neural_Network:
                                            steps_per_epoch=iterations,
                                            class_weight=class_weights,
                                            workers=self.workers,
+                                           use_multiprocessing=self.multiprocessing,
                                            max_queue_size=self.batch_queue_size,
                                            verbose=self.verbose)
             # Unfreeze base model layers again
@@ -191,6 +195,7 @@ class Neural_Network:
                                          steps_per_epoch=iterations,
                                          class_weight=class_weights,
                                          workers=self.workers,
+                                         use_multiprocessing=self.multiprocessing,
                                          max_queue_size=self.batch_queue_size,
                                          verbose=self.verbose)
             # Return logged history objects
@@ -209,6 +214,7 @@ class Neural_Network:
         # Run inference process with the Keras predict function
         preds = self.model.predict(prediction_generator, workers=self.workers,
                                    max_queue_size=self.batch_queue_size,
+                                   use_multiprocessing=self.multiprocessing,
                                    verbose=self.verbose)
         # Output predictions results
         return preds

@@ -28,7 +28,12 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #              Subfunction class: Resize              #
 #-----------------------------------------------------#
-""" A Resize Subfunction class which resizes an images according to a desired shape.
+""" DEPRECATED: Use aucmedi/data_processing/subfunctions/resize.py
+    It uses albumentations which is way faster than skimage. (also bi-linear interpolation)
+    Experiment: https://github.com/muellerdo/aucmedi/issues/13
+
+
+    A Resize Subfunction class which resizes an images according to a desired shape.
 
     Shape have to be defined as tuple with x and y size:
     Resize(shape=(224, 224))

@@ -20,8 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from albumentations import Compose
-from albumentations import Resize as aug_resize
+from skimage.transform import resize
+from skimage import img_as_ubyte
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
@@ -33,8 +33,8 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
     Shape have to be defined as tuple with x and y size:
     Resize(shape=(224, 224))
 
-    Resizing is done via albumentations resize transform which uses bi-linear interpolation by default.
-    https://albumentations.ai/docs/api_reference/augmentations/geometric/resize/
+    Resizing is done via skimage resize transform which uses bi-linear interpolation.
+    https://scikit-image.org/docs/dev/api/skimage.transform.html#skimage.transform.resize
 
 Methods:
     __init__                Object creation function
@@ -45,17 +45,15 @@ class Resize(Subfunction_Base):
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, shape=(224, 224)):
-        # Initialize resizing transform
         self.shape = shape
-        self.aug_transform = Compose([aug_resize(width=shape[0],
-                                                 height=shape[1],
-                                                 p=1.0, always_apply=True)])
 
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#
     def transform(self, image):
         # Perform resizing into desired shape
-        image_resized = self.aug_transform(image=image)["image"]
+        image_resized = resize(image, self.shape)
+        # Transform image intensity values from [0,1] back to [0,255]
+        image_resized = img_as_ubyte(image_resized)
         # Return resized image
         return image_resized

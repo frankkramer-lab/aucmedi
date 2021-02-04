@@ -35,10 +35,10 @@ class SubfunctionsTEST(unittest.TestCase):
         np.random.seed(1234)
         # Create Grayscale data
         img_gray = np.random.rand(16, 24, 1) * 255
-        self.imgGRAY = np.int8(img_gray)
+        self.imgGRAY = np.float32(img_gray)
         # Create RGB data
         img_rgb = np.random.rand(16, 24, 3) * 255
-        self.imgRGB = np.int8(img_rgb)
+        self.imgRGB = np.float32(img_rgb)
 
     #-------------------------------------------------#
     #              Subfunction: Padding               #
@@ -86,11 +86,11 @@ class SubfunctionsTEST(unittest.TestCase):
     def test_STANDARDIZE_transform(self):
         sf = Standardize(mode="tf")
         img_ppGRAY = sf.transform(self.imgGRAY.copy())
-        self.assertTrue(np.amin(img_ppGRAY) < -1)
-        self.assertTrue(np.amax(img_ppGRAY) > -1)
+        self.assertTrue(np.amin(img_ppGRAY) < 0)
+        self.assertTrue(np.amax(img_ppGRAY) > 0)
         img_ppRGB = sf.transform(self.imgRGB.copy())
-        self.assertTrue(np.amin(img_ppRGB) < -1)
-        self.assertTrue(np.amax(img_ppRGB) > -1)
+        self.assertTrue(np.amin(img_ppRGB) < 0)
+        self.assertTrue(np.amax(img_ppRGB) > 0)
         sf = Standardize(mode="caffe")
         img_ppRGB = sf.transform(self.imgRGB.copy())
         self.assertTrue(np.amin(img_ppRGB) < 0)

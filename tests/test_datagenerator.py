@@ -124,10 +124,10 @@ class DataGeneratorTEST(unittest.TestCase):
         data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
                                  labels=self.labels_ohe, prepare_images=True,
                                  grayscale=False, batch_size=5)
-        precprocessed_images = os.listdir(data_gen.params["prepare_dir"])
+        precprocessed_images = os.listdir(data_gen.prepare_dir)
         self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb))
         for i in range(0, 10):
             batch = next(data_gen)
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
-        shutil.rmtree(data_gen.params["prepare_dir"])
+        shutil.rmtree(data_gen.prepare_dir)

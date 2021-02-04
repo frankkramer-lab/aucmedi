@@ -22,7 +22,7 @@
 # External libraries
 from tensorflow.keras.preprocessing.image import Iterator
 import numpy as np
-import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 from itertools import repeat
 import tempfile
 import pickle
@@ -83,7 +83,7 @@ class DataGenerator(Iterator):
             prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
             sample_weights (List of Floats):List of weights for samples.
             seed (Integer):                 Seed to ensure reproducibility for random function.
-            workers (Integer):              Number of workers. If n_workers > 1 = use multi-processing for image preprocessing.
+            workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), img_aug=None, shuffle=False,
@@ -95,22 +95,19 @@ class DataGenerator(Iterator):
         self.sample_weights = sample_weights
         self.prepare_images = prepare_images
         self.workers = workers
+        self.samples = samples
+        self.path_imagedir = path_imagedir
+        self.image_format = image_format
+        self.grayscale = grayscale
+        self.subfunctions = subfunctions
+        self.img_aug = img_aug
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
-            sf_standardize = Standardize(mode=standardize_mode)
-        else : sf_standardize = None
+            self.sf_standardize = Standardize(mode=standardize_mode)
+        else : self.sf_standardize = None
         # Initialize Resizing Subfunction
-        if resize is not None : sf_resize = Resize(shape=resize)
-        else : sf_resize = None
-        # Initialize parameter dictionary for image preprocessing
-        self.params = {"samples": samples,
-                       "path_imagedir": path_imagedir,
-                       "image_format": image_format,
-                       "grayscale": grayscale,
-                       "subfunctions": subfunctions,
-                       "img_aug": img_aug,
-                       "sf_resize": sf_resize,
-                       "sf_standardize": sf_standardize}
+        if resize is not None : self.sf_resize = Resize(shape=resize)
+        else : self.sf_resize = None
         # Sanity check for label correctness
         if labels is not None and len(samples) != len(labels):
             raise ValueError("Samples and labels do not have same size!",
@@ -130,10 +127,10 @@ class DataGenerator(Iterator):
         # -> Preprocess images beforehand and store them to disk for fast usage later
         if self.prepare_images:
             tmp_dir = tempfile.mkdtemp(prefix="aucmedi.tmp.", suffix=".data")
-            self.params["prepare_dir"] = tmp_dir
+            self.prepare_dir = tmp_dir
             for i in range(0, len(samples)):
-                preproc_img = preprocess_image(index=i, config=self.params,
-                                               prepared_batch=False)
+                preproc_img = self.preprocess_image(index=i,
+                                                    prepared_batch=False)
                 path_img = os.path.join(tmp_dir, "img_" + str(i))
                 with open(path_img + ".pickle", "wb") as pickle_writer:
                     pickle.dump(preproc_img, pickle_writer)
@@ -154,17 +151,16 @@ class DataGenerator(Iterator):
         if self.sample_weights is not None : batch_stack += ([],)
 
         # Process image for each index - Sequential
-        if self.workers == 1 or self.workers == 0:
+        if self.workers == 0 or self.workers == 1:
             for i in index_array:
-                batch_img = preprocess_image(index=i, config=self.params,
-                                             prepared_batch=self.prepare_images)
+                batch_img = self.preprocess_image(index=i,
+                                                  prepared_batch=self.prepare_images)
                 batch_stack[0].append(batch_img)
-        # Process image for each index - Multiprocessing
+        # Process image for each index - Multi-threading
         else:
-            with mp.Pool(self.workers) as pool:
-                mp_params = zip(index_array, repeat(self.params),
-                                repeat(self.prepare_images))
-                batches_img = pool.starmap(preprocess_image, mp_params)
+            with ThreadPool(self.workers) as pool:
+                mp_params = zip(index_array, repeat(self.prepare_images))
+                batches_img = pool.starmap(self.preprocess_image, mp_params)
             batch_stack[0].extend(batches_img)
 
         # Add classification to batch if available
@@ -185,38 +181,37 @@ class DataGenerator(Iterator):
         # Return generated Batch
         return batch
 
-#-----------------------------------------------------#
-#                 Image Preprocessing                 #
-#-----------------------------------------------------#
-"""Preprocessing function for applying subfunctions, augmentation, resizing and standardization
-   on an image given its index and the associated config parameters.
+    #-----------------------------------------------------#
+    #                 Image Preprocessing                 #
+    #-----------------------------------------------------#
+    """Preprocessing function for applying subfunctions, augmentation, resizing and standardization
+       on an image given its index.
 
-   The corresponding parameter config dictionary is automatically created by the DataGenerator class
-   and is stored as the class variable 'params'.
-"""
-def preprocess_image(index, config, prepared_batch=False):
-    # Load prepared image from disk
-    if prepared_batch:
-        path_img = os.path.join(config["prepare_dir"], "img_" + str(index))
-        with open(path_img + ".pickle", "rb") as pickle_loader:
-            img = pickle.load(pickle_loader)
-    # Preprocess image during runtime
-    else:
-        # Load image
-        img = image_loader(config["samples"][index], config["path_imagedir"],
-                           image_format=config["image_format"],
-                           grayscale=config["grayscale"])
-        # Apply data augmentation on image if activated
-        if config["img_aug"] is not None:
-            img = config["img_aug"].apply(img)
-        # Apply subfunctions on image
-        for sf in config["subfunctions"]:
-            img = sf.transform(img)
-        # Apply resizing on image if activated
-        if config["sf_resize"] is not None:
-            img = config["sf_resize"].transform(img)
-        # Apply standardization on image if activated
-        if config["sf_standardize"] is not None:
-            img = config["sf_standardize"].transform(img)
-    # Return preprocessed image
-    return img
+       Activating the prepared_batch option also allows loading a beforehand preprocessed image from disk.
+    """
+    def preprocess_image(self, index, prepared_batch=False):
+        # Load prepared image from disk
+        if prepared_batch:
+            path_img = os.path.join(self.prepare_dir, "img_" + str(index))
+            with open(path_img + ".pickle", "rb") as pickle_loader:
+                img = pickle.load(pickle_loader)
+        # Preprocess image during runtime
+        else:
+            # Load image
+            img = image_loader(self.samples[index], self.path_imagedir,
+                               image_format=self.image_format,
+                               grayscale=self.grayscale)
+            # Apply image augmentation on image if activated
+            if self.img_aug is not None:
+                img = self.img_aug.apply(img)
+            # Apply subfunctions on image
+            for sf in self.subfunctions:
+                img = sf.transform(img)
+            # Apply resizing on image if activated
+            if self.sf_resize is not None:
+                img = self.sf_resize.transform(img)
+            # Apply standardization on image if activated
+            if self.sf_standardize is not None:
+                img = self.sf_standardize.transform(img)
+        # Return preprocessed image
+        return img

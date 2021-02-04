@@ -61,7 +61,7 @@ class Neural_Network:
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
-                 fcl_dropout=True, learninig_rate=0.001, batch_queue_size=10,
+                 fcl_dropout=True, learninig_rate=0.0001, batch_queue_size=10,
                  workers=1, multiprocessing=False, verbose=1):
         # Cache parameters
         self.n_labels = n_labels

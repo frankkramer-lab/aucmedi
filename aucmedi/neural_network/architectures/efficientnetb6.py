@@ -32,12 +32,12 @@
 # External libraries
 from tensorflow.keras.models import Model
 import tensorflow.keras.layers as layers
-from tensorflow.keras.applications import EfficientNetB2
+from tensorflow.keras.applications import EfficientNetB6
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
-#          Architecture class: EfficientNetB2         #
+#          Architecture class: EfficientNetB6         #
 #-----------------------------------------------------#
 """ The classification variant of the EfficientNet architecture.
 
@@ -45,7 +45,7 @@ Methods:
     __init__                Object creation function
     create_model:           Creating the EfficientNet model for classification
 """
-class Architecture_EfficientNetB2(Architecture_Base):
+class Architecture_EfficientNetB6(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -62,7 +62,7 @@ class Architecture_EfficientNetB2(Architecture_Base):
         else : model_weights = None
 
         # Obtain EfficientNet as base model
-        base_model = EfficientNetB2(include_top=False, weights=model_weights,
+        base_model = EfficientNetB6(include_top=False, weights=model_weights,
                                     input_tensor=None, input_shape=self.input,
                                     pooling=None)
         top_model = base_model.output

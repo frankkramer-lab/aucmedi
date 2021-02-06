@@ -150,6 +150,60 @@ class ArchitecturesTEST(unittest.TestCase):
         self.assertTrue(supported_standardize_mode["ResNet152"] == "caffe")
 
     #-------------------------------------------------#
+    #             Architecture: ResNet50V2            #
+    #-------------------------------------------------#
+    def test_ResNet50V2(self):
+        arch = Architecture_ResNet50V2(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNet50V2(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet50V2",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet50V2"] == "tf")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNet101V2           #
+    #-------------------------------------------------#
+    def test_ResNet101V2(self):
+        arch = Architecture_ResNet101V2(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNet101V2(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet101V2",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet101V2"] == "tf")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNet152V2           #
+    #-------------------------------------------------#
+    def test_ResNet152V2(self):
+        arch = Architecture_ResNet152V2(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNet152V2(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet152V2",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet152V2"] == "tf")
+
+    #-------------------------------------------------#
     #            Architecture: DenseNet121            #
     #-------------------------------------------------#
     def test_DenseNet121(self):

@@ -438,6 +438,42 @@ class ArchitecturesTEST(unittest.TestCase):
         self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")
 
     #-------------------------------------------------#
+    #           Architecture: NASNetMobile            #
+    #-------------------------------------------------#
+    def test_NASNetMobile(self):
+        arch = Architecture_NASNetMobile(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_NASNetMobile(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="NASNetMobile",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["NASNetMobile"] == "tf")
+
+    #-------------------------------------------------#
+    #            Architecture: NASNetLarge            #
+    #-------------------------------------------------#
+    def test_NASNetLarge(self):
+        arch = Architecture_NASNetLarge(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_NASNetLarge(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="NASNetLarge",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["NASNetLarge"] == "tf")
+
+    #-------------------------------------------------#
     #         Architecture: InceptionResNetV2         #
     #-------------------------------------------------#
     def test_InceptionResNetV2(self):

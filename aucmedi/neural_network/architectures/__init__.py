@@ -52,6 +52,9 @@ from aucmedi.neural_network.architectures.resnet152v2 import Architecture_ResNet
 # MobileNet
 from aucmedi.neural_network.architectures.mobilenet import Architecture_MobileNet
 from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_MobileNetV2
+# NasNet
+from aucmedi.neural_network.architectures.nasnetlarge import Architecture_NASNetLarge
+from aucmedi.neural_network.architectures.nasnetmobile import Architecture_NASNetMobile
 # VGG
 from aucmedi.neural_network.architectures.vgg16 import Architecture_VGG16
 from aucmedi.neural_network.architectures.vgg19 import Architecture_VGG19
@@ -85,6 +88,8 @@ architecture_dict = {
     "InceptionV3": Architecture_InceptionV3,
     "MobileNet": Architecture_MobileNet,
     "MobileNetV2": Architecture_MobileNetV2,
+    "NASNetMobile": Architecture_NASNetMobile,
+    "NASNetLarge": Architecture_NASNetLarge,
     "VGG16": Architecture_VGG16,
     "VGG19": Architecture_VGG19,
     "Xception": Architecture_Xception
@@ -119,6 +124,8 @@ supported_standardize_mode = {
     "InceptionV3": "tf",
     "MobileNet": "tf",
     "MobileNetV2": "tf",
+    "NASNetMobile": "tf",
+    "NASNetLarge": "tf",
     "VGG16": "caffe",
     "VGG19": "caffe",
     "Xception": "tf"

@@ -18,6 +18,7 @@ setup(
    packages=find_packages(),
    python_requires='>=3.6',
    install_requires=['tensorflow>=2.3.0',
+                     'keras-applications==1.0.8',
                      'numpy>=1.18.5',
                      'pillow==7.2.0',
                      'albumentations>=0.5.2',

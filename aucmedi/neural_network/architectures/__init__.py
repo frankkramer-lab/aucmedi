@@ -28,14 +28,14 @@ from aucmedi.neural_network.architectures.vanilla import Architecture_Vanilla
 from aucmedi.neural_network.architectures.densenet121 import Architecture_DenseNet121
 from aucmedi.neural_network.architectures.densenet169 import Architecture_DenseNet169
 # EfficientNet
-# from aucmedi.neural_network.architectures.efficientnetb0 import Architecture_EfficientNetB0
-# from aucmedi.neural_network.architectures.efficientnetb1 import Architecture_EfficientNetB1
+from aucmedi.neural_network.architectures.efficientnetb0 import Architecture_EfficientNetB0
+from aucmedi.neural_network.architectures.efficientnetb1 import Architecture_EfficientNetB1
 from aucmedi.neural_network.architectures.efficientnetb2 import Architecture_EfficientNetB2
-# from aucmedi.neural_network.architectures.efficientnetb3 import Architecture_EfficientNetB3
-# from aucmedi.neural_network.architectures.efficientnetb4 import Architecture_EfficientNetB4
-# from aucmedi.neural_network.architectures.efficientnetb5 import Architecture_EfficientNetB5
-# from aucmedi.neural_network.architectures.efficientnetb6 import Architecture_EfficientNetB6
-# from aucmedi.neural_network.architectures.efficientnetb7 import Architecture_EfficientNetB7
+from aucmedi.neural_network.architectures.efficientnetb3 import Architecture_EfficientNetB3
+from aucmedi.neural_network.architectures.efficientnetb4 import Architecture_EfficientNetB4
+from aucmedi.neural_network.architectures.efficientnetb5 import Architecture_EfficientNetB5
+from aucmedi.neural_network.architectures.efficientnetb6 import Architecture_EfficientNetB6
+from aucmedi.neural_network.architectures.efficientnetb7 import Architecture_EfficientNetB7
 # ResNet
 from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
 
@@ -47,7 +47,14 @@ architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "ResNet50": Architecture_ResNet50,
                      "DenseNet121": Architecture_DenseNet121,
                      "DenseNet169": Architecture_DenseNet169,
-                     "EfficientNetB2": Architecture_EfficientNetB2
+                     "EfficientNetB0": Architecture_EfficientNetB0,
+                     "EfficientNetB1": Architecture_EfficientNetB1,
+                     "EfficientNetB2": Architecture_EfficientNetB2,
+                     "EfficientNetB3": Architecture_EfficientNetB3,
+                     "EfficientNetB4": Architecture_EfficientNetB4,
+                     "EfficientNetB5": Architecture_EfficientNetB5,
+                     "EfficientNetB6": Architecture_EfficientNetB6,
+                     "EfficientNetB7": Architecture_EfficientNetB7
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -60,5 +67,12 @@ supported_standardize_mode = {"Vanilla": "tf",
                               "ResNet50": "caffe",
                               "DenseNet121": "torch",
                               "DenseNet169": "torch",
-                              "EfficientNetB2": "caffe"
+                              "EfficientNetB0": "caffe",
+                              "EfficientNetB1": "caffe",
+                              "EfficientNetB2": "caffe",
+                              "EfficientNetB3": "caffe",
+                              "EfficientNetB4": "caffe",
+                              "EfficientNetB5": "caffe",
+                              "EfficientNetB6": "caffe",
+                              "EfficientNetB7": "caffe"
 }

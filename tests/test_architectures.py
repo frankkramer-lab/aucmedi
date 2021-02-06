@@ -150,6 +150,24 @@ class ArchitecturesTEST(unittest.TestCase):
         self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
 
     #-------------------------------------------------#
+    #            Architecture: DenseNet201            #
+    #-------------------------------------------------#
+    def test_DenseNet201(self):
+        arch = Architecture_DenseNet201(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_DenseNet201(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="DenseNet201",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
+
+    #-------------------------------------------------#
     #           Architecture: EfficientNetB0          #
     #-------------------------------------------------#
     def test_EfficientNetB0(self):

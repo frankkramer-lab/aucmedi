@@ -27,6 +27,7 @@ from aucmedi.neural_network.architectures.vanilla import Architecture_Vanilla
 # DenseNet
 from aucmedi.neural_network.architectures.densenet121 import Architecture_DenseNet121
 from aucmedi.neural_network.architectures.densenet169 import Architecture_DenseNet169
+from aucmedi.neural_network.architectures.densenet201 import Architecture_DenseNet201
 # EfficientNet
 from aucmedi.neural_network.architectures.efficientnetb0 import Architecture_EfficientNetB0
 from aucmedi.neural_network.architectures.efficientnetb1 import Architecture_EfficientNetB1
@@ -54,6 +55,7 @@ architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "ResNet50": Architecture_ResNet50,
                      "DenseNet121": Architecture_DenseNet121,
                      "DenseNet169": Architecture_DenseNet169,
+                     "DenseNet201": Architecture_DenseNet201,
                      "EfficientNetB0": Architecture_EfficientNetB0,
                      "EfficientNetB1": Architecture_EfficientNetB1,
                      "EfficientNetB2": Architecture_EfficientNetB2,
@@ -78,6 +80,7 @@ supported_standardize_mode = {"Vanilla": "tf",
                               "ResNet50": "caffe",
                               "DenseNet121": "torch",
                               "DenseNet169": "torch",
+                              "DenseNet201": "torch",
                               "EfficientNetB0": "caffe",
                               "EfficientNetB1": "caffe",
                               "EfficientNetB2": "caffe",

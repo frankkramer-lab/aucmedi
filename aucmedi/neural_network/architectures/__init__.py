@@ -53,8 +53,8 @@ from aucmedi.neural_network.architectures.resnet152v2 import Architecture_ResNet
 from aucmedi.neural_network.architectures.mobilenet import Architecture_MobileNet
 from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_MobileNetV2
 # VGG
-from aucmedi.neural_network.architectures.vgg16 import Architecture_VGG16 as VGG16
-from aucmedi.neural_network.architectures.vgg19 import Architecture_VGG19 as VGG19
+from aucmedi.neural_network.architectures.vgg16 import Architecture_VGG16
+from aucmedi.neural_network.architectures.vgg19 import Architecture_VGG19
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #

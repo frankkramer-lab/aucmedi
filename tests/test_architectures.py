@@ -472,3 +472,39 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["InceptionV3"] == "tf")
+
+    #-------------------------------------------------#
+    #               Architecture: VGG16               #
+    #-------------------------------------------------#
+    def test_VGG16(self):
+        arch = Architecture_VGG16(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_VGG16(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="VGG16",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["VGG16"] == "caffe")
+
+    #-------------------------------------------------#
+    #               Architecture: VGG19               #
+    #-------------------------------------------------#
+    def test_VGG19(self):
+        arch = Architecture_VGG19(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_VGG19(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="VGG19",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["VGG19"] == "caffe")

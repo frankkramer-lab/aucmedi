@@ -52,33 +52,39 @@ from aucmedi.neural_network.architectures.resnet152v2 import Architecture_ResNet
 # MobileNet
 from aucmedi.neural_network.architectures.mobilenet import Architecture_MobileNet
 from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_MobileNetV2
+# VGG
+from aucmedi.neural_network.architectures.vgg16 import Architecture_VGG16 as VGG16
+from aucmedi.neural_network.architectures.vgg19 import Architecture_VGG19 as VGG19
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
 #-----------------------------------------------------#
 # Architecture Dictionary
-architecture_dict = {"Vanilla": Architecture_Vanilla,
-                     "ResNet50": Architecture_ResNet50,
-                     "ResNet101": Architecture_ResNet101,
-                     "ResNet152": Architecture_ResNet152,
-                     "ResNet50V2": Architecture_ResNet50V2,
-                     "ResNet101V2": Architecture_ResNet101V2,
-                     "ResNet152V2": Architecture_ResNet152V2,
-                     "DenseNet121": Architecture_DenseNet121,
-                     "DenseNet169": Architecture_DenseNet169,
-                     "DenseNet201": Architecture_DenseNet201,
-                     "EfficientNetB0": Architecture_EfficientNetB0,
-                     "EfficientNetB1": Architecture_EfficientNetB1,
-                     "EfficientNetB2": Architecture_EfficientNetB2,
-                     "EfficientNetB3": Architecture_EfficientNetB3,
-                     "EfficientNetB4": Architecture_EfficientNetB4,
-                     "EfficientNetB5": Architecture_EfficientNetB5,
-                     "EfficientNetB6": Architecture_EfficientNetB6,
-                     "EfficientNetB7": Architecture_EfficientNetB7,
-                     "InceptionResNetV2": Architecture_InceptionResNetV2,
-                     "InceptionV3": Architecture_InceptionV3,
-                     "MobileNet": Architecture_MobileNet,
-                     "MobileNetV2": Architecture_MobileNetV2
+architecture_dict = {
+    "Vanilla": Architecture_Vanilla,
+    "ResNet50": Architecture_ResNet50,
+    "ResNet101": Architecture_ResNet101,
+    "ResNet152": Architecture_ResNet152,
+    "ResNet50V2": Architecture_ResNet50V2,
+    "ResNet101V2": Architecture_ResNet101V2,
+    "ResNet152V2": Architecture_ResNet152V2,
+    "DenseNet121": Architecture_DenseNet121,
+    "DenseNet169": Architecture_DenseNet169,
+    "DenseNet201": Architecture_DenseNet201,
+    "EfficientNetB0": Architecture_EfficientNetB0,
+    "EfficientNetB1": Architecture_EfficientNetB1,
+    "EfficientNetB2": Architecture_EfficientNetB2,
+    "EfficientNetB3": Architecture_EfficientNetB3,
+    "EfficientNetB4": Architecture_EfficientNetB4,
+    "EfficientNetB5": Architecture_EfficientNetB5,
+    "EfficientNetB6": Architecture_EfficientNetB6,
+    "EfficientNetB7": Architecture_EfficientNetB7,
+    "InceptionResNetV2": Architecture_InceptionResNetV2,
+    "InceptionV3": Architecture_InceptionV3,
+    "MobileNet": Architecture_MobileNet,
+    "MobileNetV2": Architecture_MobileNetV2,
+    "VGG16": Architecture_VGG16,
+    "VGG19": Architecture_VGG19
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -87,26 +93,29 @@ architectures = list(architecture_dict.keys())
 #       Meta Information of Architecture Classes      #
 #-----------------------------------------------------#
 # Utilized standardize mode of architectures required for Transfer Learning
-supported_standardize_mode = {"Vanilla": "tf",
-                              "ResNet50": "caffe",
-                              "ResNet101": "caffe",
-                              "ResNet152": "caffe",
-                              "ResNet50V2": "tf",
-                              "ResNet101V2": "tf",
-                              "ResNet152V2": "tf",
-                              "DenseNet121": "torch",
-                              "DenseNet169": "torch",
-                              "DenseNet201": "torch",
-                              "EfficientNetB0": "caffe",
-                              "EfficientNetB1": "caffe",
-                              "EfficientNetB2": "caffe",
-                              "EfficientNetB3": "caffe",
-                              "EfficientNetB4": "caffe",
-                              "EfficientNetB5": "caffe",
-                              "EfficientNetB6": "caffe",
-                              "EfficientNetB7": "caffe",
-                              "InceptionResNetV2": "tf",
-                              "InceptionV3": "tf",
-                              "MobileNet": "tf",
-                              "MobileNetV2": "tf"
+supported_standardize_mode = {
+    "Vanilla": "tf",
+    "ResNet50": "caffe",
+    "ResNet101": "caffe",
+    "ResNet152": "caffe",
+    "ResNet50V2": "tf",
+    "ResNet101V2": "tf",
+    "ResNet152V2": "tf",
+    "DenseNet121": "torch",
+    "DenseNet169": "torch",
+    "DenseNet201": "torch",
+    "EfficientNetB0": "caffe",
+    "EfficientNetB1": "caffe",
+    "EfficientNetB2": "caffe",
+    "EfficientNetB3": "caffe",
+    "EfficientNetB4": "caffe",
+    "EfficientNetB5": "caffe",
+    "EfficientNetB6": "caffe",
+    "EfficientNetB7": "caffe",
+    "InceptionResNetV2": "tf",
+    "InceptionV3": "tf",
+    "MobileNet": "tf",
+    "MobileNetV2": "tf",
+    "VGG16": "caffe",
+    "VGG19": "caffe"
 }

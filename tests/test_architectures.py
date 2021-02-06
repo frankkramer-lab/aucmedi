@@ -508,3 +508,21 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["VGG19"] == "caffe")
+
+    #-------------------------------------------------#
+    #              Architecture: Xception             #
+    #-------------------------------------------------#
+    def test_Xception(self):
+        arch = Architecture_Xception(channels=1, input_shape=(71, 71))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_Xception(channels=3, input_shape=(71, 71))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="Xception",
+                               batch_queue_size=1, input_shape=(71, 71))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["Xception"] == "tf")

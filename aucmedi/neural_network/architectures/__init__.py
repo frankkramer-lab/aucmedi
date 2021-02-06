@@ -55,6 +55,8 @@ from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_Mobile
 # VGG
 from aucmedi.neural_network.architectures.vgg16 import Architecture_VGG16
 from aucmedi.neural_network.architectures.vgg19 import Architecture_VGG19
+# Xception
+from aucmedi.neural_network.architectures.xception import Architecture_Xception
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -84,7 +86,8 @@ architecture_dict = {
     "MobileNet": Architecture_MobileNet,
     "MobileNetV2": Architecture_MobileNetV2,
     "VGG16": Architecture_VGG16,
-    "VGG19": Architecture_VGG19
+    "VGG19": Architecture_VGG19,
+    "Xception": Architecture_Xception
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -117,5 +120,6 @@ supported_standardize_mode = {
     "MobileNet": "tf",
     "MobileNetV2": "tf",
     "VGG16": "caffe",
-    "VGG19": "caffe"
+    "VGG19": "caffe",
+    "Xception": "tf"
 }

@@ -38,6 +38,9 @@ from aucmedi.neural_network.architectures.efficientnetb6 import Architecture_Eff
 from aucmedi.neural_network.architectures.efficientnetb7 import Architecture_EfficientNetB7
 # ResNet
 from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
+# MobileNet
+from aucmedi.neural_network.architectures.mobilenet import Architecture_MobileNet
+from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_MobileNetV2
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -54,7 +57,9 @@ architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "EfficientNetB4": Architecture_EfficientNetB4,
                      "EfficientNetB5": Architecture_EfficientNetB5,
                      "EfficientNetB6": Architecture_EfficientNetB6,
-                     "EfficientNetB7": Architecture_EfficientNetB7
+                     "EfficientNetB7": Architecture_EfficientNetB7,
+                     "MobileNet": Architecture_MobileNet,
+                     "MobileNetV2": Architecture_MobileNetV2
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -74,5 +79,7 @@ supported_standardize_mode = {"Vanilla": "tf",
                               "EfficientNetB4": "caffe",
                               "EfficientNetB5": "caffe",
                               "EfficientNetB6": "caffe",
-                              "EfficientNetB7": "caffe"
+                              "EfficientNetB7": "caffe",
+                              "MobileNet": "tf",
+                              "MobileNetV2": "tf"
 }

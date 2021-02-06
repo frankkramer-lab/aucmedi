@@ -150,6 +150,42 @@ class ArchitecturesTEST(unittest.TestCase):
         self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
 
     #-------------------------------------------------#
+    #           Architecture: EfficientNetB0          #
+    #-------------------------------------------------#
+    def test_EfficientNetB0(self):
+        arch = Architecture_EfficientNetB0(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB0(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB0",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB0"] == "caffe")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB1          #
+    #-------------------------------------------------#
+    def test_EfficientNetB1(self):
+        arch = Architecture_EfficientNetB1(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB1(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB1",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB1"] == "caffe")
+
+    #-------------------------------------------------#
     #           Architecture: EfficientNetB2          #
     #-------------------------------------------------#
     def test_EfficientNetB2(self):
@@ -166,3 +202,129 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB2"] == "caffe")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB3          #
+    #-------------------------------------------------#
+    def test_EfficientNetB2(self):
+        arch = Architecture_EfficientNetB3(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB3(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB3",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB3"] == "caffe")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB4          #
+    #-------------------------------------------------#
+    def test_EfficientNetB4(self):
+        arch = Architecture_EfficientNetB4(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB4(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB4",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB4"] == "caffe")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB5          #
+    #-------------------------------------------------#
+    def test_EfficientNetB5(self):
+        arch = Architecture_EfficientNetB5(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB5(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB5",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB5"] == "caffe")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB6          #
+    #-------------------------------------------------#
+    def test_EfficientNetB6(self):
+        arch = Architecture_EfficientNetB6(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB6(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB6",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB6"] == "caffe")
+
+    #-------------------------------------------------#
+    #           Architecture: EfficientNetB7          #
+    #-------------------------------------------------#
+    def test_EfficientNetB7(self):
+        arch = Architecture_EfficientNetB7(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_EfficientNetB7(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB7",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["EfficientNetB7"] == "caffe")
+
+    #-------------------------------------------------#
+    #             Architecture: MobileNet             #
+    #-------------------------------------------------#
+    def test_MobileNet(self):
+        arch = Architecture_MobileNet(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_MobileNet(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="MobileNet",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["MobileNet"] == "tf")
+
+    #-------------------------------------------------#
+    #            Architecture: MobileNetV2            #
+    #-------------------------------------------------#
+    def test_MobileNetV2(self):
+        arch = Architecture_MobileNetV2(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_MobileNetV2(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="MobileNetV2",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")

@@ -39,7 +39,7 @@ from aucmedi.neural_network.architectures.efficientnetb7 import Architecture_Eff
 # InceptionResNet
 from aucmedi.neural_network.architectures.inceptionresnetv2 import Architecture_InceptionResNetV2
 # InceptionV3
-#from ensmic.architectures.inceptionv3 import Architecture_InceptionV3 as InceptionV3
+from aucmedi.neural_network.architectures.inceptionv3 import Architecture_InceptionV3
 # ResNet
 from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
 # MobileNet
@@ -63,6 +63,7 @@ architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "EfficientNetB6": Architecture_EfficientNetB6,
                      "EfficientNetB7": Architecture_EfficientNetB7,
                      "InceptionResNetV2": Architecture_InceptionResNetV2,
+                     "InceptionV3": Architecture_InceptionV3,
                      "MobileNet": Architecture_MobileNet,
                      "MobileNetV2": Architecture_MobileNetV2
 }
@@ -86,6 +87,7 @@ supported_standardize_mode = {"Vanilla": "tf",
                               "EfficientNetB6": "caffe",
                               "EfficientNetB7": "caffe",
                               "InceptionResNetV2": "tf",
+                              "InceptionV3": "tf",
                               "MobileNet": "tf",
                               "MobileNetV2": "tf"
 }

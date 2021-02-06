@@ -333,16 +333,34 @@ class ArchitecturesTEST(unittest.TestCase):
     #         Architecture: InceptionResNetV2         #
     #-------------------------------------------------#
     def test_InceptionResNetV2(self):
-        arch = Architecture_InceptionResNetV2(channels=1, input_shape=(32, 32))
+        arch = Architecture_InceptionResNetV2(channels=1, input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_InceptionResNetV2(channels=3, input_shape=(32, 32))
+        arch = Architecture_InceptionResNetV2(channels=3, input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="InceptionResNetV2",
-                               batch_queue_size=1, input_shape=(32, 32))
+                               batch_queue_size=1, input_shape=(75, 75))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["InceptionResNetV2"] == "tf")
+
+    #-------------------------------------------------#
+    #            Architecture: InceptionV3            #
+    #-------------------------------------------------#
+    def test_InceptionV3(self):
+        arch = Architecture_InceptionV3(channels=1, input_shape=(75, 75))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_InceptionV3(channels=3, input_shape=(75, 75))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="InceptionV3",
+                               batch_queue_size=1, input_shape=(75, 75))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["InceptionV3"] == "tf")

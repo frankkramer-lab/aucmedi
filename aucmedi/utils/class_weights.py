@@ -20,7 +20,7 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from sklearn.utils.class_weight import compute_class_weight
+from sklearn.utils.class_weight import compute_class_weight, compute_sample_weight
 import numpy as np
 
 #-----------------------------------------------------#
@@ -50,3 +50,25 @@ def compute_class_weights(ohe_array, method="balanced"):
     class_weights_dict = dict(enumerate(class_weights))
     # Return resulting class weight dictionary
     return class_weights_dict
+
+#-----------------------------------------------------#
+#              Sample Weight Computation              #
+#-----------------------------------------------------#
+""" Simple wrapper function for scikit learn sample_weight function.
+    The sample weights can be used for weighting the loss function on imbalanced data.
+    Returned sample weight array which can be directly feeded to a AUCMEDi DataGenerator.
+
+    NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
+
+    Scikit learn sample_weight function:
+    https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_sample_weight.html
+
+    Arguments:
+        ohe_array (NumPy matrix):       NumPy matrix containing the ohe encoded classification.
+        method (String):                Dictionary or modus, how class weights should be computed.
+"""
+def compute_sample_weights(ohe_array, method="balanced"):
+    # Compute sample weights with scikit learn
+    sample_weights = compute_sample_weight(class_weight=method, y=ohe_array)
+    # Return resulting sample weights
+    return sample_weights

@@ -49,6 +49,9 @@ from aucmedi.neural_network.architectures.resnet152 import Architecture_ResNet15
 from aucmedi.neural_network.architectures.resnet50v2 import Architecture_ResNet50V2
 from aucmedi.neural_network.architectures.resnet101v2 import Architecture_ResNet101V2
 from aucmedi.neural_network.architectures.resnet152v2 import Architecture_ResNet152V2
+# ResNeXt
+from aucmedi.neural_network.architectures.resnext50 import Architecture_ResNeXt50
+from aucmedi.neural_network.architectures.resnext101 import Architecture_ResNeXt101
 # MobileNet
 from aucmedi.neural_network.architectures.mobilenet import Architecture_MobileNet
 from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_MobileNetV2
@@ -73,6 +76,8 @@ architecture_dict = {
     "ResNet50V2": Architecture_ResNet50V2,
     "ResNet101V2": Architecture_ResNet101V2,
     "ResNet152V2": Architecture_ResNet152V2,
+    "ResNeXt50": Architecture_ResNeXt50,
+    "ResNeXt101": Architecture_ResNeXt101,
     "DenseNet121": Architecture_DenseNet121,
     "DenseNet169": Architecture_DenseNet169,
     "DenseNet201": Architecture_DenseNet201,
@@ -109,6 +114,8 @@ supported_standardize_mode = {
     "ResNet50V2": "tf",
     "ResNet101V2": "tf",
     "ResNet152V2": "tf",
+    "ResNeXt50": "torch",
+    "ResNeXt101": "torch",
     "DenseNet121": "torch",
     "DenseNet169": "torch",
     "DenseNet201": "torch",

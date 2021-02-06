@@ -28,6 +28,7 @@ import numpy as np
 #Internal libraries
 from aucmedi.neural_network.architectures import *
 from aucmedi import *
+from aucmedi.data_processing.subfunctions import Resize
 
 #-----------------------------------------------------#
 #               Unittest: Architectures               #
@@ -70,11 +71,13 @@ class ArchitecturesTEST(unittest.TestCase):
         self.datagen_GRAY = DataGenerator(self.sampleList_gray,
                                           self.tmp_data.name,
                                           labels=self.labels_ohe,
+                                          resize=(32, 32),
                                           grayscale=True, batch_size=1)
         # Create RGB Data Generator
         self.datagen_RGB = DataGenerator(self.sampleList_rgb,
                                          self.tmp_data.name,
                                          labels=self.labels_ohe,
+                                         resize=(32, 32),
                                          grayscale=False, batch_size=1)
 
     #-------------------------------------------------#
@@ -202,6 +205,42 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet152V2"] == "tf")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNeXt50             #
+    #-------------------------------------------------#
+    def test_ResNeXt50(self):
+        arch = Architecture_ResNeXt50(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNeXt50(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNeXt50",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNeXt50"] == "torch")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNeXt101            #
+    #-------------------------------------------------#
+    def test_ResNeXt101(self):
+        arch = Architecture_ResNeXt101(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNeXt101(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNeXt101",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNeXt101"] == "torch")
 
     #-------------------------------------------------#
     #            Architecture: DenseNet121            #
@@ -477,6 +516,8 @@ class ArchitecturesTEST(unittest.TestCase):
     #         Architecture: InceptionResNetV2         #
     #-------------------------------------------------#
     def test_InceptionResNetV2(self):
+        self.datagen_GRAY.sf_resize = Resize(shape=(75, 75))
+        self.datagen_RGB.sf_resize = Resize(shape=(75, 75))
         arch = Architecture_InceptionResNetV2(channels=1, input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
@@ -490,11 +531,15 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["InceptionResNetV2"] == "tf")
+        self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
 
     #-------------------------------------------------#
     #            Architecture: InceptionV3            #
     #-------------------------------------------------#
     def test_InceptionV3(self):
+        self.datagen_GRAY.sf_resize = Resize(shape=(75, 75))
+        self.datagen_RGB.sf_resize = Resize(shape=(75, 75))
         arch = Architecture_InceptionV3(channels=1, input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
@@ -508,6 +553,8 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["InceptionV3"] == "tf")
+        self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
 
     #-------------------------------------------------#
     #               Architecture: VGG16               #
@@ -549,6 +596,8 @@ class ArchitecturesTEST(unittest.TestCase):
     #              Architecture: Xception             #
     #-------------------------------------------------#
     def test_Xception(self):
+        self.datagen_GRAY.sf_resize = Resize(shape=(71, 71))
+        self.datagen_RGB.sf_resize = Resize(shape=(71, 71))
         arch = Architecture_Xception(channels=1, input_shape=(71, 71))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
@@ -562,3 +611,5 @@ class ArchitecturesTEST(unittest.TestCase):
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["Xception"] == "tf")
+        self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))

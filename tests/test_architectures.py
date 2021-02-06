@@ -114,6 +114,42 @@ class ArchitecturesTEST(unittest.TestCase):
         self.assertTrue(supported_standardize_mode["ResNet50"] == "caffe")
 
     #-------------------------------------------------#
+    #             Architecture: ResNet101             #
+    #-------------------------------------------------#
+    def test_ResNet101(self):
+        arch = Architecture_ResNet101(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNet101(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet101",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet101"] == "caffe")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNet152             #
+    #-------------------------------------------------#
+    def test_ResNet152(self):
+        arch = Architecture_ResNet152(channels=1, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = Architecture_ResNet152(channels=3, input_shape=(32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet152",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet152"] == "caffe")
+
+    #-------------------------------------------------#
     #            Architecture: DenseNet121            #
     #-------------------------------------------------#
     def test_DenseNet121(self):

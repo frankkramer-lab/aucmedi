@@ -31,20 +31,20 @@
 # External libraries
 from tensorflow.keras.models import Model
 from tensorflow.keras import layers
-from tensorflow.keras.applications.resnet import ResNet50
+from tensorflow.keras.applications.resnet import ResNet152
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
-#            Architecture class: ResNet50             #
+#            Architecture class: ResNet152            #
 #-----------------------------------------------------#
-""" The classification variant of the ResNet50 architecture.
+""" The classification variant of the ResNet152 architecture.
 
 Methods:
     __init__                Object creation function
-    create_model:           Creating the ResNet50 model for classification
+    create_model:           Creating the ResNet152 model for classification
 """
-class Architecture_ResNet50(Architecture_Base):
+class Architecture_ResNet152(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -60,8 +60,8 @@ class Architecture_ResNet50(Architecture_Base):
         if pretrained_weights : model_weights = "imagenet"
         else : model_weights = None
 
-        # Obtain ResNet50 as base model
-        base_model = ResNet50(include_top=False, weights=model_weights,
+        # Obtain ResNet152 as base model
+        base_model = ResNet152(include_top=False, weights=model_weights,
                               input_tensor=None, input_shape=self.input,
                               pooling=None)
         top_model = base_model.output

@@ -43,6 +43,8 @@ from aucmedi.neural_network.architectures.inceptionresnetv2 import Architecture_
 from aucmedi.neural_network.architectures.inceptionv3 import Architecture_InceptionV3
 # ResNet
 from aucmedi.neural_network.architectures.resnet50 import Architecture_ResNet50
+from aucmedi.neural_network.architectures.resnet101 import Architecture_ResNet101
+from aucmedi.neural_network.architectures.resnet152 import Architecture_ResNet152
 # MobileNet
 from aucmedi.neural_network.architectures.mobilenet import Architecture_MobileNet
 from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_MobileNetV2
@@ -53,6 +55,8 @@ from aucmedi.neural_network.architectures.mobilenetv2 import Architecture_Mobile
 # Architecture Dictionary
 architecture_dict = {"Vanilla": Architecture_Vanilla,
                      "ResNet50": Architecture_ResNet50,
+                     "ResNet101": Architecture_ResNet101,
+                     "ResNet152": Architecture_ResNet152,
                      "DenseNet121": Architecture_DenseNet121,
                      "DenseNet169": Architecture_DenseNet169,
                      "DenseNet201": Architecture_DenseNet201,
@@ -78,6 +82,8 @@ architectures = list(architecture_dict.keys())
 # Utilized standardize mode of architectures required for Transfer Learning
 supported_standardize_mode = {"Vanilla": "tf",
                               "ResNet50": "caffe",
+                              "ResNet101": "caffe",
+                              "ResNet152": "caffe",
                               "DenseNet121": "torch",
                               "DenseNet169": "torch",
                               "DenseNet201": "torch",

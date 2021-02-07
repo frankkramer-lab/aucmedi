@@ -61,6 +61,8 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
     if col_sample in dt.columns : index_list = dt[col_sample].tolist()
     else : raise Exception("Sample column (" + str(col_sample) + \
                            ") not available in CSV file!", path_data)
+    # Ensure index list to contain strings
+    index_list = [str(index) for index in index_list] 
     # Identify image format by peaking first image
     image_format = None
     for file in os.listdir(path_imagedir):

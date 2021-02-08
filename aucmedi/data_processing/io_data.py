@@ -84,7 +84,6 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     # Load the dataset with the selected format interface and return results
     return ds_loader(**parameters)
 
-
 #-----------------------------------------------------#
 #             Image Interface for AUCMEDI             #
 #-----------------------------------------------------#
@@ -114,17 +113,3 @@ def image_loader(sample, path_imagedir, image_format=None, grayscale=False):
         img = np.reshape(img, img.shape + (1,))
     # Return image
     return img
-
-
-# io class
-# communication interface to data generator
-
-# modi training
-# - load from csv & single image dir
-# - load from json & single image dir
-# - load from directory with subdirectories according to classes
-
-# modi testing
-# load all images from a single directory
-
-# handles io for data loading and inference

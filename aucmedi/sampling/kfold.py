@@ -65,8 +65,10 @@ def sampling_kfold(samples, labels, n_splits=3, stratified=True,
                                             random_state=seed)
 
     # Apply sampling and generate folds
+    x = np.asarray(samples)
+    y = np.asarray(labels)
     for train, test in sampler.split(X=samples, y=wk_labels):
-        fold = (samples[train], labels[train], samples[test], labels[test])
+        fold = (x[train], y[train], x[test], y[test])
         results.append(fold)
 
     # Return result sampling

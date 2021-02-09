@@ -58,8 +58,8 @@ def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
         raise ValueError("Sum of Percentage split ratios as sampling do not" + \
                          " equal 1", sampling, np.sum(sampling))
     # Initialize leftover with the complete dataset
-    leftover_samples = samples
-    leftover_labels = labels
+    leftover_samples = np.asarray(samples)
+    leftover_labels = np.asarray(labels)
     leftover_p = 0.0
     # Initialize result list
     results = []

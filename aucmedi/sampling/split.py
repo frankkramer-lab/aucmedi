@@ -73,9 +73,16 @@ def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
         p = sampling[i] / (1.0 - leftover_p)
         # Initialize random sampler
         if not stratified and not iterative:
-            sampler = ShuffleSplit(n_splits=1, train_size=(1.0-p), test_size=p,
-                                   random_state=seed)
-
+            sampler = ShuffleSplit(n_splits=1, random_state=seed,
+                                   train_size=(1.0-p), test_size=p)
+        # Initialize random stratified sampler
+        elif stratified and not iterative:
+            sampler = StratifiedShuffleSplit(n_splits=1, random_state=seed,
+                                             train_size=(1.0-p), test_size=p)
+        # Initialize iterative stratified sampler
+        else:
+            sampler = MultilabelStratifiedShuffleSplit(n_splits=1,
+                            random_state=seed, train_size=(1.0-p), test_size=p)
 
         # Apply sampling
         subset_generator = sampler.split(X=leftover_samples, y=leftover_labels)

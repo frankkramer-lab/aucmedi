@@ -64,3 +64,35 @@ class SamplingTEST(unittest.TestCase):
                         subsets[2][0].shape[0] < 55)
         self.assertTrue(subsets[3][0].shape[0] > 245 and \
                         subsets[3][0].shape[0] < 255)
+
+    # Check stratified random sampling via percentage split
+    def test_PercentageSplit_stratified(self):
+      subsets = sampling_split(self.x, self.y,
+                               sampling=[0.4, 0.3, 0.05, 0.25],
+                               iterative=False, stratified=True)
+      self.assertTrue(subsets[0][0].shape[0] > 395 and \
+                      subsets[0][0].shape[0] < 405)
+      self.assertTrue(subsets[0][1].shape[0] > 395 and \
+                      subsets[0][1].shape[0] < 405)
+      self.assertTrue(subsets[1][0].shape[0] > 295 and \
+                      subsets[1][0].shape[0] < 305)
+      self.assertTrue(subsets[2][0].shape[0] > 45 and \
+                      subsets[2][0].shape[0] < 55)
+      self.assertTrue(subsets[3][0].shape[0] > 245 and \
+                      subsets[3][0].shape[0] < 255)
+
+    # Check stratified iterative sampling via percentage split
+    def test_PercentageSplit_iterative(self):
+        subsets = sampling_split(self.x, self.y,
+                                 sampling=[0.4, 0.3, 0.05, 0.25],
+                                 iterative=True, stratified=True)
+        self.assertTrue(subsets[0][0].shape[0] > 395 and \
+                        subsets[0][0].shape[0] < 405)
+        self.assertTrue(subsets[0][1].shape[0] > 395 and \
+                        subsets[0][1].shape[0] < 405)
+        self.assertTrue(subsets[1][0].shape[0] > 295 and \
+                        subsets[1][0].shape[0] < 305)
+        self.assertTrue(subsets[2][0].shape[0] > 45 and \
+                        subsets[2][0].shape[0] < 55)
+        self.assertTrue(subsets[3][0].shape[0] > 245 and \
+                        subsets[3][0].shape[0] < 255)

@@ -17,3 +17,4 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 from aucmedi.sampling.split import sampling_split
+from aucmedi.sampling.kfold import sampling_kfold

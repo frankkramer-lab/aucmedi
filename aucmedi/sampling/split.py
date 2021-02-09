@@ -31,6 +31,8 @@ from aucmedi.sampling.iterative import MultilabelStratifiedShuffleSplit
 """ Simple wrapper function for calling percentage split sampling functions.
     Allow usage of stratified and iterative sampling algorithm.
 
+    Be aware that multi-label data does not support random stratified sampling.
+
     Percentage split ratios have to be provided with a sampling list.
     Each percentage value in the list defines the approximate split size.
     Sum of percentage split ratios have to equal 1!

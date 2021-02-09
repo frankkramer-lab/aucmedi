@@ -24,7 +24,7 @@ import unittest
 import numpy as np
 from sklearn.datasets import make_classification
 #Internal libraries
-from aucmedi.sampling import sampling_split
+from aucmedi.sampling import sampling_split, sampling_kfold
 
 #-----------------------------------------------------#
 #                  Unittest: Sampling                 #
@@ -96,3 +96,42 @@ class SamplingTEST(unittest.TestCase):
                         subsets[2][0].shape[0] < 55)
         self.assertTrue(subsets[3][0].shape[0] > 245 and \
                         subsets[3][0].shape[0] < 255)
+
+    #-------------------------------------------------#
+    #       Sampling via k-fold Cross-Validation      #
+    #-------------------------------------------------#
+    # Check random sampling via k-fold cross-validation
+    def test_CrossValidation_random(self):
+        subsets = sampling_kfold(self.x, self.y, n_splits=5,
+                                 iterative=False, stratified=False)
+        self.assertEqual(len(subsets), 5)
+        for fold in subsets:
+            (tx, ty, vx, vy) = fold
+            self.assertTrue(tx.shape[0] > 795 and tx.shape[0] < 805)
+            self.assertTrue(ty.shape[0] > 795 and ty.shape[0] < 805)
+            self.assertTrue(vx.shape[0] > 195 and vx.shape[0] < 205)
+            self.assertTrue(vy.shape[0] > 195 and vy.shape[0] < 205)
+
+    # Check stratified random sampling via k-fold cross-validation
+    def test_CrossValidation_stratified(self):
+        subsets = sampling_kfold(self.x, self.y, n_splits=5,
+                                 iterative=False, stratified=True)
+        self.assertEqual(len(subsets), 5)
+        for fold in subsets:
+            (tx, ty, vx, vy) = fold
+            self.assertTrue(tx.shape[0] > 795 and tx.shape[0] < 805)
+            self.assertTrue(ty.shape[0] > 795 and ty.shape[0] < 805)
+            self.assertTrue(vx.shape[0] > 195 and vx.shape[0] < 205)
+            self.assertTrue(vy.shape[0] > 195 and vy.shape[0] < 205)
+
+    # Check stratified iterative sampling via k-fold cross-validation
+    def test_CrossValidation_iterative(self):
+        subsets = sampling_kfold(self.x, self.y, n_splits=5,
+                                 iterative=True, stratified=True)
+        self.assertEqual(len(subsets), 5)
+        for fold in subsets:
+            (tx, ty, vx, vy) = fold
+            self.assertTrue(tx.shape[0] > 795 and tx.shape[0] < 805)
+            self.assertTrue(ty.shape[0] > 795 and ty.shape[0] < 805)
+            self.assertTrue(vx.shape[0] > 195 and vx.shape[0] < 205)
+            self.assertTrue(vy.shape[0] > 195 and vy.shape[0] < 205)

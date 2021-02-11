@@ -51,3 +51,11 @@ class AggregateTEST(unittest.TestCase):
         agg_func = Averaging_Median()
         pred = agg_func.aggregate(self.pred_data.copy())
         self.assertTrue(np.array_equal(pred.shape, (10,)))
+
+    #-------------------------------------------------#
+    #         Aggregate: Majority Vote (Hard)         #
+    #-------------------------------------------------#
+    def test_Aggregate_MajorityVote(self):
+        agg_func = Majority_Vote()
+        pred = agg_func.aggregate(self.pred_data.copy())
+        self.assertTrue(np.array_equal(pred.shape, (10,)))

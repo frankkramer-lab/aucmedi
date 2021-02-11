@@ -19,10 +19,11 @@
 # Import aggregate functions
 from aucmedi.ensembler.aggregate.averaging_mean import Averaging_Mean
 from aucmedi.ensembler.aggregate.averaging_median import Averaging_Median
-# majority vote hard + majority vote soft
+from aucmedi.ensembler.aggregate.majority_vote import Majority_Vote
 
 #-----------------------------------------------------#
 #       Access Functions to Aggregate Functions       #
 #-----------------------------------------------------#
 aggregate_dict = {"mean": Averaging_Mean,
-                  "median": Averaging_Median}
+                  "median": Averaging_Median,
+                  "majority_vote": Majority_Vote}

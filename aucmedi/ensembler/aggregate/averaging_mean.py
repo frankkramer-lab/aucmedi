@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2021 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2020 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,12 +16,37 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-# Import aggregate functions
-from aucmedi.ensembler.aggregate.averaging_mean import Averaging_Mean
-# mean + median
-# majority vote hard + majority vote soft
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
+# External libraries
+import numpy as np
+# Internal libraries/scripts
+from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
 
 #-----------------------------------------------------#
-#       Access Functions to Aggregate Functions       #
+#            Aggregate: Averaging by Mean             #
 #-----------------------------------------------------#
-aggregate_dict = {"mean": Averaging_Mean}
+""" Aggregate function based on averaging via mean.
+
+    Methods:
+        __init__:               Object creation function.
+        aggregate:              Merge multiple class predictions into a single prediction.
+"""
+
+class Averaging_Mean(Aggregate_Base):
+    #---------------------------------------------#
+    #                Initialization               #
+    #---------------------------------------------#
+    def __init__(self):
+        # No hyperparameter adjustment required for this method, therefore skip
+        pass
+
+    #---------------------------------------------#
+    #                  Aggregate                  #
+    #---------------------------------------------#
+    def aggregate(self, preds):
+        # Merge predictions via mean
+        pred = np.mean(preds, axis=0)
+        # Return merged prediction
+        return pred

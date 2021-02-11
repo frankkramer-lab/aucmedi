@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2020 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2021 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -20,61 +20,43 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import pandas as pd
+import numpy as np
 # Internal libraries/scripts
-from ensmic.ensemble.abstract_elm import Abstract_Ensemble
-from ensmic.utils.softmax import softmax
+from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
 
 #-----------------------------------------------------#
-#              ELM: Majority Vote - Soft              #
+#                  Aggregate: Softmax                 #
 #-----------------------------------------------------#
-""" Ensemble Learning approach via Soft Majority Vote.
+""" Aggregate function based on softmax.
 
-Methods:
-    __init__                Initialize Ensemble Learning Method.
-    training:               Fit Ensemble Learning Method on validate-ensemble.
-    prediction:             Utilize Ensemble Learning Method for test dataset.
-    dump:                   Save (fitted) model to disk.
-    load:                   Load (fitted) model from disk.
+    Methods:
+        __init__:               Object creation function.
+        aggregate:              Merge multiple class predictions into a single prediction.
 """
-class ELM_MajorityVote_Soft(Abstract_Ensemble):
+
+class Softmax(Aggregate_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, n_classes):
+    def __init__(self):
         # No hyperparameter adjustment required for this method, therefore skip
         pass
 
     #---------------------------------------------#
-    #                  Training                   #
+    #                  Aggregate                  #
     #---------------------------------------------#
-    def training(self, train_x, train_y):
-        # No training required for this method, therefore skip
-        pass
-
-    #---------------------------------------------#
-    #                  Prediction                 #
-    #---------------------------------------------#
-    def prediction(self, data):
-        # Split data columns into multi level structure based on architecutre
-        data.columns = data.columns.str.split('_', expand=True)
-        # Sum up all predicted probabilities from all architecutres
-        data = data.groupby(level=1, axis=1).sum()
-        # Compute softmax on probability sums
-        pred = data.apply(softmax, axis=1)
+    def aggregate(self, preds):
+        # Sum up predictions
+        preds_sum = np.sum(preds, axis=0)
+        # Calculate softmax
+        pred = compute_softmax(preds_sum)
         # Return prediction
-        return pred.to_numpy()
+        return pred
 
-    #---------------------------------------------#
-    #              Dump Model to Disk             #
-    #---------------------------------------------#
-    def dump(self, path):
-        # No model infrastructure required for this method, therefore skip
-        pass
-
-    #---------------------------------------------#
-    #             Load Model from Disk            #
-    #---------------------------------------------#
-    def load(self, path):
-        # No model infrastructure required for this method, therefore skip
-        pass
+#-----------------------------------------------------#
+#             Subfunction: Softmax Formula            #
+#-----------------------------------------------------#
+def compute_softmax(x):
+    """Compute softmax values for each sets of scores in x."""
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()

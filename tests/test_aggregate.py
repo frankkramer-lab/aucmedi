@@ -59,3 +59,11 @@ class AggregateTEST(unittest.TestCase):
         agg_func = Majority_Vote()
         pred = agg_func.aggregate(self.pred_data.copy())
         self.assertTrue(np.array_equal(pred.shape, (10,)))
+
+    #-------------------------------------------------#
+    #                Aggregate: Softmax               #
+    #-------------------------------------------------#
+    def test_Aggregate_Softmax(self):
+        agg_func = Softmax()
+        pred = agg_func.aggregate(self.pred_data.copy())
+        self.assertTrue(np.array_equal(pred.shape, (10,)))

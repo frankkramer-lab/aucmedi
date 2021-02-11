@@ -16,4 +16,5 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-from aucmedi.ensembler.augmenting import predict_augmenting
+# mean + median
+# majority vote hard + majority vote soft

@@ -59,12 +59,18 @@ class ArchitecturesTEST(unittest.TestCase):
     #               Inference Augmenting              #
     #-------------------------------------------------#
     def test_Augmenting_core(self):
-        preds = predict_augmenting(model=self.model,
-                                   samples=self.sampleList,
+        preds = predict_augmenting(model=self.model, samples=self.sampleList,
                                    path_imagedir=self.tmp_data.name,
-                                   n_cycles=5,
-                                   img_aug=None, aggregate="mean",
-                                   image_format=None, batch_size=32,
+                                   n_cycles=1, batch_size=32,
+                                   img_aug=None, image_format=None,
+                                   resize=(224, 224), grayscale=False,
+                                   subfunctions=[], standardize_mode="tf",
+                                   seed=None, workers=1)
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        preds = predict_augmenting(model=self.model, samples=self.sampleList,
+                                   path_imagedir=self.tmp_data.name,
+                                   n_cycles=5, batch_size=32,
+                                   img_aug=None, image_format=None,
                                    resize=(224, 224), grayscale=False,
                                    subfunctions=[], standardize_mode="tf",
                                    seed=None, workers=1)

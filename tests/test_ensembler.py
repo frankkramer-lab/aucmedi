@@ -30,9 +30,9 @@ from aucmedi import Neural_Network
 from aucmedi.ensembler import *
 
 #-----------------------------------------------------#
-#               Unittest: Architectures               #
+#                 Unittest: Ensembler                 #
 #-----------------------------------------------------#
-class ArchitecturesTEST(unittest.TestCase):
+class EnsemblerTEST(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):

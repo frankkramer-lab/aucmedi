@@ -23,7 +23,7 @@
 import numpy as np
 # Internal libraries
 from aucmedi import Image_Augmentation, DataGenerator
-from aucmedi.ensembler.aggregate import *
+from aucmedi.ensembler.aggregate import aggregate_dict
 
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
@@ -56,6 +56,11 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
                        aggregate="mean", image_format=None, batch_size=32,
                        resize=(224, 224), grayscale=False, subfunctions=[],
                        standardize_mode="tf", seed=None, workers=1):
+    # Initialize aggregate function if required
+    if isinstance(aggregate, str) and aggregate in aggregate_dict:
+        agg_fun = aggregate_dict[aggregate]()
+    else : agg_fun = aggregate
+
     # Initialize image augmentation if none provided (only flip, rotate and scalign)
     if img_aug is None:
         img_aug = Image_Augmentation(flip=True, rotate=True, scale=True,
@@ -81,11 +86,17 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
     preds_all = model.predict(aug_gen)
 
     # Ensemble inferences via aggregate function
+    preds_ensembled = []
+    for i in range(0, len(samples)):
+        # Identify subset for a single sample
+        j = i*n_cycles
+        subset = preds_all[j:j+n_cycles]
+        # Aggregate predictions
+        pred_sample = agg_fun.aggregate(subset)
+        # Add prediction to prediction list
+        preds_ensembled.append(pred_sample)
+    # Convert prediction list to NumPy
+    preds_ensembled = np.asarray(preds_ensembled)
 
-    # -> take subsets of prediction table with n_cycles size
-    # -> pass each subset to aggregate
-    # -> aggregate has to compute <mean> over rows
-    # -> aggregate return single row prediction
-    # -> combine single row predictions to original prediction format (list of list in NumPy)
-
-    # return preds
+    # Return ensembled predictions
+    return preds_ensembled

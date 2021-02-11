@@ -49,11 +49,6 @@ class ArchitecturesTEST(unittest.TestCase):
             path_sample = os.path.join(self.tmp_data.name, index)
             img_pillow.save(path_sample)
             self.sampleList.append(index)
-        # Create classification labels
-        self.labels_ohe = np.zeros((1, 4), dtype=np.uint8)
-        for i in range(0, 1):
-            class_index = np.random.randint(0, 4)
-            self.labels_ohe[i][class_index] = 1
         # Initialize model
         self.model = Neural_Network(n_labels=4, channels=3,
                                     architecture="Vanilla",
@@ -73,3 +68,4 @@ class ArchitecturesTEST(unittest.TestCase):
                                    resize=(224, 224), grayscale=False,
                                    subfunctions=[], standardize_mode="tf",
                                    seed=None, workers=1)
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))

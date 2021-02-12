@@ -56,7 +56,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     # Transform selected interface to lower case
     interface = interface.lower()
     # Verify if provided interface is valid
-    if interface not in ["csv", "json", "dictionary"]:
+    if interface not in ["csv", "json", "directory"]:
         raise Exception("Unknown interface code provided.", interface)
     # Verify that annotation file is available if CSV/JSON interface is used
     if interface in ["csv", "json"] and path_data is None:

@@ -75,7 +75,7 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
                    format.upper() in allowed_image_formats:
                    image_format = format
             # Add sample to list
-            index_list.append(file)
+            index_list.append(file[:-(len(format)+1)])
         # Raise Exception if image format is unknown
         if image_format is None:
             raise Exception("Unknown image format.", path_imagedir)

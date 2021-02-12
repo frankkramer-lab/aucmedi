@@ -30,7 +30,7 @@ import shutil
 from aucmedi import DataGenerator
 
 #-----------------------------------------------------#
-#             Unittest: Data Augmentation             #
+#               Unittest: Data Generator              #
 #-----------------------------------------------------#
 class DataGeneratorTEST(unittest.TestCase):
     # Create random imaging and classification data

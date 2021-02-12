@@ -67,19 +67,21 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
                   "path_imagedir": path_imagedir,
                   "allowed_image_formats": ACCEPTABLE_IMAGE_FORMATS,
                   "training": training, "ohe": ohe}
-    # Identify correct dataset loader and parameters for CSV
+    # Identify correct dataset loader and parameters for CSV format
     if interface == "csv":
         ds_loader = io.csv_loader
         additional_parameters = ["path_data", "ohe", "ohe_range",
                                  "col_sample", "col_class"]
         for para in additional_parameters:
             if para in config : parameters[para] = config[para]
-    # Identify correct dataset loader and parameters for JSON
+    # Identify correct dataset loader and parameters for JSON format
     elif interface == "json":
         pass
-    # Identify correct dataset loader and parameters for dictionary
+    # Identify correct dataset loader and parameters for dictionary format
     elif interface == "dictionary":
-        pass
+        ds_loader = io.directory_loader
+        del parameters["ohe"]
+        del parameters["path_data"]
 
     # Load the dataset with the selected format interface and return results
     return ds_loader(**parameters)

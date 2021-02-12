@@ -77,8 +77,8 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     # Identify correct dataset loader and parameters for JSON format
     elif interface == "json":
         pass
-    # Identify correct dataset loader and parameters for dictionary format
-    elif interface == "dictionary":
+    # Identify correct dataset loader and parameters for directory format
+    elif interface == "directory":
         ds_loader = io.directory_loader
         del parameters["ohe"]
         del parameters["path_data"]

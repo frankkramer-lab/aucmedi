@@ -28,11 +28,18 @@ from aucmedi.ensembler.aggregate import aggregate_dict
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
 #-----------------------------------------------------#
-""" sadsad
+""" Inference Augmenting function for automatically augmenting unknown images for prediction.
+    The predictions of the augmented images are then aggregated together via the provided
+    aggregate function.
 
-    aggregate function bla
+    The aggregate function can be either self initialized with an AUCMEDI aggregate function
+    or a custom made aggregate function, or by calling an AUCMEDI aggregate function by name.
+    Possible aggregate function names: ["mean", "median", "majority_vote", "softmax"]
 
-    img aug none -> automatically created
+    The Image Augmentation class instance which will be used for inference augmenting,
+    can be either predefined or leaving None.
+    If the img_aug is None, a Image Augmentation class instance is automatically created
+    which applies scaling, rotation and flipping augmentations.
 
 Arguments:
     model (Neural_Network):         Instance of a AUCMEDI neural network class.

@@ -68,9 +68,9 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
         agg_fun = aggregate_dict[aggregate]()
     else : agg_fun = aggregate
 
-    # Initialize image augmentation if none provided (only flip, rotate and scalign)
+    # Initialize image augmentation if none provided (only flip, rotate)
     if img_aug is None:
-        img_aug = Image_Augmentation(flip=True, rotate=True, scale=True,
+        img_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
                                      brightness=False, contrast=False,
                                      saturation=False, hue=False, crop=False,
                                      grid_distortion=True, compression=False,

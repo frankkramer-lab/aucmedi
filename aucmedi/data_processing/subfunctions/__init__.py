@@ -19,3 +19,4 @@
 from aucmedi.data_processing.subfunctions.standardize import Standardize
 from aucmedi.data_processing.subfunctions.resize import Resize
 from aucmedi.data_processing.subfunctions.padding import Padding
+from aucmedi.data_processing.subfunctions.crop import Crop

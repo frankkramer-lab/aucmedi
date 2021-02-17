@@ -99,3 +99,21 @@ class SubfunctionsTEST(unittest.TestCase):
         img_ppRGB = sf.transform(self.imgRGB.copy())
         self.assertTrue(np.amin(img_ppRGB) < 0)
         self.assertTrue(np.amax(img_ppRGB) > 0)
+
+    #-------------------------------------------------#
+    #              Subfunction: Cropping              #
+    #-------------------------------------------------#
+    def test_CROP_create(self):
+        sf = Crop()
+
+    def test_CROP_transform(self):
+        sf = Crop(shape=(16, 12))
+        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (16, 12, 1)))
+        img_ppRGB = sf.transform(self.imgRGB.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (16, 12, 3)))
+        sf = Crop(shape=(8, 8))
+        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 1)))
+        img_ppRGB = sf.transform(self.imgRGB.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (8, 8, 3)))

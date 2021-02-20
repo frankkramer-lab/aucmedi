@@ -49,7 +49,7 @@ class Architecture_EfficientNetB7(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, channels, input_shape=(299, 299)):
+    def __init__(self, channels, input_shape=(600, 600)):
         self.input = input_shape + (channels,)
 
     #---------------------------------------------#

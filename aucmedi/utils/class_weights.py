@@ -52,6 +52,35 @@ def compute_class_weights(ohe_array, method="balanced"):
     return class_weights_dict
 
 #-----------------------------------------------------#
+#           Multi-Label Weight Computation            #
+#-----------------------------------------------------#
+""" Function for computing class weights individually for multi-label data.
+    Class weights can be used for weighting the loss function on imbalanced data.
+    Returned is a class weight list which can be passed to loss functions.
+
+    NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
+
+    Class weight compuation is based on Scikit learn class_weight function:
+    https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html
+
+    Arguments:
+        ohe_array (NumPy matrix):       NumPy matrix containing the ohe encoded classification.
+        method (String):                Dictionary or modus, how class weights should be computed.
+"""
+def compute_multilabel_weights(ohe_array, method="balanced"):
+    # Identify number of classes
+    n_classes = np.shape(ohe_array)[1]
+    # Initialize class weight list
+    class_weights = np.empty([n_classes])
+    # Compute weight for each class individually
+    for i in range(0, n_classes):
+        weight = compute_class_weight(class_weight=method, classes=[0,1],
+                                      y=ohe_array[:, i])
+        class_weights[i] = weight[1]
+    # Return resulting class weight list
+    return class_weights
+
+#-----------------------------------------------------#
 #              Sample Weight Computation              #
 #-----------------------------------------------------#
 """ Simple wrapper function for scikit learn sample_weight function.

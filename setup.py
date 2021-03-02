@@ -23,6 +23,7 @@ setup(
                      'pillow==7.2.0',
                      'albumentations>=0.5.2',
                      'pandas>=1.1.4',
+                     'scikit-learn',
                      'scikit-image>=0.17.2'],
    classifiers=["Programming Language :: Python :: 3",
                 "Programming Language :: Python :: 3.6",

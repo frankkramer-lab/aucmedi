@@ -64,6 +64,7 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # Verify if all images are existing
     lever = True
     for sample in dt_json:
+        if sample == "legend" : continue
         # Check if image ending is already in sample name by peaking first one
         if lever:
             lever = False
@@ -80,35 +81,52 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # If JSON is for inference (no annotation data)
     if not training:
         # Ensure index list to contain strings
+        if "legend" in dt_json : del dt_json["legend"]
         index_list = [str(x) for x in dt_json]
         # -> return parsing
         return index_list, None, None, None, image_format
 
     # Try parsing with a sparse categorical class format
     if not ohe:
-        # Obtain class information
-        classes_sparse = [dt_json[x] for x in dt_json]
-        class_names = np.unique(classes_sparse).tolist()
+        # Parse class name information
+        if "legend" in dt_json:
+            class_names = dt_json["legend"]
+            del dt_json["legend"]
+        else : class_names = None
+        # Obtain class information and index list
+        index_list = []
+        classes_sparse = []
+        for sample in dt_json:
+            index_list.append(str(sample))
+            classes_sparse.append(dt_json[sample])
+        if class_names is None : class_names = np.unique(classes_sparse).tolist()
         class_n = len(class_names)
         # Parse sparse categorical annotations to One-Hot Encoding
         class_ohe = pd.get_dummies(classes_sparse).to_numpy()
+    # Try parsing one-hot encoded format
+    else:
+        # Parse information
+        if "legend" in dt_json:
+            class_names = dt_json["legend"]
+            del dt_json["legend"]
+            class_n = len(class_names)
+        else:
+            class_names = None
+            class_n = None
+        # Obtain class information and index list
+        index_list = []
+        class_data = []
+        for sample in dt_json:
+            index_list.append(str(sample))
+            class_data.append(dt_json[sample])
+        class_ohe = np.array(class_data)
+        # Verify number of class annotation
+        if class_n is None : class_ohe.shape[1]
 
-    # # Try parsing one-hot encoded format
-    # else:
-    #     # Identify OHE columns
-    #     if ohe_range is None : ohe_columns = dt.loc[:, dt.columns != col_sample]
-    #     else : ohe_columns = dt.loc[:, ohe_range]
-    #     # Parse information
-    #     class_names = list(ohe_columns.columns)
-    #     class_n = len(class_names)
-    #     class_ohe = ohe_columns.to_numpy()
-    #
-    # # Validate if number of samples and number of annotations match
-    # if len(index_list) != len(class_ohe):
-    #     raise Exception("Number of samples and annotation does not match!",
-    #                     len(index_list), len(class_ohe))
+    # Validate if number of samples and number of annotations match
+    if len(index_list) != len(class_ohe):
+        raise Exception("Number of samples and annotation does not match!",
+                        len(index_list), len(class_ohe))
 
-    # Ensure index list to contain strings
-    index_list = [str(x) for x in dt_json]
-    # Return parsed CSV data
+    # Return parsed JSON data
     return index_list, class_ohe, class_n, class_names, image_format

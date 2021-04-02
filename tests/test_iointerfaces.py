@@ -121,3 +121,29 @@ class IOinterfacesTEST(unittest.TestCase):
                          allowed_image_formats=self.aif, training=True,
                          ohe=False)
         self.assertTrue(len(ds[0]), 25)
+
+    def test_JSON_training_withOHE(self):
+        # Create imaging data with subdirectories
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        data = {}
+        for i in range(0, 25):
+            img = np.random.rand(16, 16, 3) * 255
+            img_pillow = Image.fromarray(img.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".png"
+            labels_ohe = [0, 0, 0, 0]
+            class_index = np.random.randint(0, 4)
+            labels_ohe[class_index] = 1
+            data[index[:-4]] = labels_ohe
+            path_sample = os.path.join(tmp_data.name, index)
+            img_pillow.save(path_sample)
+        # Create JSON data
+        tmp_json = tempfile.NamedTemporaryFile(mode="w", prefix="tmp.aucmedi.",
+                                               suffix=".json")
+        json.dump(data, tmp_json)
+        tmp_json.flush()
+        # Run JSON IO
+        ds = json_loader(path_data=tmp_json.name, path_imagedir=tmp_data.name,
+                         allowed_image_formats=self.aif, training=True,
+                         ohe=True)
+        self.assertTrue(len(ds[0]), 25)

@@ -17,4 +17,5 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 from aucmedi.data_processing.io_interfaces.io_csv import csv_loader
+from aucmedi.data_processing.io_interfaces.io_json import json_loader
 from aucmedi.data_processing.io_interfaces.io_directory import directory_loader

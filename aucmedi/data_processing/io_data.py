@@ -70,13 +70,11 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     # Identify correct dataset loader and parameters for CSV format
     if interface == "csv":
         ds_loader = io.csv_loader
-        additional_parameters = ["path_data", "ohe", "ohe_range",
-                                 "col_sample", "col_class"]
+        additional_parameters = ["ohe_range", "col_sample", "col_class"]
         for para in additional_parameters:
             if para in config : parameters[para] = config[para]
     # Identify correct dataset loader and parameters for JSON format
-    elif interface == "json":
-        pass
+    elif interface == "json" : ds_loader = io.json_loader
     # Identify correct dataset loader and parameters for directory format
     elif interface == "directory":
         ds_loader = io.directory_loader

@@ -23,6 +23,7 @@
 import os
 import numpy as np
 import json
+import pandas as pd
 
 #-----------------------------------------------------#
 #         Data Loader Interface based on JSON         #
@@ -48,8 +49,6 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # Load JSON file
     with open(path_data, "r") as json_reader:
         dt_json = json.load(json_reader)
-    # Ensure index list to contain strings
-    index_list = [str(index) for index in dt_json]
     # Identify image format by peaking first image
     image_format = None
     for file in os.listdir(path_imagedir):
@@ -61,11 +60,14 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # Raise Exception if image format is unknown
     if image_format is None:
         raise Exception("Unknown image format.", path_imagedir)
-    # Check if image ending is already in sample name by peaking first one
-    if index_list[0].endswith("." + image_format) : image_format = None
 
     # Verify if all images are existing
-    for sample in index_list:
+    lever = True
+    for sample in dt_json:
+        # Check if image ending is already in sample name by peaking first one
+        if lever:
+            lever = False
+            if sample.endswith("." + image_format) : image_format = None
         # Obtain image file path
         if image_format : img_file = sample + "." + image_format
         else : img_file = sample
@@ -75,21 +77,23 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
             raise Exception("Image does not exist / not accessible!",
                             'Sample: "' + sample + '"', path_img)
 
-    # If JSON is for inference (no annotation data) -> return parsing
-    if not training : return index_list, None, None, None, image_format
+    # If JSON is for inference (no annotation data)
+    if not training:
+        # Ensure index list to contain strings
+        index_list = [str(x) for x in dt_json]
+        # -> return parsing
+        return index_list, None, None, None, image_format
 
-    # # Try parsing with a sparse categorical class format (CSV Format 1)
-    # if not ohe:
-    #     # Verify if provided classification column in in dataframe
-    #     if col_class not in dt.columns:
-    #         raise Exception("Provided classification column not in dataset!")
-    #     # Obtain class information
-    #     classes_sparse = dt[col_class].tolist()
-    #     class_names = np.unique(classes_sparse).tolist()
-    #     class_n = len(class_names)
-    #     # Parse sparse categorical annotations to One-Hot Encoding
-    #     class_ohe = pd.get_dummies(classes_sparse).to_numpy()
-    # # Try parsing one-hot encoded format (CSV Format 2)
+    # Try parsing with a sparse categorical class format
+    if not ohe:
+        # Obtain class information
+        classes_sparse = [dt_json[x] for x in dt_json]
+        class_names = np.unique(classes_sparse).tolist()
+        class_n = len(class_names)
+        # Parse sparse categorical annotations to One-Hot Encoding
+        class_ohe = pd.get_dummies(classes_sparse).to_numpy()
+
+    # # Try parsing one-hot encoded format
     # else:
     #     # Identify OHE columns
     #     if ohe_range is None : ohe_columns = dt.loc[:, dt.columns != col_sample]
@@ -103,5 +107,8 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # if len(index_list) != len(class_ohe):
     #     raise Exception("Number of samples and annotation does not match!",
     #                     len(index_list), len(class_ohe))
-    # # Return parsed CSV data
-    # return index_list, class_ohe, class_n, class_names, image_format
+
+    # Ensure index list to contain strings
+    index_list = [str(x) for x in dt_json]
+    # Return parsed CSV data
+    return index_list, class_ohe, class_n, class_names, image_format

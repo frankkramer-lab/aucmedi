@@ -99,20 +99,25 @@ class IOinterfacesTEST(unittest.TestCase):
                          allowed_image_formats=self.aif, training=False)
         self.assertTrue(len(ds[0]), 25)
 
-    # def test_JSON_training(self):
-    #     # Create imaging data with subdirectories
-    #     tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-    #                                            suffix=".data")
-    #     for i in range(0, 5):
-    #         os.mkdir(os.path.join(tmp_data.name, "class_" + str(i)))
-    #     # Fill subdirectories with images
-    #     for i in range(0, 25):
-    #         img = np.random.rand(16, 16, 3) * 255
-    #         img_pillow = Image.fromarray(img.astype(np.uint8))
-    #         index = "image.sample_" + str(i) + ".png"
-    #         label_dir = "class_" + str((i % 5))
-    #         path_sample = os.path.join(tmp_data.name, label_dir, index)
-    #         img_pillow.save(path_sample)
-    #     # Run Directory IO
-    #     ds = directory_loader(tmp_data.name, self.aif, training=True)
-    #     self.assertTrue(len(ds[0]), 25)
+    def test_JSON_training_woOHE(self):
+        # Create imaging data with subdirectories
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        data = {}
+        for i in range(0, 25):
+            img = np.random.rand(16, 16, 3) * 255
+            img_pillow = Image.fromarray(img.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".png"
+            data[index[:-4]] = np.random.randint(5)
+            path_sample = os.path.join(tmp_data.name, index)
+            img_pillow.save(path_sample)
+        # Create JSON data
+        tmp_json = tempfile.NamedTemporaryFile(mode="w", prefix="tmp.aucmedi.",
+                                               suffix=".json")
+        json.dump(data, tmp_json)
+        tmp_json.flush()
+        # Run JSON IO
+        ds = json_loader(path_data=tmp_json.name, path_imagedir=tmp_data.name,
+                         allowed_image_formats=self.aif, training=True,
+                         ohe=False)
+        self.assertTrue(len(ds[0]), 25)

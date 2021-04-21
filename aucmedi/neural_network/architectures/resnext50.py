@@ -67,7 +67,8 @@ class Architecture_ResNeXt50(Architecture_Base):
         base_model = ResNeXt50(include_top=False, weights=model_weights,
                                input_tensor=None, input_shape=self.input,
                                pooling=None, backend=keras.backend,
-                               layers=keras.layers, models=keras.models)
+                               layers=keras.layers, models=keras.models,
+                               keras_utils=keras.utils)
         top_model = base_model.output
 
         # Add classification head as top model

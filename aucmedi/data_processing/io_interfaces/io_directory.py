@@ -53,6 +53,9 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
         classes_sparse = []
         # Iterate over subdirectories
         for c, subdirectory in enumerate(os.listdir(path_imagedir)):
+            # Skip items which are not a directory (metadata)
+            if not os.path.isdir(os.path.join(path_imagedir, subdirectory)):
+                continue
             class_names.append(subdirectory)
             # Iterate over each sample
             for file in os.listdir(os.path.join(path_imagedir, subdirectory)):

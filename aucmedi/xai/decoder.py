@@ -27,16 +27,19 @@ from aucmedi.xai import xai_dict
 #-----------------------------------------------------#
 #                    XAI - Decoder                    #
 #-----------------------------------------------------#
-""" Initialization function for creating a Neural Network (model) object.
-This class provides functionality for handling all model methods.
+""" XAI Decoder function for automatic computation of Explainable AI heatmaps.
+    This module allows to visualize which regions were crucial for the neural network model
+    to compute a classification on the provided unknown images.
 
-With an initialized Neural Network model instance, it is possible to run training and predictions.
+XAI Methods:
+    The XAI Decoder can be run with different XAI methods as backbone.
+    List of XAI Methods : ["gradcam"]
 
-Args:
-    data_gen (Integer):                     Number of classes/labels (important for the last layer).
-    model (Integer):                     Number of classes/labels (important for the last layer).
-    preds (Integer):                     Number of channels. Grayscale:1 or RGB:3.
-    method (String):
+Arguments:
+    data_gen (DataGenerator):           A data generator which will be used for inference.
+    model (Neural_Network):             Instance of a AUCMEDI neural network class.
+    preds (NumPy Array):                NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
+    method (String):                    XAI method class instance or index. By default, GradCAM is used as XAI method.
 """
 def xai_decoder(data_gen, model, preds=None, method="gradcam"):
     # Initialize & access some variables

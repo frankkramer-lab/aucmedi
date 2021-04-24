@@ -20,7 +20,8 @@
 from aucmedi.xai.gradcam import GradCAM
 # XAI method dictionary
 xai_dict = {
-    "gradcam": GradCAM
+    "gradcam": GradCAM,
+    "GradCAM": GradCAM
 }
 
 # Import XAI functionalities

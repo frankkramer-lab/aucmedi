@@ -18,8 +18,10 @@
 #==============================================================================#
 # Import XAI methods
 from aucmedi.xai.gradcam import GradCAM
-
 # XAI method dictionary
 xai_dict = {
     "gradcam": GradCAM
 }
+
+# Import XAI functionalities
+from aucmedi.xai.decoder import xai_decoder

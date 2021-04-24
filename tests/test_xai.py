@@ -70,9 +70,13 @@ class xaiTEST(unittest.TestCase):
     #-------------------------------------------------#
     #             XAI Functions: Decoder              #
     #-------------------------------------------------#
-    # def test_Decoder_(self):
-    #     print(self.preds.shape)
+    def test_Decoder_argmax(self):
+        heatmaps = xai_decoder(self.datagen, self.model, preds=self.preds)
+        self.assertTrue(np.array_equal(heatmaps.shape, (10, 32, 32)))
 
+    def test_Decoder_allclasses(self):
+        heatmaps = xai_decoder(self.datagen, self.model, preds=None)
+        self.assertTrue(np.array_equal(heatmaps.shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #              XAI Methods: Grad-Cam              #

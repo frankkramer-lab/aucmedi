@@ -43,6 +43,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam"):
     batch_size = data_gen.batch_size
     n_classes = model.n_labels
     res = []
+    pos = 0
     # Initialize xai method
     if isinstance(method, str) and method in xai_dict:
         xai_method = xai_dict[method](model.model)
@@ -54,13 +55,13 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam"):
         batch = next(data_gen)[0]
         # Process images
         for j in range(0, len(batch)):
-            pos = i*batch_size + j
             image = batch[[j]]
             # If preds given, compute heatmap only for argmax
             if preds is not None:
                 ci = np.argmax(preds[pos])
                 xai_map = xai_method.compute_heatmap(image, class_index=ci)
                 res.append(xai_map)
+                pos += 1
             # If no preds given, compute heatmap for all classes
             else:
                 sample_maps = []

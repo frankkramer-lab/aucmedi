@@ -208,7 +208,7 @@ class Neural_Network:
         for the provided data generator.
 
     Args:
-        prediction_generator (DataGenerator):   A data generator which will be used for training.
+        prediction_generator (DataGenerator):   A data generator which will be used for inference.
     """
     def predict(self, prediction_generator):
         # Run inference process with the Keras predict function

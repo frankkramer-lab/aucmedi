@@ -50,15 +50,15 @@ from aucmedi.data_processing.subfunctions import Resize
 #     Gradient-weighted Class Activation Mapping      #
 #-----------------------------------------------------#
 class GradCAM:
-    """ Initialization function for creating a Neural Network (model) object.
-    This class provides functionality for handling all model methods.
+    """ Initialization function for creating a Grad-Cam as XAI Method object.
+    Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
 
-    With an initialized Neural Network model instance, it is possible to run training and predictions.
+    This class provides functionality for running the compute_heatmap function,
+    which computes a Grad-Cam heatmap for an image with a model.
 
     Args:
-        n_labels (Integer):                     Number of classes/labels (important for the last layer).
-        channels (Integer):                     Number of channels. Grayscale:1 or RGB:3.
-        input_shape (Tuple):                    Input shape of the batch imaging data (including channel axis).
+        model (Keras Model):               Keras model object.
+        layerName (String):                Layer name of the convolutional layer for heatmap computation.
     """
     def __init__(self, model, layerName=None):
         # Cache class parameters
@@ -85,15 +85,15 @@ class GradCAM:
     #---------------------------------------------#
     #             Heatmap Computation             #
     #---------------------------------------------#
-    """ Initialization function for creating a Neural Network (model) object.
-    This class provides functionality for handling all model methods.
+    """ Core function for computing the Grad-Cam heatmap for a provided image and for specific classification outcome.
+    The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
 
-    With an initialized Neural Network model instance, it is possible to run training and predictions.
+    Be aware that the image has to be provided in batch format.
 
     Args:
-        n_labels (Integer):                     Number of classes/labels (important for the last layer).
-        channels (Integer):                     Number of channels. Grayscale:1 or RGB:3.
-        input_shape (Tuple):                    Input shape of the batch imaging data (including channel axis).
+        image (NumPy Array):                Image matrix encoded as NumPy Array (provided as one-element batch).
+        class_index (Integer):              Classification index for which the heatmap should be computed.
+        eps (Float):                        Epsilon for rounding.
     """
     def compute_heatmap(self, image, class_index, eps=1e-8):
         # Gradient model construction

@@ -76,6 +76,11 @@ class SubfunctionsTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 1)))
         img_ppRGB = sf.transform(self.imgRGB.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (8, 8, 3)))
+        sf = Resize(shape=(32, 8))
+        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (32, 8, 1)))
+        img_ppRGB = sf.transform(self.imgRGB.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (32, 8, 3)))
 
     #-------------------------------------------------#
     #             Subfunction: Standardize            #

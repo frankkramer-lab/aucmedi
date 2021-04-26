@@ -47,8 +47,8 @@ class Resize(Subfunction_Base):
     def __init__(self, shape=(224, 224)):
         # Initialize resizing transform
         self.shape = shape
-        self.aug_transform = Compose([aug_resize(width=shape[0],
-                                                 height=shape[1],
+        self.aug_transform = Compose([aug_resize(width=shape[1],
+                                                 height=shape[0],
                                                  p=1.0, always_apply=True)])
 
     #---------------------------------------------#

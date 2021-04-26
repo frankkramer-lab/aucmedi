@@ -17,11 +17,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
+#              REFERENCE IMPLEMENTATION:              #
+# Author: François Chollet                            #
+# Date: April 26, 2020                                #
+# https://keras.io/examples/vision/grad_cam/          #
+#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
 import numpy as np
 from PIL import Image
+import matplotlib.cm as cm
 
 #-----------------------------------------------------#
 #                   Image Visualizer                  #
@@ -44,3 +50,34 @@ def visualize_array(array, out_path=None):
     # Visualize or store image
     if out_path is None : image.show()
     else : image.save(out_path)
+
+#-----------------------------------------------------#
+#               XAI Heatmap Visualizer                #
+#-----------------------------------------------------#
+""" Simple wrapper function to visualize a heatmap encoded as NumPy matrix with a
+    [0-1] range as image via matplotlib and PILLOW.
+
+    Arguments:
+        image (NumPy matrix):           NumPy matrix containing an image.
+        heatmap (NumPy matrix):         NumPy matrix containing a XAI heatmap.
+        out_path (String):              Path in which image is stored (else live output).
+        alpha (float):                  Transparency value for heatmap overlap on image (range: [0-1]).
+"""
+def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
+    # If image is grayscale, convert to RGB
+    if image.shape[-1] == 1 : image = np.concatenate((image,)*3, axis=-1)
+    # Rescale heatmap to grayscale range
+    heatmap = np.uint8(heatmap * 255)
+    # Use jet colormap to colorize heatmap
+    jet = cm.get_cmap("jet")
+    # Use RGB values of the colormap
+    jet_colors = jet(np.arange(256))[:,:3]
+    jet_heatmap = jet_colors[heatmap] * 255
+    # Superimpose the heatmap on original image
+    si_img = jet_heatmap * alpha + image
+    # Convert array to PIL image
+    si_img = si_img.astype(np.uint8)
+    pil_img = Image.fromarray(si_img)
+    # Visualize or store image
+    if out_path is None : pil_img.show()
+    else : pil_img.save(out_path)

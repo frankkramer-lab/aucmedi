@@ -43,8 +43,6 @@
 # External Libraries
 import numpy as np
 import tensorflow as tf
-# AUCMEDI Libraries
-from aucmedi.data_processing.subfunctions import Resize
 
 #-----------------------------------------------------#
 #     Gradient-weighted Class Activation Mapping      #
@@ -113,9 +111,6 @@ class GradCAM:
         heatmap = conv_out[0] @ pooled_grads[..., tf.newaxis]
         heatmap = tf.squeeze(heatmap).numpy()
 
-        # Resize activation feature map to input image size
-        (w, h) = (image.shape[2], image.shape[1])
-        heatmap = Resize(shape=(w, h)).transform(heatmap)
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)
         denom = (heatmap.max() - heatmap.min()) + eps

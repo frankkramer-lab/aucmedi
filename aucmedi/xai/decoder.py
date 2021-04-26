@@ -21,6 +21,7 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
+import os
 # AUCMEDI Libraries
 from aucmedi.xai import xai_dict
 from aucmedi.data_processing.io_data import image_loader
@@ -46,9 +47,12 @@ Arguments:
     model (Neural_Network):             Instance of a AUCMEDI neural network class.
     preds (NumPy Array):                NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
     method (String):                    XAI method class instance or index. By default, GradCAM is used as XAI method.
+    layerName (String):                 Layer name of the convolutional layer for heatmap computation. If None, the last conv layer is used.
+    alpha (float):                      Transparency value for heatmap overlap plotting on input image (range: [0-1]).
     out_path (String):                  Output path in which heatmaps are saved to disk as PNG files.
 """
-def xai_decoder(data_gen, model, preds=None, method="gradcam", out_path=None):
+def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
+                alpha=0.4, out_path=None):
     # Initialize & access some variables
     batch_size = data_gen.batch_size
     n_classes = model.n_labels
@@ -57,7 +61,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", out_path=None):
     res_xai = []
     # Initialize xai method
     if isinstance(method, str) and method in xai_dict:
-        xai_method = xai_dict[method](model.model)
+        xai_method = xai_dict[method](model.model, layerName=layerName)
     else : xai_method = method
 
     # Iterate over all samples
@@ -92,5 +96,23 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", out_path=None):
     if out_path is None : return res_img, res_xai
     # Else visualize and store to disk
     else:
-        for i in range(0, n_classes):
-            visualize_heatmap(res_img[0], res_xai[0][i], out_path="test_" + str(i) + ".png")
+        # Create XAI output directory
+        if not os.path.exists(out_path) : os.mkdir(out_path)
+        # Iterate over all samples
+        for i in range(0, len(sample_list)):
+            # Create XAI path
+            if data_gen.image_format:
+                xai_file = sample_list[i] + "." + image_format
+            else : xai_file = sample_list[i]
+            path_xai = os.path.join(out_path, xai_file)
+            # If preds given, output only argmax class heatmap
+            if preds is not None:
+                visualize_heatmap(res_img[i], res_xai[i], out_path=path_xai,
+                                  alpha=alpha)
+            # If no preds given, output heatmaps for all classes
+            else:
+                for c in range(0, n_classes):
+                    path_xai_c = path_xai[:-4] + ".class_" + str(c) + \
+                                 path_xai[-4:]
+                    visualize_heatmap(res_img[i], res_xai[i][c],
+                                      out_path=path_xai_c, alpha=alpha)

@@ -74,7 +74,7 @@ def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
     jet_colors = jet(np.arange(256))[:,:3]
     jet_heatmap = jet_colors[heatmap] * 255
     # Superimpose the heatmap on original image
-    si_img = jet_heatmap * alpha + image
+    si_img = jet_heatmap * alpha + (1-alpha) * image
     # Convert array to PIL image
     si_img = si_img.astype(np.uint8)
     pil_img = Image.fromarray(si_img)

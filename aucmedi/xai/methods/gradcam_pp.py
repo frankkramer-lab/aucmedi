@@ -74,7 +74,7 @@ class GradCAMpp(XAImethod_Base):
             if len(layer.output_shape) == 4:
                 return layer.name
         # Otherwise, throw exception
-        raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM.")
+        raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM++.")
 
     #---------------------------------------------#
     #             Heatmap Computation             #

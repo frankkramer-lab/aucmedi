@@ -43,11 +43,13 @@
 # External Libraries
 import numpy as np
 import tensorflow as tf
+# Internal Libraries
+from aucmedi.xai.methods.xai_base import XAImethod_Base
 
 #-----------------------------------------------------#
 #     Gradient-weighted Class Activation Mapping      #
 #-----------------------------------------------------#
-class GradCAM:
+class GradCAM(XAImethod_Base):
     """ Initialization function for creating a Grad-Cam as XAI Method object.
     Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
 

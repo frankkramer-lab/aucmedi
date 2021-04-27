@@ -29,6 +29,8 @@ import numpy as np
 from aucmedi import *
 from aucmedi.xai import *
 from aucmedi.xai.methods import *
+from aucmedi.utils.visualizer import visualize_heatmap
+from aucmedi.data_processing.io_data import image_loader
 
 #-----------------------------------------------------#
 #              Unittest: Explainable AI               #
@@ -71,15 +73,67 @@ class xaiTEST(unittest.TestCase):
     #-------------------------------------------------#
     #             XAI Functions: Decoder              #
     #-------------------------------------------------#
-    def test_Decoder_argmax(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, preds=self.preds)
+    def test_Decoder_argmax_output(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, preds=self.preds,
+                                out_path=None)
         self.assertTrue(np.array_equal(imgs.shape, (10, 32, 32, 3)))
         self.assertTrue(np.array_equal(hms.shape, (10, 32, 32)))
 
-    def test_Decoder_allclasses(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, preds=None)
+    def test_Decoder_argmax_visualize(self):
+        path_xai = os.path.join(self.tmp_data.name, "xai")
+        xai_decoder(self.datagen, self.model, preds=self.preds, out_path=path_xai)
+        for i in range(0, len(self.sampleList)):
+            path_xai_file = os.path.join(os.path.join(self.tmp_data.name, "xai"),
+                                         self.sampleList[i])
+            self.assertTrue(os.path.exists(path_xai_file))
+            img = image_loader(sample=self.sampleList[i],
+                               path_imagedir=self.tmp_data.name,
+                               image_format=self.datagen.image_format)
+            hm = image_loader(sample=self.sampleList[i],
+                              path_imagedir=os.path.join(self.tmp_data.name, "xai"),
+                              image_format=self.datagen.image_format)
+            self.assertTrue(np.array_equal(img.shape, hm.shape))
+            self.assertFalse(np.array_equal(img, hm))
+
+    def test_Decoder_allclasses_output(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, preds=None,
+                                out_path=None)
         self.assertTrue(np.array_equal(imgs.shape, (10, 32, 32, 3)))
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    def test_Decoder_allclasses_visualize(self):
+        path_xai = os.path.join(self.tmp_data.name, "xai")
+        xai_decoder(self.datagen, self.model, preds=None, out_path=path_xai)
+        for i in range(0, len(self.sampleList)):
+            sample = self.sampleList[i]
+            for c in range(0, 4):
+                xai_file = sample[:-4] + ".class_" + str(c) + sample[-4:]
+                img = image_loader(sample=self.sampleList[i],
+                                   path_imagedir=self.tmp_data.name,
+                                   image_format=self.datagen.image_format)
+                hm = image_loader(sample=xai_file,
+                                  path_imagedir=os.path.join(self.tmp_data.name, "xai"),
+                                  image_format=self.datagen.image_format)
+                self.assertTrue(np.array_equal(img.shape, hm.shape))
+                self.assertFalse(np.array_equal(img, hm))
+
+    #-------------------------------------------------#
+    #            XAI Visualization: Heatmap           #
+    #-------------------------------------------------#
+    def test_Visualizer(self):
+        image = self.image[0]
+        heatmap = np.random.rand(32, 32)
+        path_xai = os.path.join(self.tmp_data.name, "xai_test.png")
+        visualize_heatmap(image, heatmap, out_path=path_xai, alpha=0.4)
+        self.assertTrue(os.path.exists(path_xai))
+        img = image_loader(sample=self.sampleList[0],
+                           path_imagedir=self.tmp_data.name,
+                           image_format=self.datagen.image_format)
+        hm = image_loader(sample="xai_test.png",
+                          path_imagedir=self.tmp_data.name,
+                          image_format=None)
+        self.assertTrue(np.array_equal(img.shape, hm.shape))
+        self.assertFalse(np.array_equal(img, hm))
 
     #-------------------------------------------------#
     #              XAI Methods: Grad-Cam              #

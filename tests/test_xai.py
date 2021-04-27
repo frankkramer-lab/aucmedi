@@ -151,3 +151,20 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_GradCam_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #             XAI Methods: Grad-Cam++             #
+    #-------------------------------------------------#
+    def test_XAImethod_GradCamPP_init(self):
+        GradCAMpp(self.model.model)
+        xai_dict["gradcam++"](self.model.model)
+
+    def test_XAImethod_GradCamPP_heatmap(self):
+        xai_method = GradCAMpp(self.model.model)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (2,2)))
+
+    def test_XAImethod_GradCamPP_decoder(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam++")
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

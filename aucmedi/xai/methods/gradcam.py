@@ -107,7 +107,7 @@ class GradCAM(XAImethod_Base):
             loss = preds[:, class_index]
             grads = tape.gradient(loss, conv_out)
         # Averaged output gradient based on feature map of last conv layer
-        pooled_grads = tf.reduce_mean(grads, axis=(1, 2))
+        pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
         # Normalize gradients via "importance"
         heatmap = conv_out[0] @ pooled_grads[..., tf.newaxis]
         heatmap = tf.squeeze(heatmap).numpy()

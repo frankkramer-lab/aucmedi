@@ -28,6 +28,7 @@ import numpy as np
 #Internal libraries
 from aucmedi import *
 from aucmedi.xai import *
+from aucmedi.xai.methods import *
 
 #-----------------------------------------------------#
 #              Unittest: Explainable AI               #

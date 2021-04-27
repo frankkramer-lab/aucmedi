@@ -23,7 +23,7 @@
 import numpy as np
 import os
 # AUCMEDI Libraries
-from aucmedi.xai import xai_dict
+from aucmedi.xai.methods import xai_dict
 from aucmedi.data_processing.io_data import image_loader
 from aucmedi.utils.visualizer import visualize_heatmap
 from aucmedi.data_processing.subfunctions import Resize

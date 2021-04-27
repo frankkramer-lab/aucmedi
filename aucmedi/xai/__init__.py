@@ -16,13 +16,6 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-# Import XAI methods
-from aucmedi.xai.gradcam import GradCAM
-# XAI method dictionary
-xai_dict = {
-    "gradcam": GradCAM,
-    "GradCAM": GradCAM
-}
-
 # Import XAI functionalities
+from aucmedi.xai.methods import xai_dict
 from aucmedi.xai.decoder import xai_decoder

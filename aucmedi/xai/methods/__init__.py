@@ -18,11 +18,11 @@
 #==============================================================================#
 # Import XAI methods
 from aucmedi.xai.methods.gradcam import GradCAM
-from aucmedi.xai.methods.gradcam_plus import GradCAMplus
+from aucmedi.xai.methods.gradcam_pp import GradCAMpp
 # XAI method dictionary
 xai_dict = {
     "gradcam": GradCAM,
     "GradCAM": GradCAM,
-    "gradcam++": GradCAMplus,
-    "GradCAMplus": GradCAMplus
+    "gradcam++": GradCAMpp,
+    "GradCAMpp": GradCAMpp
 }

@@ -52,13 +52,14 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
         class_names = []
         classes_sparse = []
         # Iterate over subdirectories
-        for c, subdirectory in enumerate(os.listdir(path_imagedir)):
+        for c, subdirectory in enumerate(sorted(os.listdir(path_imagedir))):
             # Skip items which are not a directory (metadata)
             if not os.path.isdir(os.path.join(path_imagedir, subdirectory)):
                 continue
             class_names.append(subdirectory)
             # Iterate over each sample
-            for file in os.listdir(os.path.join(path_imagedir, subdirectory)):
+            path_sd = os.path.join(path_imagedir, subdirectory)
+            for file in sorted(os.listdir(path_sd)):
                 sample = os.path.join(subdirectory, file)
                 index_list.append(sample)
                 classes_sparse.append(c)
@@ -70,7 +71,7 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
     # Format - excluding class annotations -> only testing images
     else:
         # Iterate over all images
-        for file in os.listdir(path_imagedir):
+        for file in sorted(os.listdir(path_imagedir)):
             # Identify image format by peaking first image
             if image_format is None:
                 format = file.split(".")[-1]

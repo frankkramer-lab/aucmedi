@@ -20,12 +20,16 @@
 from aucmedi.xai.methods.gradcam import GradCAM
 from aucmedi.xai.methods.gradcam_pp import GradCAMpp
 from aucmedi.xai.methods.saliency import SaliencyMap
+from aucmedi.xai.methods.guided_backprop import GuidedBackpropagation
 # XAI method dictionary
 xai_dict = {
     "gradcam": GradCAM,
     "GradCAM": GradCAM,
     "gradcam++": GradCAMpp,
+    "GradCAM++": GradCAMpp,
     "GradCAMpp": GradCAMpp,
     "saliency": SaliencyMap,
-    "SaliencyMap": SaliencyMap
+    "SaliencyMap": SaliencyMap,
+    "guidedbackprop": GuidedBackpropagation,
+    "GuidedBackpropagation": GuidedBackpropagation
 }

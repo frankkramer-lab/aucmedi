@@ -25,11 +25,15 @@ from aucmedi.xai.methods.guided_backprop import GuidedBackpropagation
 xai_dict = {
     "gradcam": GradCAM,
     "GradCAM": GradCAM,
+    "gc": GradCAM,
     "gradcam++": GradCAMpp,
     "GradCAM++": GradCAMpp,
     "GradCAMpp": GradCAMpp,
+    "gc++": GradCAM,
     "saliency": SaliencyMap,
     "SaliencyMap": SaliencyMap,
+    "sm": SaliencyMap,
     "guidedbackprop": GuidedBackpropagation,
-    "GuidedBackpropagation": GuidedBackpropagation
+    "GuidedBackpropagation": GuidedBackpropagation,
+    "gb": GuidedBackpropagation
 }

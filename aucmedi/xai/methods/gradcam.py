@@ -100,12 +100,12 @@ class GradCAM(XAImethod_Base):
         gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
                          outputs=[self.model.get_layer(self.layerName).output,
                                   self.model.output])
-        # Compute gradient for desierd class index via automatic differentiation
+        # Compute gradient for desierd class index
         with tf.GradientTape() as tape:
             inputs = tf.cast(image, tf.float32)
             (conv_out, preds) = gradModel(inputs)
             loss = preds[:, class_index]
-            grads = tape.gradient(loss, conv_out)
+        grads = tape.gradient(loss, conv_out)
         # Averaged output gradient based on feature map of last conv layer
         pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
         # Normalize gradients via "importance"

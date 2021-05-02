@@ -100,7 +100,7 @@ class GradCAMpp(XAImethod_Base):
             with tf.GradientTape() as gtape2:
                 with tf.GradientTape() as gtape3:
                     inputs = tf.cast(image, tf.float32)
-                    conv_output, predictions = gradModel(inputs)
+                    (conv_output, preds) = gradModel(inputs)
                     output = preds[:, class_index]
                     conv_first_grad = gtape3.gradient(output, conv_output)
                 conv_second_grad = gtape2.gradient(conv_first_grad, conv_output)

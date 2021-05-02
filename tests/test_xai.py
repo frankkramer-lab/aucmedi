@@ -141,6 +141,7 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_GradCam_init(self):
         GradCAM(self.model.model)
         xai_dict["gradcam"](self.model.model)
+        xai_dict["gc"](self.model.model)
 
     def test_XAImethod_GradCam_heatmap(self):
         xai_method = GradCAM(self.model.model)
@@ -158,6 +159,7 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_GradCamPP_init(self):
         GradCAMpp(self.model.model)
         xai_dict["gradcam++"](self.model.model)
+        xai_dict["gc++"](self.model.model)
 
     def test_XAImethod_GradCamPP_heatmap(self):
         xai_method = GradCAMpp(self.model.model)
@@ -172,16 +174,35 @@ class xaiTEST(unittest.TestCase):
     #-------------------------------------------------#
     #            XAI Methods: Saliency Maps           #
     #-------------------------------------------------#
-    def test_XAImethod_saliency_init(self):
+    def test_XAImethod_SaliencyMap_init(self):
         SaliencyMap(self.model.model)
         xai_dict["saliency"](self.model.model)
+        xai_dict["sm"](self.model.model)
 
-    def test_XAImethod_saliency_heatmap(self):
+    def test_XAImethod_SaliencyMap_heatmap(self):
         xai_method = SaliencyMap(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
             self.assertTrue(np.array_equal(hm.shape, (32,32)))
 
-    def test_XAImethod_saliency_decoder(self):
+    def test_XAImethod_SaliencyMap_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="saliency")
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #       XAI Methods: Guided Backpropagation       #
+    #-------------------------------------------------#
+    def test_XAImethod_GuidedBackprop_init(self):
+        GuidedBackpropagation(self.model.model)
+        xai_dict["guidedbackprop"](self.model.model)
+        xai_dict["gb"](self.model.model)
+
+    def test_XAImethod_GuidedBackprop_heatmap(self):
+        xai_method = GuidedBackpropagation(self.model.model)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_GuidedBackprop_decoder(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, method="guidedbackprop")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

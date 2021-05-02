@@ -57,8 +57,10 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
     batch_size = data_gen.batch_size
     n_classes = model.n_labels
     sample_list = data_gen.samples
+    # Prepare XAI output methods
     res_img = []
     res_xai = []
+    if out_path is not None and not os.path.exists(out_path) : os.mkdir(out_path)
     # Initialize xai method
     if isinstance(method, str) and method in xai_dict:
         xai_method = xai_dict[method](model.model, layerName=layerName)
@@ -71,7 +73,6 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
                                image_format=data_gen.image_format,
                                grayscale=data_gen.grayscale)
         shape_org = img_org.shape[0:2]
-        res_img.append(img_org)
         # Load processed image
         img_prc = data_gen.preprocess_image(i)
         img_batch = np.expand_dims(img_prc, axis=0)
@@ -80,7 +81,8 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
             ci = np.argmax(preds[i])
             xai_map = xai_method.compute_heatmap(img_batch, class_index=ci)
             xai_map = Resize(shape=shape_org).transform(xai_map)
-            res_xai.append(xai_map)
+            postprocess_output(sample_list[i], img_org, xai_map, n_classes,
+                               data_gen, res_img, res_xai, out_path, alpha)
         # If no preds given, compute heatmap for all classes
         else:
             sample_maps = []
@@ -88,31 +90,38 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
                 xai_map = xai_method.compute_heatmap(img_batch, class_index=ci)
                 xai_map = Resize(shape=shape_org).transform(xai_map)
                 sample_maps.append(xai_map)
-            res_xai.append(sample_maps)
-    # Transform result lists to NumPy
-    res_img = np.array(res_img)
-    res_xai = np.array(res_xai)
-    # Return directly if no output path is defined
-    if out_path is None : return res_img, res_xai
-    # Else visualize and store to disk
+            sample_maps = np.array(sample_maps)
+            postprocess_output(sample_list[i], img_org, sample_maps, n_classes,
+                               data_gen, res_img, res_xai, out_path, alpha)
+    # Return output directly if no output path is defined (and convert to NumPy)
+    if out_path is None : return np.array(res_img), np.array(res_xai)
+
+#-----------------------------------------------------#
+#          Subroutine: Output Postprocessing          #
+#-----------------------------------------------------#
+""" Helper/Subroutine function for XAI Decoder.
+    Caches heatmap for direct output or generates a visualization as PNG.
+"""
+def postprocess_output(sample, image, xai_map, n_classes, data_gen,
+                       res_img, res_xai, out_path, alpha):
+    # Update result lists for direct output
+    if out_path is None:
+        res_img.append(image)
+        res_xai.append(xai_map)
+    # Generate XAI heatmap visualization
     else:
-        # Create XAI output directory
-        if not os.path.exists(out_path) : os.mkdir(out_path)
-        # Iterate over all samples
-        for i in range(0, len(sample_list)):
-            # Create XAI path
-            if data_gen.image_format:
-                xai_file = sample_list[i] + "." + image_format
-            else : xai_file = sample_list[i]
-            path_xai = os.path.join(out_path, xai_file)
-            # If preds given, output only argmax class heatmap
-            if preds is not None:
-                visualize_heatmap(res_img[i], res_xai[i], out_path=path_xai,
+        # Create XAI path
+        if data_gen.image_format:
+            xai_file = sample + "." + data_gen.image_format
+        else : xai_file = sample
+        path_xai = os.path.join(out_path, xai_file)
+        # If preds given, output only argmax class heatmap
+        if len(xai_map.shape) == 2:
+            visualize_heatmap(image, xai_map, out_path=path_xai, alpha=alpha)
+        # If no preds given, output heatmaps for all classes
+        else:
+            for c in range(0, n_classes):
+                path_xai_c = path_xai[:-4] + ".class_" + str(c) + \
+                             path_xai[-4:]
+                visualize_heatmap(image, xai_map[c], out_path=path_xai_c,
                                   alpha=alpha)
-            # If no preds given, output heatmaps for all classes
-            else:
-                for c in range(0, n_classes):
-                    path_xai_c = path_xai[:-4] + ".class_" + str(c) + \
-                                 path_xai[-4:]
-                    visualize_heatmap(res_img[i], res_xai[i][c],
-                                      out_path=path_xai_c, alpha=alpha)

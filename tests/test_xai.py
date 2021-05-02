@@ -168,3 +168,20 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_GradCamPP_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam++")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #            XAI Methods: Saliency Maps           #
+    #-------------------------------------------------#
+    def test_XAImethod_saliency_init(self):
+        SaliencyMap(self.model.model)
+        xai_dict["saliency"](self.model.model)
+
+    def test_XAImethod_saliency_heatmap(self):
+        xai_method = SaliencyMap(self.model.model)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_saliency_decoder(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, method="saliency")
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

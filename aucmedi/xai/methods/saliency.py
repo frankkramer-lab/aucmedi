@@ -56,7 +56,7 @@ class SaliencyMap(XAImethod_Base):
 
     Args:
         model (Keras Model):               Keras model object.
-        layerName (String):                Layer name of the convolutional layer for heatmap computation.
+        layerName (String):                Not required in Saliency Maps, but defined by Abstract Base Class.
     """
     def __init__(self, model, layerName=None):
         # Cache class parameters

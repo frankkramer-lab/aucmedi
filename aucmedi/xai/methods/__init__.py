@@ -19,10 +19,13 @@
 # Import XAI methods
 from aucmedi.xai.methods.gradcam import GradCAM
 from aucmedi.xai.methods.gradcam_pp import GradCAMpp
+from aucmedi.xai.methods.saliency import SaliencyMap
 # XAI method dictionary
 xai_dict = {
     "gradcam": GradCAM,
     "GradCAM": GradCAM,
     "gradcam++": GradCAMpp,
-    "GradCAMpp": GradCAMpp
+    "GradCAMpp": GradCAMpp,
+    "saliency": SaliencyMap,
+    "SaliencyMap": SaliencyMap
 }

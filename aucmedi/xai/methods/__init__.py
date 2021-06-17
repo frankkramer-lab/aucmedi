@@ -29,7 +29,7 @@ xai_dict = {
     "gradcam++": GradCAMpp,
     "GradCAM++": GradCAMpp,
     "GradCAMpp": GradCAMpp,
-    "gc++": GradCAM,
+    "gc++": GradCAMpp,
     "saliency": SaliencyMap,
     "SaliencyMap": SaliencyMap,
     "sm": SaliencyMap,

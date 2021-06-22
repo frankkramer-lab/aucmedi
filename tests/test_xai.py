@@ -242,3 +242,21 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_GuidedGradCAM_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="GuidedGradCAM")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #        XAI Methods: Occlusion Sensitivity       #
+    #-------------------------------------------------#
+    def test_XAImethod_OcclusionSensitivity_init(self):
+        OcclusionSensitivity(self.model.model, patch_size=16)
+        xai_dict["OcclusionSensitivity"](self.model.model)
+        xai_dict["os"](self.model.model)
+
+    def test_XAImethod_OcclusionSensitivity_heatmap(self):
+        xai_method = OcclusionSensitivity(self.model.model, patch_size=16)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_OcclusionSensitivity_decoder(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, method="OcclusionSensitivity")
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

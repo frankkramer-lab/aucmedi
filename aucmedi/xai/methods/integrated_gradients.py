@@ -18,23 +18,16 @@
 #==============================================================================#
 #-----------------------------------------------------#
 #             REFERENCE IMPLEMENTATION #1:            #
-# Author: Yasuhiro Kubota                             #
-# GitHub: https://github.com/keisen                   #
-# Date: Aug 11, 2020                                  #
-# https://github.com/keisen/tf-keras-vis/             #
-#-----------------------------------------------------#
-#             REFERENCE IMPLEMENTATION #2:            #
-# Author: Huynh Ngoc Anh                              #
-# GitHub: https://github.com/experiencor              #
-# Date: Jun 23, 2017                                  #
-# https://github.com/experiencor/deep-viz-keras/      #
+# Author: Aakash Kumar Nain                           #
+# GitHub: https://github.com/AakashKumarNain          #
+# Date: Jun 02, 2020                                  #
+#https://keras.io/examples/vision/integrated_gradients#
 #-----------------------------------------------------#
 #                   REFERENCE PAPER:                  #
-#                     20 Dec 2013.                    #
-#   Deep Inside Convolutional Networks: Visualising   #
-#   Image Classification Models and Saliency Maps.    #
-#  Karen Simonyan, Andrea Vedaldi, Andrew Zisserman.  #
-#           https://arxiv.org/abs/1312.6034           #
+#                     04 Mar 2017.                    #
+#       Axiomatic Attribution for Deep Networks.      #
+#      Mukund Sundararajan, Ankur Taly, Qiqi Yan.     #
+#           https://arxiv.org/abs/1703.01365          #
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#

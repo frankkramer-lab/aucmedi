@@ -224,3 +224,21 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_IntegratedGradients_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="IntegratedGradients")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #           XAI Methods: Guided Grad-CAM          #
+    #-------------------------------------------------#
+    def test_XAImethod_GuidedGradCAM_init(self):
+        GuidedGradCAM(self.model.model)
+        xai_dict["GuidedGradCAM"](self.model.model)
+        xai_dict["ggc"](self.model.model)
+
+    def test_XAImethod_GuidedGradCAM_heatmap(self):
+        xai_method = GuidedGradCAM(self.model.model)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_GuidedGradCAM_decoder(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, method="GuidedGradCAM")
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

@@ -206,3 +206,21 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_GuidedBackprop_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="guidedbackprop")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #        XAI Methods: Integrated Gradients        #
+    #-------------------------------------------------#
+    def test_XAImethod_IntegratedGradients_init(self):
+        IntegratedGradients(self.model.model)
+        xai_dict["IntegratedGradients"](self.model.model)
+        xai_dict["ig"](self.model.model)
+
+    def test_XAImethod_IntegratedGradients_heatmap(self):
+        xai_method = IntegratedGradients(self.model.model)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_IntegratedGradients_decoder(self):
+        imgs, hms = xai_decoder(self.datagen, self.model, method="IntegratedGradients")
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

@@ -260,3 +260,41 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_OcclusionSensitivity_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="OcclusionSensitivity")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #              XAI Methods: LIME Con              #
+    #-------------------------------------------------#
+    def test_XAImethod_LimeCon_init(self):
+        LimeCon(self.model.model, num_samples=10)
+        xai_dict["LimeCon"](self.model.model)
+        xai_dict["lc"](self.model.model)
+
+    def test_XAImethod_LimeCon_heatmap(self):
+        xai_method = LimeCon(self.model.model, num_samples=10)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_LimeCon_decoder(self):
+        xai_method = LimeCon(self.model.model, num_samples=10)
+        imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    #-------------------------------------------------#
+    #              XAI Methods: LIME Pro              #
+    #-------------------------------------------------#
+    def test_XAImethod_LimePro_init(self):
+        LimePro(self.model.model, num_samples=10)
+        xai_dict["LimePro"](self.model.model)
+        xai_dict["lp"](self.model.model)
+
+    def test_XAImethod_LimePro_heatmap(self):
+        xai_method = LimePro(self.model.model, num_samples=10)
+        for i in range(4):
+            hm = xai_method.compute_heatmap(image=self.image, class_index=i)
+            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+
+    def test_XAImethod_LimePro_decoder(self):
+        xai_method = LimePro(self.model.model, num_samples=10)
+        imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
+        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))

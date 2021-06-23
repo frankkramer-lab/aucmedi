@@ -122,3 +122,15 @@ class SubfunctionsTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 1)))
         img_ppRGB = sf.transform(self.imgRGB.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (8, 8, 3)))
+
+    #-------------------------------------------------#
+    #          Subfunction: Color Constancy           #
+    #-------------------------------------------------#
+    def test_COLORCONSTANCY_create(self):
+        sf = Standardize()
+
+    def test_COLORCONSTANCY_transform(self):
+        sf = ColorConstancy()
+        img_filtered = sf.transform(self.imgRGB.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.imgRGB))
+        self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 3)))

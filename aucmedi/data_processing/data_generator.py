@@ -28,7 +28,7 @@ import tempfile
 import pickle
 import os
 # Internal libraries
-from aucmedi.data_processing.io_data import image_loader
+from aucmedi.data_processing.io_loader import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
 
 #-----------------------------------------------------#

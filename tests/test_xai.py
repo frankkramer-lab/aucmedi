@@ -30,7 +30,7 @@ from aucmedi import *
 from aucmedi.xai import *
 from aucmedi.xai.methods import *
 from aucmedi.utils.visualizer import visualize_heatmap
-from aucmedi.data_processing.io_data import image_loader
+from aucmedi.data_processing.io_loader import image_loader
 
 #-----------------------------------------------------#
 #              Unittest: Explainable AI               #

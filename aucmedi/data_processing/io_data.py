@@ -21,16 +21,14 @@
 #-----------------------------------------------------#
 # External libraries
 import os
-import numpy as np
-import pandas as pd
-from PIL import Image
 # Internal libraries
 import aucmedi.data_processing.io_interfaces as io
 
 #-----------------------------------------------------#
 #                   Static Variables                  #
 #-----------------------------------------------------#
-ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif"]
+ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif",
+                            "npy", "nifti"]
 
 #-----------------------------------------------------#
 #             Input Interface for AUCMEDI             #
@@ -49,12 +47,16 @@ ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif"]
         path_data (String):             Path to the index/class annotation file if required. (csv/json)
         training (Boolean):             Boolean option whether annotation data is available.
         ohe (Boolean):                  Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        image_format (String):          Force to use a specific image format. By default, image format is determined automatically.
         kwargs (Dictionary):            Additional parameters for the format interfaces.
 """
 def input_interface(interface, path_imagedir, path_data=None, training=True,
-                    ohe=False, **config):
+                    ohe=False, image_format=None, **config):
     # Transform selected interface to lower case
     interface = interface.lower()
+    # Pass image format if provided
+    if image_format != None : allowed_image_formats = [image_format]
+    else : allowed_image_formats = ACCEPTABLE_IMAGE_FORMATS
     # Verify if provided interface is valid
     if interface not in ["csv", "json", "directory"]:
         raise Exception("Unknown interface code provided.", interface)
@@ -65,7 +67,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     # Initialize parameter dictionary
     parameters = {"path_data": path_data,
                   "path_imagedir": path_imagedir,
-                  "allowed_image_formats": ACCEPTABLE_IMAGE_FORMATS,
+                  "allowed_image_formats": allowed_image_formats,
                   "training": training, "ohe": ohe}
     # Identify correct dataset loader and parameters for CSV format
     if interface == "csv":
@@ -83,33 +85,3 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
 
     # Load the dataset with the selected format interface and return results
     return ds_loader(**parameters)
-
-#-----------------------------------------------------#
-#             Image Interface for AUCMEDI             #
-#-----------------------------------------------------#
-""" Image Loader for simple and save image loading within AUCMEDI.
-
-    Arguments:
-        sample (String):                Sample name/index of an image.
-        path_imagedir (String):         Path to the directory containing the images.
-"""
-def image_loader(sample, path_imagedir, image_format=None, grayscale=False):
-    # Get image path
-    if image_format : img_file = sample + "." + image_format
-    else : img_file = sample
-    path_img = os.path.join(path_imagedir, img_file)
-    # Load image via the PIL package
-    img_raw = Image.open(path_img)
-    # Convert image to grayscale or rgb
-    if grayscale : img_converted = img_raw.convert('LA')
-    else : img_converted = img_raw.convert('RGB')
-    # Convert image to NumPy
-    img = np.asarray(img_converted)
-    # Perform additional preprocessing if grayscale image
-    if grayscale:
-        # Remove maximum value and keep only intensity
-        img = img[:,:,0]
-        # Reshape image to create a single channel
-        img = np.reshape(img, img.shape + (1,))
-    # Return image
-    return img

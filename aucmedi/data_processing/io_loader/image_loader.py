@@ -33,6 +33,8 @@ from PIL import Image
     Arguments:
         sample (String):                Sample name/index of an image.
         path_imagedir (String):         Path to the directory containing the images.
+        image_format (String):          Image format to add at the end of the sample index for image loading.
+        grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
 """
 def image_loader(sample, path_imagedir, image_format=None, grayscale=False):
     # Get image path

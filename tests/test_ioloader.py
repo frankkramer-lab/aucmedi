@@ -27,6 +27,7 @@ from PIL import Image
 import os
 #Internal libraries
 from aucmedi.data_processing.io_loader import *
+from aucmedi import DataGenerator
 
 #-----------------------------------------------------#
 #                 Unittest: IO Loader                 #
@@ -43,6 +44,26 @@ class IOloaderTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                  Image Loader                   #
     #-------------------------------------------------#
+    # Test for DataGenerator functionality
+    def test_image_loader_DataGenerator(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Create dataset
+        sample_list = []
+        for i in range(0, 6):
+           img_pillow = Image.fromarray(self.img_2d_rgb.astype(np.uint8))
+           index = "image.sample_" + str(i) + ".png"
+           path_sample = os.path.join(tmp_data.name, index)
+           img_pillow.save(path_sample)
+           sample_list.append(index)
+        # Test DataGenerator
+        data_gen = DataGenerator(sample_list, tmp_data.name, resize=None,
+                                 grayscale=False, batch_size=2)
+        for i in range(0, 3):
+            batch = next(data_gen)
+            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 3)))
+
     # Test for grayscale images
     def test_image_loader_2Dgray(self):
         # Create temporary directory
@@ -75,3 +96,86 @@ class IOloaderTEST(unittest.TestCase):
             img = image_loader(index, tmp_data.name, image_format=None,
                                grayscale=False)
             self.assertTrue(np.array_equal(img.shape, self.img_2d_rgb.shape))
+
+    #-------------------------------------------------#
+    #                  NumPy Loader                   #
+    #-------------------------------------------------#
+    # Test for DataGenerator functionality
+    def test_numpy_loader_DataGenerator(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Create dataset
+        sample_list = []
+        for i in range(0, 6):
+           index = "3Dimage.sample_" + str(i) + ".npy"
+           path_sample = os.path.join(tmp_data.name, index)
+           np.save(path_sample, self.img_3d_gray)
+           sample_list.append(index)
+        # Test DataGenerator
+        data_gen = DataGenerator(sample_list, tmp_data.name, loader=numpy_loader,
+                                 resize=None, two_dim=False,
+                                 grayscale=True, batch_size=2, standardize_mode=None)
+        for i in range(0, 3):
+            batch = next(data_gen)
+            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
+    
+    # Test for grayscale 2D images
+    def test_numpy_loader_2Dgray(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i) + ".npy"
+            path_sample = os.path.join(tmp_data.name, index)
+            np.save(path_sample, self.img_2d_gray)
+            # Load image via loader
+            img = numpy_loader(index, tmp_data.name, image_format=None,
+                               grayscale=True, two_dim=True)
+            self.assertTrue(np.array_equal(img.shape, self.img_2d_gray.shape))
+
+    # Test for grayscale 3D images
+    def test_numpy_loader_3Dgray(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i) + ".npy"
+            path_sample = os.path.join(tmp_data.name, index)
+            np.save(path_sample, self.img_3d_gray)
+            # Load image via loader
+            img = numpy_loader(index, tmp_data.name, image_format=None,
+                               grayscale=True, two_dim=False)
+            self.assertTrue(np.array_equal(img.shape, self.img_3d_gray.shape))
+
+    # Test for rgb 2D images
+    def test_numpy_loader_2Drgb(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i) + ".npy"
+            path_sample = os.path.join(tmp_data.name, index)
+            np.save(path_sample, self.img_2d_rgb)
+            # Load image via loader
+            img = numpy_loader(index, tmp_data.name, image_format=None,
+                               grayscale=False, two_dim=True)
+            self.assertTrue(np.array_equal(img.shape, self.img_2d_rgb.shape))
+
+    # Test for rgb 3D images
+    def test_numpy_loader_3Drgb(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i) + ".npy"
+            path_sample = os.path.join(tmp_data.name, index)
+            np.save(path_sample, self.img_3d_rgb)
+            # Load image via loader
+            img = numpy_loader(index, tmp_data.name, image_format=None,
+                               grayscale=False, two_dim=False)
+            self.assertTrue(np.array_equal(img.shape, self.img_3d_rgb.shape))

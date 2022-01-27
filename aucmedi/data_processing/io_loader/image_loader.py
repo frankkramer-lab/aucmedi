@@ -34,8 +34,10 @@ from PIL import Image
         path_imagedir (String):         Path to the directory containing the images.
         image_format (String):          Image format to add at the end of the sample index for image loading.
         grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
+        kwargs (Dictionary):            Additional parameters for the sample loader.
 """
-def image_loader(sample, path_imagedir, image_format=None, grayscale=False):
+def image_loader(sample, path_imagedir, image_format=None, grayscale=False,
+                 **kwargs):
     # Get image path
     if image_format : img_file = sample + "." + image_format
     else : img_file = sample

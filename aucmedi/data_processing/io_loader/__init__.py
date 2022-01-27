@@ -17,3 +17,4 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 from aucmedi.data_processing.io_loader.image_loader import image_loader
+from aucmedi.data_processing.io_loader.numpy_loader import numpy_loader

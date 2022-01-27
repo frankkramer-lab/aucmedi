@@ -32,11 +32,6 @@ from aucmedi.data_processing.io_loader import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
 
 #-----------------------------------------------------#
-#                   Static Variables                  #
-#-----------------------------------------------------#
-ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif"]
-
-#-----------------------------------------------------#
 #                 Keras Data Generator                #
 #-----------------------------------------------------#
 """ Infinite Data Generator which automatically creates batches from a list of samples.
@@ -82,19 +77,21 @@ class DataGenerator(Iterator):
             standardize_mode (String):      Standardization modus in which image intensity values are scaled.
             prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
             sample_weights (List of Floats):List of weights for samples.
-            seed (Integer):                 Seed to ensure reproducibility for random function.
+            loader (Function):              Function for loading samples/images from disk.
             workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
+            seed (Integer):                 Seed to ensure reproducibility for random function.
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), img_aug=None, shuffle=False,
                  grayscale=False, subfunctions=[], standardize_mode="tf",
-                 prepare_images=False, sample_weights=None, seed=None,
-                 workers=1):
+                 prepare_images=False, sample_weights=None, loader=image_loader,
+                 workers=1, seed=None):
         # Cache class variables
         self.labels = labels
         self.sample_weights = sample_weights
         self.prepare_images = prepare_images
         self.workers = workers
+        self.sample_loader = loader
         self.samples = samples
         self.path_imagedir = path_imagedir
         self.image_format = image_format
@@ -197,10 +194,10 @@ class DataGenerator(Iterator):
                 img = pickle.load(pickle_loader)
         # Preprocess image during runtime
         else:
-            # Load image
-            img = image_loader(self.samples[index], self.path_imagedir,
-                               image_format=self.image_format,
-                               grayscale=self.grayscale)
+            # Load image from disk
+            img = self.sample_loader(self.samples[index], self.path_imagedir,
+                                     image_format=self.image_format,
+                                     grayscale=self.grayscale)
             # Apply image augmentation on image if activated
             if self.img_aug is not None:
                 img = self.img_aug.apply(img)

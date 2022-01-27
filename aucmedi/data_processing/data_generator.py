@@ -69,29 +69,34 @@ class DataGenerator(Iterator):
             image_format (String):          Image format to add at the end of the sample index for image loading.
             batch_size (Integer):           Number of samples inside a single batch.
             resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
+            subfunctions (List of Subfunctions):
+                                            List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
             img_aug (ImageAugmentation):    Image Augmentation class instance which performs diverse data augmentation techniques.
             shuffle (Boolean):              Boolean, whether dataset should be shuffled.
             grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-            subfunctions (List of Subfunctions):
-                                            List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
+            two_dim (Boolean):              Boolean, whether images are 2D or 3D.
             standardize_mode (String):      Standardization modus in which image intensity values are scaled.
-            prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
             sample_weights (List of Floats):List of weights for samples.
-            loader (Function):              Function for loading samples/images from disk.
             workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
+            prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
+            loader (Function):              Function for loading samples/images from disk.
             seed (Integer):                 Seed to ensure reproducibility for random function.
+            kwargs (Dictionary):            Additional parameters for the sample loader.
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
-                 batch_size=32, resize=(224, 224), img_aug=None, shuffle=False,
-                 grayscale=False, subfunctions=[], standardize_mode="tf",
-                 prepare_images=False, sample_weights=None, loader=image_loader,
-                 workers=1, seed=None):
+                 batch_size=32, resize=(224, 224), subfunctions=[],
+                 img_aug=None, shuffle=False, grayscale=False, two_dim=True,
+                 standardize_mode="tf", sample_weights=None, workers=1,
+                 prepare_images=False,  loader=image_loader, seed=None,
+                 **kwargs):
         # Cache class variables
         self.labels = labels
         self.sample_weights = sample_weights
         self.prepare_images = prepare_images
         self.workers = workers
         self.sample_loader = loader
+        self.kwargs = kwargs
+        self.two_dim = two_dim
         self.samples = samples
         self.path_imagedir = path_imagedir
         self.image_format = image_format
@@ -200,7 +205,8 @@ class DataGenerator(Iterator):
             # Load image from disk
             img = self.sample_loader(self.samples[index], self.path_imagedir,
                                      image_format=self.image_format,
-                                     grayscale=self.grayscale)
+                                     grayscale=self.grayscale,
+                                     two_dim=self.two_dim, **self.kwargs)
             # Apply image augmentation on image if activated
             if self.img_aug is not None:
                 img = self.img_aug.apply(img)

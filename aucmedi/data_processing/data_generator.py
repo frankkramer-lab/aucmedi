@@ -105,6 +105,9 @@ class DataGenerator(Iterator):
         # Initialize Resizing Subfunction
         if resize is not None : self.sf_resize = Resize(shape=resize)
         else : self.sf_resize = None
+        # Sanity check for full sample list
+        if samples != None and len(samples) == 0:
+            raise ValueError("Provided sample list is empty!", len(samples))
         # Sanity check for label correctness
         if labels is not None and len(samples) != len(labels):
             raise ValueError("Samples and labels do not have same size!",

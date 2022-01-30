@@ -114,12 +114,12 @@ class IOloaderTEST(unittest.TestCase):
            sample_list.append(index)
         # Test DataGenerator
         data_gen = DataGenerator(sample_list, tmp_data.name, loader=numpy_loader,
-                                 resize=None, two_dim=False,
-                                 grayscale=True, batch_size=2, standardize_mode=None)
+                                 resize=None, two_dim=False, standardize_mode=None,
+                                 grayscale=True, batch_size=2)
         for i in range(0, 3):
             batch = next(data_gen)
             self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
-    
+
     # Test for grayscale 2D images
     def test_numpy_loader_2Dgray(self):
         # Create temporary directory

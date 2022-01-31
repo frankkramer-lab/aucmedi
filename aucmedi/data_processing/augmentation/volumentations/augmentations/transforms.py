@@ -1,3 +1,41 @@
+#=================================================================================#
+#  Author:       Pavel Iakubovskii, ZFTurbo, ashawkey, Dominik Müller             #
+#  Copyright:    Pavel Iakubovskii  : https://github.com/qubvel                   #
+#                ZFTurbo            : https://github.com/ZFTurbo                  #
+#                ashawkey           : https://github.com/ashawkey                 #
+#                Dominik Müller     : https://github.com/muellerdo                #
+#                2022 IT-Infrastructure for Translational Medical Research,       #
+#                University of Augsburg                                           #
+#                                                                                 #
+#  Volumentations is a subpackage of AUCMEDI, which originated from the           #
+#  following Git repositories:                                                    #
+#       - Original:                 https://github.com/ashawkey/volumentations    #
+#       - Continued Development:    https://github.com/ZFTurbo/volumentations     #
+#       - Enhancements:             https://github.com/qubvel/volumentations      #
+#                                                                                 #
+#  Due to a stop of ongoing development in this subpackage, we decided to         #
+#  integrated Volumentations into AUCMEDI to ensure support and functionality.    #
+#                                                                                 #
+#  MIT License.                                                                   #
+#                                                                                 #
+#  Permission is hereby granted, free of charge, to any person obtaining a copy   #
+#  of this software and associated documentation files (the "Software"), to deal  #
+#  in the Software without restriction, including without limitation the rights   #
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      #
+#  copies of the Software, and to permit persons to whom the Software is          #
+#  furnished to do so, subject to the following conditions:                       #
+#                                                                                 #
+#  The above copyright notice and this permission notice shall be included in all #
+#  copies or substantial portions of the Software.                                #
+#                                                                                 #
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     #
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       #
+#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    #
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         #
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  #
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE  #
+#  SOFTWARE.                                                                      #
+#=================================================================================#
 import cv2
 import random
 import numpy as np
@@ -26,7 +64,7 @@ class PadIfNeeded(DualTransform):
 
     def apply(self, img):
         return F.pad(img, self.shape, self.border_mode, self.value)
-    
+
     def apply_to_mask(self, mask):
         return F.pad(mask, self.shape, self.border_mode, self.mask_value)
 
@@ -52,7 +90,7 @@ class Resize(DualTransform):
 
     def apply(self, img):
         return F.resize(img, new_shape=self.shape, interpolation=self.interpolation)
-    
+
     def apply_to_mask(self, mask):
         return F.resize(mask, new_shape=self.shape, interpolation=0)
 
@@ -132,7 +170,7 @@ class Flip(DualTransform):
     def apply(self, img):
         return np.flip(img, self.axis)
 
-    
+
 class Normalize(Transform):
     def __init__(self, range_norm=False, always_apply=True, p=1.0):
         super().__init__(always_apply, p)
@@ -141,7 +179,7 @@ class Normalize(Transform):
     def apply(self, img):
         return F.normalize(img, range_norm=self.range_norm)
 
-        
+
 class Transpose(DualTransform):
     def __init__(self, axes=(1,0,2), always_apply=False, p=0.5):
         super().__init__(always_apply, p)
@@ -185,11 +223,11 @@ class RandomResizedCrop(DualTransform):
         return {
             "scale": scale,
             "scaled_shape": scaled_shape,
-            "h_start": random.random(), 
+            "h_start": random.random(),
             "w_start": random.random(),
             "d_start": random.random(),
         }
-    
+
 
 class RandomCrop(DualTransform):
     def __init__(self, shape, always_apply=False, p=1.0):
@@ -201,11 +239,11 @@ class RandomCrop(DualTransform):
 
     def get_params(self, **data):
         return {
-            "h_start": random.random(), 
+            "h_start": random.random(),
             "w_start": random.random(),
             "d_start": random.random(),
         }
-    
+
 
 class CropNonEmptyMaskIfExists(DualTransform):
     def __init__(self, shape, always_apply=False, p=1.0):
@@ -264,7 +302,7 @@ class ResizedCropNonEmptyMaskIfExists(DualTransform):
     def get_params(self, **data):
         mask = data["mask"] # [H, W, D]
         mask_height, mask_width, mask_depth = mask.shape
-        
+
         scale = random.uniform(self.scale_limit[0], self.scale_limit[1])
         height, width, depth = [int(scale * i) for i in self.shape]
 

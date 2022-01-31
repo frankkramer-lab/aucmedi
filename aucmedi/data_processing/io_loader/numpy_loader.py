@@ -37,13 +37,13 @@ import numpy as np
         kwargs (Dictionary):            Additional parameters for the sample loader.
 """
 def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
-               two_dim=True, **kwargs):
+                 two_dim=True, **kwargs):
     # Get image path
     if image_format : img_file = sample + "." + image_format
     else : img_file = sample
     path_img = os.path.join(path_imagedir, img_file)
     # Load image via the NumPy package
-    img = np.load(path_img)
+    img = np.load(path_img, allow_pickle=True)
     # Verify image shape for grayscale & 2D
     if grayscale and two_dim:
         # Add channel axis and return image

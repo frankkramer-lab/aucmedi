@@ -39,9 +39,8 @@
 import cv2
 import random
 import numpy as np
-from aucmedi.data_processing.augmentation.volumentations.core.composition import Compose
 from aucmedi.data_processing.augmentation.volumentations.core.transforms_interface import Transform, DualTransform
-from aucmedi.data_processing.augmentation.volumentations import functionals as F
+from aucmedi.data_processing.augmentation.volumentations.augmentations import functional as F
 
 
 class Float(DualTransform):

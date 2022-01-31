@@ -20,8 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from volumentations import Compose
-import volumentations as ai
+from aucmedi.data_processing.augmentation.volumentations import augmentations as ai
+from aucmedi.data_processing.augmentation.volumentations import Compose
 
 #-----------------------------------------------------#
 #             AUCMEDI Volume Augmentation             #

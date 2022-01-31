@@ -28,6 +28,7 @@ import os
 import shutil
 #Internal libraries
 from aucmedi import DataGenerator
+from aucmedi.data_processing.io_loader import numpy_loader
 
 #-----------------------------------------------------#
 #               Unittest: Data Generator              #
@@ -40,25 +41,40 @@ class DataGeneratorTEST(unittest.TestCase):
         # Initialize temporary directory
         self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                     suffix=".data")
-        # Create Grayscale data
-        self.sampleList_gray = []
+        # Create Grayscale data for 2D
+        self.sampleList_gray_2D = []
         for i in range(0, 25):
             img_gray = np.random.rand(16, 16) * 255
             imgGRAY_pillow = Image.fromarray(img_gray.astype(np.uint8))
             index = "image.sample_" + str(i) + ".GRAY.png"
             path_sampleGRAY = os.path.join(self.tmp_data.name, index)
             imgGRAY_pillow.save(path_sampleGRAY)
-            self.sampleList_gray.append(index)
-
-        # Create RGB data
-        self.sampleList_rgb = []
+            self.sampleList_gray_2D.append(index)
+        # Create RGB data for 2D
+        self.sampleList_rgb_2D = []
         for i in range(0, 25):
             img_rgb = np.random.rand(16, 16, 3) * 255
             imgRGB_pillow = Image.fromarray(img_rgb.astype(np.uint8))
             index = "image.sample_" + str(i) + ".RGB.png"
             path_sampleRGB = os.path.join(self.tmp_data.name, index)
             imgRGB_pillow.save(path_sampleRGB)
-            self.sampleList_rgb.append(index)
+            self.sampleList_rgb_2D.append(index)
+        # Create Grayscale data for 3D
+        self.sampleList_gray_3D = []
+        for i in range(0, 25):
+            img_gray = np.random.rand(16, 16, 16) * 255
+            index = "image.sample_" + str(i) + ".GRAY.npy"
+            path_sampleGRAY = os.path.join(self.tmp_data.name, index)
+            np.save(path_sampleGRAY, img_gray)
+            self.sampleList_gray_3D.append(index)
+        # Create RGB data for 3D
+        self.sampleList_rgb_3D = []
+        for i in range(0, 25):
+            img_rgb = np.random.rand(16, 16, 16, 3) * 255
+            index = "image.sample_" + str(i) + ".RGB.npy"
+            path_sampleRGB = os.path.join(self.tmp_data.name, index)
+            np.save(path_sampleRGB, img_rgb)
+            self.sampleList_rgb_3D.append(index)
 
         # Create classification labels
         self.labels_ohe = np.zeros((25, 4), dtype=np.uint8)
@@ -71,15 +87,15 @@ class DataGeneratorTEST(unittest.TestCase):
     #-------------------------------------------------#
     # Class Creation
     def test_BASE_create(self):
-        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name)
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name)
         self.assertIsInstance(data_gen, DataGenerator)
 
     #-------------------------------------------------#
-    #            Application Functionality            #
+    #        Application Functionality for 2D         #
     #-------------------------------------------------#
     # Usage: Grayscale without Labels
-    def test_RUN_GRAYSCALE_noLabel(self):
-        data_gen = DataGenerator(self.sampleList_gray, self.tmp_data.name,
+    def test_RUN_2D_GRAYSCALE_noLabel(self):
+        data_gen = DataGenerator(self.sampleList_gray_2D, self.tmp_data.name,
                                  grayscale=True, batch_size=5)
         for i in range(0, 10):
             batch = next(data_gen)
@@ -87,8 +103,8 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 1)))
 
     # Usage: RGB without Labels
-    def test_RUN_RGB_noLabel(self):
-        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+    def test_RUN_2D_RGB_noLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
                                  grayscale=False, batch_size=5)
         for i in range(0, 10):
             batch = next(data_gen)
@@ -96,10 +112,47 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 3)))
 
     # Usage: With Labels
-    def test_RUN_withLabel(self):
-        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+    def test_RUN_2D_withLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 2)
+            self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
+
+    #-------------------------------------------------#
+    #        Application Functionality for 3D         #
+    #-------------------------------------------------#
+    # Usage: Grayscale without Labels
+    def test_RUN_3D_GRAYSCALE_noLabel(self):
+        data_gen = DataGenerator(self.sampleList_gray_3D, self.tmp_data.name,
+                                 grayscale=True, batch_size=5, two_dim=False,
+                                 loader=numpy_loader, resize=None,
+                                 standardize_mode=None)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 1)
+            self.assertTrue(np.array_equal(batch[0].shape, (5, 16, 16, 16, 1)))
+
+    # Usage: RGB without Labels
+    def test_RUN_3D_RGB_noLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb_3D, self.tmp_data.name,
+                                 grayscale=False, batch_size=5, two_dim=False,
+                                 loader=numpy_loader, resize=None,
+                                 standardize_mode=None)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 1)
+            self.assertTrue(np.array_equal(batch[0].shape, (5, 16, 16, 16, 3)))
+
+    # Usage: With Labels
+    def test_RUN_3D_withLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb_3D, self.tmp_data.name,
+                                 labels=self.labels_ohe, two_dim=False,
+                                 grayscale=False, batch_size=5,
+                                 loader=numpy_loader, resize=None,
+                                 standardize_mode=None)
         for i in range(0, 10):
             batch = next(data_gen)
             self.assertTrue(len(batch), 2)
@@ -109,7 +162,7 @@ class DataGeneratorTEST(unittest.TestCase):
     #                 Multi-Processing                #
     #-------------------------------------------------#
     def test_MP(self):
-        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5, workers=5)
         for i in range(0, 10):
@@ -121,11 +174,11 @@ class DataGeneratorTEST(unittest.TestCase):
     #             Beforehand Preprocessing            #
     #-------------------------------------------------#
     def test_PrepareImages(self):
-        data_gen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
                                  labels=self.labels_ohe, prepare_images=True,
                                  grayscale=False, batch_size=5)
         precprocessed_images = os.listdir(data_gen.prepare_dir)
-        self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb))
+        self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb_2D))
         for i in range(0, 10):
             batch = next(data_gen)
             self.assertTrue(len(batch), 2)

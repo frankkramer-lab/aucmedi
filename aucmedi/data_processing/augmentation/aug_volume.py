@@ -20,8 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from aucmedi.data_processing.augmentation.volumentations import augmentations as ai
 from aucmedi.data_processing.augmentation.volumentations import Compose
+from aucmedi.data_processing.augmentation.volumentations import augmentations as ai
 
 #-----------------------------------------------------#
 #             AUCMEDI Volume Augmentation             #
@@ -37,13 +37,16 @@ from aucmedi.data_processing.augmentation.volumentations import Compose
 
     The specific configurations of selected methods can be adjusted by class variables.
 
-    Build on top of the library: volumentations based on albumentations
-    volumentations: Fork of volumentations 3D Volume data augmentation package by @ashawkey.
+    Build on top of the library: Volumentations based on albumentations
+    volumentations: Originally developed by @ashawkey and @ZFTurbo.
                     Initially inspired by albumentations library for augmentation of 2D images.
                     https://github.com/ZFTurbo/volumentations
                     https://github.com/ashawkey/volumentations
     albumentations: https://github.com/albumentations-team/albumentations
 
+    The Volumentations package was integrated into AUCMEDI to ensure ongoing development and support.
+    For more details, please read the README under:
+    https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
 """
 class Volume_Augmentation():
     #-----------------------------------------------------#

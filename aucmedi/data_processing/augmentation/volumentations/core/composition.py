@@ -37,7 +37,7 @@
 #  SOFTWARE.                                                                      #
 #=================================================================================#
 import random
-from ..augmentations import transforms as T
+from aucmedi.data_processing.augmentation.volumentations.augmentations import transforms as T
 
 
 class Compose:

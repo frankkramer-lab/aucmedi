@@ -43,7 +43,6 @@ from scipy.ndimage import zoom
 import cv2
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage import map_coordinates
-#import SimpleITK as sitk
 from warnings import warn
 
 """

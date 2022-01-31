@@ -1,7 +1,8 @@
 # Volumentations 3D
 
 Volumentations is a subpackage of AUCMEDI, which originated from the following Git repositories:
-- Original:                 https://github.com/ashawkey/volumentations
+- Original:                 https://github.com/albumentations-team/albumentations
+- 3D Conversion:            https://github.com/ashawkey/volumentations
 - Continued Development:    https://github.com/ZFTurbo/volumentations
 - Enhancements:             https://github.com/qubvel/volumentations
 
@@ -44,7 +45,8 @@ RandomDropPlane
 ```
 #=================================================================================#
 #  Author:       Pavel Iakubovskii, ZFTurbo, ashawkey, Dominik Müller             #
-#  Copyright:    Pavel Iakubovskii  : https://github.com/qubvel                   #
+#  Copyright:    albumentations:    : https://github.com/albumentations-team      #
+#                Pavel Iakubovskii  : https://github.com/qubvel                   #
 #                ZFTurbo            : https://github.com/ZFTurbo                  #
 #                ashawkey           : https://github.com/ashawkey                 #
 #                Dominik Müller     : https://github.com/muellerdo                #
@@ -53,7 +55,9 @@ RandomDropPlane
 #                                                                                 #
 #  Volumentations is a subpackage of AUCMEDI, which originated from the           #
 #  following Git repositories:                                                    #
-#       - Original:                 https://github.com/ashawkey/volumentations    #
+#       - Original:                 https://github.com/albumentations-team/album  #
+#                                   entations                                     #
+#       - 3D Conversion:            https://github.com/ashawkey/volumentations    #
 #       - Continued Development:    https://github.com/ZFTurbo/volumentations     #
 #       - Enhancements:             https://github.com/qubvel/volumentations      #
 #                                                                                 #

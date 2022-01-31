@@ -1,6 +1,7 @@
 #=================================================================================#
 #  Author:       Pavel Iakubovskii, ZFTurbo, ashawkey, Dominik Müller             #
-#  Copyright:    Pavel Iakubovskii  : https://github.com/qubvel                   #
+#  Copyright:    albumentations:    : https://github.com/albumentations-team      #
+#                Pavel Iakubovskii  : https://github.com/qubvel                   #
 #                ZFTurbo            : https://github.com/ZFTurbo                  #
 #                ashawkey           : https://github.com/ashawkey                 #
 #                Dominik Müller     : https://github.com/muellerdo                #
@@ -9,7 +10,9 @@
 #                                                                                 #
 #  Volumentations is a subpackage of AUCMEDI, which originated from the           #
 #  following Git repositories:                                                    #
-#       - Original:                 https://github.com/ashawkey/volumentations    #
+#       - Original:                 https://github.com/albumentations-team/album  #
+#                                   entations                                     #
+#       - 3D Conversion:            https://github.com/ashawkey/volumentations    #
 #       - Continued Development:    https://github.com/ZFTurbo/volumentations     #
 #       - Enhancements:             https://github.com/qubvel/volumentations      #
 #                                                                                 #
@@ -725,3 +728,45 @@ class RandomDropPlane(DualTransform):
 
     def apply_to_mask(self, mask, indexes=(), axis=0, **params):
         return np.take(mask, indexes, axis=axis)
+
+
+class RandomBrightnessContrast(ImageOnlyTransform):
+    """Randomly change brightness and contrast of the input image.
+    Args:
+        brightness_limit ((float, float) or float): factor range for changing brightness.
+            If limit is a single float, the range will be (-limit, limit). Default: (-0.2, 0.2).
+        contrast_limit ((float, float) or float): factor range for changing contrast.
+            If limit is a single float, the range will be (-limit, limit). Default: (-0.2, 0.2).
+        brightness_by_max (Boolean): If True adjust contrast by image dtype maximum,
+            else adjust contrast by image mean.
+        p (float): probability of applying the transform. Default: 0.5.
+    Targets:
+        image
+    Image types:
+        uint8, float32
+    """
+
+    def __init__(
+        self,
+        brightness_limit=0.2,
+        contrast_limit=0.2,
+        brightness_by_max=True,
+        always_apply=False,
+        p=0.5,
+    ):
+        super(RandomBrightnessContrast, self).__init__(always_apply, p)
+        self.brightness_limit = to_tuple(brightness_limit)
+        self.contrast_limit = to_tuple(contrast_limit)
+        self.brightness_by_max = brightness_by_max
+
+    def apply(self, img, alpha=1.0, beta=0.0, **params):
+        return F.brightness_contrast_adjust(img, alpha, beta, self.brightness_by_max)
+
+    def get_params(self):
+        return {
+            "alpha": 1.0 + random.uniform(self.contrast_limit[0], self.contrast_limit[1]),
+            "beta": 0.0 + random.uniform(self.brightness_limit[0], self.brightness_limit[1]),
+        }
+
+    def get_transform_init_args_names(self):
+        return ("brightness_limit", "contrast_limit", "brightness_by_max")

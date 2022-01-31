@@ -82,7 +82,7 @@ class GaussianNoise(Transform):
 
 
 class Resize(DualTransform):
-    def __init__(self, shape, interpolation=3, always_apply=False, p=1):
+    def __init__(self, shape, interpolation=1, always_apply=False, p=1):
         super().__init__(always_apply, p)
         self.shape = shape
         self.interpolation = interpolation
@@ -95,7 +95,7 @@ class Resize(DualTransform):
 
 
 class RandomScale(DualTransform):
-    def __init__(self, scale_limit=[0.9, 1.1], interpolation=3, always_apply=False, p=0.5):
+    def __init__(self, scale_limit=[0.9, 1.1], interpolation=1, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.scale_limit = scale_limit
         self.interpolation = interpolation
@@ -114,7 +114,7 @@ class RandomScale2(DualTransform):
     """
     TODO: compare speeds with version 1.
     """
-    def __init__(self, scale_limit=[0.9, 1.1], interpolation=3, always_apply=False, p=0.5):
+    def __init__(self, scale_limit=[0.9, 1.1], interpolation=1, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.scale_limit = scale_limit
         self.interpolation = interpolation
@@ -130,7 +130,7 @@ class RandomScale2(DualTransform):
 
 
 class RotatePseudo2D(DualTransform):
-    def __init__(self, axes=(0,1), limit=(-90, 90), interpolation=3, border_mode='constant', value=0, mask_value=0, always_apply=False, p=0.5):
+    def __init__(self, axes=(0,1), limit=(-90, 90), interpolation=1, border_mode='constant', value=0, mask_value=0, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.axes = axes
         self.limit = limit
@@ -198,7 +198,7 @@ class CenterCrop(DualTransform):
 
 
 class RandomResizedCrop(DualTransform):
-    def __init__(self, shape, scale_limit=(0.8, 1.2), interpolation=3, always_apply=False, p=1.0):
+    def __init__(self, shape, scale_limit=(0.8, 1.2), interpolation=1, always_apply=False, p=1.0):
         super().__init__(always_apply, p)
         self.shape = shape
         self.scale_limit = scale_limit
@@ -284,7 +284,7 @@ class CropNonEmptyMaskIfExists(DualTransform):
 
 
 class ResizedCropNonEmptyMaskIfExists(DualTransform):
-    def __init__(self, shape, scale_limit=(0.8, 1.2), interpolation=3, always_apply=False, p=1.0):
+    def __init__(self, shape, scale_limit=(0.8, 1.2), interpolation=1, always_apply=False, p=1.0):
         super().__init__(always_apply, p)
         self.shape = shape
         self.scale_limit = scale_limit
@@ -362,7 +362,7 @@ class ElasticTransformPseudo2D(DualTransform):
 
 
 class ElasticTransform(DualTransform):
-    def __init__(self, deformation_limits=(0, 0.25), interpolation=3, border_mode='constant', value=0, mask_value=0, always_apply=False, p=0.5):
+    def __init__(self, deformation_limits=(0, 0.25), interpolation=1, border_mode='constant', value=0, mask_value=0, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.deformation_limits = deformation_limits
         self.interpolation = interpolation
@@ -390,7 +390,7 @@ class ElasticTransform(DualTransform):
 
 
 class Rotate(DualTransform):
-    def __init__(self, x_limit=(-15,15), y_limit=(-15,15), z_limit=(-15,15), interpolation=3, border_mode='constant', value=0, mask_value=0, always_apply=False, p=0.5):
+    def __init__(self, x_limit=(-15,15), y_limit=(-15,15), z_limit=(-15,15), interpolation=1, border_mode='constant', value=0, mask_value=0, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.x_limit = x_limit
         self.y_limit = y_limit

@@ -17,3 +17,4 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 from aucmedi.data_processing.augmentation.aug_image import Image_Augmentation
+from aucmedi.data_processing.augmentation.aug_volume import Volume_Augmentation

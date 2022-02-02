@@ -39,6 +39,7 @@ RandomCropFromBorders
 GridDropout
 RandomDropPlane
 RandomBrightnessContrast
+ColorJitter
 ```
 
 ## Credits and License

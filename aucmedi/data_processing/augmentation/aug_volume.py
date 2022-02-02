@@ -161,34 +161,34 @@ class Volume_Augmentation():
         if self.aug_rotate:
             tf = ai.RandomRotate90(p=self.aug_rotate_p)
             transforms.append(tf)
-        # if self.aug_brightness:
-        #     tf = ai.RandomBrightnessContrast(brightness_limit=self.aug_brightness_limits,
-        #                                      contrast_limit=0,
-        #                                      p=self.aug_brightness_p)
-        #     transforms.append(tf)
-        # if self.aug_contrast:
-        #     tf = ai.RandomBrightnessContrast(contrast_limit=self.aug_contrast_limits,
-        #                                      brightness_limit=0,
-        #                                      p=self.aug_contrast_p)
-        #     transforms.append(tf)
-        # if self.aug_saturation:
-        #     tf = ai.ColorJitter(brightness=0, contrast=0, hue=0,
-        #                         saturation=self.aug_saturation_limits,
-        #                         p=self.aug_saturation_p)
-        #     transforms.append(tf)
-        # if self.aug_hue:
-        #     tf = ai.ColorJitter(brightness=0, contrast=0, saturation=0,
-        #                         hue=self.aug_hue_limits,
-        #                         p=self.aug_hue_p)
-        #     transforms.append(tf)
-        if self.aug_scale:
-            tf = ai.RandomScale(scale_limit=self.aug_scale_limits,
-                                p=self.aug_scale_p)
+        if self.aug_brightness:
+            tf = ai.RandomBrightnessContrast(brightness_limit=self.aug_brightness_limits,
+                                             contrast_limit=0,
+                                             p=self.aug_brightness_p)
             transforms.append(tf)
-        if self.aug_crop:
-            tf = ai.RandomCrop(self.aug_crop_shape,
-                               p=self.aug_crop_p)
+        if self.aug_contrast:
+            tf = ai.RandomBrightnessContrast(contrast_limit=self.aug_contrast_limits,
+                                             brightness_limit=0,
+                                             p=self.aug_contrast_p)
             transforms.append(tf)
+        if self.aug_saturation:
+            tf = ai.ColorJitter(brightness=0, contrast=0, hue=0,
+                                saturation=self.aug_saturation_limits,
+                                p=self.aug_saturation_p)
+            transforms.append(tf)
+        if self.aug_hue:
+            tf = ai.ColorJitter(brightness=0, contrast=0, saturation=0,
+                                hue=self.aug_hue_limits,
+                                p=self.aug_hue_p)
+            transforms.append(tf)
+        # if self.aug_scale:
+        #     tf = ai.RandomScale(scale_limit=self.aug_scale_limits,
+        #                         p=self.aug_scale_p)
+        #     transforms.append(tf)
+        # if self.aug_crop:
+        #     tf = ai.RandomCrop(self.aug_crop_shape,
+        #                        p=self.aug_crop_p)
+        #     transforms.append(tf)
         # if self.aug_gridDistortion:
         #     tf = ai.GridDistortion(p=self.aug_gridDistortion_p)
         #     transforms.append(tf)

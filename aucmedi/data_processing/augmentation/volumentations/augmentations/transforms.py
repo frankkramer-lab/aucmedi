@@ -42,18 +42,17 @@
 import cv2
 import random
 import numpy as np
-from aucmedi.data_processing.augmentation.volumentations.core.transforms_interface import Transform, DualTransform
+from aucmedi.data_processing.augmentation.volumentations.core.transforms_interface import *
 from aucmedi.data_processing.augmentation.volumentations.augmentations import functional as F
 
 
 class Float(DualTransform):
-    def apply(self, img):
-        return img.astype(np.float32)
-
+    def apply(self, image):
+        return image.astype(np.float32)
 
 class Contiguous(DualTransform):
-    def apply(self, img):
-        return np.ascontiguousarray(img)
+    def apply(self, image):
+        return np.ascontiguousarray(image)
 
 
 class PadIfNeeded(DualTransform):
@@ -729,7 +728,6 @@ class RandomDropPlane(DualTransform):
     def apply_to_mask(self, mask, indexes=(), axis=0, **params):
         return np.take(mask, indexes, axis=axis)
 
-
 class RandomBrightnessContrast(ImageOnlyTransform):
     """Randomly change brightness and contrast of the input image.
     Args:
@@ -762,7 +760,7 @@ class RandomBrightnessContrast(ImageOnlyTransform):
     def apply(self, img, alpha=1.0, beta=0.0, **params):
         return F.brightness_contrast_adjust(img, alpha, beta, self.brightness_by_max)
 
-    def get_params(self):
+    def get_params(self, **data):
         return {
             "alpha": 1.0 + random.uniform(self.contrast_limit[0], self.contrast_limit[1]),
             "beta": 0.0 + random.uniform(self.brightness_limit[0], self.brightness_limit[1]),

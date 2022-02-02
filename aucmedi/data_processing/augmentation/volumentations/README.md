@@ -38,6 +38,7 @@ Rotate
 RandomCropFromBorders
 GridDropout
 RandomDropPlane
+RandomBrightnessContrast
 ```
 
 ## Credits and License

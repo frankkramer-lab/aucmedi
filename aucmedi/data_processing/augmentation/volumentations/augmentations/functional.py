@@ -625,6 +625,44 @@ def is_2Drgb_image(image):
 def is_2Dgrayscale_image(image):
     return (len(image.shape) == 2) or (len(image.shape) == 3 and image.shape[-1] == 1)
 
+def _maybe_process_in_chunks(process_fn, **kwargs):
+    """
+    Wrap OpenCV function to enable processing images with more than 4 channels.
+    Limitations:
+        This wrapper requires image to be the first argument and rest must be sent via named arguments.
+    Args:
+        process_fn: Transform function (e.g cv2.resize).
+        kwargs: Additional parameters.
+    Returns:
+        numpy.ndarray: Transformed image.
+    """
+    def get_num_channels(image):
+        return image.shape[2] if len(image.shape) == 3 else 1
+
+    @wraps(process_fn)
+    def __process_fn(img):
+        num_channels = get_num_channels(img)
+        if num_channels > 4:
+            chunks = []
+            for index in range(0, num_channels, 4):
+                if num_channels - index == 2:
+                    # Many OpenCV functions cannot work with 2-channel images
+                    for i in range(2):
+                        chunk = img[:, :, index + i : index + i + 1]
+                        chunk = process_fn(chunk, **kwargs)
+                        chunk = np.expand_dims(chunk, -1)
+                        chunks.append(chunk)
+                else:
+                    chunk = img[:, :, index : index + 4]
+                    chunk = process_fn(chunk, **kwargs)
+                    chunks.append(chunk)
+            img = np.dstack(chunks)
+        else:
+            img = process_fn(img, **kwargs)
+        return img
+
+    return __process_fn
+
 @preserve_shape
 def grid_distortion(
     img,

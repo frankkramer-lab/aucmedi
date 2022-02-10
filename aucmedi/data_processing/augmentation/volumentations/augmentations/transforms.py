@@ -845,7 +845,7 @@ class ColorJitter(ImageOnlyTransform):
 
         for transform in transforms:
             img_transformed = np.zeros(img.shape, dtype=img.dtype)
-            for slice in range(img.shape[0]):
+            for slice in range(img.shape[2]):
                 img_transformed[:,:,slice] = transform(img[:,:,slice])
         return img_transformed
 
@@ -895,26 +895,28 @@ class GridDistortion(DualTransform):
         self.mask_value = mask_value
 
     def apply(self, img, stepsx=(), stepsy=(), interpolation=cv2.INTER_LINEAR, **params):
-        return F.grid_distortion(
-            img,
-            self.num_steps,
-            stepsx,
-            stepsy,
-            interpolation,
-            self.border_mode,
-            self.value,
-        )
+        img_transformed = np.zeros(img.shape, dtype=img.dtype)
+        for slice in range(img.shape[2]):
+            img_transformed[:,:,slice] = F.grid_distortion(img[:,:,slice],
+                                                           self.num_steps,
+                                                           stepsx,
+                                                           stepsy,
+                                                           interpolation,
+                                                           self.border_mode,
+                                                           self.value)
+        return img_transformed
 
     def apply_to_mask(self, img, stepsx=(), stepsy=(), **params):
-        return F.grid_distortion(
-            img,
-            self.num_steps,
-            stepsx,
-            stepsy,
-            cv2.INTER_NEAREST,
-            self.border_mode,
-            self.mask_value,
-        )
+        img_transformed = np.zeros(img.shape, dtype=img.dtype)
+        for slice in range(img.shape[2]):
+            img_transformed[:,:,slice] = F.grid_distortion(img[:,:,slice],
+                                                           self.num_steps,
+                                                           stepsx,
+                                                           stepsy,
+                                                           cv2.INTER_NEAREST,
+                                                           self.border_mode,
+                                                           self.mask_value)
+        return img_transformed
 
     def get_params(self, **data):
         stepsx = [1 + random.uniform(self.distort_limit[0], self.distort_limit[1]) for i in range(self.num_steps + 1)]

@@ -78,11 +78,11 @@ Interpolation behaves strangely when input of type int.
 """
 
 
-def rotate2d(img, angle, axes=(0,1), reshape=False, interpolation=1, border_mode='constant', value=0):
+def rotate2d(img, angle, axes=(0,1), reshape=False, interpolation=1, border_mode='reflect', value=0):
     return sci.rotate(img, angle, axes, reshape=reshape, order=interpolation, mode=border_mode, cval=value)
 
 
-def shift(img, shift, interpolation=1, border_mode='constant', value=0):
+def shift(img, shift, interpolation=1, border_mode='reflect', value=0):
     return sci.shift(img, shift, order=interpolation, mode=border_mode, cval=value)
 
 
@@ -150,7 +150,7 @@ def normalize(img, range_norm=True):
     return img
 
 
-def pad(image, new_shape, border_mode="constant", value=0):
+def pad(image, new_shape, border_mode="reflect", value=0):
     '''
     image: [H, W, D, C] or [H, W, D]
     new_shape: [H, W, D]
@@ -185,10 +185,11 @@ def resize(img, new_shape, interpolation=1):
     img: [H, W, D, C] or [H, W, D]
     new_shape: [H, W, D]
     """
-    type = 1
+    type = 0
 
     if type == 0:
-        new_img = skt.resize(img, new_shape, order=interpolation, mode='constant', cval=0, clip=True, anti_aliasing=False)
+        new_img = skt.resize(img, new_shape, order=interpolation, mode='reflect',
+                             cval=0, clip=True, anti_aliasing=False)
     else:
         shp = tuple(np.array(new_shape) / np.array(img.shape[:3]))
         # Multichannel
@@ -206,7 +207,8 @@ def rescale(img, scale, interpolation=1):
     img: [H, W, D, C] or [H, W, D]
     scale: scalar float
     """
-    return skt.rescale(img, scale, order=interpolation, mode='constant', cval=0, clip=True, multichannel=True, anti_aliasing=False)
+    return skt.rescale(img, scale, order=interpolation, mode='reflect', cval=0,
+                       clip=True, multichannel=True, anti_aliasing=False)
     """
     shape = [int(scale * i) for i in img.shape[:3]]
     return resize(img, shape, interpolation)
@@ -294,7 +296,7 @@ Later are coordinates-based 3D rotation and elastic transforms.
 reference: https://github.com/MIC-DKFZ/batchgenerators
 """
 
-def elastic_transform(img, sigmas, alphas, interpolation=1, border_mode='constant', value=0, random_state=42):
+def elastic_transform(img, sigmas, alphas, interpolation=1, border_mode='reflect', value=0, random_state=42):
     """
     img: [H, W, D(, C)]
     """
@@ -350,7 +352,7 @@ def recenter_coords(coords):
     return coords
 
 
-def rotate3d(img, x, y, z, interpolation=1, border_mode='constant', value=0):
+def rotate3d(img, x, y, z, interpolation=1, border_mode='reflect', value=0):
     """
     img: [H, W, D(, C)]
     x, y, z: angle in degree.
@@ -724,3 +726,22 @@ def grid_distortion(
         borderValue=value,
     )
     return remap_fn(img)
+
+@preserve_shape
+def downscale(img, scale, interpolation=cv2.INTER_NEAREST):
+    shape_org = img.shape[:3]
+    shape_down = tuple([int(x*scale) for x in shape_org])
+
+    need_cast = interpolation != cv2.INTER_NEAREST and img.dtype == np.uint8
+    if need_cast:
+        img = to_float(img)
+
+
+
+    downscaled = skt.resize(img, shape_down, order=interpolation, mode='reflect',
+                            cval=0, clip=True, anti_aliasing=False)
+    upscaled = skt.resize(downscaled, shape_org, order=interpolation, mode='reflect',
+                            cval=0, clip=True, anti_aliasing=False)
+    if need_cast:
+        upscaled = from_float(np.clip(upscaled, 0, 1), dtype=np.dtype("uint8"))
+    return upscaled

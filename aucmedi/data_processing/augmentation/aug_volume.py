@@ -100,7 +100,7 @@ class Volume_Augmentation():
     # Augmentation: Downscale
     aug_downscaling = False
     aug_downscaling_p = 0.5
-    aug_downscaling_effect = 0.10
+    aug_downscaling_effect = 0.25
     # Augmentation: Gamma
     aug_gamma = False
     aug_gamma_p = 0.5
@@ -181,14 +181,14 @@ class Volume_Augmentation():
                                 hue=self.aug_hue_limits,
                                 p=self.aug_hue_p)
             transforms.append(tf)
-        # if self.aug_scale:
-        #     tf = ai.RandomScale(scale_limit=self.aug_scale_limits,
-        #                         p=self.aug_scale_p)
-        #     transforms.append(tf)
-        # if self.aug_crop:
-        #     tf = ai.RandomCrop(self.aug_crop_shape,
-        #                        p=self.aug_crop_p)
-        #     transforms.append(tf)
+        if self.aug_scale:
+            tf = ai.RandomScale(scale_limit=self.aug_scale_limits,
+                                p=self.aug_scale_p)
+            transforms.append(tf)
+        if self.aug_crop:
+            tf = ai.RandomCrop(self.aug_crop_shape,
+                               p=self.aug_crop_p)
+            transforms.append(tf)
         if self.aug_gridDistortion:
             tf = ai.GridDistortion(p=self.aug_gridDistortion_p)
             transforms.append(tf)
@@ -203,11 +203,11 @@ class Volume_Augmentation():
         # if self.aug_gaussianBlur:
         #     tf = ai.GlassBlur(p=self.aug_gaussianBlur_p)
         #     transforms.append(tf)
-        # if self.aug_downscaling:
-        #     tf = ai.Downscale(scale_min=self.aug_downscaling_effect,
-        #                       scale_max=self.aug_downscaling_effect,
-        #                       p=self.aug_downscaling_p)
-        #     transforms.append(tf)
+        if self.aug_downscaling:
+            tf = ai.Downscale(scale_min=self.aug_downscaling_effect,
+                              scale_max=self.aug_downscaling_effect,
+                              p=self.aug_downscaling_p)
+            transforms.append(tf)
         if self.aug_gamma:
             tf = ai.RandomGamma(gamma_limit=self.aug_gamma_limit,
                                 p=self.aug_gamma_p)

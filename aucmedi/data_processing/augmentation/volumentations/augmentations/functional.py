@@ -547,7 +547,7 @@ def adjust_contrast_torchvision(img, factor):
     if factor == 1:
         return img
 
-    if is_grayscale_image(img):
+    if is_2Dgrayscale_image(img):
         mean = img.mean()
     else:
         mean = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY).mean()
@@ -570,7 +570,7 @@ def adjust_saturation_torchvision(img, factor, gamma=0):
     if factor == 1:
         return img
 
-    if is_grayscale_image(img):
+    if is_2Dgrayscale_image(img):
         gray = img
         return gray
     else:
@@ -599,7 +599,7 @@ def _adjust_hue_torchvision_uint8(img, factor):
 
 
 def adjust_hue_torchvision(img, factor):
-    if is_grayscale_image(img):
+    if is_2Dgrayscale_image(img):
         return img
 
     if factor == 0:
@@ -613,8 +613,76 @@ def adjust_hue_torchvision(img, factor):
     return cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
 
 
-def is_rgb_image(image):
+def is_3Drgb_image(image):
     return len(image.shape) == 4 and image.shape[-1] == 3
 
-def is_grayscale_image(image):
+def is_3Dgrayscale_image(image):
     return (len(image.shape) == 3) or (len(image.shape) == 4 and image.shape[-1] == 1)
+
+def is_2Drgb_image(image):
+    return len(image.shape) == 3 and image.shape[-1] == 3
+
+def is_2Dgrayscale_image(image):
+    return (len(image.shape) == 2) or (len(image.shape) == 3 and image.shape[-1] == 1)
+
+@preserve_shape
+def grid_distortion(
+    img,
+    num_steps=10,
+    xsteps=(),
+    ysteps=(),
+    interpolation=cv2.INTER_LINEAR,
+    border_mode=cv2.BORDER_REFLECT_101,
+    value=None,
+):
+    """Perform a grid distortion of an input image.
+    Reference:
+        http://pythology.blogspot.sg/2014/03/interpolation-on-regular-distorted-grid.html
+    """
+    height, width = img.shape[:2]
+
+    x_step = width // num_steps
+    xx = np.zeros(width, np.float32)
+    prev = 0
+    for idx in range(num_steps + 1):
+        x = idx * x_step
+        start = int(x)
+        end = int(x) + x_step
+        if end > width:
+            end = width
+            cur = width
+        else:
+            cur = prev + x_step * xsteps[idx]
+
+        xx[start:end] = np.linspace(prev, cur, end - start)
+        prev = cur
+
+    y_step = height // num_steps
+    yy = np.zeros(height, np.float32)
+    prev = 0
+    for idx in range(num_steps + 1):
+        y = idx * y_step
+        start = int(y)
+        end = int(y) + y_step
+        if end > height:
+            end = height
+            cur = height
+        else:
+            cur = prev + y_step * ysteps[idx]
+
+        yy[start:end] = np.linspace(prev, cur, end - start)
+        prev = cur
+
+    map_x, map_y = np.meshgrid(xx, yy)
+    map_x = map_x.astype(np.float32)
+    map_y = map_y.astype(np.float32)
+
+    remap_fn = _maybe_process_in_chunks(
+        cv2.remap,
+        map1=map_x,
+        map2=map_y,
+        interpolation=interpolation,
+        borderMode=border_mode,
+        borderValue=value,
+    )
+    return remap_fn(img)

@@ -840,12 +840,93 @@ class ColorJitter(ImageOnlyTransform):
         return {"transforms": transforms}
 
     def apply(self, img, transforms=(), **params):
-        if not F.is_rgb_image(img) and not F.is_grayscale_image(img):
+        if not F.is_3Drgb_image(img) and not F.is_3Dgrayscale_image(img):
             raise TypeError("ColorJitter transformation expects 1-channel or 3-channel images.")
 
         for transform in transforms:
-            img = transform(img)
-        return img
+            img_transformed = np.zeros(img.shape, dtype=img.dtype)
+            for slice in range(img.shape[0]):
+                img_transformed[slice,:,:] = transform(img[slice,:,:])
+        return img_transformed
 
     def get_transform_init_args_names(self):
         return ("brightness", "contrast", "saturation", "hue")
+
+
+class GridDistortion(DualTransform):
+    """
+    Args:
+        num_steps (int): count of grid cells on each side.
+        distort_limit (float, (float, float)): If distort_limit is a single float, the range
+            will be (-distort_limit, distort_limit). Default: (-0.03, 0.03).
+        interpolation (OpenCV flag): flag that is used to specify the interpolation algorithm. Should be one of:
+            cv2.INTER_NEAREST, cv2.INTER_LINEAR, cv2.INTER_CUBIC, cv2.INTER_AREA, cv2.INTER_LANCZOS4.
+            Default: cv2.INTER_LINEAR.
+        border_mode (OpenCV flag): flag that is used to specify the pixel extrapolation method. Should be one of:
+            cv2.BORDER_CONSTANT, cv2.BORDER_REPLICATE, cv2.BORDER_REFLECT, cv2.BORDER_WRAP, cv2.BORDER_REFLECT_101.
+            Default: cv2.BORDER_REFLECT_101
+        value (int, float, list of ints, list of float): padding value if border_mode is cv2.BORDER_CONSTANT.
+        mask_value (int, float,
+                    list of ints,
+                    list of float): padding value if border_mode is cv2.BORDER_CONSTANT applied for masks.
+    Targets:
+        image, mask
+    Image types:
+        uint8, float32
+    """
+
+    def __init__(
+        self,
+        num_steps=5,
+        distort_limit=0.3,
+        interpolation=cv2.INTER_LINEAR,
+        border_mode=cv2.BORDER_REFLECT_101,
+        value=None,
+        mask_value=None,
+        always_apply=False,
+        p=0.5,
+    ):
+        super(GridDistortion, self).__init__(always_apply, p)
+        self.num_steps = num_steps
+        self.distort_limit = to_tuple(distort_limit)
+        self.interpolation = interpolation
+        self.border_mode = border_mode
+        self.value = value
+        self.mask_value = mask_value
+
+    def apply(self, img, stepsx=(), stepsy=(), interpolation=cv2.INTER_LINEAR, **params):
+        return F.grid_distortion(
+            img,
+            self.num_steps,
+            stepsx,
+            stepsy,
+            interpolation,
+            self.border_mode,
+            self.value,
+        )
+
+    def apply_to_mask(self, img, stepsx=(), stepsy=(), **params):
+        return F.grid_distortion(
+            img,
+            self.num_steps,
+            stepsx,
+            stepsy,
+            cv2.INTER_NEAREST,
+            self.border_mode,
+            self.mask_value,
+        )
+
+    def get_params(self, **data):
+        stepsx = [1 + random.uniform(self.distort_limit[0], self.distort_limit[1]) for i in range(self.num_steps + 1)]
+        stepsy = [1 + random.uniform(self.distort_limit[0], self.distort_limit[1]) for i in range(self.num_steps + 1)]
+        return {"stepsx": stepsx, "stepsy": stepsy}
+
+    def get_transform_init_args_names(self):
+        return (
+            "num_steps",
+            "distort_limit",
+            "interpolation",
+            "border_mode",
+            "value",
+            "mask_value",
+        )

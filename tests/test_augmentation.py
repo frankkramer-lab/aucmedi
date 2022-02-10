@@ -62,6 +62,21 @@ class AugmentationTEST(unittest.TestCase):
                      compression=True, gaussian_noise=True,
                      gaussian_blur=True, downscaling=True, gamma=True,
                      elastic_transform=True)
+        data_aug.aug_elasticTransform_p = 1.0
+        data_aug.aug_gamma_p = 1.0
+        data_aug.aug_downscaling_p = 1.0
+        data_aug.aug_gaussianBlur_p = 1.0
+        data_aug.aug_gaussianNoise_p = 1.0
+        data_aug.aug_compression_p = 1.0
+        data_aug.aug_gridDistortion_p = 1.0
+        data_aug.aug_crop_p = 1.0
+        data_aug.aug_scale_p = 1.0
+        data_aug.aug_hue_p = 1.0
+        data_aug.aug_saturation_p = 1.0
+        data_aug.aug_contrast_p = 1.0
+        data_aug.aug_brightness_p = 1.0
+        data_aug.aug_rotate_p = 1.0
+        data_aug.aug_flip_p = 1.0
         data_aug.aug_crop_shape = (8, 8)
         data_aug.build()
         img_augGRAY = data_aug.apply(self.imgGRAY2d)
@@ -101,6 +116,21 @@ class AugmentationTEST(unittest.TestCase):
                      compression=True, gaussian_noise=True,
                      gaussian_blur=True, downscaling=True, gamma=True,
                      elastic_transform=True)
+        data_aug.aug_elasticTransform_p = 1.0
+        data_aug.aug_gamma_p = 1.0
+        data_aug.aug_downscaling_p = 1.0
+        data_aug.aug_gaussianBlur_p = 1.0
+        data_aug.aug_gaussianNoise_p = 1.0
+        data_aug.aug_compression_p = 1.0
+        data_aug.aug_gridDistortion_p = 1.0
+        data_aug.aug_crop_p = 1.0
+        data_aug.aug_scale_p = 1.0
+        data_aug.aug_hue_p = 1.0
+        data_aug.aug_saturation_p = 1.0
+        data_aug.aug_contrast_p = 1.0
+        data_aug.aug_brightness_p = 1.0
+        data_aug.aug_rotate_p = 1.0
+        data_aug.aug_flip_p = 1.0
         data_aug.aug_crop_shape = (8, 8, 8)
         data_aug.build()
         img_augGRAY = data_aug.apply(self.imgGRAY3d)

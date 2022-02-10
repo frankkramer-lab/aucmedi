@@ -43,6 +43,7 @@ import cv2
 import random
 import numpy as np
 import numbers
+from enum import Enum, IntEnum
 from aucmedi.data_processing.augmentation.volumentations.core.transforms_interface import *
 from aucmedi.data_processing.augmentation.volumentations.augmentations import functional as F
 from aucmedi.data_processing.augmentation.volumentations.random_utils import *
@@ -1041,3 +1042,76 @@ class GlassBlur(Blur):
     @property
     def targets_as_params(self):
         return ["image"]
+
+class ImageCompression(ImageOnlyTransform):
+    """Decrease Jpeg, WebP compression of an image.
+    Args:
+        quality_lower (float): lower bound on the image quality.
+                               Should be in [0, 100] range for jpeg and [1, 100] for webp.
+        quality_upper (float): upper bound on the image quality.
+                               Should be in [0, 100] range for jpeg and [1, 100] for webp.
+        compression_type (ImageCompressionType): should be ImageCompressionType.JPEG or ImageCompressionType.WEBP.
+            Default: ImageCompressionType.JPEG
+    Targets:
+        image
+    Image types:
+        uint8, float32
+    """
+
+    class ImageCompressionType(IntEnum):
+        JPEG = 0
+        WEBP = 1
+
+    def __init__(
+        self,
+        quality_lower=99,
+        quality_upper=100,
+        compression_type=ImageCompressionType.JPEG,
+        always_apply=False,
+        p=0.5,
+    ):
+        super(ImageCompression, self).__init__(always_apply, p)
+
+        self.compression_type = ImageCompression.ImageCompressionType(compression_type)
+        low_thresh_quality_assert = 0
+
+        if self.compression_type == ImageCompression.ImageCompressionType.WEBP:
+            low_thresh_quality_assert = 1
+
+        if not low_thresh_quality_assert <= quality_lower <= 100:
+            raise ValueError("Invalid quality_lower. Got: {}".format(quality_lower))
+        if not low_thresh_quality_assert <= quality_upper <= 100:
+            raise ValueError("Invalid quality_upper. Got: {}".format(quality_upper))
+
+        self.quality_lower = quality_lower
+        self.quality_upper = quality_upper
+
+    def apply(self, img, quality=100, image_type=".jpg", **params):
+        if not F.is_3Drgb_image(img) and not F.is_3Dgrayscale_image(img):
+            raise TypeError("ImageCompression transformation expects 1, 3 or 4 channel images.")
+
+
+        img_transformed = np.zeros(img.shape, dtype=img.dtype)
+        for slice in range(img.shape[2]):
+            img_transformed[:,:,slice] = F.image_compression(img[:,:,slice],
+                                                             quality,
+                                                             image_type)
+        return img_transformed
+
+    def get_params(self, **data):
+        image_type = ".jpg"
+
+        if self.compression_type == ImageCompression.ImageCompressionType.WEBP:
+            image_type = ".webp"
+
+        return {
+            "quality": random.randint(self.quality_lower, self.quality_upper),
+            "image_type": image_type,
+        }
+
+    def get_transform_init_args(self):
+        return {
+            "quality_lower": self.quality_lower,
+            "quality_upper": self.quality_upper,
+            "compression_type": self.compression_type.value,
+        }

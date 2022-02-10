@@ -192,11 +192,11 @@ class Volume_Augmentation():
         if self.aug_gridDistortion:
             tf = ai.GridDistortion(p=self.aug_gridDistortion_p)
             transforms.append(tf)
-        # if self.aug_compression:
-        #     tf = ai.ImageCompression(quality_lower=self.aug_compression_limits[0],
-        #                              quality_upper=self.aug_compression_limits[1],
-        #                              p=self.aug_compression_p)
-        #     transforms.append(tf)
+        if self.aug_compression:
+            tf = ai.ImageCompression(quality_lower=self.aug_compression_limits[0],
+                                     quality_upper=self.aug_compression_limits[1],
+                                     p=self.aug_compression_p)
+            transforms.append(tf)
         if self.aug_gaussianNoise:
             tf = ai.GaussianNoise(p=self.aug_gaussianNoise_p)
             transforms.append(tf)

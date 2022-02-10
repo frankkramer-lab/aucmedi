@@ -846,7 +846,7 @@ class ColorJitter(ImageOnlyTransform):
         for transform in transforms:
             img_transformed = np.zeros(img.shape, dtype=img.dtype)
             for slice in range(img.shape[0]):
-                img_transformed[slice,:,:] = transform(img[slice,:,:])
+                img_transformed[:,:,slice] = transform(img[:,:,slice])
         return img_transformed
 
     def get_transform_init_args_names(self):

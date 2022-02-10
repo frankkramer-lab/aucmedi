@@ -745,3 +745,33 @@ def downscale(img, scale, interpolation=cv2.INTER_NEAREST):
     if need_cast:
         upscaled = from_float(np.clip(upscaled, 0, 1), dtype=np.dtype("uint8"))
     return upscaled
+
+def glass_blur(img, sigma, max_delta, iterations, dxy, mode):
+    x = cv2.GaussianBlur(np.array(img), sigmaX=sigma, ksize=(0, 0))
+
+    if mode == "fast":
+
+        hs = np.arange(img.shape[0] - max_delta, max_delta, -1)
+        ws = np.arange(img.shape[1] - max_delta, max_delta, -1)
+        h = np.tile(hs, ws.shape[0])
+        w = np.repeat(ws, hs.shape[0])
+
+        for i in range(iterations):
+            dy = dxy[:, i, 0]
+            dx = dxy[:, i, 1]
+            x[h, w], x[h + dy, w + dx] = x[h + dy, w + dx], x[h, w]
+
+    elif mode == "exact":
+        for ind, (i, h, w) in enumerate(
+            product(
+                range(iterations),
+                range(img.shape[0] - max_delta, max_delta, -1),
+                range(img.shape[1] - max_delta, max_delta, -1),
+            )
+        ):
+            ind = ind if ind < len(dxy) else ind % len(dxy)
+            dy = dxy[ind, i, 0]
+            dx = dxy[ind, i, 1]
+            x[h, w], x[h + dy, w + dx] = x[h + dy, w + dx], x[h, w]
+
+    return cv2.GaussianBlur(x, sigmaX=sigma, ksize=(0, 0))

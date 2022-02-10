@@ -200,9 +200,9 @@ class Volume_Augmentation():
         if self.aug_gaussianNoise:
             tf = ai.GaussianNoise(p=self.aug_gaussianNoise_p)
             transforms.append(tf)
-        # if self.aug_gaussianBlur:
-        #     tf = ai.GlassBlur(p=self.aug_gaussianBlur_p)
-        #     transforms.append(tf)
+        if self.aug_gaussianBlur:
+            tf = ai.GlassBlur(p=self.aug_gaussianBlur_p)
+            transforms.append(tf)
         if self.aug_downscaling:
             tf = ai.Downscale(scale_min=self.aug_downscaling_effect,
                               scale_max=self.aug_downscaling_effect,

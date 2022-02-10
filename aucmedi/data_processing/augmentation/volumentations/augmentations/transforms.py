@@ -45,7 +45,7 @@ import numpy as np
 import numbers
 from aucmedi.data_processing.augmentation.volumentations.core.transforms_interface import *
 from aucmedi.data_processing.augmentation.volumentations.augmentations import functional as F
-
+from aucmedi.data_processing.augmentation.volumentations.random_utils import *
 
 class Float(DualTransform):
     def apply(self, image):
@@ -973,3 +973,71 @@ class Downscale(ImageOnlyTransform):
 
     def get_transform_init_args_names(self):
         return "scale_min", "scale_max", "interpolation"
+
+class GlassBlur(Blur):
+    """Apply glass noise to the input image.
+    Args:
+        sigma (float): standard deviation for Gaussian kernel.
+        max_delta (int): max distance between pixels which are swapped.
+        iterations (int): number of repeats.
+            Should be in range [1, inf). Default: (2).
+        mode (str): mode of computation: fast or exact. Default: "fast".
+        p (float): probability of applying the transform. Default: 0.5.
+    Targets:
+        image
+    Image types:
+        uint8, float32
+    Reference:
+    |  https://arxiv.org/abs/1903.12261
+    |  https://github.com/hendrycks/robustness/blob/master/ImageNet-C/create_c/make_imagenet_c.py
+    """
+
+    def __init__(
+        self,
+        sigma=0.7,
+        max_delta=4,
+        iterations=2,
+        always_apply=False,
+        mode="fast",
+        p=0.5,
+    ):
+        super(GlassBlur, self).__init__(always_apply=always_apply, p=p)
+        if iterations < 1:
+            raise ValueError("Iterations should be more or equal to 1, but we got {}".format(iterations))
+
+        if mode not in ["fast", "exact"]:
+            raise ValueError("Mode should be 'fast' or 'exact', but we got {}".format(iterations))
+
+        self.sigma = sigma
+        self.max_delta = max_delta
+        self.iterations = iterations
+        self.mode = mode
+
+    def apply(self, img, **params):
+        # generate array containing all necessary values for transformations
+        width_pixels = img.shape[0] - self.max_delta * 2
+        height_pixels = img.shape[1] - self.max_delta * 2
+        total_pixels = width_pixels * height_pixels
+        dxy = randint(-self.max_delta, self.max_delta,
+                      size=(total_pixels, self.iterations, 2))
+
+        img_transformed = np.zeros(img.shape, dtype=img.dtype)
+        for slice in range(img.shape[2]):
+            img_processed = F.glass_blur(img[:,:,slice],
+                                         self.sigma,
+                                         self.max_delta,
+                                         self.iterations,
+                                         dxy,
+                                         self.mode)
+            if len(img.shape) == 4 and img.shape[-1] == 1:
+                img_transformed[:,:,slice] = np.reshape(img_processed,
+                                                        img_processed.shape+(1,))
+            else : img_transformed[:,:,slice] = img_processed
+        return img_transformed
+
+    def get_transform_init_args_names(self):
+        return ("sigma", "max_delta", "iterations")
+
+    @property
+    def targets_as_params(self):
+        return ["image"]

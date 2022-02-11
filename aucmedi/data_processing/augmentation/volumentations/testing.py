@@ -47,11 +47,27 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from skimage.data import cells3d
+# AUCMED libraries
+from aucmedi.data_processing.augmentation import Volume_Augmentation
 
 # -----------------------------------------------------#
 #                    GIF Visualizer                    #
 # -----------------------------------------------------#
+def grayscale_normalization(image):
+    # Identify minimum and maximum
+    max_value = np.max(image)
+    min_value = np.min(image)
+    # Scaling
+    image_scaled = (image - min_value) / (max_value - min_value)
+    image_normalized = np.around(image_scaled * 255, decimals=0)
+    # Return normalized image
+    return image_normalized
+
 def visualize_evaluation(index, volume, viz_path="test_volumentations"):
+    # Grayscale Normalization of Volume
+    volume_gray = grayscale_normalization(volume)
+
     # Create a figure and two axes objects from matplot
     fig = plt.figure()
     img = plt.imshow(volume_gray[0, :, :], cmap='gray', vmin=0, vmax=255,
@@ -80,7 +96,44 @@ def visualize_evaluation(index, volume, viz_path="test_volumentations"):
 #                  Application Test                   #
 #-----------------------------------------------------#
 if __name__ == "__main__":
-    from skimage.data import brain
-    ds = brain()
-
-    print(ds.shape)
+    # Obtain 3D volume of fluorescence microscopy image of cells
+    data_raw = cells3d()
+    # Extract nuclei
+    data = np.reshape(data_raw[:,1,:,:], (60, 256, 256))
+    data = np.float32(data)
+    # Visualize original volume
+    visualize_evaluation("original", data)
+    # Setup options
+    options = [False for x in range(15)]
+    options_labels = ["flip", "rotate", "brightness", "contrast", "saturation",
+                      "hue", "scale", "crop", "grid_distortion", "compression",
+                      "gaussian_noise", "gaussian_blur", "downscaling", "gamma",
+                      "elastic_transform"]
+    # Apply each augmentation once for testing
+    for i in range(15):
+        # Active current augmentation technique
+        options_curr = options.copy()
+        options_curr[i] = True
+        # Initialize Volumentations
+        data_aug = Volume_Augmentation(*options_curr)
+        data_aug.aug_elasticTransform_p = 1.0
+        data_aug.aug_gamma_p = 1.0
+        data_aug.aug_downscaling_p = 1.0
+        data_aug.aug_gaussianBlur_p = 1.0
+        data_aug.aug_gaussianNoise_p = 1.0
+        data_aug.aug_compression_p = 1.0
+        data_aug.aug_gridDistortion_p = 1.0
+        data_aug.aug_crop_p = 1.0
+        data_aug.aug_scale_p = 1.0
+        data_aug.aug_hue_p = 1.0
+        data_aug.aug_saturation_p = 1.0
+        data_aug.aug_contrast_p = 1.0
+        data_aug.aug_brightness_p = 1.0
+        data_aug.aug_rotate_p = 1.0
+        data_aug.aug_flip_p = 1.0
+        data_aug.aug_crop_shape = (64, 64, 64)
+        data_aug.build()
+        # Apply augmentation
+        img_augmented = data_aug.apply(data)
+        # Visualize result
+        visualize_evaluation(options_labels[i], img_augmented)

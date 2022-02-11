@@ -349,17 +349,31 @@ class ResizedCropNonEmptyMaskIfExists(DualTransform):
         }
 
 
-class RandomGamma(Transform):
-    def __init__(self, gamma_limit=(0.7, 1.5), eps=1e-7, always_apply=False, p=0.5):
-        super().__init__(always_apply, p)
-        self.gamma_limit = gamma_limit
+class RandomGamma(ImageOnlyTransform):
+    """
+    Args:
+        gamma_limit (float or (float, float)): If gamma_limit is a single float value,
+            the range will be (-gamma_limit, gamma_limit). Default: (80, 120).
+        eps: Deprecated.
+    Targets:
+        image
+    Image types:
+        uint8, float32
+    """
+
+    def __init__(self, gamma_limit=(80, 120), eps=None, always_apply=False, p=0.5):
+        super(RandomGamma, self).__init__(always_apply, p)
+        self.gamma_limit = to_tuple(gamma_limit)
         self.eps = eps
 
-    def apply(self, img, gamma=1):
-        return F.gamma_transform(img, gamma=gamma, eps=self.eps)
+    def apply(self, img, gamma=1, **params):
+        return F.gamma_transform(img, gamma=gamma)
 
     def get_params(self, **data):
-        return {"gamma": random.uniform(self.gamma_limit[0], self.gamma_limit[1])}
+        return {"gamma": random.randint(self.gamma_limit[0], self.gamma_limit[1]) / 100.0}
+
+    def get_transform_init_args_names(self):
+        return ("gamma_limit", "eps")
 
 
 class ElasticTransformPseudo2D(DualTransform):

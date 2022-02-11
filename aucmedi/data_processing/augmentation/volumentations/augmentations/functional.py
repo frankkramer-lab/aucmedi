@@ -78,6 +78,20 @@ Interpolation behaves strangely when input of type int.
 """
 
 
+def preserve_shape(func):
+    """
+    Preserve shape of the image
+    """
+
+    @wraps(func)
+    def wrapped_function(img, *args, **kwargs):
+        shape = img.shape
+        result = func(img, *args, **kwargs)
+        result = result.reshape(shape)
+        return result
+
+    return wrapped_function
+
 def rotate2d(img, angle, axes=(0,1), reshape=False, interpolation=1, border_mode='reflect', value=0):
     return sci.rotate(img, angle, axes, reshape=reshape, order=interpolation, mode=border_mode, cval=value)
 
@@ -216,11 +230,15 @@ def rescale(img, scale, interpolation=1):
     """
 
 
-def gamma_transform(img, gamma, eps=1e-7):
-    mn = img.min()
-    rng = img.max() - mn
-    img = (img - mn)/(rng + eps)
-    return 255 * np.power(img, gamma)
+@preserve_shape
+def gamma_transform(img, gamma):
+    if img.dtype == np.uint8:
+        table = (np.arange(0, 256.0 / 255, 1.0 / 255) ** gamma) * 255
+        img = cv2.LUT(img, table.astype(np.uint8))
+    else:
+        img = np.power(img, gamma)
+
+    return img
 
 
 def elastic_transform_pseudo2D(img, alpha, sigma, alpha_affine, interpolation=cv2.INTER_LINEAR, border_mode=cv2.BORDER_REFLECT_101, value=None, random_state=42, approximate=False):
@@ -462,20 +480,6 @@ def clipped(func):
         dtype = img.dtype
         maxval = MAX_VALUES_BY_DTYPE.get(dtype, 1.0)
         return clip(func(img, *args, **kwargs), dtype, maxval)
-
-    return wrapped_function
-
-def preserve_shape(func):
-    """
-    Preserve shape of the image
-    """
-
-    @wraps(func)
-    def wrapped_function(img, *args, **kwargs):
-        shape = img.shape
-        result = func(img, *args, **kwargs)
-        result = result.reshape(shape)
-        return result
 
     return wrapped_function
 

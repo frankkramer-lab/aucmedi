@@ -101,8 +101,11 @@ if __name__ == "__main__":
     # Extract nuclei
     data = np.reshape(data_raw[:,1,:,:], (60, 256, 256))
     data = np.float32(data)
+    data = grayscale_normalization(data)
     # Visualize original volume
     visualize_evaluation("original", data)
+    print(data)
+    print("original", data.shape)
     # Setup options
     options = [False for x in range(15)]
     options_labels = ["flip", "rotate", "brightness", "contrast", "saturation",
@@ -131,10 +134,12 @@ if __name__ == "__main__":
         data_aug.aug_brightness_p = 1.0
         data_aug.aug_rotate_p = 1.0
         data_aug.aug_flip_p = 1.0
-        data_aug.aug_crop_shape = (64, 64, 64)
+        data_aug.aug_crop_shape = (30, 64, 64)
+        data_aug.aug_compression_limits = (100,100)
         data_aug.build()
         # Apply augmentation
         img_augmented = data_aug.apply(data)
         # Visualize result
-        print(options_labels[i])
+        print(img_augmented)
+        print(options_labels[i], img_augmented.shape)
         visualize_evaluation(options_labels[i], img_augmented)

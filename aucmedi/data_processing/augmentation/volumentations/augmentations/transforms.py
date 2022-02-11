@@ -154,15 +154,23 @@ class RotatePseudo2D(DualTransform):
 
 
 class RandomRotate90(DualTransform):
-    def __init__(self, axes=(0,1), always_apply=False, p=0.5):
+    def __init__(self, axes=None, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.axes = axes
 
-    def apply(self, img, factor):
-        return np.rot90(img, factor, axes=self.axes)
+    def apply(self, img, axes, factor):
+        return np.rot90(img, factor, axes=axes)
 
     def get_params(self, **data):
-        return {"factor": random.randint(0, 3)}
+        # Pick predefined axis to flip
+        if self.axes is not None : axes = self.axes
+        # Pick random combination of axes to flip
+        else:
+            combinations = [(0,1), (1,0), (0,2), (2,0), (1,2), (2,1)]
+            axes = random.choice(combinations)
+        # Define params
+        return {"factor": random.randint(0, 3),
+                "axes": axes}
 
 
 class Flip(DualTransform):
@@ -175,7 +183,7 @@ class Flip(DualTransform):
         if self.axis is not None : axis = self.axis
         # Pick random combination of axes to flip
         else:
-            combinations = [(0), (1), (2), (0,1), (0,2), (1,2), (0,1,2)]
+            combinations = [(0,), (1,), (2,), (0,1), (0,2), (1,2), (0,1,2)]
             axis = random.choice(combinations)
         # Apply flipping
         return np.flip(img, axis)

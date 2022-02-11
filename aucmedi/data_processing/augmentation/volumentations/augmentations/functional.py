@@ -223,7 +223,7 @@ def rescale(img, scale, interpolation=1):
     scale: scalar float
     """
     return skt.rescale(img, scale, order=interpolation, mode='reflect', cval=0,
-                       clip=True, multichannel=True, anti_aliasing=False)
+                       clip=True, channel_axis=-1, anti_aliasing=False)
     """
     shape = [int(scale * i) for i in img.shape[:3]]
     return resize(img, shape, interpolation)

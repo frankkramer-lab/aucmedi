@@ -136,4 +136,5 @@ if __name__ == "__main__":
         # Apply augmentation
         img_augmented = data_aug.apply(data)
         # Visualize result
+        print(options_labels[i])
         visualize_evaluation(options_labels[i], img_augmented)

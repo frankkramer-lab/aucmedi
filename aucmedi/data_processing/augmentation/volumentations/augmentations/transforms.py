@@ -166,12 +166,19 @@ class RandomRotate90(DualTransform):
 
 
 class Flip(DualTransform):
-    def __init__(self, axis=0, always_apply=False, p=0.5):
+    def __init__(self, axis=None, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.axis = axis
 
     def apply(self, img):
-        return np.flip(img, self.axis)
+        # Pick predefined axis to flip
+        if self.axis is not None : axis = self.axis
+        # Pick random combination of axes to flip
+        else:
+            combinations = [(0), (1), (2), (0,1), (0,2), (1,2), (0,1,2)]
+            axis = random.choice(combinations)
+        # Apply flipping
+        return np.flip(img, axis)
 
 
 class Normalize(Transform):

@@ -133,8 +133,9 @@ def random_crop(img, crop_height, crop_width, crop_depth, h_start, w_start, d_st
     if height < crop_height or width < crop_width or depth < crop_depth:
         img = pad(img, (crop_width, crop_height, crop_depth))
         warn('image size smaller than crop size, pad by default.', UserWarning)
-    x1, y1, z1, x2, y2, z2 = get_random_crop_coords(height, width, depth, crop_height, crop_width, crop_depth, h_start, w_start, d_start)
-    img = img[x1:x2, y1:y2, z1:z2]
+    else:
+        x1, y1, z1, x2, y2, z2 = get_random_crop_coords(height, width, depth, crop_height, crop_width, crop_depth, h_start, w_start, d_start)
+        img = img[x1:x2, y1:y2, z1:z2]
     return img
 
 

@@ -63,11 +63,11 @@ class Volume_Augmentation():
     # Augmentation: Brightness
     aug_brightness = False
     aug_brightness_p = 0.5
-    aug_brightness_limits = (-0.1, 0.1)
+    aug_brightness_limits = 0.1
     # Augmentation: Contrast
     aug_contrast = False
     aug_contrast_p = 0.5
-    aug_contrast_limits = (-0.1, 0.1)
+    aug_contrast_limits = 0.1
     # Augmentation: Saturation shift
     aug_saturation = False
     aug_saturation_p = 0.5
@@ -75,7 +75,7 @@ class Volume_Augmentation():
     # Augmentation: Hue shift
     aug_hue = False
     aug_hue_p = 0.5
-    aug_hue_limits = (-0.1, 0.1)
+    aug_hue_limits = 0.1
     # Augmentation: Scale
     aug_scale = False
     aug_scale_p = 0.5
@@ -162,14 +162,14 @@ class Volume_Augmentation():
             tf = ai.RandomRotate90(p=self.aug_rotate_p)
             transforms.append(tf)
         if self.aug_brightness:
-            tf = ai.RandomBrightnessContrast(brightness_limit=self.aug_brightness_limits,
-                                             contrast_limit=0,
-                                             p=self.aug_brightness_p)
+            tf = ai.ColorJitter(brightness=self.aug_brightness_limits,
+                                contrast=0, hue=0, saturation=0,
+                                p=self.aug_brightness_p)
             transforms.append(tf)
         if self.aug_contrast:
-            tf = ai.RandomBrightnessContrast(contrast_limit=self.aug_contrast_limits,
-                                             brightness_limit=0,
-                                             p=self.aug_contrast_p)
+            tf = ai.ColorJitter(brightness=0, contrast=self.aug_contrast_limits,
+                                hue=0, saturation=0,
+                                p=self.aug_contrast_p)
             transforms.append(tf)
         if self.aug_saturation:
             tf = ai.ColorJitter(brightness=0, contrast=0, hue=0,

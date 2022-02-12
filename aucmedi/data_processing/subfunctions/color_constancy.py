@@ -62,6 +62,10 @@ class ColorConstancy(Subfunction_Base):
     #                Transformation               #
     #---------------------------------------------#
     def transform(self, image):
+        # Verify if image is RGB
+        if image.shape[-1] != 3:
+            raise ValueError("Image have to be RGB for Color Constancy application!",
+                             "Last axis of image is not 3 (RGB):", image.shape)
         # Apply color constancy filtering (Shades of Gray)
         img = image.astype('float32')
         img_power = np.power(img, self.power)

@@ -65,7 +65,8 @@ class ColorConstancy(Subfunction_Base):
         # Apply color constancy filtering (Shades of Gray)
         img = image.astype('float32')
         img_power = np.power(img, self.power)
-        rgb_vec = np.power(np.mean(img_power, (0,1)), 1/self.power)
+        axes = tuple(range(len(image.shape[:-1])))
+        rgb_vec = np.power(np.mean(img_power, axes), 1/self.power)
         rgb_norm = np.sqrt(np.sum(np.power(rgb_vec, 2.0)))
         rgb_vec = rgb_vec / rgb_norm
         rgb_vec = 1 / (rgb_vec * np.sqrt(3))

@@ -20,7 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from albumentations import Compose, RandomCrop
+import albumentations as alb
+import aucmedi.data_processing.augmentation.volumentations as vol
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
@@ -29,11 +30,17 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 """ A Crop Subfunction class which randomly crops a desired shape from an image.
 
-    Shape have to be defined as tuple with x and y size:
+2D image: Shape have to be defined as tuple with x and y size:
     Crop(shape=(224, 224))
 
     Cropping is done via albumentations RandomCrop transform.
     https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.RandomCrop
+
+3D volume: Shape have to be defined as tuple with x, y and z size:
+    Crop(shape=(224, 224, 244))
+
+    Cropping is done via volumentations RandomCrop transform.
+    https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
 
 Methods:
     __init__                Object creation function
@@ -44,11 +51,21 @@ class Crop(Subfunction_Base):
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, shape=(224, 224)):
-        # Initialize resizing transform
+        # If 2D -> Initialize albumentations RandomCrop
+        if len(shape) == 2:
+            self.aug_transform = alb.Compose([alb.RandomCrop(
+                                                     height=shape[0],
+                                                     width=shape[1],
+                                                     p=1.0,
+                                                     always_apply=True)])
+        # If 3D -> Initialize volumentations RandomCrop
+        else:
+            self.aug_transform = vol.Compose([vol.RandomCrop(
+                                                     shape,
+                                                     p=1.0,
+                                                     always_apply=True)])
+        # Cache shape
         self.shape = shape
-        self.aug_transform = Compose([RandomCrop(height=shape[0],
-                                                 width=shape[1],
-                                                 p=1.0, always_apply=True)])
 
     #---------------------------------------------#
     #                Transformation               #

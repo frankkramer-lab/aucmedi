@@ -20,8 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from albumentations import Compose
-from albumentations import Resize as aug_resize
+import albumentations as alb
+import aucmedi.data_processing.augmentation.volumentations as vol
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
@@ -30,11 +30,17 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 """ A Resize Subfunction class which resizes an images according to a desired shape.
 
-    Shape have to be defined as tuple with x and y size:
+2D image: Shape have to be defined as tuple with x and y size:
     Resize(shape=(224, 224))
 
     Resizing is done via albumentations resize transform which uses bi-linear interpolation by default.
     https://albumentations.ai/docs/api_reference/augmentations/geometric/resize/
+
+3D volume: Shape have to be defined as tuple with x, y and z size:
+    Resize(shape=(128, 128, 128))
+
+    Resizing is done via volumentations resize transform which uses bi-linear interpolation by default.
+    https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
 
 Methods:
     __init__                Object creation function
@@ -44,12 +50,20 @@ class Resize(Subfunction_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, shape=(224, 224)):
-        # Initialize resizing transform
+    def __init__(self, shape=(224, 224), interpolation=1):
+        # If 2D -> Initialize albumentations Resize
+        if len(shape) == 2:
+            self.aug_transform = alb.Compose([alb.Resize(height=shape[0],
+                                                        width=shape[1],
+                                                        p=1.0,
+                                                        always_apply=True)])
+        # If 3D -> Initialize volumentations Resize
+        else:
+            self.aug_transform = vol.Compose([vol.Resize(shape,
+                                                         p=1.0,
+                                                         always_apply=True)])
+        # Cache shape
         self.shape = shape
-        self.aug_transform = Compose([aug_resize(width=shape[1],
-                                                 height=shape[0],
-                                                 p=1.0, always_apply=True)])
 
     #---------------------------------------------#
     #                Transformation               #

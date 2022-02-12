@@ -58,9 +58,10 @@ class Padding(Subfunction_Base):
         # Identify new shape
         if self.mode == "square":
             max_axis = max(image.shape[:-1])
-            new_shape = [max_axis, max_axis]
+            new_shape = [max_axis for x in range(0, len(image.shape[:-1]))]
         else:
-            new_shape = [max(self.shape[i],image.shape[i]) for i in range(0, 2)]
+            new_shape = [max(self.shape[i],image.shape[i]) \
+                         for i in range(0, len(image.shape[:-1]))]
         # Compute padding width
         ## Code inspiration from: https://github.com/MIC-DKFZ/batchgenerators/blob/master/batchgenerators/augmentations/utils.py
         ## Leave a star for them if you are reading this. The MIC-DKFZ is doing some great work ;)

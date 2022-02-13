@@ -54,7 +54,6 @@ Arguments:
     batch_size (Integer):           Number of samples inside a single batch.
     resize (Tuple of Integers):     Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
     grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-    two_dim (Boolean):              Boolean, whether images are 2D or 3D.
     subfunctions (List of Subfunctions):
                                     List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
     standardize_mode (String):      Standardization modus in which image intensity values are scaled.
@@ -65,16 +64,16 @@ Arguments:
 """
 def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
                        aggregate="mean", image_format=None, batch_size=32,
-                       resize=(224, 224), grayscale=False, two_dim=True,
-                       subfunctions=[], standardize_mode="z-score",
-                       loader=image_loader, seed=None, workers=1, **kwargs):
+                       resize=(224, 224), grayscale=False, subfunctions=[],
+                       standardize_mode="z-score", loader=image_loader,
+                       seed=None, workers=1, **kwargs):
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:
         agg_fun = aggregate_dict[aggregate]()
     else : agg_fun = aggregate
 
     # Initialize image augmentation if none provided (only flip, rotate)
-    if img_aug is None and two_dim:
+    if img_aug is None and len(model.input_shape) == 3:
         img_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
                                      brightness=False, contrast=False,
                                      saturation=False, hue=False, crop=False,
@@ -82,7 +81,7 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
                                      gamma=False, gaussian_noise=False,
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=False)
-    elif img_aug is None and not two_dim:
+    elif img_aug is None and len(model.input_shape) == 4:
         img_aug = Volume_Augmentation(flip=True, rotate=True, scale=False,
                                       brightness=False, contrast=False,
                                       saturation=False, hue=False, crop=False,
@@ -98,10 +97,9 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
                             batch_size=batch_size, img_aug=img_aug, seed=seed,
                             subfunctions=subfunctions, shuffle=False,
                             standardize_mode=standardize_mode, resize=resize,
-                            grayscale=grayscale, two_dim=two_dim,
-                            prepare_images=False, sample_weights=None,
-                            image_format=image_format, loader=loader,
-                            workers=workers, **kwargs)
+                            grayscale=grayscale, prepare_images=False,
+                            sample_weights=None, image_format=image_format,
+                            loader=loader, workers=workers, **kwargs)
 
     # Compute predictions with provided model
     preds_all = model.predict(aug_gen)

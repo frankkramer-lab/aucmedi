@@ -74,7 +74,6 @@ class DataGenerator(Iterator):
             img_aug (ImageAugmentation):    Image Augmentation class instance which performs diverse data augmentation techniques.
             shuffle (Boolean):              Boolean, whether dataset should be shuffled.
             grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-            two_dim (Boolean):              Boolean, whether images are 2D or 3D.
             standardize_mode (String):      Standardization modus in which image intensity values are scaled.
             sample_weights (List of Floats):List of weights for samples.
             workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
@@ -86,7 +85,7 @@ class DataGenerator(Iterator):
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), subfunctions=[],
-                 img_aug=None, shuffle=False, grayscale=False, two_dim=True,
+                 img_aug=None, shuffle=False, grayscale=False,
                  standardize_mode="z-score", sample_weights=None, workers=1,
                  prepare_images=False,  loader=image_loader, seed=None,
                  **kwargs):
@@ -97,7 +96,6 @@ class DataGenerator(Iterator):
         self.workers = workers
         self.sample_loader = loader
         self.kwargs = kwargs
-        self.two_dim = two_dim
         self.samples = samples
         self.path_imagedir = path_imagedir
         self.image_format = image_format
@@ -219,7 +217,7 @@ class DataGenerator(Iterator):
             img = self.sample_loader(self.samples[index], self.path_imagedir,
                                      image_format=self.image_format,
                                      grayscale=self.grayscale,
-                                     two_dim=self.two_dim, **self.kwargs)
+                                     **self.kwargs)
             # Apply subfunctions on image
             for sf in self.subfunctions:
                 img = sf.transform(img)

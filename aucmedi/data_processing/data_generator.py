@@ -86,7 +86,7 @@ class DataGenerator(Iterator):
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), subfunctions=[],
                  img_aug=None, shuffle=False, grayscale=False, two_dim=True,
-                 standardize_mode="tf", sample_weights=None, workers=1,
+                 standardize_mode="z-score", sample_weights=None, workers=1,
                  prepare_images=False,  loader=image_loader, seed=None,
                  **kwargs):
         # Cache class variables

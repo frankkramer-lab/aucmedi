@@ -54,9 +54,9 @@ class Resize(Subfunction_Base):
         # If 2D -> Initialize albumentations Resize
         if len(shape) == 2:
             self.aug_transform = alb.Compose([alb.Resize(height=shape[0],
-                                                        width=shape[1],
-                                                        p=1.0,
-                                                        always_apply=True)])
+                                                         width=shape[1],
+                                                         p=1.0,
+                                                         always_apply=True)])
         # If 3D -> Initialize volumentations Resize
         else:
             self.aug_transform = vol.Compose([vol.Resize(shape,

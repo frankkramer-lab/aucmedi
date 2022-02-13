@@ -33,12 +33,21 @@ class SubfunctionsTEST(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
-        # Create Grayscale data
+        # Create 2D Grayscale data
         img_gray = np.random.rand(16, 24, 1) * 255
-        self.imgGRAY = np.float32(img_gray)
-        # Create RGB data
+        self.img2Dgray = np.float32(img_gray)
+        # Create 2D RGB data
         img_rgb = np.random.rand(16, 24, 3) * 255
-        self.imgRGB = np.float32(img_rgb)
+        self.img2Drgb = np.float32(img_rgb)
+        # Create 3D Grayscale data
+        img_3Dgray = np.random.rand(16, 24, 32, 1) * 255
+        self.img3Dgray = np.float32(img_3Dgray)
+        # Create 3D RGB data
+        img_3Drgb = np.random.rand(16, 24, 32, 3) * 255
+        self.img3Drgb = np.float32(img_3Drgb)
+        # Create 3D HU data
+        img_3Dhu = np.random.rand(16, 24, 32, 1) * 1500
+        self.img3Dhu = np.float32(img_3Dhu - 500)
 
     #-------------------------------------------------#
     #              Subfunction: Padding               #
@@ -48,16 +57,22 @@ class SubfunctionsTEST(unittest.TestCase):
 
     def test_PADDING_transform(self):
         sf = Padding(shape=(32, 32), mode="edge")
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (32, 32, 1)))
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (32, 32, 3)))
         sf = Padding(shape=(8, 32), mode="constant")
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (16, 32, 3)))
         sf = Padding(mode="square")
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (24, 24, 3)))
+        sf = Padding(mode="square")
+        img_ppHU= sf.transform(self.img3Dhu.copy())
+        self.assertTrue(np.array_equal(img_ppHU.shape, (32, 32, 32, 1)))
+        sf = Padding(shape=(8, 32, 48), mode="edge")
+        img_ppRGB = sf.transform(self.img3Drgb.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (16, 32, 48, 3)))
 
     #-------------------------------------------------#
     #               Subfunction: Resize               #
@@ -66,21 +81,38 @@ class SubfunctionsTEST(unittest.TestCase):
         sf = Resize()
 
     def test_RESIZE_transform(self):
+        # 2D
         sf = Resize(shape=(32, 32))
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (32, 32, 1)))
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (32, 32, 3)))
         sf = Resize(shape=(8, 8))
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 1)))
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (8, 8, 3)))
         sf = Resize(shape=(32, 8))
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (32, 8, 1)))
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (32, 8, 3)))
+        # 3D
+        sf = Resize(shape=(32, 32, 32))
+        img_ppGRAY = sf.transform(self.img3Dgray.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (32, 32, 32, 1)))
+        img_ppRGB = sf.transform(self.img3Drgb.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (32, 32, 32, 3)))
+        sf = Resize(shape=(8, 8, 8))
+        img_ppGRAY = sf.transform(self.img3Dgray.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 8, 1)))
+        img_ppRGB = sf.transform(self.img3Drgb.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (8, 8, 8, 3)))
+        sf = Resize(shape=(32, 8, 8))
+        img_ppGRAY = sf.transform(self.img3Dgray.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (32, 8, 8, 1)))
+        img_ppRGB = sf.transform(self.img3Drgb.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (32, 8, 8, 3)))
 
     #-------------------------------------------------#
     #             Subfunction: Standardize            #
@@ -89,21 +121,36 @@ class SubfunctionsTEST(unittest.TestCase):
         sf = Standardize()
 
     def test_STANDARDIZE_transform(self):
-        sf = Standardize(mode="tf")
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
-        self.assertTrue(np.amin(img_ppGRAY) < 0)
-        self.assertTrue(np.amax(img_ppGRAY) > 0)
-        img_ppRGB = sf.transform(self.imgRGB.copy())
-        self.assertTrue(np.amin(img_ppRGB) < 0)
-        self.assertTrue(np.amax(img_ppRGB) > 0)
-        sf = Standardize(mode="caffe")
-        img_ppRGB = sf.transform(self.imgRGB.copy())
-        self.assertTrue(np.amin(img_ppRGB) < 0)
-        self.assertTrue(np.amax(img_ppRGB) > 0)
-        sf = Standardize(mode="torch")
-        img_ppRGB = sf.transform(self.imgRGB.copy())
-        self.assertTrue(np.amin(img_ppRGB) < 0)
-        self.assertTrue(np.amax(img_ppRGB) > 0)
+        # Custom implementations
+        for mode in ["z-score", "minmax", "grayscale"]:
+            sf = Standardize(mode=mode)
+            for data in [self.img2Dgray, self.img2Drgb, self.img3Dgray,
+                         self.img3Drgb, self.img3Dhu]:
+                img_pp = sf.transform(data.copy())
+                if mode == "z-score":
+                    self.assertTrue(np.amin(img_pp) <= 0)
+                    self.assertTrue(np.amax(img_pp) >= 0)
+                elif mode == "minmax":
+                    self.assertTrue(np.amin(img_pp) >= 0)
+                    self.assertTrue(np.amax(img_pp) <= 1)
+                elif mode == "grayscale":
+                    self.assertTrue(np.amin(img_pp) >= 0)
+                    self.assertTrue(np.amax(img_pp) <= 255)
+        # Keras implementations
+        for mode in ["tf", "caffe", "torch"]:
+            sf = Standardize(mode=mode)
+            for data in [self.img2Drgb, self.img3Drgb]:
+                img_pp = sf.transform(data.copy())
+                if mode == "tf":
+                    print("tf", np.amin(img_pp), np.amax(img_pp))
+                    self.assertTrue(np.amin(img_pp) >= -1)
+                    self.assertTrue(np.amax(img_pp) <= 1)
+                elif mode == "caffe":
+                    self.assertTrue(np.amin(img_pp) <= 0)
+                    self.assertTrue(np.amax(img_pp) >= 0)
+                elif mode == "torch":
+                    self.assertTrue(np.amin(img_pp) <= 0)
+                    self.assertTrue(np.amax(img_pp) >= 0)
 
     #-------------------------------------------------#
     #              Subfunction: Cropping              #
@@ -112,16 +159,23 @@ class SubfunctionsTEST(unittest.TestCase):
         sf = Crop()
 
     def test_CROP_transform(self):
+        # 2D testing
         sf = Crop(shape=(16, 12))
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (16, 12, 1)))
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (16, 12, 3)))
         sf = Crop(shape=(8, 8))
-        img_ppGRAY = sf.transform(self.imgGRAY.copy())
+        img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 1)))
-        img_ppRGB = sf.transform(self.imgRGB.copy())
+        img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (8, 8, 3)))
+        # 3D testing
+        sf = Crop(shape=(14, 12, 24))
+        img_ppGRAY = sf.transform(self.img3Dgray.copy())
+        self.assertTrue(np.array_equal(img_ppGRAY.shape, (14, 12, 24, 1)))
+        img_ppRGB = sf.transform(self.img3Drgb.copy())
+        self.assertTrue(np.array_equal(img_ppRGB.shape, (14, 12, 24, 3)))
 
     #-------------------------------------------------#
     #          Subfunction: Color Constancy           #
@@ -131,6 +185,10 @@ class SubfunctionsTEST(unittest.TestCase):
 
     def test_COLORCONSTANCY_transform(self):
         sf = ColorConstancy()
-        img_filtered = sf.transform(self.imgRGB.copy())
-        self.assertFalse(np.array_equal(img_filtered, self.imgRGB))
+        img_filtered = sf.transform(self.img2Drgb.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.img2Drgb))
         self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 3)))
+        img_filtered = sf.transform(self.img3Drgb.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.img3Drgb))
+        self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 32, 3)))
+        self.assertRaises(ValueError, sf.transform, self.img2Dgray.copy())

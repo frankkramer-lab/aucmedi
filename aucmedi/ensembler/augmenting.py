@@ -22,8 +22,9 @@
 # External libraries
 import numpy as np
 # Internal libraries
-from aucmedi import Image_Augmentation, DataGenerator
+from aucmedi import Image_Augmentation, Volume_Augmentation, DataGenerator
 from aucmedi.ensembler.aggregate import aggregate_dict
+from aucmedi.data_processing.io_loader import image_loader
 
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
@@ -39,7 +40,7 @@ from aucmedi.ensembler.aggregate import aggregate_dict
     The Image Augmentation class instance which will be used for inference augmenting,
     can be either predefined or leaving None.
     If the img_aug is None, a Image Augmentation class instance is automatically created
-    which applies scaling, rotation and flipping augmentations.
+    which applies rotation and flipping augmentations.
 
 Arguments:
     model (Neural_Network):         Instance of a AUCMEDI neural network class.
@@ -51,32 +52,44 @@ Arguments:
                                     Aggregate function class instance or a string for an AUCMEDI aggregate function.
     image_format (String):          Image format to add at the end of the sample index for image loading.
     batch_size (Integer):           Number of samples inside a single batch.
-    resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
+    resize (Tuple of Integers):     Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
     grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
+    two_dim (Boolean):              Boolean, whether images are 2D or 3D.
     subfunctions (List of Subfunctions):
                                     List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
     standardize_mode (String):      Standardization modus in which image intensity values are scaled.
+    loader (Function):              Function for loading samples/images from disk.
     seed (Integer):                 Seed to ensure reproducibility for random function.
     workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
+    kwargs (Dictionary):            Additional parameters for the sample loader.
 """
 def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
                        aggregate="mean", image_format=None, batch_size=32,
-                       resize=(224, 224), grayscale=False, subfunctions=[],
-                       standardize_mode="tf", seed=None, workers=1):
+                       resize=(224, 224), grayscale=False, two_dim=True,
+                       subfunctions=[], standardize_mode="z-score",
+                       loader=image_loader, seed=None, workers=1, **kwargs):
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:
         agg_fun = aggregate_dict[aggregate]()
     else : agg_fun = aggregate
 
     # Initialize image augmentation if none provided (only flip, rotate)
-    if img_aug is None:
+    if img_aug is None and two_dim:
         img_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
                                      brightness=False, contrast=False,
                                      saturation=False, hue=False, crop=False,
-                                     grid_distortion=True, compression=False,
+                                     grid_distortion=False, compression=False,
                                      gamma=False, gaussian_noise=False,
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=False)
+    elif img_aug is None and not two_dim:
+        img_aug = Volume_Augmentation(flip=True, rotate=True, scale=False,
+                                      brightness=False, contrast=False,
+                                      saturation=False, hue=False, crop=False,
+                                      grid_distortion=False, compression=False,
+                                      gamma=False, gaussian_noise=False,
+                                      gaussian_blur=False, downscaling=False,
+                                      elastic_transform=False)
     # Multiply sample list for prediction according to number of cycles
     samples_aug = np.repeat(samples, n_cycles)
 
@@ -85,9 +98,10 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
                             batch_size=batch_size, img_aug=img_aug, seed=seed,
                             subfunctions=subfunctions, shuffle=False,
                             standardize_mode=standardize_mode, resize=resize,
-                            grayscale=grayscale, prepare_images=False,
-                            sample_weights=None, image_format=image_format,
-                            workers=workers)
+                            grayscale=grayscale, two_dim=two_dim,
+                            prepare_images=False, sample_weights=None,
+                            image_format=image_format, loader=loader,
+                            workers=workers, **kwargs)
 
     # Compute predictions with provided model
     preds_all = model.predict(aug_gen)

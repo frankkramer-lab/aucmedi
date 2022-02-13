@@ -68,7 +68,7 @@ class DataGenerator(Iterator):
             labels (NumPy Array):           Classification list with One-Hot Encoding.
             image_format (String):          Image format to add at the end of the sample index for image loading.
             batch_size (Integer):           Number of samples inside a single batch.
-            resize (Tuple of Integers):     Resizing shape consisting of a X and Y size.
+            resize (Tuple of Integers):     Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
             subfunctions (List of Subfunctions):
                                             List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
             img_aug (ImageAugmentation):    Image Augmentation class instance which performs diverse data augmentation techniques.

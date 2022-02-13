@@ -181,7 +181,7 @@ class SubfunctionsTEST(unittest.TestCase):
     #          Subfunction: Color Constancy           #
     #-------------------------------------------------#
     def test_COLORCONSTANCY_create(self):
-        sf = Standardize()
+        sf = ColorConstancy()
 
     def test_COLORCONSTANCY_transform(self):
         sf = ColorConstancy()
@@ -192,3 +192,21 @@ class SubfunctionsTEST(unittest.TestCase):
         self.assertFalse(np.array_equal(img_filtered, self.img3Drgb))
         self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 32, 3)))
         self.assertRaises(ValueError, sf.transform, self.img2Dgray.copy())
+
+    #-------------------------------------------------#
+    #                Subfunction: Clip                #
+    #-------------------------------------------------#
+    def test_CLIP_create(self):
+        sf = Clip()
+
+    def test_CLIP_transform(self):
+        sf = Clip(min=10)
+        img_clipped = sf.transform(self.img3Dhu.copy())
+        self.assertTrue(np.amin(img_clipped) >= 10)
+        sf = Clip(max=30)
+        img_clipped = sf.transform(self.img3Dhu.copy())
+        self.assertTrue(np.amax(img_clipped) <= 30)
+        sf = Clip(min=10, max=50)
+        img_clipped = sf.transform(self.img3Dhu.copy())
+        self.assertTrue(np.amin(img_clipped) >= 10)
+        self.assertTrue(np.amax(img_clipped) <= 50)

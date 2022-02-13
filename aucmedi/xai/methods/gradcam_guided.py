@@ -86,7 +86,7 @@ class GuidedGradCAM(XAImethod_Base):
         hm_bp = self.bp.compute_heatmap(image, class_index, eps)
         # Compute Grad-CAM
         hm_gc = self.gc.compute_heatmap(image, class_index, eps)
-        hm_gc = Resize(shape=image.shape).transform(hm_gc)
+        hm_gc = Resize(shape=image.shape[1:-1]).transform(hm_gc)
         # Combine both XAI methods
         heatmap = hm_bp * hm_gc
         # Intensity normalization to [0,1]

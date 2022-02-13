@@ -22,6 +22,8 @@
 # External libraries
 from albumentations import Compose
 import albumentations.augmentations as ai
+import warnings
+import numpy as np
 
 #-----------------------------------------------------#
 #              AUCMEDI Image Augmentation             #
@@ -224,6 +226,11 @@ class Image_Augmentation():
             - aug_image (NumPy array):  An augmented / transformed image.
     """
     def apply(self, image):
+        # Verify that image is in grayscale/RGB encoding
+        if np.min(image) < 0 or np.max(image) > 255:
+            warnings.warn("Image Augmentation: A value of the image is lower than 0 or higher than 255.",
+                          "Albumentations expects images to be in grayscale/RGB!",
+                          np.min(image), np.max(image))
         # Perform image augmentation
         aug_image = self.operator(image=image)["image"]
         # Return augmented image

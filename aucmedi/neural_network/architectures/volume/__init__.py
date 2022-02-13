@@ -24,6 +24,10 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #-----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.volume.vanilla import Architecture_Vanilla
+# DenseNet
+from aucmedi.neural_network.architectures.volume.densenet121 import Architecture_DenseNet121
+from aucmedi.neural_network.architectures.volume.densenet169 import Architecture_DenseNet169
+from aucmedi.neural_network.architectures.volume.densenet201 import Architecture_DenseNet201
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -31,6 +35,9 @@ from aucmedi.neural_network.architectures.volume.vanilla import Architecture_Van
 # Architecture Dictionary
 architecture_dict = {
     "Vanilla": Architecture_Vanilla,
+    "DenseNet121": Architecture_DenseNet121,
+    "DenseNet169": Architecture_DenseNet169,
+    "DenseNet201": Architecture_DenseNet201,
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -41,4 +48,7 @@ architectures = list(architecture_dict.keys())
 # Utilized standardize mode of architectures required for Transfer Learning
 supported_standardize_mode = {
     "Vanilla": "z-score",
+    "DenseNet121": "torch",
+    "DenseNet169": "torch",
+    "DenseNet201": "torch",
 }

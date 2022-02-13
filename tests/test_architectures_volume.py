@@ -34,7 +34,7 @@ from aucmedi.data_processing.io_loader import numpy_loader
 #-----------------------------------------------------#
 #               Unittest: Architectures               #
 #-----------------------------------------------------#
-class ArchitecturesImageTEST(unittest.TestCase):
+class ArchitecturesVolumeTEST(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
@@ -54,7 +54,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
         # Create RGB data
         self.sampleList_rgb = []
         for i in range(0, 1):
-            img_rgb = np.random.rand(16, 16, 8, 3) * 255
+            img_rgb = np.random.rand(32, 32, 8, 3) * 255
             index = "image.sample_" + str(i) + ".RGB.npy"
             path_sampleRGB = os.path.join(self.tmp_data.name, index)
             np.save(path_sampleRGB, img_rgb)
@@ -99,3 +99,60 @@ class ArchitecturesImageTEST(unittest.TestCase):
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["Vanilla"] == "z-score")
         self.assertTrue(sdm_global["3D.Vanilla"] == "z-score")
+
+    #-------------------------------------------------#
+    #            Architecture: DenseNet121            #
+    #-------------------------------------------------#
+    def test_DenseNet121(self):
+        arch = Architecture_DenseNet121(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_DenseNet121(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet121",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["DenseNet121"] == "torch")
+        self.assertTrue(sdm_global["3D.DenseNet121"] == "torch")
+
+    #-------------------------------------------------#
+    #            Architecture: DenseNet169            #
+    #-------------------------------------------------#
+    def test_DenseNet169(self):
+        arch = Architecture_DenseNet169(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_DenseNet169(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet169",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
+        self.assertTrue(sdm_global["3D.DenseNet169"] == "torch")
+
+    #-------------------------------------------------#
+    #            Architecture: DenseNet201            #
+    #-------------------------------------------------#
+    def test_DenseNet201(self):
+        arch = Architecture_DenseNet201(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_DenseNet201(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet201",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
+        self.assertTrue(sdm_global["3D.DenseNet201"] == "torch")

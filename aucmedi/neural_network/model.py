@@ -24,7 +24,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 # Internal libraries/scripts
-from aucmedi.neural_network.architectures import architecture_dict, Architecture_Vanilla
+from aucmedi.neural_network.architectures import architecture_dict
 
 #-----------------------------------------------------#
 #            Neural Network (model) class             #
@@ -42,7 +42,7 @@ class Neural_Network:
         channels (Integer):                     Number of channels. Grayscale:1 or RGB:3.
         input_shape (Tuple):                    Input shape of the batch imaging data (including channel axis).
         architecture (Architecture):            Instance of a neural network model Architecture class instance.
-                                                By default, a Vanilla Model is used as Architecture.
+                                                By default, a 2D Vanilla Model is used as Architecture.
         pretrained_weights (Boolean):           Option whether to utilize pretrained weights e.g. for ImageNet.
         loss (Metric Function):                 The metric function which is used as loss for training.
                                                 Any Metric Function defined in Keras, in aucmedi.neural_network.loss_functions or any custom
@@ -82,7 +82,7 @@ class Neural_Network:
         if input_shape is not None : arch_paras["input_shape"] = input_shape
         # Initialize architecture if None provided
         if architecture is None:
-            self.architecture = Architecture_Vanilla(**arch_paras)
+            self.architecture = architecture_dict["2D.Vanilla"](**arch_paras)
         # Initialize passed architecture from aucmedi library
         elif isinstance(architecture, str) and architecture in architecture_dict:
             self.architecture = architecture_dict[architecture](**arch_paras)

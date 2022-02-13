@@ -38,10 +38,11 @@ class Architecture_Base(ABC):
     """ Functions which will be called during the Architecture object creation.
         This function can be used to pass variables and options in the Architecture instance.
         The are no other mandatory required parameters for the initialization except for
-        the number of channels and the input shape (x, y).
+        the number of channels and the input shape (x, y) for an image architecture and
+        (x, y, z) for a volume architecture.
 
         Parameter:
-            channels (Integer):             Number of channels. Grayscale:1 or RGB:3.
+            channels (Integer):             Number of channels. For example: Grayscale->1 or RGB->3.
             input_shape (Tuple):            Input shape of the image data for the first model layer (excluding channel axis).
         Return:
             None

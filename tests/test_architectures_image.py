@@ -26,14 +26,15 @@ import os
 from PIL import Image
 import numpy as np
 #Internal libraries
-from aucmedi.neural_network.architectures import *
+from aucmedi.neural_network.architectures.image import *
+from aucmedi.neural_network.architectures import supported_standardize_mode as sdm_global
 from aucmedi import *
 from aucmedi.data_processing.subfunctions import Resize
 
 #-----------------------------------------------------#
 #               Unittest: Architectures               #
 #-----------------------------------------------------#
-class ArchitecturesTEST(unittest.TestCase):
+class ArchitecturesImageTEST(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
@@ -92,11 +93,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="Vanilla",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.Vanilla",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
-        self.assertTrue(supported_standardize_mode["Vanilla"] == "tf")
+        self.assertTrue(supported_standardize_mode["Vanilla"] == "z-score")
+        self.assertTrue(sdm_global["2D.Vanilla"] == "z-score")
 
     #-------------------------------------------------#
     #              Architecture: ResNet50             #
@@ -110,11 +112,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet50",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet50",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet50"] == "caffe")
+        self.assertTrue(sdm_global["2D.ResNet50"] == "caffe")
 
     #-------------------------------------------------#
     #             Architecture: ResNet101             #
@@ -128,11 +131,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet101",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet101",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet101"] == "caffe")
+        self.assertTrue(sdm_global["2D.ResNet101"] == "caffe")
 
     #-------------------------------------------------#
     #             Architecture: ResNet152             #
@@ -146,11 +150,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet152",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet152",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet152"] == "caffe")
+        self.assertTrue(sdm_global["2D.ResNet152"] == "caffe")
 
     #-------------------------------------------------#
     #             Architecture: ResNet50V2            #
@@ -164,11 +169,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet50V2",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet50V2",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet50V2"] == "tf")
+        self.assertTrue(sdm_global["2D.ResNet50V2"] == "tf")
 
     #-------------------------------------------------#
     #             Architecture: ResNet101V2           #
@@ -182,11 +188,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet101V2",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet101V2",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet101V2"] == "tf")
+        self.assertTrue(sdm_global["2D.ResNet101V2"] == "tf")
 
     #-------------------------------------------------#
     #             Architecture: ResNet152V2           #
@@ -200,11 +207,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNet152V2",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet152V2",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet152V2"] == "tf")
+        self.assertTrue(sdm_global["2D.ResNet152V2"] == "tf")
 
     #-------------------------------------------------#
     #             Architecture: ResNeXt50             #
@@ -218,11 +226,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNeXt50",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNeXt50",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNeXt50"] == "torch")
+        self.assertTrue(sdm_global["2D.ResNeXt50"] == "torch")
 
     #-------------------------------------------------#
     #             Architecture: ResNeXt101            #
@@ -236,11 +245,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="ResNeXt101",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNeXt101",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNeXt101"] == "torch")
+        self.assertTrue(sdm_global["2D.ResNeXt101"] == "torch")
 
     #-------------------------------------------------#
     #            Architecture: DenseNet121            #
@@ -254,11 +264,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="DenseNet121",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.DenseNet121",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet121"] == "torch")
+        self.assertTrue(sdm_global["2D.DenseNet121"] == "torch")
 
     #-------------------------------------------------#
     #            Architecture: DenseNet169            #
@@ -272,11 +283,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="DenseNet169",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.DenseNet169",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
+        self.assertTrue(sdm_global["2D.DenseNet169"] == "torch")
 
     #-------------------------------------------------#
     #            Architecture: DenseNet201            #
@@ -290,11 +302,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="DenseNet201",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.DenseNet201",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
+        self.assertTrue(sdm_global["2D.DenseNet201"] == "torch")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB0          #
@@ -308,11 +321,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB0",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB0",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB0"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB0"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB1          #
@@ -326,11 +340,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB1",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB1",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB1"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB1"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB2          #
@@ -344,11 +359,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB2",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB2",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB2"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB2"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB3          #
@@ -362,11 +378,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB3",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB3",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB3"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB3"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB4          #
@@ -380,11 +397,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB4",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB4",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB4"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB4"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB5          #
@@ -398,11 +416,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB5",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB5",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB5"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB5"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB6          #
@@ -416,11 +435,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB6",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB6",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB6"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB6"] == "caffe")
 
     #-------------------------------------------------#
     #           Architecture: EfficientNetB7          #
@@ -434,11 +454,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="EfficientNetB7",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB7",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["EfficientNetB7"] == "caffe")
+        self.assertTrue(sdm_global["2D.EfficientNetB7"] == "caffe")
 
     #-------------------------------------------------#
     #             Architecture: MobileNet             #
@@ -452,11 +473,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="MobileNet",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.MobileNet",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["MobileNet"] == "tf")
+        self.assertTrue(sdm_global["2D.MobileNet"] == "tf")
 
     #-------------------------------------------------#
     #            Architecture: MobileNetV2            #
@@ -470,11 +492,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="MobileNetV2",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.MobileNetV2",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")
+        self.assertTrue(sdm_global["2D.MobileNetV2"] == "tf")
 
     #-------------------------------------------------#
     #           Architecture: NASNetMobile            #
@@ -488,11 +511,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="NASNetMobile",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.NASNetMobile",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["NASNetMobile"] == "tf")
+        self.assertTrue(sdm_global["2D.NASNetMobile"] == "tf")
 
     #-------------------------------------------------#
     #            Architecture: NASNetLarge            #
@@ -506,11 +530,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="NASNetLarge",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.NASNetLarge",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["NASNetLarge"] == "tf")
+        self.assertTrue(sdm_global["2D.NASNetLarge"] == "tf")
 
     #-------------------------------------------------#
     #         Architecture: InceptionResNetV2         #
@@ -526,11 +551,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="InceptionResNetV2",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.InceptionResNetV2",
                                batch_queue_size=1, input_shape=(75, 75))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["InceptionResNetV2"] == "tf")
+        self.assertTrue(sdm_global["2D.InceptionResNetV2"] == "tf")
         self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
         self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
 
@@ -548,11 +574,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="InceptionV3",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.InceptionV3",
                                batch_queue_size=1, input_shape=(75, 75))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["InceptionV3"] == "tf")
+        self.assertTrue(sdm_global["2D.InceptionV3"] == "tf")
         self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
         self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
 
@@ -568,11 +595,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="VGG16",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.VGG16",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["VGG16"] == "caffe")
+        self.assertTrue(sdm_global["2D.VGG16"] == "caffe")
 
     #-------------------------------------------------#
     #               Architecture: VGG19               #
@@ -586,11 +614,12 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="VGG19",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.VGG19",
                                batch_queue_size=1, input_shape=(32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["VGG19"] == "caffe")
+        self.assertTrue(sdm_global["2D.VGG19"] == "caffe")
 
     #-------------------------------------------------#
     #              Architecture: Xception             #
@@ -606,10 +635,11 @@ class ArchitecturesTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="Xception",
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.Xception",
                                batch_queue_size=1, input_shape=(71, 71))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["Xception"] == "tf")
+        self.assertTrue(sdm_global["2D.Xception"] == "tf")
         self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
         self.datagen_RGB.sf_resize = Resize(shape=(32, 32))

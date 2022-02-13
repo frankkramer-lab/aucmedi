@@ -51,7 +51,7 @@ class EnsemblerTEST(unittest.TestCase):
             self.sampleList.append(index)
         # Initialize model
         self.model = Neural_Network(n_labels=4, channels=3,
-                                    architecture="Vanilla",
+                                    architecture="2D.Vanilla",
                                     batch_queue_size=1,
                                     input_shape=(16, 16))
 

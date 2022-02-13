@@ -36,7 +36,7 @@ import numpy as np
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
 #-----------------------------------------------------#
-#           Subfunction class: Standardize            #
+#         Subfunction class: Color Constancy          #
 #-----------------------------------------------------#
 """ Description from: https://www.kaggle.com/apacheco/shades-of-gray-color-constancy
 

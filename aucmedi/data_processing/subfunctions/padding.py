@@ -25,7 +25,7 @@ import numpy as np
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
 #-----------------------------------------------------#
-#              Subfunction class: Resize              #
+#              Subfunction class: Padding             #
 #-----------------------------------------------------#
 """ A Padding Subfunction class which pads an images according to a desired shape.
 

@@ -44,8 +44,8 @@ from aucmedi.data_processing.subfunctions import Standardize, Resize
 
     The resulting batches are created based the following pipeline:
     - Image Loading
-    - Optional application of Data Augmentation
     - Optional application of Subfunctions
+    - Optional application of Data Augmentation
     - Standardize image
     - Stacking processed images to a batch
 
@@ -79,6 +79,7 @@ class DataGenerator(Iterator):
             sample_weights (List of Floats):List of weights for samples.
             workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
             prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
+                                            Recommended for large images or volumes to reduce CPU computing time.
             loader (Function):              Function for loading samples/images from disk.
             seed (Integer):                 Seed to ensure reproducibility for random function.
             kwargs (Dictionary):            Additional parameters for the sample loader.
@@ -103,6 +104,7 @@ class DataGenerator(Iterator):
         self.grayscale = grayscale
         self.subfunctions = subfunctions
         self.img_aug = img_aug
+
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
             self.sf_standardize = Standardize(mode=standardize_mode)
@@ -135,7 +137,8 @@ class DataGenerator(Iterator):
             self.prepare_dir = tmp_dir
             for i in range(0, len(samples)):
                 preproc_img = self.preprocess_image(index=i,
-                                                    prepared_batch=False)
+                                                    prepared_image=False,
+                                                    full_preprocess=False)
                 path_img = os.path.join(tmp_dir, "img_" + str(i))
                 with open(path_img + ".pickle", "wb") as pickle_writer:
                     pickle.dump(preproc_img, pickle_writer)
@@ -159,7 +162,7 @@ class DataGenerator(Iterator):
         if self.workers == 0 or self.workers == 1:
             for i in index_array:
                 batch_img = self.preprocess_image(index=i,
-                                                  prepared_batch=self.prepare_images)
+                                                  prepared_image=self.prepare_images)
                 batch_stack[0].append(batch_img)
         # Process image for each index - Multi-threading
         else:
@@ -192,14 +195,24 @@ class DataGenerator(Iterator):
     """Preprocessing function for applying subfunctions, augmentation, resizing and standardization
        on an image given its index.
 
-       Activating the prepared_batch option also allows loading a beforehand preprocessed image from disk.
+       Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
+       Deactivating the full_preprocess option to output image without augmentation and standardization.
     """
-    def preprocess_image(self, index, prepared_batch=False):
+    def preprocess_image(self, index, prepared_image=False, full_preprocess=True):
         # Load prepared image from disk
-        if prepared_batch:
+        if prepared_image:
+            # Load from disk
             path_img = os.path.join(self.prepare_dir, "img_" + str(index))
             with open(path_img + ".pickle", "rb") as pickle_loader:
                 img = pickle.load(pickle_loader)
+            # Apply full preprocessing if activated
+            if full_preprocess:
+                # Apply image augmentation on image if activated
+                if self.img_aug is not None:
+                    img = self.img_aug.apply(img)
+                # Apply standardization on image if activated
+                if self.sf_standardize is not None:
+                    img = self.sf_standardize.transform(img)
         # Preprocess image during runtime
         else:
             # Load image from disk
@@ -207,17 +220,19 @@ class DataGenerator(Iterator):
                                      image_format=self.image_format,
                                      grayscale=self.grayscale,
                                      two_dim=self.two_dim, **self.kwargs)
-            # Apply image augmentation on image if activated
-            if self.img_aug is not None:
-                img = self.img_aug.apply(img)
             # Apply subfunctions on image
             for sf in self.subfunctions:
                 img = sf.transform(img)
             # Apply resizing on image if activated
             if self.sf_resize is not None:
                 img = self.sf_resize.transform(img)
-            # Apply standardization on image if activated
-            if self.sf_standardize is not None:
-                img = self.sf_standardize.transform(img)
+            # Apply full preprocessing if activated
+            if full_preprocess:
+                # Apply image augmentation on image if activated
+                if self.img_aug is not None:
+                    img = self.img_aug.apply(img)
+                # Apply standardization on image if activated
+                if self.sf_standardize is not None:
+                    img = self.sf_standardize.transform(img)
         # Return preprocessed image
         return img

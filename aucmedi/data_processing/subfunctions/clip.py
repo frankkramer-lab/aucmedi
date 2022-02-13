@@ -16,9 +16,40 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-from aucmedi.data_processing.subfunctions.standardize import Standardize
-from aucmedi.data_processing.subfunctions.resize import Resize
-from aucmedi.data_processing.subfunctions.padding import Padding
-from aucmedi.data_processing.subfunctions.crop import Crop
-from aucmedi.data_processing.subfunctions.color_constancy import ColorConstancy
-from aucmedi.data_processing.subfunctions.clip import Clip
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
+# External libraries
+import numpy as np
+# Internal libraries/scripts
+from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
+#-----------------------------------------------------#
+#               Subfunction class: Clip               #
+#-----------------------------------------------------#
+""" A clip Subfunction class which can be used for clipping intensity pixel
+    values on a certain range.
+
+    Typical use case is clipping Hounsfield Units (HU) in CT scans for focusing
+    on tissue types of interest.
+
+Methods:
+    __init__                Object creation function.
+    transform:              Apply clipping.
+"""
+class Clip(Subfunction_Base):
+    #---------------------------------------------#
+    #                Initialization               #
+    #---------------------------------------------#
+    def __init__(self, min=None, max=None):
+        self.min = min
+        self.max = max
+
+    #---------------------------------------------#
+    #                Transformation               #
+    #---------------------------------------------#
+    def transform(self, image):
+        # Perform clipping
+        image_clipped = np.clip(image, a_min=self.min, a_max=self.max)
+        # Return clipped image
+        return image_clipped

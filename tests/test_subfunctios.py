@@ -157,6 +157,9 @@ class SubfunctionsTEST(unittest.TestCase):
     #-------------------------------------------------#
     def test_CROP_create(self):
         sf = Crop()
+        sf = Crop(mode="center")
+        sf = Crop(mode="random")
+        self.assertRaises(ValueError, Crop, mode="test")
 
     def test_CROP_transform(self):
         # 2D testing

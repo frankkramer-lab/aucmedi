@@ -160,12 +160,12 @@ class SubfunctionsTEST(unittest.TestCase):
 
     def test_CROP_transform(self):
         # 2D testing
-        sf = Crop(shape=(16, 12))
+        sf = Crop(shape=(16, 12), mode="center")
         img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (16, 12, 1)))
         img_ppRGB = sf.transform(self.img2Drgb.copy())
         self.assertTrue(np.array_equal(img_ppRGB.shape, (16, 12, 3)))
-        sf = Crop(shape=(8, 8))
+        sf = Crop(shape=(8, 8), mode="random")
         img_ppGRAY = sf.transform(self.img2Dgray.copy())
         self.assertTrue(np.array_equal(img_ppGRAY.shape, (8, 8, 1)))
         img_ppRGB = sf.transform(self.img2Drgb.copy())

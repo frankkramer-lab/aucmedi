@@ -20,26 +20,29 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import albumentations as alb
-import aucmedi.data_processing.augmentation.volumentations as vol
+import albumentations
+import aucmedi.data_processing.augmentation.volumentations as volumentations
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
 #-----------------------------------------------------#
 #             Subfunction class: Cropping             #
 #-----------------------------------------------------#
-""" A Crop Subfunction class which randomly crops a desired shape from an image.
+""" A Crop Subfunction class which center/randomly crops a desired shape from an image.
+
+    List of valid modes for parameter "mode": ["center", "random"]
 
 2D image: Shape have to be defined as tuple with x and y size:
     Crop(shape=(224, 224))
 
-    Cropping is done via albumentations RandomCrop transform.
+    Cropping is done via albumentations CenterCrop and RandomCrop transform.
+    https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.CenterCrop
     https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.RandomCrop
 
 3D volume: Shape have to be defined as tuple with x, y and z size:
     Crop(shape=(224, 224, 244))
 
-    Cropping is done via volumentations RandomCrop transform.
+    Cropping is done via volumentations CenterCrop and RandomCrop transform.
     https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
 
 Methods:
@@ -50,20 +53,25 @@ class Crop(Subfunction_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, shape=(224, 224)):
-        # If 2D -> Initialize albumentations RandomCrop
+    def __init__(self, shape=(224, 224), mode="center"):
+        # Initialize parameter
+        params = {"p":1.0, "always_apply":True}
+        # Select augmentation module and add further parameter depending on dimension
         if len(shape) == 2:
-            self.aug_transform = alb.Compose([alb.RandomCrop(
-                                                     height=shape[0],
-                                                     width=shape[1],
-                                                     p=1.0,
-                                                     always_apply=True)])
-        # If 3D -> Initialize volumentations RandomCrop
-        else:
-            self.aug_transform = vol.Compose([vol.RandomCrop(
-                                                     shape,
-                                                     p=1.0,
-                                                     always_apply=True)])
+            params["height"] = shape[0]
+            params["width"] = shape[1]
+            mod = albumentations
+        elif len(shape) == 3:
+            params["shape"] = shape
+            mod = volumentations
+        else : raise ValueError("Shape for cropping has to be 2D or 3D!", shape)
+        # Initialize cropping transform
+        if mode == "center":
+            self.aug_transform = mod.Compose([mod.CenterCrop(**params)])
+        elif mode == "random":
+            self.aug_transform = mod.Compose([mod.RandomCrop(**params)])
+        else : raise ValueError("Unknown mode for crop Subfunction", mode,
+                                "Possibles modes are: ['center', 'random']")
         # Cache shape
         self.shape = shape
 

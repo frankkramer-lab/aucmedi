@@ -22,7 +22,7 @@
 # External libraries
 import numpy as np
 # Internal libraries/scripts
-import aucmedi.data_processing.augmentation.volumentations.augmentations.functional import resize
+from aucmedi.data_processing.augmentation.volumentations.augmentations.functional import resize
 
 #-----------------------------------------------------#
 #              Utility Class: Resampling              #

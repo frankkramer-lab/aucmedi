@@ -24,6 +24,7 @@ import unittest
 import numpy as np
 import tempfile
 from PIL import Image
+import SimpleITK as sitk
 import os
 #Internal libraries
 from aucmedi.data_processing.io_loader import *
@@ -40,6 +41,7 @@ class IOloaderTEST(unittest.TestCase):
         self.img_2d_rgb = np.random.rand(16, 16, 3) * 255
         self.img_3d_gray = np.random.rand(16, 16, 16, 1) * 255
         self.img_3d_rgb = np.random.rand(16, 16, 16, 3) * 255
+        self.img_3d_hu = np.float32(np.random.rand(16, 16, 16, 1) * 1500 - 500)
 
     #-------------------------------------------------#
     #                  Image Loader                   #
@@ -179,3 +181,60 @@ class IOloaderTEST(unittest.TestCase):
             img = numpy_loader(index, tmp_data.name, image_format=None,
                                grayscale=False, two_dim=False)
             self.assertTrue(np.array_equal(img.shape, self.img_3d_rgb.shape))
+
+    #-------------------------------------------------#
+    #                   sITK Loader                   #
+    #-------------------------------------------------#
+    # Test for DataGenerator functionality
+    def test_sitk_loader_DataGenerator(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Create mha dataset
+        sample_list = []
+        for i in range(0, 3):
+            index = "3Dimage.sample_" + str(i) + ".mha"
+            path_sample = os.path.join(tmp_data.name, index)
+            image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
+            image_sitk.SetSpacing([0.5,0.5,2.0])
+            sitk.WriteImage(image_sitk, path_sample)
+            sample_list.append(index)
+        # Create nii dataset
+        for i in range(0, 3):
+            index = "3Dimage.sample_" + str(i) + ".nii"
+            path_sample = os.path.join(tmp_data.name, index)
+            image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
+            image_sitk.SetSpacing([0.25,0.25,1.25])
+            sitk.WriteImage(image_sitk, path_sample)
+            sample_list.append(index)
+
+        # Test DataGenerator
+        data_gen = DataGenerator(sample_list, tmp_data.name,
+                                 loader=sitk_loader,
+                                 resize=None, standardize_mode=None,
+                                 grayscale=True, batch_size=1)
+        for i in range(0, 6):
+            batch = next(data_gen)
+            if i < 3:
+                self.assertTrue(np.array_equal(batch[0].shape, (1, 8, 8, 32, 1)))
+            else:
+                self.assertTrue(np.array_equal(batch[0].shape, (1, 4, 4, 20, 1)))
+
+    # Test for hu 3D images
+    def test_sitk_loader_3Dhu(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Run analysis
+        for i in range(0, 6):
+            if i < 3: format = ".mha"
+            else : format = ".nii"
+            # Create image
+            index = "3Dimage.sample_" + str(i) + format
+            path_sample = os.path.join(tmp_data.name, index)
+            image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
+            image_sitk.SetSpacing([0.5,0.5,2.0])
+            sitk.WriteImage(image_sitk, path_sample)
+            # Load image via loader
+            img = sitk_loader(index, tmp_data.name, image_format=None)
+            self.assertTrue(np.array_equal(img.shape, (8, 8, 32, 1)))

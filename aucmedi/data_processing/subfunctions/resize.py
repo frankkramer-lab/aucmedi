@@ -52,7 +52,7 @@ class Resize(Subfunction_Base):
     #---------------------------------------------#
     def __init__(self, shape=(224, 224), interpolation=1):
         # Initialize parameter
-        params = {"p":1.0, "always_apply":True}
+        params = {"p":1.0, "always_apply":True, "interpolation":interpolation}
         # Select augmentation module and add further parameter depending on dimension
         if len(shape) == 2:
             params["height"] = shape[0]

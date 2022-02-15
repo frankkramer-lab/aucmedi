@@ -70,7 +70,7 @@ class Padding(Subfunction_Base):
         pad_above = difference // 2 + difference % 2
         pad_list = list([list(i) for i in zip(pad_below, pad_above)]) + [[0, 0]]
         # Identify correct NumPy pad mode
-        if self.mode == "square" : pad_mode = "constant"
+        if self.mode == "square" : pad_mode = "edge"
         else : pad_mode = self.mode
         # Perform padding into desired shape
         image_padded = np.pad(image, pad_list, mode=pad_mode)

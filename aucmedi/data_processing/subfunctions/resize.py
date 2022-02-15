@@ -20,8 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import albumentations as alb
-import aucmedi.data_processing.augmentation.volumentations as vol
+import albumentations
+import aucmedi.data_processing.augmentation.volumentations as volumentations
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
@@ -51,17 +51,19 @@ class Resize(Subfunction_Base):
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, shape=(224, 224), interpolation=1):
-        # If 2D -> Initialize albumentations Resize
+        # Initialize parameter
+        params = {"p":1.0, "always_apply":True}
+        # Select augmentation module and add further parameter depending on dimension
         if len(shape) == 2:
-            self.aug_transform = alb.Compose([alb.Resize(height=shape[0],
-                                                         width=shape[1],
-                                                         p=1.0,
-                                                         always_apply=True)])
-        # If 3D -> Initialize volumentations Resize
-        else:
-            self.aug_transform = vol.Compose([vol.Resize(shape,
-                                                         p=1.0,
-                                                         always_apply=True)])
+            params["height"] = shape[0]
+            params["width"] = shape[1]
+            mod = albumentations
+        elif len(shape) == 3:
+            params["shape"] = shape
+            mod = volumentations
+        else : raise ValueError("Shape for Resize has to be 2D or 3D!", shape)
+        # Initialize resizing transform
+        self.aug_transform = mod.Compose([mod.Resize(**params)])
         # Cache shape
         self.shape = shape
 

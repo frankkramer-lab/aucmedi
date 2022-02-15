@@ -133,14 +133,20 @@ class DataGenerator(Iterator):
         if self.prepare_images:
             tmp_dir = tempfile.mkdtemp(prefix="aucmedi.tmp.", suffix=".data")
             self.prepare_dir = tmp_dir
-            for i in range(0, len(samples)):
-                preproc_img = self.preprocess_image(index=i,
-                                                    prepared_image=False,
-                                                    run_aug=False,
-                                                    run_standardize=False)
-                path_img = os.path.join(tmp_dir, "img_" + str(i))
-                with open(path_img + ".pickle", "wb") as pickle_writer:
-                    pickle.dump(preproc_img, pickle_writer)
+
+            # Preprocess image for each index - Sequential
+            if self.workers == 0 or self.workers == 1:
+                for i in range(0, len(samples)):
+                    self.preprocess_image(index=i, prepared_image=False,
+                                          run_aug=False, run_standardize=False,
+                                          dump_pickle=True)
+            # Preprocess image for each index - Multi-threading
+            else:
+                with ThreadPool(self.workers) as pool:
+                    index_array = list(range(0, len(samples)))
+                    mp_params = zip(index_array, repeat(False), repeat(False),
+                                    repeat(False), repeat(True))
+                    pool.starmap(self.preprocess_image, mp_params)
             print("A directory for image preparation was created:", tmp_dir)
 
         # Pass initialization parameters to parent Iterator class
@@ -196,9 +202,10 @@ class DataGenerator(Iterator):
 
        Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
        Deactivating the run_aug & run_standardize option to output image without augmentation and standardization.
+       Activating dump_pickle will store the preprocessed image as pickle on disk instead of returning.
     """
     def preprocess_image(self, index, prepared_image=False, run_aug=True,
-                         run_standardize=True):
+                         run_standardize=True, dump_pickle=False):
         # Load prepared image from disk
         if prepared_image:
             # Load from disk
@@ -230,5 +237,10 @@ class DataGenerator(Iterator):
             # Apply standardization on image if activated
             if self.sf_standardize is not None and run_standardize:
                 img = self.sf_standardize.transform(img)
+        # Dump preprocessed image to disk (for later usage via prepared_image)
+        if dump_pickle:
+            path_img = os.path.join(self.prepare_dir, "img_" + str(index))
+            with open(path_img + ".pickle", "wb") as pickle_writer:
+                pickle.dump(img, pickle_writer)
         # Return preprocessed image
-        return img
+        else : return img

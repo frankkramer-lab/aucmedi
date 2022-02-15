@@ -58,6 +58,8 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
     spacing = sample_itk.GetSpacing()
     # Convert to NumPy
     img = sitk.GetArrayFromImage(sample_itk)
+    # Transpose volume to be identical to sITK spacing encoding (x,y,z)
+    img = np.transpose(img, axes=(2,1,0))
     # Add single channel axis
     if len(img.shape) == 3 : img = np.expand_dims(img, axis=-1)
     # Perform resampling

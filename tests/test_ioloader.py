@@ -29,6 +29,7 @@ import os
 #Internal libraries
 from aucmedi.data_processing.io_loader import *
 from aucmedi import DataGenerator
+from aucmedi.utils.resampling import Resampling
 
 #-----------------------------------------------------#
 #                 Unittest: IO Loader                 #
@@ -238,3 +239,43 @@ class IOloaderTEST(unittest.TestCase):
             # Load image via loader
             img = sitk_loader(index, tmp_data.name, image_format=None)
             self.assertTrue(np.array_equal(img.shape, (8, 8, 32, 1)))
+
+    # Test for Resampling
+    def test_sitk_loader_Resampling(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Run analysis
+        sample_list = []
+        for i in range(0, 4):
+            if i < 2: format = ".mha"
+            else : format = ".nii"
+            # Create image
+            index = "3Dimage.sample_" + str(i) + format
+            path_sample = os.path.join(tmp_data.name, index)
+            image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
+            image_sitk.SetSpacing([0.5,0.5,2.0])
+            sitk.WriteImage(image_sitk, path_sample)
+            sample_list.append(index)
+
+        # Load images with Resampling 0.5x0.5x2.0
+        rs = Resampling(spacing=(0.5,0.5,2.0))
+        for index in sample_list:
+            img = sitk_loader(index, tmp_data.name, image_format=None,
+                              resampling=rs)
+            self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
+        # Load images with Resampling 1x1x1
+        rs = Resampling()
+        for index in sample_list:
+            img = sitk_loader(index, tmp_data.name, image_format=None,
+                              resampling=rs)
+            self.assertTrue(np.array_equal(img.shape, (8, 8, 32, 1)))
+        # Load images via DataGenerator
+        rs = Resampling(spacing=(0.75,0.75,1.75))
+        data_gen = DataGenerator(sample_list, tmp_data.name,
+                                 loader=sitk_loader, resampling=rs,
+                                 resize=None, standardize_mode=None,
+                                 grayscale=True, batch_size=1)
+        for i in range(0, 6):
+            batch = next(data_gen)
+            self.assertTrue(np.array_equal(batch[0].shape, (1, 10, 10, 18, 1)))

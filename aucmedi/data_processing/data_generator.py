@@ -136,7 +136,8 @@ class DataGenerator(Iterator):
             for i in range(0, len(samples)):
                 preproc_img = self.preprocess_image(index=i,
                                                     prepared_image=False,
-                                                    full_preprocess=False)
+                                                    run_aug=False,
+                                                    run_standardize=False)
                 path_img = os.path.join(tmp_dir, "img_" + str(i))
                 with open(path_img + ".pickle", "wb") as pickle_writer:
                     pickle.dump(preproc_img, pickle_writer)
@@ -194,23 +195,22 @@ class DataGenerator(Iterator):
        on an image given its index.
 
        Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
-       Deactivating the full_preprocess option to output image without augmentation and standardization.
+       Deactivating the run_aug & run_standardize option to output image without augmentation and standardization.
     """
-    def preprocess_image(self, index, prepared_image=False, full_preprocess=True):
+    def preprocess_image(self, index, prepared_image=False, run_aug=True,
+                         run_standardize=True):
         # Load prepared image from disk
         if prepared_image:
             # Load from disk
             path_img = os.path.join(self.prepare_dir, "img_" + str(index))
             with open(path_img + ".pickle", "rb") as pickle_loader:
                 img = pickle.load(pickle_loader)
-            # Apply full preprocessing if activated
-            if full_preprocess:
-                # Apply image augmentation on image if activated
-                if self.img_aug is not None:
-                    img = self.img_aug.apply(img)
-                # Apply standardization on image if activated
-                if self.sf_standardize is not None:
-                    img = self.sf_standardize.transform(img)
+            # Apply image augmentation on image if activated
+            if self.img_aug is not None and run_aug:
+                img = self.img_aug.apply(img)
+            # Apply standardization on image if activated
+            if self.sf_standardize is not None and run_standardize:
+                img = self.sf_standardize.transform(img)
         # Preprocess image during runtime
         else:
             # Load image from disk
@@ -224,13 +224,11 @@ class DataGenerator(Iterator):
             # Apply resizing on image if activated
             if self.sf_resize is not None:
                 img = self.sf_resize.transform(img)
-            # Apply full preprocessing if activated
-            if full_preprocess:
-                # Apply image augmentation on image if activated
-                if self.img_aug is not None:
-                    img = self.img_aug.apply(img)
-                # Apply standardization on image if activated
-                if self.sf_standardize is not None:
-                    img = self.sf_standardize.transform(img)
+            # Apply image augmentation on image if activated
+            if self.img_aug is not None and run_aug:
+                img = self.img_aug.apply(img)
+            # Apply standardization on image if activated
+            if self.sf_standardize is not None and run_standardize:
+                img = self.sf_standardize.transform(img)
         # Return preprocessed image
         return img

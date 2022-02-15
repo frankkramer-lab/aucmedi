@@ -22,3 +22,4 @@ from aucmedi.data_processing.subfunctions.padding import Padding
 from aucmedi.data_processing.subfunctions.crop import Crop
 from aucmedi.data_processing.subfunctions.color_constancy import ColorConstancy
 from aucmedi.data_processing.subfunctions.clip import Clip
+from aucmedi.data_processing.subfunctions.chromer import Chromer

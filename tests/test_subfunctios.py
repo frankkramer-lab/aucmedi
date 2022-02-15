@@ -142,7 +142,6 @@ class SubfunctionsTEST(unittest.TestCase):
             for data in [self.img2Drgb, self.img3Drgb]:
                 img_pp = sf.transform(data.copy())
                 if mode == "tf":
-                    print("tf", np.amin(img_pp), np.amax(img_pp))
                     self.assertTrue(np.amin(img_pp) >= -1)
                     self.assertTrue(np.amax(img_pp) <= 1)
                 elif mode == "caffe":
@@ -151,6 +150,7 @@ class SubfunctionsTEST(unittest.TestCase):
                 elif mode == "torch":
                     self.assertTrue(np.amin(img_pp) <= 0)
                     self.assertTrue(np.amax(img_pp) >= 0)
+            self.assertRaises(ValueError, sf.transform, self.img3Dhu.copy())
 
     #-------------------------------------------------#
     #              Subfunction: Cropping              #
@@ -213,3 +213,33 @@ class SubfunctionsTEST(unittest.TestCase):
         img_clipped = sf.transform(self.img3Dhu.copy())
         self.assertTrue(np.amin(img_clipped) >= 10)
         self.assertTrue(np.amax(img_clipped) <= 50)
+
+    #-------------------------------------------------#
+    #               Subfunction: Chromer              #
+    #-------------------------------------------------#
+    def test_CHROMER_create(self):
+        sf = Chromer()
+        sf = Chromer(target="grayscale")
+        sf = Chromer(target="rgb")
+        self.assertRaises(ValueError, Chromer, target="test")
+
+    def test_CHROMER_transform(self):
+        # Target Grayscale
+        sf = Chromer(target="grayscale")
+        img_filtered = sf.transform(self.img2Drgb.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.img2Drgb))
+        self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 1)))
+        img_filtered = sf.transform(self.img3Drgb.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.img3Drgb))
+        self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 32, 1)))
+        self.assertRaises(ValueError, sf.transform, self.img2Dgray.copy())
+        # Target RGB
+        sf = Chromer(target="rgb")
+        img_filtered = sf.transform(self.img2Dgray.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.img2Dgray))
+        self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 3)))
+        img_filtered = sf.transform(self.img3Dgray.copy())
+        self.assertFalse(np.array_equal(img_filtered, self.img3Dgray))
+        self.assertTrue(np.array_equal(img_filtered.shape, (16, 24, 32, 3)))
+        self.assertRaises(ValueError, sf.transform, self.img3Dhu.copy())
+        self.assertRaises(ValueError, sf.transform, self.img2Drgb.copy())

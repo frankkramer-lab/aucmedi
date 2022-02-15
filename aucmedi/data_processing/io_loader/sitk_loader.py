@@ -58,8 +58,12 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
     spacing = sample_itk.GetSpacing()
     # Convert to NumPy
     img = sitk.GetArrayFromImage(sample_itk)
-    # Transpose volume to be identical to sITK spacing encoding (x,y,z)
-    img = np.transpose(img, axes=(2,1,0))
+    # Ensure axes mapping between image and spacing
+    ## This exploits that medical images in ct/mri have equal size on x,y axis
+    if (spacing[0] == spacing[1] and img.shape[0] != img.shape[1]) or \
+       (spacing[1] == spacing[2] and img.shape[1] != img.shape[2]):
+        # Switch x and z axis to be identical to spacing encoding
+        img = np.transpose(img, axes=(2,1,0))
     # Add single channel axis
     if len(img.shape) == 3 : img = np.expand_dims(img, axis=-1)
     # Perform resampling

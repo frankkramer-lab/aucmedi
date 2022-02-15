@@ -31,6 +31,8 @@ from aucmedi.utils.resampling import Resampling
 #-----------------------------------------------------#
 """ SimpleITK Loader for loading of CT/MRI scans in NIfTI (nii) or Metafile (mha) format within the AUCMEDI pipeline.
 
+    This loader is intended to load only 3D volumes with annotated voxel spacings.
+
     By default, volumes are normalized to voxel spacing 1.0 x 1.0 x 1.0.
     You can define a custom voxel spacing for the loader, by passing a aucmedi.utils.resampling.Resampling()
     class in the DataGenerator.

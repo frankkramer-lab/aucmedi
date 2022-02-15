@@ -279,3 +279,100 @@ class IOloaderTEST(unittest.TestCase):
         for i in range(0, 6):
             batch = next(data_gen)
             self.assertTrue(np.array_equal(batch[0].shape, (1, 10, 10, 18, 1)))
+
+    #-------------------------------------------------#
+    #                  Cache Loader                   #
+    #-------------------------------------------------#
+    # Test for DataGenerator functionality
+    def test_cache_loader_DataGenerator(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Create dataset
+        sample_list = []
+        cache = {}
+        for i in range(0, 6):
+           index = "3Dimage.sample_" + str(i)
+           cache[index] = self.img_3d_gray
+           sample_list.append(index)
+        # Test DataGenerator
+        data_gen = DataGenerator(sample_list, tmp_data.name, loader=cache_loader,
+                                 resize=None, two_dim=False, standardize_mode=None,
+                                 grayscale=True, batch_size=2, cache=cache)
+        for i in range(0, 3):
+            batch = next(data_gen)
+            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
+
+    # Test for grayscale 2D images
+    def test_cache_loader_2Dgray(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i)
+            cache = {index: self.img_2d_gray}
+            # Load image via loader
+            img = cache_loader(index, tmp_data.name, image_format=None,
+                               grayscale=True, two_dim=True, cache=cache)
+            self.assertTrue(np.array_equal(img.shape, self.img_2d_gray.shape))
+
+    # Test for grayscale 3D images
+    def test_cache_loader_3Dgray(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i)
+            cache = {index: self.img_3d_gray}
+            # Load image via loader
+            img = cache_loader(index, tmp_data.name, image_format=None,
+                               grayscale=True, two_dim=False, cache=cache)
+            self.assertTrue(np.array_equal(img.shape, self.img_3d_gray.shape))
+
+    # Test for rgb 2D images
+    def test_cache_loader_2Drgb(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i)
+            cache = {index: self.img_2d_rgb}
+            # Load image via loader
+            img = cache_loader(index, tmp_data.name, image_format=None,
+                               grayscale=False, two_dim=True, cache=cache)
+            self.assertTrue(np.array_equal(img.shape, self.img_2d_rgb.shape))
+
+    # Test for rgb 3D images
+    def test_cache_loader_3Drgb(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i)
+            cache = {index: self.img_3d_rgb}
+            # Load image via loader
+            img = cache_loader(index, tmp_data.name, image_format=None,
+                               grayscale=False, two_dim=False, cache=cache)
+            self.assertTrue(np.array_equal(img.shape, self.img_3d_rgb.shape))
+
+    # Test for hu 3D images
+    def test_cache_loader_3Dhu(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            # Create image
+            index = "image.sample_" + str(i)
+            cache = {index: self.img_3d_hu}
+            # Load image via loader
+            img = cache_loader(index, tmp_data.name, image_format=None,
+                               grayscale=True, two_dim=False, cache=cache)
+            self.assertTrue(np.array_equal(img.shape, self.img_3d_hu.shape))
+
+    # Test for Exception
+    def test_cache_loader_exception(self):
+        self.assertRaises(TypeError, cache_loader, index="test")

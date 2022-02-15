@@ -19,3 +19,4 @@
 from aucmedi.data_processing.io_loader.image_loader import image_loader
 from aucmedi.data_processing.io_loader.numpy_loader import numpy_loader
 from aucmedi.data_processing.io_loader.sitk_loader import sitk_loader
+from aucmedi.data_processing.io_loader.cache_loader import cache_loader

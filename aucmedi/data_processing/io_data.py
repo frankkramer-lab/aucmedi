@@ -28,7 +28,7 @@ import aucmedi.data_processing.io_interfaces as io
 #                   Static Variables                  #
 #-----------------------------------------------------#
 ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif",
-                            "npy", "nifti"]
+                            "npy", "nii", "nii.gz", ".mha"]
 
 #-----------------------------------------------------#
 #             Input Interface for AUCMEDI             #

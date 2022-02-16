@@ -24,6 +24,7 @@ from aucmedi.data_processing.augmentation.volumentations import Compose
 from aucmedi.data_processing.augmentation.volumentations import augmentations as ai
 import warnings
 import numpy as np
+import random
 
 #-----------------------------------------------------#
 #             AUCMEDI Volume Augmentation             #
@@ -56,6 +57,8 @@ class Volume_Augmentation():
     #-----------------------------------------------------#
     # Define augmentation operator
     operator = None
+    # Option for augmentation refinement (padding, cropping and clipping)
+    refine = True
     # Augmentation: Flip
     aug_flip = False
     aug_flip_p = 0.5
@@ -238,7 +241,19 @@ class Volume_Augmentation():
             warnings.warn("Image Augmentation: A value of the image is lower than 0 or higher than 255.",
                           "Volumentations expects images to be in grayscale/RGB!",
                           np.min(image), np.max(image))
+        # Cache image shape
+        org_shape = image.shape
         # Perform image augmentation
         aug_image = self.operator(image=image)["image"]
+        # Perform padding & cropping if image shape changed
+        if self.refine and aug_image.shape != org_shape:
+            aug_image = ai.pad(aug_image, new_shape=org_shape)
+            offset = (random.random(), random.random(), random.random())
+            aug_image = ai.random_crop(aug_image,
+                                       org_shape[0], org_shape[1], org_shape[2],
+                                       offset[0], offset[1], offset[2])
+        # Perform clipping if image is out of grayscale/RGB encodings
+        if self.refine and (np.min(aug_image) < 0 or np.max(aug_image) > 255):
+            aug_image = np.clip(aug_image, a_min=0, a_max=255)
         # Return augmented image
         return aug_image

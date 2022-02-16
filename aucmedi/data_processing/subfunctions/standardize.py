@@ -93,12 +93,12 @@ class Standardize(Subfunction_Base):
                            (max_value - min_value + self.e)
             image_norm = np.around(image_scaled * 255, decimals=0)
         else:
-            # # Verify if image is in [0,255] format
-            # if np.min(image) < 0 or np.max(image) > 255:
-            #     raise ValueError("Subfunction Standardize: Image values are not in range [0,255]!",
-            #         "Provided min/max values for image are:", np.min(image), np.max(image),
-            #         "Ensure that all images are normalized to [0,255] before using the following modes:",
-            #         "['tf', 'caffe', 'torch']")
+            # Verify if image is in [0,255] format
+            if np.min(image) < 0 or np.max(image) > 255:
+                raise ValueError("Subfunction Standardize: Image values are not in range [0,255]!",
+                    "Provided min/max values for image are:", np.min(image), np.max(image),
+                    "Ensure that all images are normalized to [0,255] before using the following modes:",
+                    "['tf', 'caffe', 'torch']")
             # Perform architecture standardization
             image_norm = imagenet_utils.preprocess_input(image, mode=self.mode)
         # Return standardized image

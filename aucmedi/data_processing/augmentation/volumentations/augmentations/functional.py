@@ -191,8 +191,9 @@ def pad(image, new_shape, border_mode="reflect", value=0):
     return res
 
 
-def gaussian_noise(img, var, mean):
-    return img + np.random.normal(mean, var, img.shape)
+def gaussian_noise(img, gauss):
+    img = img.astype("float32")
+    return img + gauss
 
 
 def resize(img, new_shape, interpolation=1):

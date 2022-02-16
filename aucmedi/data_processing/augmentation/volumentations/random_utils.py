@@ -60,3 +60,23 @@ def randint(
     if random_state is None:
         random_state = get_random_state()
     return random_state.randint(low, high, size, dtype)
+
+def uniform(
+    low: NumType = 0.0,
+    high: NumType = 1.0,
+    size: Optional[Size] = None,
+    random_state: Optional[np.random.RandomState] = None,
+) -> Any:
+    if random_state is None:
+        random_state = get_random_state()
+    return random_state.uniform(low, high, size)
+
+def normal(
+    loc: NumType = 0.0,
+    scale: NumType = 1.0,
+    size: Optional[Size] = None,
+    random_state: Optional[np.random.RandomState] = None,
+) -> Any:
+    if random_state is None:
+        random_state = get_random_state()
+    return random_state.normal(loc, scale, size)

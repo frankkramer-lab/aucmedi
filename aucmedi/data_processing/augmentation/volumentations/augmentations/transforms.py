@@ -73,16 +73,21 @@ class PadIfNeeded(DualTransform):
 
 
 class GaussianNoise(Transform):
-    def __init__(self, var_limit=(0, 0.1), mean=0, always_apply=False, p=0.5):
+    def __init__(self, var_limit=(10.0, 50.0), mean=0, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
         self.var_limit = var_limit
         self.mean = mean
 
-    def apply(self, img, var):
-        return F.gaussian_noise(img, var=var, mean=self.mean)
+    def apply(self, img, gauss=None):
+        return F.gaussian_noise(img, gauss=gauss)
 
     def get_params(self, **data):
-        return {'var': random.uniform(*self.var_limit)}
+        image = data["image"]
+        var = uniform(self.var_limit[0], self.var_limit[1])
+        sigma = var ** 0.5
+
+        gauss = normal(self.mean, sigma, image.shape)
+        return {"gauss": gauss}
 
 
 class Resize(DualTransform):

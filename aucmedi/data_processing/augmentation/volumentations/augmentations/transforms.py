@@ -880,8 +880,8 @@ class ColorJitter(ImageOnlyTransform):
 
         for transform in transforms:
             img_transformed = np.zeros(img.shape, dtype=img.dtype)
-            for slice in range(img.shape[2]):
-                img_transformed[:,:,slice] = transform(img[:,:,slice])
+            for slice in range(img.shape[0]):
+                img_transformed[slice,:,:] = transform(img[slice,:,:])
         return img_transformed
 
     def get_transform_init_args_names(self):
@@ -931,8 +931,8 @@ class GridDistortion(DualTransform):
 
     def apply(self, img, stepsx=(), stepsy=(), interpolation=cv2.INTER_LINEAR, **params):
         img_transformed = np.zeros(img.shape, dtype=img.dtype)
-        for slice in range(img.shape[2]):
-            img_transformed[:,:,slice] = F.grid_distortion(img[:,:,slice],
+        for slice in range(img.shape[0]):
+            img_transformed[slice,:,:] = F.grid_distortion(img[slice,:,:],
                                                            self.num_steps,
                                                            stepsx,
                                                            stepsy,
@@ -943,8 +943,8 @@ class GridDistortion(DualTransform):
 
     def apply_to_mask(self, img, stepsx=(), stepsy=(), **params):
         img_transformed = np.zeros(img.shape, dtype=img.dtype)
-        for slice in range(img.shape[2]):
-            img_transformed[:,:,slice] = F.grid_distortion(img[:,:,slice],
+        for slice in range(img.shape[0]):
+            img_transformed[slice,:,:] = F.grid_distortion(img[slice,:,:],
                                                            self.num_steps,
                                                            stepsx,
                                                            stepsy,
@@ -1057,17 +1057,17 @@ class GlassBlur(Blur):
                       size=(total_pixels, self.iterations, 2))
 
         img_transformed = np.zeros(img.shape, dtype=img.dtype)
-        for slice in range(img.shape[2]):
-            img_processed = F.glass_blur(img[:,:,slice],
+        for slice in range(img.shape[0]):
+            img_processed = F.glass_blur(img[slice,:,:],
                                          self.sigma,
                                          self.max_delta,
                                          self.iterations,
                                          dxy,
                                          self.mode)
             if len(img.shape) == 4 and img.shape[-1] == 1:
-                img_transformed[:,:,slice] = np.reshape(img_processed,
+                img_transformed[slice,:,:] = np.reshape(img_processed,
                                                         img_processed.shape+(1,))
-            else : img_transformed[:,:,slice] = img_processed
+            else : img_transformed[slice,:,:] = img_processed
         return img_transformed
 
     def get_transform_init_args_names(self):
@@ -1126,8 +1126,8 @@ class ImageCompression(ImageOnlyTransform):
 
 
         img_transformed = np.zeros(img.shape, dtype=img.dtype)
-        for slice in range(img.shape[2]):
-            img_transformed[:,:,slice] = F.image_compression(img[:,:,slice],
+        for slice in range(img.shape[0]):
+            img_transformed[slice,:,:] = F.image_compression(img[slice,:,:],
                                                              quality,
                                                              image_type)
         return img_transformed

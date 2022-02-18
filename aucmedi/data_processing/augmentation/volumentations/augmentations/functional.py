@@ -253,7 +253,7 @@ def elastic_transform_pseudo2D(img, alpha, sigma, alpha_affine, interpolation=cv
     """
     random_state = np.random.RandomState(random_state)
 
-    height, width, depth = img.shape[:3]
+    depth, height, width  = img.shape[:3]
 
     # Random affine
     center_square = np.float32((height, width)) // 2
@@ -275,9 +275,9 @@ def elastic_transform_pseudo2D(img, alpha, sigma, alpha_affine, interpolation=cv
     # pseoudo 2D
     res = np.zeros_like(img)
     for d in range(depth):
-        tmp = img[:, :, d] # [H, W, C]
+        tmp = img[d, :, :] # [D, H, W, C]
         tmp = cv2.warpAffine(tmp, M=matrix, dsize=(width, height), flags=interpolation, borderMode=border_mode, borderValue=value)
-        res[:, :, d] = tmp
+        res[d, :, :] = tmp
     img = res
 
 

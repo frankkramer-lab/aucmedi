@@ -28,6 +28,15 @@ from aucmedi.neural_network.architectures.volume.vanilla import Architecture_Van
 from aucmedi.neural_network.architectures.volume.densenet121 import Architecture_DenseNet121
 from aucmedi.neural_network.architectures.volume.densenet169 import Architecture_DenseNet169
 from aucmedi.neural_network.architectures.volume.densenet201 import Architecture_DenseNet201
+# EfficientNet
+from aucmedi.neural_network.architectures.volume.efficientnetb0 import Architecture_EfficientNetB0
+# from aucmedi.neural_network.architectures.volume.efficientnetb1 import Architecture_EfficientNetB1
+# from aucmedi.neural_network.architectures.volume.efficientnetb2 import Architecture_EfficientNetB2
+# from aucmedi.neural_network.architectures.volume.efficientnetb3 import Architecture_EfficientNetB3
+# from aucmedi.neural_network.architectures.volume.efficientnetb4 import Architecture_EfficientNetB4
+# from aucmedi.neural_network.architectures.volume.efficientnetb5 import Architecture_EfficientNetB5
+# from aucmedi.neural_network.architectures.volume.efficientnetb6 import Architecture_EfficientNetB6
+# from aucmedi.neural_network.architectures.volume.efficientnetb7 import Architecture_EfficientNetB7
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -38,6 +47,14 @@ architecture_dict = {
     "DenseNet121": Architecture_DenseNet121,
     "DenseNet169": Architecture_DenseNet169,
     "DenseNet201": Architecture_DenseNet201,
+    "EfficientNetB0": Architecture_EfficientNetB0,
+    # "EfficientNetB1": Architecture_EfficientNetB1,
+    # "EfficientNetB2": Architecture_EfficientNetB2,
+    # "EfficientNetB3": Architecture_EfficientNetB3,
+    # "EfficientNetB4": Architecture_EfficientNetB4,
+    # "EfficientNetB5": Architecture_EfficientNetB5,
+    # "EfficientNetB6": Architecture_EfficientNetB6,
+    # "EfficientNetB7": Architecture_EfficientNetB7,
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -51,4 +68,12 @@ supported_standardize_mode = {
     "DenseNet121": "torch",
     "DenseNet169": "torch",
     "DenseNet201": "torch",
+    "EfficientNetB0": "caffe",
+    "EfficientNetB1": "caffe",
+    "EfficientNetB2": "caffe",
+    "EfficientNetB3": "caffe",
+    "EfficientNetB4": "caffe",
+    "EfficientNetB5": "caffe",
+    "EfficientNetB6": "caffe",
+    "EfficientNetB7": "caffe",
 }

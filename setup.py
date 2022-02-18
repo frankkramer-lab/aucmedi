@@ -28,6 +28,7 @@ setup(
                      'lime>=0.2.0.1',
                      'pooch>=1.6.0',
                      'classification-models-3D>=1.0.3',
+                     'efficientnet-3D>=1.0.2'
                      'SimpleITK>=2.1.1'],
    classifiers=["Programming Language :: Python :: 3",
                 "Programming Language :: Python :: 3.6",

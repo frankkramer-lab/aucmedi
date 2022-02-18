@@ -29,7 +29,6 @@ import os
 #Internal libraries
 from aucmedi.data_processing.io_loader import *
 from aucmedi import DataGenerator
-from aucmedi.utils.resampling import Resampling
 
 #-----------------------------------------------------#
 #                 Unittest: IO Loader                 #
@@ -197,7 +196,7 @@ class IOloaderTEST(unittest.TestCase):
             index = "3Dimage.sample_" + str(i) + ".mha"
             path_sample = os.path.join(tmp_data.name, index)
             image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
-            image_sitk.SetSpacing([0.5,0.5,2.0])
+            image_sitk.SetSpacing([0.5,1.5,2.0])
             sitk.WriteImage(image_sitk, path_sample)
             sample_list.append(index)
         # Create nii dataset
@@ -205,7 +204,7 @@ class IOloaderTEST(unittest.TestCase):
             index = "3Dimage.sample_" + str(i) + ".nii"
             path_sample = os.path.join(tmp_data.name, index)
             image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
-            image_sitk.SetSpacing([0.25,0.25,1.25])
+            image_sitk.SetSpacing([1.75,1.25,0.75])
             sitk.WriteImage(image_sitk, path_sample)
             sample_list.append(index)
 
@@ -217,9 +216,9 @@ class IOloaderTEST(unittest.TestCase):
         for i in range(0, 6):
             batch = next(data_gen)
             if i < 3:
-                self.assertTrue(np.array_equal(batch[0].shape, (1, 8, 8, 32, 1)))
+                self.assertTrue(np.array_equal(batch[0].shape, (1, 32, 24, 8, 1)))
             else:
-                self.assertTrue(np.array_equal(batch[0].shape, (1, 4, 4, 20, 1)))
+                self.assertTrue(np.array_equal(batch[0].shape, (1, 12, 20, 28, 1)))
 
     # Test for hu 3D images
     def test_sitk_loader_3Dhu(self):
@@ -234,11 +233,11 @@ class IOloaderTEST(unittest.TestCase):
             index = "3Dimage.sample_" + str(i) + format
             path_sample = os.path.join(tmp_data.name, index)
             image_sitk = sitk.GetImageFromArray(self.img_3d_hu)
-            image_sitk.SetSpacing([0.5,0.5,2.0])
+            image_sitk.SetSpacing([0.5,1.5,2.0])
             sitk.WriteImage(image_sitk, path_sample)
             # Load image via loader
             img = sitk_loader(index, tmp_data.name, image_format=None)
-            self.assertTrue(np.array_equal(img.shape, (8, 8, 32, 1)))
+            self.assertTrue(np.array_equal(img.shape, (32, 24, 8, 1)))
 
     # Test for Resampling
     def test_sitk_loader_Resampling(self):
@@ -258,27 +257,24 @@ class IOloaderTEST(unittest.TestCase):
             sitk.WriteImage(image_sitk, path_sample)
             sample_list.append(index)
 
-        # Load images with Resampling 0.5x0.5x2.0
-        rs = Resampling(spacing=(0.5,0.5,2.0))
-        for index in sample_list:
-            img = sitk_loader(index, tmp_data.name, image_format=None,
-                              resampling=rs)
-            self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
+
         # Load images with Resampling 1x1x1
-        rs = Resampling()
+        for index in sample_list:
+            img = sitk_loader(index, tmp_data.name, image_format=None)
+            self.assertTrue(np.array_equal(img.shape, (32, 8, 8, 1)))
+        # Load images with Resampling 0.5x0.5x2.0
         for index in sample_list:
             img = sitk_loader(index, tmp_data.name, image_format=None,
-                              resampling=rs)
-            self.assertTrue(np.array_equal(img.shape, (8, 8, 32, 1)))
+                              resampling=(2.0,0.5,0.5))
+            self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
         # Load images via DataGenerator
-        rs = Resampling(spacing=(0.75,0.75,1.75))
         data_gen = DataGenerator(sample_list, tmp_data.name,
-                                 loader=sitk_loader, resampling=rs,
+                                 loader=sitk_loader, resampling=(1.75,0.75,0.75),
                                  resize=None, standardize_mode=None,
                                  grayscale=True, batch_size=1)
         for i in range(0, 6):
             batch = next(data_gen)
-            self.assertTrue(np.array_equal(batch[0].shape, (1, 10, 10, 18, 1)))
+            self.assertTrue(np.array_equal(batch[0].shape, (1, 18, 10, 10, 1)))
 
     #-------------------------------------------------#
     #                  Cache Loader                   #

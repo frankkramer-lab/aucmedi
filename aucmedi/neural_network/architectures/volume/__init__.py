@@ -34,6 +34,9 @@ from aucmedi.neural_network.architectures.volume.resnet34 import Architecture_Re
 from aucmedi.neural_network.architectures.volume.resnet50 import Architecture_ResNet50
 from aucmedi.neural_network.architectures.volume.resnet101 import Architecture_ResNet101
 from aucmedi.neural_network.architectures.volume.resnet152 import Architecture_ResNet152
+# ResNeXt
+from aucmedi.neural_network.architectures.volume.resnext50 import Architecture_ResNeXt50
+from aucmedi.neural_network.architectures.volume.resnext101 import Architecture_ResNeXt101
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -49,6 +52,8 @@ architecture_dict = {
     "ResNet50": Architecture_ResNet50,
     "ResNet101": Architecture_ResNet101,
     "ResNet152": Architecture_ResNet152,
+    "ResNeXt50": Architecture_ResNeXt50,
+    "ResNeXt101": Architecture_ResNeXt101,
 }
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
@@ -67,4 +72,6 @@ supported_standardize_mode = {
     "ResNet50": "grayscale",
     "ResNet101": "grayscale",
     "ResNet152": "grayscale",
+    "ResNeXt50": "grayscale",
+    "ResNeXt101": "grayscale",
 }

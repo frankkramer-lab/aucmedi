@@ -173,5 +173,5 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
-        self.assertTrue(supported_standardize_mode["EfficientNetB0"] == "torch")
-        self.assertTrue(sdm_global["3D.EfficientNetB0"] == "torch")
+        self.assertTrue(supported_standardize_mode["EfficientNetB0"] == "caffe")
+        self.assertTrue(sdm_global["3D.EfficientNetB0"] == "caffe")

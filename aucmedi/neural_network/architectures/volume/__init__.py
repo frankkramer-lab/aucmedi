@@ -33,7 +33,7 @@ from aucmedi.neural_network.architectures.volume.efficientnetb0 import Architect
 # from aucmedi.neural_network.architectures.volume.efficientnetb1 import Architecture_EfficientNetB1
 # from aucmedi.neural_network.architectures.volume.efficientnetb2 import Architecture_EfficientNetB2
 # from aucmedi.neural_network.architectures.volume.efficientnetb3 import Architecture_EfficientNetB3
-# from aucmedi.neural_network.architectures.volume.efficientnetb4 import Architecture_EfficientNetB4
+from aucmedi.neural_network.architectures.volume.efficientnetb4 import Architecture_EfficientNetB4
 # from aucmedi.neural_network.architectures.volume.efficientnetb5 import Architecture_EfficientNetB5
 # from aucmedi.neural_network.architectures.volume.efficientnetb6 import Architecture_EfficientNetB6
 # from aucmedi.neural_network.architectures.volume.efficientnetb7 import Architecture_EfficientNetB7
@@ -51,7 +51,7 @@ architecture_dict = {
     # "EfficientNetB1": Architecture_EfficientNetB1,
     # "EfficientNetB2": Architecture_EfficientNetB2,
     # "EfficientNetB3": Architecture_EfficientNetB3,
-    # "EfficientNetB4": Architecture_EfficientNetB4,
+    "EfficientNetB4": Architecture_EfficientNetB4,
     # "EfficientNetB5": Architecture_EfficientNetB5,
     # "EfficientNetB6": Architecture_EfficientNetB6,
     # "EfficientNetB7": Architecture_EfficientNetB7,

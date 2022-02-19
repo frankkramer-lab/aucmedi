@@ -156,3 +156,98 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
         self.assertTrue(sdm_global["3D.DenseNet201"] == "torch")
+
+    #-------------------------------------------------#
+    #              Architecture: ResNet18             #
+    #-------------------------------------------------#
+    def test_ResNet18(self):
+        arch = Architecture_ResNet18(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_ResNet18(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet18",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet18"] == "grayscale")
+        self.assertTrue(sdm_global["3D.ResNet18"] == "grayscale")
+
+    #-------------------------------------------------#
+    #              Architecture: ResNet34             #
+    #-------------------------------------------------#
+    def test_ResNet34(self):
+        arch = Architecture_ResNet34(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_ResNet34(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet34",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet34"] == "grayscale")
+        self.assertTrue(sdm_global["3D.ResNet34"] == "grayscale")
+
+    #-------------------------------------------------#
+    #              Architecture: ResNet50             #
+    #-------------------------------------------------#
+    def test_ResNet50(self):
+        arch = Architecture_ResNet50(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_ResNet50(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet50",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet50"] == "grayscale")
+        self.assertTrue(sdm_global["3D.ResNet50"] == "grayscale")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNet101             #
+    #-------------------------------------------------#
+    def test_ResNet101(self):
+        arch = Architecture_ResNet101(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_ResNet101(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet101",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet101"] == "grayscale")
+        self.assertTrue(sdm_global["3D.ResNet101"] == "grayscale")
+
+    #-------------------------------------------------#
+    #             Architecture: ResNet152             #
+    #-------------------------------------------------#
+    def test_ResNet152(self):
+        arch = Architecture_ResNet152(channels=1, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_HU)
+        arch = Architecture_ResNet152(channels=3, input_shape=(32, 32, 32))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet152",
+                               batch_queue_size=1, input_shape=(32, 32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNet152"] == "grayscale")
+        self.assertTrue(sdm_global["3D.ResNet152"] == "grayscale")

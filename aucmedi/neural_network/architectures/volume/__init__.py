@@ -37,6 +37,9 @@ from aucmedi.neural_network.architectures.volume.resnet152 import Architecture_R
 # ResNeXt
 from aucmedi.neural_network.architectures.volume.resnext50 import Architecture_ResNeXt50
 from aucmedi.neural_network.architectures.volume.resnext101 import Architecture_ResNeXt101
+# MobileNet
+from aucmedi.neural_network.architectures.volume.mobilenet import Architecture_MobileNet
+from aucmedi.neural_network.architectures.volume.mobilenetv2 import Architecture_MobileNetV2
 # VGG
 from aucmedi.neural_network.architectures.volume.vgg16 import Architecture_VGG16
 from aucmedi.neural_network.architectures.volume.vgg19 import Architecture_VGG19
@@ -57,6 +60,8 @@ architecture_dict = {
     "ResNet152": Architecture_ResNet152,
     "ResNeXt50": Architecture_ResNeXt50,
     "ResNeXt101": Architecture_ResNeXt101,
+    "MobileNet": Architecture_MobileNet,
+    "MobileNetV2": Architecture_MobileNetV2,
     "VGG16": Architecture_VGG16,
     "VGG19": Architecture_VGG19,
 }
@@ -79,6 +84,8 @@ supported_standardize_mode = {
     "ResNet152": "grayscale",
     "ResNeXt50": "grayscale",
     "ResNeXt101": "grayscale",
+    "MobileNet": "tf",
+    "MobileNetV2": "tf",
     "VGG16": "caffe",
     "VGG19": "caffe",
 }

@@ -156,22 +156,3 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
         self.assertTrue(sdm_global["3D.DenseNet201"] == "torch")
-
-    #-------------------------------------------------#
-    #           Architecture: EfficientNetB0          #
-    #-------------------------------------------------#
-    def test_EfficientNetB0(self):
-        arch = Architecture_EfficientNetB0(channels=1, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_HU)
-        arch = Architecture_EfficientNetB0(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.EfficientNetB0",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
-        try : model.model.summary()
-        except : raise Exception()
-        self.assertTrue(supported_standardize_mode["EfficientNetB0"] == "caffe")
-        self.assertTrue(sdm_global["3D.EfficientNetB0"] == "caffe")

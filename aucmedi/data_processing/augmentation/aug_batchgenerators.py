@@ -56,6 +56,8 @@ class Batchgenerators_Augmentation():
     #-----------------------------------------------------#
     # Define augmentation operator
     operator = None
+    # Option for augmentation refinement (clipping)
+    refine = True
     # Augmentation: Mirror
     aug_mirror = False
     aug_mirror_p = 0.5
@@ -209,5 +211,8 @@ class Batchgenerators_Augmentation():
         # Remove batch axis and return to channel last
         aug_image = np.moveaxis(aug_image, 1, -1)
         aug_image = np.squeeze(aug_image, axis=0)
+        # Perform clipping if image is out of grayscale/RGB encodings
+        if self.refine and (np.min(aug_image) < 0 or np.max(aug_image) > 255):
+        aug_image = np.clip(aug_image, a_min=0, a_max=255)
         # Return augmented image
         return aug_image

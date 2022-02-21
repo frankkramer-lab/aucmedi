@@ -213,6 +213,6 @@ class Batchgenerators_Augmentation():
         aug_image = np.squeeze(aug_image, axis=0)
         # Perform clipping if image is out of grayscale/RGB encodings
         if self.refine and (np.min(aug_image) < 0 or np.max(aug_image) > 255):
-        aug_image = np.clip(aug_image, a_min=0, a_max=255)
+            aug_image = np.clip(aug_image, a_min=0, a_max=255)
         # Return augmented image
         return aug_image

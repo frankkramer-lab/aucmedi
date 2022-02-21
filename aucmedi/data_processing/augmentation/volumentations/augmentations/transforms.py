@@ -1051,12 +1051,16 @@ class GlassBlur(Blur):
     def apply(self, img, dxy, **data):
         img_blurred = np.zeros(img.shape, dtype=img.dtype)
         for slice in range(img.shape[0]):
-            img_blurred[slice,:,:] = F.glass_blur(img[slice,:,:],
-                                                  self.sigma,
-                                                  self.max_delta,
-                                                  self.iterations,
-                                                  dxy,
-                                                  self.mode)
+            img_processed = F.glass_blur(img[slice,:,:],
+                                         self.sigma,
+                                         self.max_delta,
+                                         self.iterations,
+                                         dxy,
+                                         self.mode)
+            if len(img.shape) == 4 and img.shape[-1] == 1:
+                img_blurred[slice,:,:] = np.reshape(img_processed,
+                                                        img_processed.shape+(1,))
+            else : img_blurred[slice,:,:] = img_processed
         return img_blurred
 
     def get_params(self, **data):

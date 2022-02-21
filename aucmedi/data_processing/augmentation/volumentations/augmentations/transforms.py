@@ -1048,27 +1048,27 @@ class GlassBlur(Blur):
         self.iterations = iterations
         self.mode = mode
 
-    def apply(self, img, **params):
-        # generate array containing all necessary values for transformations
-        width_pixels = img.shape[0] - self.max_delta * 2
-        height_pixels = img.shape[1] - self.max_delta * 2
-        total_pixels = width_pixels * height_pixels
-        dxy = randint(-self.max_delta, self.max_delta,
-                      size=(total_pixels, self.iterations, 2))
-
-        img_transformed = np.zeros(img.shape, dtype=img.dtype)
+    def apply(self, img, dxy, **data):
+        img_blurred = np.zeros(img.shape, dtype=img.dtype)
         for slice in range(img.shape[0]):
-            img_processed = F.glass_blur(img[slice,:,:],
-                                         self.sigma,
-                                         self.max_delta,
-                                         self.iterations,
-                                         dxy,
-                                         self.mode)
-            if len(img.shape) == 4 and img.shape[-1] == 1:
-                img_transformed[slice,:,:] = np.reshape(img_processed,
-                                                        img_processed.shape+(1,))
-            else : img_transformed[slice,:,:] = img_processed
-        return img_transformed
+            img_blurred[slice,:,:] = F.glass_blur(img[slice,:,:],
+                                                  self.sigma,
+                                                  self.max_delta,
+                                                  self.iterations,
+                                                  dxy,
+                                                  self.mode)
+        return img_blurred
+
+    def get_params(self, **data):
+        img = data["image"]
+
+        # generate array containing all necessary values for transformations
+        width_pixels = img.shape[1] - self.max_delta * 2
+        height_pixels = img.shape[2] - self.max_delta * 2
+        total_pixels = width_pixels * height_pixels
+        dxy = randint(-self.max_delta, self.max_delta, size=(total_pixels, self.iterations, 2))
+
+        return {"dxy": dxy}
 
     def get_transform_init_args_names(self):
         return ("sigma", "max_delta", "iterations")

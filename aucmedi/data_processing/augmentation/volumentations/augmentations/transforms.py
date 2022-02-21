@@ -879,9 +879,9 @@ class ColorJitter(ImageOnlyTransform):
             raise TypeError("ColorJitter transformation expects 1-channel or 3-channel images.")
 
         for transform in transforms:
-            img_transformed = np.zeros(img.shape, dtype=img.dtype)
+            img_transformed = np.zeros(img.shape, dtype=np.float32)
             for slice in range(img.shape[0]):
-                img_transformed[slice,:,:] = transform(img[slice,:,:])
+                img_transformed[slice,:,:] = transform(img[slice,:,:].astype(np.float32))
         return img_transformed
 
     def get_transform_init_args_names(self):

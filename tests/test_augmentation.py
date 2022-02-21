@@ -24,7 +24,7 @@ import unittest
 import numpy as np
 import random
 #Internal libraries
-from aucmedi import Image_Augmentation, Volume_Augmentation
+from aucmedi import Image_Augmentation, Volume_Augmentation, Batchgenerators_Augmentation
 
 #-----------------------------------------------------#
 #             Unittest: Image Augmentation            #
@@ -150,6 +150,48 @@ class AugmentationTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(img_augRGB, self.imgRGB3d))
         data_aug.aug_flip = True
         data_aug.aug_flip_p = 1.0
+        data_aug.build()
+        img_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))
+
+    #-------------------------------------------------#
+    #          Batchgenerators Functionality          #
+    #-------------------------------------------------#
+    # Class Creation
+    def test_BATCHGENERATORS_create(self):
+        data_aug = Batchgenerators_Augmentation(image_shape=(16,16,16))
+        self.assertIsInstance(data_aug, Batchgenerators_Augmentation)
+
+    # Application
+    def test_BATCHGENERATORS_application(self):
+        data_aug = Batchgenerators_Augmentation(image_shape=(16,16,16),
+                        mirror=True, rotate=True, scale=True,
+                        elastic_transform=True, gaussian_noise=True,
+                        brightness=True, contrast=True, gamma=True)
+        data_aug.aug_elasticTransform_p = 1.0
+        data_aug.aug_gamma_p = 1.0
+        data_aug.aug_gaussianNoise_p = 1.0
+        data_aug.aug_scale_p = 1.0
+        data_aug.aug_contrast_p = 1.0
+        data_aug.aug_brightness_p = 1.0
+        data_aug.aug_rotate_p = 1.0
+        data_aug.aug_mirror_p = 1.0
+        data_aug.build()
+        img_augGRAY = data_aug.apply(self.imgGRAY3d)
+        img_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertFalse(np.array_equal(img_augGRAY, self.imgGRAY3d))
+        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))
+
+    # Rebuild Augmentation Operator
+    def test_BATCHGENERATORS_rebuild(self):
+        data_aug = Batchgenerators_Augmentation(image_shape=(16,16,16),
+                        mirror=False, rotate=False, scale=False,
+                        elastic_transform=False, gaussian_noise=False,
+                        brightness=False, contrast=False, gamma=False)
+        img_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertTrue(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_aug.aug_mirror = True
+        data_aug.aug_mirror_p = 1.0
         data_aug.build()
         img_augRGB = data_aug.apply(self.imgRGB3d)
         self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))

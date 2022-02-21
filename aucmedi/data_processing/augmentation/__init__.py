@@ -18,3 +18,4 @@
 #==============================================================================#
 from aucmedi.data_processing.augmentation.aug_image import Image_Augmentation
 from aucmedi.data_processing.augmentation.aug_volume import Volume_Augmentation
+from aucmedi.data_processing.augmentation.aug_batchgenerators import Batchgenerators_Augmentation

@@ -45,8 +45,14 @@ repo_name: frankkramer-lab/aucmedi
 nav:
 - Home: index.md
 - Getting Started:
-    - test.md
-- Examples: examples.md
+    - Introduction: getstarted/intro.md
+    - Installation: getstarted/setup.md
+    - Contributing: getstarted/contribution.md
+    - FAQ: getstarted/faq.md
+- Examples:
+  - Framework: examples/framework.md
+  - AutoML: examples/automl.md
+  - General Tutorials: examples/tutorials.md
 - API Reference: reference/
 - About Us: about.md
 

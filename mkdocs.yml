@@ -1,0 +1,81 @@
+#==============================================================================#
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#                University of Augsburg                                        #
+#                                                                              #
+#  This program is free software: you can redistribute it and/or modify        #
+#  it under the terms of the GNU General Public License as published by        #
+#  the Free Software Foundation, either version 3 of the License, or           #
+#  (at your option) any later version.                                         #
+#                                                                              #
+#  This program is distributed in the hope that it will be useful,             #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+#  GNU General Public License for more details.                                #
+#                                                                              #
+#  You should have received a copy of the GNU General Public License           #
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+#==============================================================================#
+#-----------------------------------------------------#
+#                  Site Information                   #
+#-----------------------------------------------------#
+site_name: AUCMEDI
+site_description: A Framework for Automated Classification of Medical Images
+site_author: University Augsburg
+copyright: Copyright &copy; 2022 - 2022 University of Augsburg
+
+#-----------------------------------------------------#
+#                       Layout                        #
+#-----------------------------------------------------#
+theme:
+  name: "material"
+  custom_dir: docs/theme_override/
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.top
+  palette:
+    primary: indigo
+  icon:
+    repo: fontawesome/brands/github
+
+repo_url: https://github.com/frankkramer-lab/MIScnn
+repo_name: frankkramer-lab/aucmedi
+
+nav:
+- Home: index.md
+- Getting Started:
+    - test.md
+- Examples: examples.md
+- API Reference: reference/
+- About Us: about.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: XplaceholderX
+    - icon: fontawesome/brands/docker
+      link: XplaceholderX
+
+#-----------------------------------------------------#
+#                       Plugins                       #
+#-----------------------------------------------------#
+plugins:
+- search
+- gen-files:
+    scripts:
+      - docs/auto_docstring.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- section-index
+- mkdocstrings:
+    default_handler: python
+    watch:
+      - aucmedi
+    handlers:
+      python:
+        selection:
+          docstring_style: google
+        rendering:
+          members_order: source
+          show_root_heading: True

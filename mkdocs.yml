@@ -47,6 +47,8 @@ nav:
 - Getting Started:
     - Introduction: getstarted/intro.md
     - Installation: getstarted/setup.md
+    - Modules:      getstarted/modules.md
+    - Basic Usage:  getstarted/usage.md
     - Contributing: getstarted/contribution.md
     - FAQ: getstarted/faq.md
 - Examples:

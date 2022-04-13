@@ -5,40 +5,16 @@
 
 <!-- Additional styles for landing page -->
 <style>
-
-    .md-header {
-        position: initial
-    }
-
-    .md-main__inner {
-        margin: 0
-    }
-
-    .md-footer-copyright {
-        display: none
-    }
-
-    .md-footer-nav__inner {
-        display: none
-    }
-
-    .md-content {
-        display: none
-    }
-
-    .md-footer-meta__inner {
-        align-content: center;
-        display: flex;
-        align-items: center;
-        justify-content: center
-    }
-
     /*
      Table of content font color
     */
-    a.md-nav__link {
-        color: #303C55;
-        text-decoration: none;
+    .md-main {
+        margin: 0
+        display: none
+    }
+    .md-main__inner {
+        margin: 0
+        display: none
     }
 
     .tx-container {
@@ -88,34 +64,31 @@
         max-width: 100%;
         max-height: 100%;
         order: 1;
-        padding-right: 0.5rem;
-        padding-left: 0rem;
+        padding-right: 3rem;
+        padding-left: 3rem;
         padding-top: 10px;
         padding-bottom: 10px;
-        float: left;
     }
 
     .tx-hero__content-2 {
         margin-left: 50px;
         justify-content: left;
-        color: #2a978d;
         font-weight: 300;
         padding: 0 0px;
         padding-bottom: 40px;
         word-break: break-word;
-        float: right;
+        color: black;
     }
 
     .tx-hero__content-2 h1 {
         margin-top: 50px;
-        color: #2a978d;
         font-weight: 600;
         font-size: 36px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         line-height: normal;
-        /*font-family: inherit;*/
+        color: black;
     }
 
     .tx-hero__content-2 p {
@@ -124,74 +97,6 @@
         text-rendering: optimizeLegibility;
         color: black;
         display: block;
-    }
-
-    .tx-hero__content-2 a:link {
-        color: #2a978d;
-    }
-
-    .tx-hero__content-2 a:visited {
-        color: #2a978d;
-    }
-
-    .tx-container-3 {
-        height: auto;
-        background: linear-gradient(to bottom, var(--md-primary-fg-color), #02162f 100%, #fff 99%);
-    }
-
-    .tx-container-4 {
-        height: auto;
-        background: linear-gradient(to bottom, #2a978d, #02162f 99%, #fff 99%);
-    }
-
-    .tx-container-testimonial {
-        height: auto;
-        background: #EDEFF0;
-    }
-
-    .tx-hero__image-3 {
-        max-width: 100%;
-        max-height: 100%;
-        order: 1;
-        padding-right: 2.5rem;
-        padding-top: 30px;
-        padding-bottom: 30px;
-    }
-
-    .tx-hero__image-4 {
-        max-width: 100%;
-        max-height: 100%;
-        order: 1;
-        padding-right: 2.5rem;
-        padding-top: 5px;
-        padding-bottom: 15px;
-    }
-
-    .tx-footer {
-        margin: 0px 0rem;
-        background-color: white;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .tx-hero__content-footer {
-        justify-content: left;
-        color: #2a978d;
-        font-weight: 300;
-        padding: 0 0px;
-        word-break: break-word;
-        float: left;
-    }
-
-    .tx-footer p {
-        font-size: 12px;
-        line-height: 1.8em;
-        text-rendering: optimizeLegibility;
-        color: black;
-        display: block;
-        font-family: inherit;
     }
 
     /**/
@@ -215,11 +120,6 @@
         }
 
         .tx-hero__content-2 {
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-        .tx-hero__content-3 {
             margin-left: 20px;
             margin-right: 20px;
         }

@@ -2,36 +2,7 @@ The field of AI-based medical image classification has experienced rapid growth 
 
 However, clinical application studies reveal that the integration of image classification pipelines into a hospital environment presents significant challenges. Solutions from the literature that have already been implemented are usually independent software, so-called isolated solutions, which have been developed and optimized for a specific disease or a single data set⁠. Due to the lack of generalizability, clinicians are faced with the problem that reusability in their own data sets and therefore no practical use in clinical research is possible.
 
-The open-source Python framework AUCMEDI offers a solution for the challenges described. The software package not only offers a library as a high-level API for the standardized construction of modern medical image classification pipelines, but also reproducible installation and direct application via CLI or Docker. With AUCMEDI, researchers are able to set up a complete and easy-to-integrate pipeline for medical image classification with just a few lines of code.
-
-## Key Features
-
-**Deep Learning:**  
-Library of deep neural networks for binary, multi-class as well as multi-label classification.
-
-**Class Imbalance:**  
-Efficient methods against class imbalances using class weights and modern loss functions such as focal loss.
-
-**Small Datasets:**  
-Extensive data augmentation for biomedical images based on Albumentations and batchgenerators.
-
-**Image Preprocessing:**  
-Various preprocessing methods for complexity reduction, such as color conversions, windowing, filtering, resizing and normalization.
-
-**Ensemble Learning:**  
-Simple integration of Ensemble Learning techniques like test-time augmentation, bagging via cross-validation or stacking via logistic regressions.
-
-**Explainable AI:**  
-Opening the blackbox! Transparency for opaque decision-making processes using activation maps such as Grad-CAM⁠ or Backpropagation.
-
-**AutoML:**  
-Automated Machine Learning to ensure easy deployment, integration and maintenance of complex medical image classification pipelines.
-
-**Community-friendly:**  
-Documentation, examples, unittesting, continous integration, continous development, open-source, active support, and more buzzwords.
-
-**Standardized:**  
-Combining standardization of the best methods in the literature with open interfaces for 3rd party contributions.
+The open-source Python framework AUCMEDI offers a solution for the challenges described. The software package not only offers a **library as a high-level API** for the standardized construction of modern medical image classification pipelines, but also reproducible installation and **direct application via CLI or Docker**. With AUCMEDI, researchers are able to set up a complete and easy-to-integrate pipeline for medical image classification with just a few lines of code.
 
 ## Philosophy of AUCMEDI
 
@@ -59,6 +30,6 @@ The answer is quite simple:AUCMEDI: a framework for <b>Au</b>tomated <b>C</b>las
 And how should I pronounce it correctly?  
 Answer: AUC-MEDI
 
-As two words:
-- AUC as in AUROC (area under the curve of a receiver operating characteristic)
-- MEDI as in MEDICAL
+As two words:  
+- AUC as in AUROC (area under the curve of a receiver operating characteristic)  
+- MEDI as in MEDICAL  

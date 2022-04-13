@@ -1,21 +1,20 @@
 # Prerequisite
 
-AUCMEDI is tested and supported on the following 64-bit system: Ubuntu 16.04 or later
+AUCMEDI is tested and supported on the following systems:
 
-As core langauge
-Python
+- 64-bit Ubuntu 16.04 or later  
+- Python 3.8 - 3.10  
 
 AUCMEDI is heavily based on TensorFlow 2: an approachable, highly-productive interface for solving machine learning problems, with a focus on modern deep learning. It provides essential abstractions and building blocks for developing and shipping machine learning solutions with high iteration velocity.
 
-In order to run AUCMEDI
-
+In order to install AUCMEDI, verify that all requirements are complied and functional.
 
 
 # AUCMEDI Installation
 
 There are three ways to install AUCMEDI which depends on the preferred usage:
 
-## Install from PyPI (recommended)
+### Install from PyPI (recommended)
 
 Note: These installation steps assume that you are on a Linux or Mac environment. If you are on Windows or in a virtual environment without root, you will need to remove sudo to run the commands below.
 
@@ -25,11 +24,11 @@ This will allow utilizing the framework (in your favorite Python IDE or in a Jup
 pip install aucmedi
 ```
 
-## Install from DockerHub for AutoML
+### Install from DockerHub for AutoML
 
 Work in Progress. Coming soon.
 
-## Alternatively: Install from the GitHub source
+### Alternatively: Install from the GitHub source
 
 First, clone AUCMEDI using git:
 

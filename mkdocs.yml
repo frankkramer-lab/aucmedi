@@ -54,7 +54,7 @@ nav:
 - Examples:
   - Framework: examples/framework.md
   - AutoML: examples/automl.md
-  - General Tutorials: examples/tutorials.md
+  - Applications: examples/applications.md
 - API Reference: reference/
 - About Us: about.md
 

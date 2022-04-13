@@ -1,4 +1,4 @@
-# Prerequisite
+## Prerequisite
 
 AUCMEDI is tested and supported on the following systems:
 
@@ -10,7 +10,7 @@ AUCMEDI is heavily based on TensorFlow 2: an approachable, highly-productive int
 In order to install AUCMEDI, verify that all requirements are complied and functional.
 
 
-# AUCMEDI Installation
+## AUCMEDI Installation
 
 There are three ways to install AUCMEDI which depends on the preferred usage:
 

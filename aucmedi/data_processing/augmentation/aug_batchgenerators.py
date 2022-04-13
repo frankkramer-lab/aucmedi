@@ -60,28 +60,28 @@ class Batchgenerators_Augmentation():
     refine = True
     # Augmentation: Mirror
     aug_mirror = False
-    aug_mirror_p = 0.3
+    aug_mirror_p = 0.5
     aug_mirror_axes = (0, 1, 2)
     # Augmentation: 90 degree rotate
     aug_rotate = False
-    aug_rotate_p = 0.3
+    aug_rotate_p = 0.5
     aug_rotate_angleX = (-15. / 360 * 2. * np.pi, 15. / 360 * 2. * np.pi)
     aug_rotate_angleY = (-15. / 360 * 2. * np.pi, 15. / 360 * 2. * np.pi)
     aug_rotate_angleZ = (-15. / 360 * 2. * np.pi, 15. / 360 * 2. * np.pi)
     # Augmentation: Brightness
     aug_brightness = False
-    aug_brightness_p = 0.3
+    aug_brightness_p = 0.5
     aug_brightness_range = (0.5, 2)
-    aug_brightness_per_channel = True
+    aug_brightness_per_channel = False
     # Augmentation: Contrast
     aug_contrast = False
-    aug_contrast_p = 0.3
+    aug_contrast_p = 0.5
     aug_contrast_range = (0.3, 3.0)
-    aug_contrast_per_channel = True
+    aug_contrast_per_channel = False
     aug_contrast_preserverange = True
     # Augmentation: Scale
     aug_scale = False
-    aug_scale_p = 0.4
+    aug_scale_p = 0.5
     aug_scale_range = (0.85, 1.25)
     # Augmentation: Gaussian Noise
     aug_gaussianNoise = False
@@ -89,12 +89,12 @@ class Batchgenerators_Augmentation():
     aug_gaussianNoise_range = (0.0, 0.05)
     # Augmentation: Gamma
     aug_gamma = False
-    aug_gamma_p = 0.3
+    aug_gamma_p = 0.5
     aug_gamma_range = (0.7, 1.5)
-    aug_gamma_per_channel = True
+    aug_gamma_per_channel = False
     # Augmentation: Elastic Transformation
     aug_elasticTransform = False
-    aug_elasticTransform_p = 0.2
+    aug_elasticTransform_p = 0.5
     aug_elasticTransform_alpha = (0.0, 900.0)
     aug_elasticTransform_sigma = (9.0, 13.0)
 

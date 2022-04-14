@@ -1,4 +1,4 @@
-# AUCMEDI - a framework for Automated Classification of Medical Images
+# AUCMEDI: a framework for Automated Classification of Medical Images
 
 ## Work in Progress!
 
@@ -8,7 +8,7 @@ The main reason this developed project is already publicly available is due to g
 Right now, it is possible to utilize the AUCMEDI framework as an high-level API for building state-of-the-art medical image classification pipelines.  
 But more things like CLI/Docker for AutoML and straightforward application are coming!  
 
-**Stay tuned and please have a look on AUCMEDI in 1-2 month, again! :)**  
+**Stay tuned and please have a look on AUCMEDI in 1-2 months, again! :)**  
 
 ## Resources
 - Website: [https://frankkramer-lab.github.io/aucmedi/](https://frankkramer-lab.github.io/aucmedi/)
@@ -39,10 +39,10 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - [x] Clean implementation of the state-of-the-art for competitive application like challenges
 - [x] Full (and automatic) documentation of the complete API reference
 - [x] Started creating examples & applications for the community
-- [x] Extensive unittesting -> CI/CD
 - [x] Available from PyPI for simple installation in various environments
 
 **Planed milestones and features are:**
+- [ ] Unittesting -> CI/CD
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML
@@ -51,24 +51,54 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 
 ## Getting started: 60 seconds to automated medical image classification
 
-**Install AUCMEDI via PyPI:**
+Simply install AUCMEDI with a single line of code via pip.
+
+**Install AUCMEDI via PyPI**
 ```sh
 pip install aucmedi
 ```
 
-**Build a pipeline:**
-```python
-asd
-```
+Let's build a COVID-19 Detection AI on CT scans!
 
-**Train a model:**
+**Build a pipeline**
 ```python
-asd
-```
+# AUCMEDI library
+from aucmedi import *
 
-**Make model predictions:**
+# Initialize input data reader
+ds = input_interface(interface="csv",
+                     path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                     path_data="/home/muellerdo/COVdataset/classes.csv",
+                     ohe=False, col_sample="ID", col_class="PCRpositive")
+(index_list, class_ohe, nclasses, class_names, image_format) = ds
+
+# Initialize a DenseNet121 model with ImageNet weights
+model = Neural_Network(n_labels=nclasses, channels=3,
+                       architecture="2D.DenseNet121",
+                       pretrained_weights=True)
+```
+Congratulations to your ready-to-use Medical Image Classification pipeline including data I/O, preprocessing and a deep learning based neural network model.
+
+**Train a model and use it!**
 ```python
-asd
+# Initialize training Data Generator for first 1000 samples
+train_gen = DataGenerator(samples=index_list[:1000],
+                          path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                          labels=class_ohe[:1000],
+                          image_format=image_format)
+# Run model training with Transfer Learning
+model.train(train_gen, epochs=20, transfer_learning=True)
+
+# Initialize testing Data Generator for 500 samples
+test_gen = DataGenerator(samples=index_list[1000:1500],
+                         path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                         labels=None,
+                         image_format=image_format)
+# Run model inference for unknown samples
+preds = model.predict(test_gen)
+
+# preds <-> NumPy array with shape (500,2)
+# -> 500 predictions with softmax probabilities for our 2 classes
 ```
 
 ## Lead Author

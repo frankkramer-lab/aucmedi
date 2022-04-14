@@ -4,6 +4,10 @@ However, clinical application studies reveal that the integration of image class
 
 The open-source Python framework AUCMEDI offers a solution for the challenges described. The software package not only offers a **library as a high-level API** for the standardized construction of modern medical image classification pipelines, but also reproducible installation and **direct application via CLI or Docker**. With AUCMEDI, researchers are able to set up a complete and easy-to-integrate pipeline for medical image classification with just a few lines of code.
 
+Summarized, we have two modules in AUCMEDI:  
+- The framework or API for building medical image classification pipelines in Python
+- The AutoML module via CLI or Docker for fast application
+
 ## Philosophy of AUCMEDI
 
 **User friendliness:**  
@@ -25,7 +29,7 @@ Share your problems and contribute to improve AUCMEDI.
 ## Why this name, AUCMEDI?
 
 Maybe, you are asking yourself: What abbreviation AUCMEDI stands for?  
-The answer is quite simple:AUCMEDI: a framework for <b>Au</b>tomated <b>C</b>lassification of <b>Med</b>ical <b>I</b>mages.
+The answer is quite simple: <b>Au</b>tomated <b>C</b>lassification of <b>Med</b>ical <b>I</b>mages.
 
 And how should I pronounce it correctly?  
 Answer: AUC-MEDI

@@ -20,8 +20,8 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from aucmedi.data_processing.augmentation.volumentations import Compose
-from aucmedi.data_processing.augmentation.volumentations import augmentations as ai
+from volumentations import Compose
+from volumentations import augmentations as ai
 import warnings
 import numpy as np
 import random
@@ -47,9 +47,9 @@ import random
                     https://github.com/ashawkey/volumentations
     albumentations: https://github.com/albumentations-team/albumentations
 
-    The Volumentations package was integrated into AUCMEDI to ensure ongoing development and support.
+    The Volumentations package was further continued by us to ensure ongoing development and support.
     For more details, please read the README under:
-    https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
+    https://github.com/muellerdo/volumentations
 """
 class Volume_Augmentation():
     #-----------------------------------------------------#

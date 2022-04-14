@@ -11,3 +11,4 @@ pooch==1.6.0
 classification-models-3D==1.0.3
 SimpleITK==2.1.1
 batchgenerators==0.23
+volumentations-aucmedi==1.0.1

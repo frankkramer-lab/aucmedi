@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 # External libraries
 import albumentations
-import aucmedi.data_processing.augmentation.volumentations as volumentations
+import volumentations
 # Internal libraries/scripts
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 

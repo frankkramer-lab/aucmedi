@@ -43,7 +43,7 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
     Crop(shape=(224, 224, 244))
 
     Cropping is done via volumentations CenterCrop and RandomCrop transform.
-    https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
+    https://github.com/muellerdo/volumentations
 
 Methods:
     __init__                Object creation function

@@ -40,7 +40,7 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
     Resize(shape=(128, 128, 128))
 
     Resizing is done via volumentations resize transform which uses bi-linear interpolation by default.
-    https://github.com/frankkramer-lab/aucmedi/tree/master/aucmedi/data_processing/augmentation/volumentations
+    https://github.com/muellerdo/volumentations
 
 Methods:
     __init__                Object creation function

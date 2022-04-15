@@ -81,6 +81,9 @@ markdown_extensions:
 - admonition
 - pymdownx.progressbar
 - pymdownx.tasklist
+- pymdownx.superfences
+- pymdownx.details
+- tables
 - toc:
     permalink: "¤"
 

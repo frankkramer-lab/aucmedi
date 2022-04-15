@@ -43,10 +43,25 @@ theme:
 repo_url: https://github.com/frankkramer-lab/MIScnn
 repo_name: frankkramer-lab/aucmedi
 
+extra_css:
+- css/mkdocstrings.css
+- css/progressbar.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: XplaceholderX
+    - icon: fontawesome/brands/docker
+      link: XplaceholderX
+
+#-----------------------------------------------------#
+#                       Content                       #
+#-----------------------------------------------------#
 nav:
 - Home: index.md
 - Getting Started:
     - Introduction: getstarted/intro.md
+    - Current Status: getstarted/status.md
     - Installation: getstarted/setup.md
     - Modules:      getstarted/modules.md
     - Basic Usage:  getstarted/usage.md
@@ -59,16 +74,16 @@ nav:
 - API Reference: reference/
 - About Us: about.md
 
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: XplaceholderX
-    - icon: fontawesome/brands/docker
-      link: XplaceholderX
+#-----------------------------------------------------#
+#                 Plugins & Extensions                #
+#-----------------------------------------------------#
+markdown_extensions:
+- admonition
+- pymdownx.progressbar
+- pymdownx.tasklist
+- toc:
+    permalink: "¤"
 
-#-----------------------------------------------------#
-#                       Plugins                       #
-#-----------------------------------------------------#
 plugins:
 - search
 - gen-files:
@@ -86,7 +101,9 @@ plugins:
         selection:
           docstring_style: google
         rendering:
-          merge_init_into_class: True
-          show_submodules: False
           show_root_heading: True
+          show_submodules: False
+          merge_init_into_class: True
+          separate_signature: True
           members_order: source
+          docstring_section_style: spacy

@@ -17,21 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# Author: Samson Woof                                 #
-# GitHub: https://github.com/samson6460               #
-# Date: May 21, 2020                                  #
-# https://github.com/samson6460/tf_keras_gradcamplusp #
-# lus                                                 #
-#-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                    07 May 2018.                     #
-#    Grad-CAM++: Generalized Gradient-Based Visual    #
-#    Explanations for Deep Convolutional Networks.    #
-#         Aditya Chattopadhay; Anirban Sarkar;        #
-#    Prantik Howlader; Vineeth N Balasubramanian.     #
-#     https://ieeexplore.ieee.org/document/8354201    #
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External Libraries
@@ -44,17 +29,32 @@ from aucmedi.xai.methods.xai_base import XAImethod_Base
 #                XAI Method: Grad-Cam++               #
 #-----------------------------------------------------#
 class GradCAMpp(XAImethod_Base):
-    """ Initialization function for creating a Grad-Cam++ as XAI Method object.
-    Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
+    """ XAI Method for Grad-CAM++.
+
+    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+
+    ??? abstract "Reference - Implementation"
+        Author: Samson Woof <br>
+        GitHub Profile: https://github.com/samson6460 <br>
+        Date: May 21, 2020 <br>
+        https://github.com/samson6460/tf_keras_gradcamplusplus <br>
+
+    ??? abstract "Reference - Publication"
+        Aditya Chattopadhay; Anirban Sarkar; Prantik Howlader; Vineeth N Balasubramanian. 07 May 2018.
+        Grad-CAM++: Generalized Gradient-Based Visual Explanations for Deep Convolutional Networks.
+        <br>
+        https://ieeexplore.ieee.org/document/8354201
 
     This class provides functionality for running the compute_heatmap function,
-    which computes a Grad-Cam++ heatmap for an image with a model.
-
-    Args:
-        model (Keras Model):               Keras model object.
-        layerName (String):                Layer name of the convolutional layer for heatmap computation.
+    which computes a Grad-CAM++ heatmap for an image with a model.
     """
     def __init__(self, model, layerName=None):
+        """ Initialization function for creating a Grad-CAM++ as XAI Method object.
+
+        Args:
+            model (keras.model):               Keras model object.
+            layerName (str):                   Layer name of the convolutional layer for heatmap computation.
+        """
         # Cache class parameters
         self.model = model
         self.layerName = layerName
@@ -64,10 +64,12 @@ class GradCAMpp(XAImethod_Base):
     #---------------------------------------------#
     #            Identify Output Layer            #
     #---------------------------------------------#
-    """ Identify last/final convolutional layer in neural network architecture.
-        This layer is used to obtain activation outputs / feature map.
-    """
     def find_output_layer(self):
+        """ Internal function. Applied if `layerName==None`.
+
+        Identify last/final convolutional layer in neural network architecture.
+        This layer is used to obtain activation outputs / feature map.
+        """
         # Iterate over all layers
         for layer in reversed(self.model.layers):
             # Check to see if the layer has a 4D output -> Return layer
@@ -79,17 +81,25 @@ class GradCAMpp(XAImethod_Base):
     #---------------------------------------------#
     #             Heatmap Computation             #
     #---------------------------------------------#
-    """ Core function for computing the Grad-Cam++ heatmap for a provided image and for specific classification outcome.
-    The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
-
-    Be aware that the image has to be provided in batch format.
-
-    Args:
-        image (NumPy Array):                Image matrix encoded as NumPy Array (provided as one-element batch).
-        class_index (Integer):              Classification index for which the heatmap should be computed.
-        eps (Float):                        Epsilon for rounding.
-    """
     def compute_heatmap(self, image, class_index, eps=1e-8):
+        """ Core function for computing the Grad-CAM++ heatmap for a provided image and for specific classification outcome.
+
+        ???+ attention
+            Be aware that the image has to be provided in batch format.
+
+        Args:
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            class_index (int):                  Classification index for which the heatmap should be computed.
+            eps (float):                        Epsilon for rounding.
+
+        The returned heatmap is encoded within a range of [0,1]
+
+        ???+ attention
+            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+
+        Returns:
+            heatmap (numpy.ndarray):            Computed Grad-CAM++ for provided image.
+        """
         # Gradient model construction
         gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
                          outputs=[self.model.get_layer(self.layerName).output,

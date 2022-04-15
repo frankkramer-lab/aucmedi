@@ -17,13 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# Author: Raphael Meudec                              #
-# GitHub: https://gist.github.com/RaphaelMeudec       #
-# Date: Jul 18, 2019                                  #
-# https://gist.github.com/RaphaelMeudec/7985b0c5eb720a#
-# 29021d52b0a0be549a                                  #
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External Libraries
@@ -36,17 +29,26 @@ from aucmedi.xai.methods.xai_base import XAImethod_Base
 #                Occlusion Sensitivity                #
 #-----------------------------------------------------#
 class OcclusionSensitivity(XAImethod_Base):
-    """ Initialization function for creating a Occlusion Sensitivity Map as XAI Method object.
-    Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
+    """ XAI Method for Occlusion Sensitivity.
+
+    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+
+    ??? abstract "Reference - Implementation"
+        Author: Raphael Meudec <br>
+        GitHub Profile: https://gist.github.com/RaphaelMeudec <br>
+        Date: Jul 18, 2019 <br>
+        https://gist.github.com/RaphaelMeudec/7985b0c5eb720a29021d52b0a0be549a <br>
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Occlusion Sensitivity Map for an image with a model.
-
-    Args:
-        model (Keras Model):               Keras model object.
-        layerName (String):                Not required in Occlusion Sensitivity Maps, but defined by Abstract Base Class.
     """
     def __init__(self, model, layerName=None, patch_size=4):
+        """ Initialization function for creating a Occlusion Sensitivity Map as XAI Method object.
+
+        Args:
+            model (keras.model):            Keras model object.
+            layerName (str):                Not required in Occlusion Sensitivity Maps, but defined by Abstract Base Class.
+        """
         # Cache class parameters
         self.model = model
         self.patch_size = patch_size
@@ -54,17 +56,25 @@ class OcclusionSensitivity(XAImethod_Base):
     #---------------------------------------------#
     #             Heatmap Computation             #
     #---------------------------------------------#
-    """ Core function for computing the Saliency Map for a provided image and for specific classification outcome.
-    The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
-
-    Be aware that the image has to be provided in batch format.
-
-    Args:
-        image (NumPy Array):                Image matrix encoded as NumPy Array (provided as one-element batch).
-        class_index (Integer):              Classification index for which the heatmap should be computed.
-        eps (Float):                        Epsilon for rounding.
-    """
     def compute_heatmap(self, image, class_index, eps=1e-8):
+        """ Core function for computing the Occlusion Sensitivity Map for a provided image and for specific classification outcome.
+
+        ???+ attention
+            Be aware that the image has to be provided in batch format.
+
+        Args:
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            class_index (int):                  Classification index for which the heatmap should be computed.
+            eps (float):                        Epsilon for rounding.
+
+        The returned heatmap is encoded within a range of [0,1]
+
+        ???+ attention
+            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+
+        Returns:
+            heatmap (numpy.ndarray):            Computed Occlusion Sensitivity Map for provided image.
+        """
         # Utilize only image matrix instead of batch
         image = image[0]
         # Create empty sensitivity map
@@ -89,16 +99,18 @@ class OcclusionSensitivity(XAImethod_Base):
 #                     Subroutines                     #
 #-----------------------------------------------------#
 def apply_grey_patch(image, top_left_x, top_left_y, patch_size):
-    """ Replace a part of the image with a grey patch.
+    """ Internal function.
+
+    Replace a part of the image with a grey patch.
 
     Args:
-        image (numpy.ndarray):      Input image
-        top_left_x (int):           Top Left X position of the applied box
-        top_left_y (int):           Top Left Y position of the applied box
-        patch_size (int):           Size of patch to apply
+        image (numpy.ndarray):                  Input image
+        top_left_x (int):                       Top Left X position of the applied box
+        top_left_y (int):                       Top Left Y position of the applied box
+        patch_size (int):                       Size of patch to apply
 
     Returns:
-        numpy.ndarray:              Patched image
+        patched_image (numpy.ndarray):          Patched image
     """
     patched_image = np.array(image, copy=True)
     patched_image[top_left_y:top_left_y + patch_size, top_left_x:top_left_x + patch_size, :] = 127.5

@@ -17,18 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#             REFERENCE IMPLEMENTATION #1:            #
-# Author: Aakash Kumar Nain                           #
-# GitHub: https://github.com/AakashKumarNain          #
-# Date: Jun 02, 2020                                  #
-#https://keras.io/examples/vision/integrated_gradients#
-#-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     04 Mar 2017.                    #
-#       Axiomatic Attribution for Deep Networks.      #
-#      Mukund Sundararajan, Ankur Taly, Qiqi Yan.     #
-#           https://arxiv.org/abs/1703.01365          #
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External Libraries
@@ -41,18 +29,33 @@ from aucmedi.xai.methods.xai_base import XAImethod_Base
 #                 Integrated Gradients                #
 #-----------------------------------------------------#
 class IntegratedGradients(XAImethod_Base):
-    """ Initialization function for creating a Integrated Gradients Map as XAI Method object.
-    Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
+    """ XAI Method for Integrated Gradients.
+
+    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+
+    ??? abstract "Reference - Implementation"
+        Author: Aakash Kumar Nain <br>
+        GitHub Profile: https://github.com/AakashKumarNain <br>
+        Date: Jun 02, 2020 <br>
+        https://keras.io/examples/vision/integrated_gradients <br>
+
+    ??? abstract "Reference - Publication"
+        Mukund Sundararajan, Ankur Taly, Qiqi Yan. 04 Mar 2017.
+        Axiomatic Attribution for Deep Networks.
+        <br>
+        https://arxiv.org/abs/1703.01365
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Integrated Gradients Map for an image with a model.
-
-    Args:
-        model (Keras Model):               Keras model object.
-        layerName (String):                Not required in Integrated Gradients Maps, but defined by Abstract Base Class.
-        num_steps (Integer):               Number of iterations for interpolation.
     """
     def __init__(self, model, layerName=None, num_steps=50):
+        """ Initialization function for creating a Integrated Gradients Map as XAI Method object.
+
+        Args:
+            model (keras.model):            Keras model object.
+            layerName (str):                Not required in Integrated Gradients Maps, but defined by Abstract Base Class.
+            num_steps (int):                Number of iterations for interpolation.
+        """
         # Cache class parameters
         self.model = model
         self.num_steps = num_steps
@@ -60,17 +63,25 @@ class IntegratedGradients(XAImethod_Base):
     #---------------------------------------------#
     #             Heatmap Computation             #
     #---------------------------------------------#
-    """ Core function for computing the Integrated Gradients Map for a provided image and for specific classification outcome.
-    The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
-
-    Be aware that the image has to be provided in batch format.
-
-    Args:
-        image (NumPy Array):                Image matrix encoded as NumPy Array (provided as one-element batch).
-        class_index (Integer):              Classification index for which the heatmap should be computed.
-        eps (Float):                        Epsilon for rounding.
-    """
     def compute_heatmap(self, image, class_index, eps=1e-8):
+        """ Core function for computing the Integrated Gradients Map for a provided image and for specific classification outcome.
+
+        ???+ attention
+            Be aware that the image has to be provided in batch format.
+
+        Args:
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            class_index (int):                  Classification index for which the heatmap should be computed.
+            eps (float):                        Epsilon for rounding.
+
+        The returned heatmap is encoded within a range of [0,1]
+
+        ???+ attention
+            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+
+        Returns:
+            heatmap (numpy.ndarray):            Computed Integrated Gradients Map for provided image.
+        """
         # Perform interpolation
         baseline = np.zeros(image.shape).astype(np.float32)
         interpolated_imgs = []

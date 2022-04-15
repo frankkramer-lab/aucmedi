@@ -17,32 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#             REFERENCE IMPLEMENTATION #1:            #
-# Author: Hoa Nguyen                                  #
-# GitHub: https://nguyenhoa93.github.io/              #
-# Date: Jul 29, 2020                                  #
-# https://stackoverflow.com/questions/55924331/how-to #
-# -apply-guided-backprop-in-tensorflow-2-0            #
-#-----------------------------------------------------#
-#             REFERENCE IMPLEMENTATION #2:            #
-# Author: Huynh Ngoc Anh                              #
-# GitHub: https://github.com/experiencor              #
-# Date: Jun 23, 2017                                  #
-# https://github.com/experiencor/deep-viz-keras/      #
-#-----------------------------------------------------#
-#             REFERENCE IMPLEMENTATION #3:            #
-# Author: Tim                                         #
-# Date: Jan 25, 2019                                  #
-# https://stackoverflow.com/questions/54366935/make-a #
-# -deep-copy-of-a-keras-model-in-python               #
-#-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     21 Dec 2014.                    #
-# Striving for Simplicity: The All Convolutional Net. #
-#    Jost Tobias Springenberg, Alexey Dosovitskiy,    #
-#           Thomas Brox, Martin Riedmiller.           #
-#           https://arxiv.org/abs/1412.6806           #
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External Libraries
@@ -55,17 +29,43 @@ from aucmedi.xai.methods.xai_base import XAImethod_Base
 #                Guided Backpropagation               #
 #-----------------------------------------------------#
 class GuidedBackpropagation(XAImethod_Base):
-    """ Initialization function for creating a Guided Backpropagation as XAI Method object.
-    Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
+    """ XAI Method for Guided Backpropagation.
+
+    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+
+    ??? abstract "Reference - Implementation #1"
+        Author: Hoa Nguyen <br>
+        GitHub Profile: https://nguyenhoa93.github.io/ <br>
+        Date: Jul 29, 2020 <br>
+        https://stackoverflow.com/questions/55924331/how-to-apply-guided-backprop-in-tensorflow-2-0 <br>
+
+    ??? abstract "Reference - Implementation #2"
+        Author: Huynh Ngoc Anh <br>
+        GitHub Profile: https://github.com/experiencor <br>
+        Date: Jun 23, 2017 <br>
+        https://github.com/experiencor/deep-viz-keras/ <br>
+
+    ??? abstract "Reference - Implementation #3"
+        Author: Tim <br>
+        Date: Jan 25, 2019 <br>
+        https://stackoverflow.com/questions/54366935/make-a-deep-copy-of-a-keras-model-in-python <br>
+
+    ??? abstract "Reference - Publication"
+        Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, Martin Riedmiller. 21 Dec 2014.
+        Striving for Simplicity: The All Convolutional Net.
+        <br>
+        https://arxiv.org/abs/1412.6806
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Guided Backpropagation for an image with a model.
-
-    Args:
-        model (Keras Model):               Keras model object.
-        layerName (String):                Not required in Guided Backpropagation, but defined by Abstract Base Class.
     """
     def __init__(self, model, layerName=None):
+        """ Initialization function for creating Guided Backpropagation as XAI Method object.
+
+        Args:
+            model (keras.model):               Keras model object.
+            layerName (str):                   Not required in Guided Backpropagation, but defined by Abstract Base Class.
+        """
         # Create a deep copy of the model
         model_copy = tf.keras.models.clone_model(model)
         model_copy.build(model.input.shape)
@@ -89,17 +89,25 @@ class GuidedBackpropagation(XAImethod_Base):
     #---------------------------------------------#
     #             Heatmap Computation             #
     #---------------------------------------------#
-    """ Core function for computing the Guided Backpropagation for a provided image and for specific classification outcome.
-    The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
-
-    Be aware that the image has to be provided in batch format.
-
-    Args:
-        image (NumPy Array):                Image matrix encoded as NumPy Array (provided as one-element batch).
-        class_index (Integer):              Classification index for which the heatmap should be computed.
-        eps (Float):                        Epsilon for rounding.
-    """
     def compute_heatmap(self, image, class_index, eps=1e-8):
+        """ Core function for computing the Guided Backpropagation for a provided image and for specific classification outcome.
+
+        ???+ attention
+            Be aware that the image has to be provided in batch format.
+
+        Args:
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            class_index (int):                  Classification index for which the heatmap should be computed.
+            eps (float):                        Epsilon for rounding.
+
+        The returned heatmap is encoded within a range of [0,1]
+
+        ???+ attention
+            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+
+        Returns:
+            heatmap (numpy.ndarray):            Computed Guided Backpropagation for provided image.
+        """
         # Compute gradient for desierd class index
         with tf.GradientTape() as tape:
             inputs = tf.cast(image, tf.float32)

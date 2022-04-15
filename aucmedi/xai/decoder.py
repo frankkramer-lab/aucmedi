@@ -31,28 +31,51 @@ from aucmedi.data_processing.subfunctions import Resize
 #-----------------------------------------------------#
 #                    XAI - Decoder                    #
 #-----------------------------------------------------#
-""" XAI Decoder function for automatic computation of Explainable AI heatmaps.
+def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
+                alpha=0.4, out_path=None):
+    """ XAI Decoder function for automatic computation of Explainable AI heatmaps.
+
     This module allows to visualize which regions were crucial for the neural network model
     to compute a classification on the provided unknown images.
 
-    If 'out_path' parameter is None, heatmaps are returned as NumPy array.
-    If a path is provided as 'out_path', then heatmaps are stored to disk as PNG files.
+    - If `out_path` parameter is None, heatmaps are returned as NumPy array.
+    - If a path is provided as `out_path`, then heatmaps are stored to disk as PNG files.
 
-XAI Methods:
-    The XAI Decoder can be run with different XAI methods as backbone.
-    List of XAI Methods : ["gradcam"]
+    ???+ info "XAI Methods"
+        The XAI Decoder can be run with different XAI methods as backbone.
 
-Arguments:
-    data_gen (DataGenerator):           A data generator which will be used for inference.
-    model (Neural_Network):             Instance of a AUCMEDI neural network class.
-    preds (NumPy Array):                NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
-    method (String):                    XAI method class instance or index. By default, GradCAM is used as XAI method.
-    layerName (String):                 Layer name of the convolutional layer for heatmap computation. If None, the last conv layer is used.
-    alpha (float):                      Transparency value for heatmap overlap plotting on input image (range: [0-1]).
-    out_path (String):                  Output path in which heatmaps are saved to disk as PNG files.
-"""
-def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
-                alpha=0.4, out_path=None):
+        A list of all implemented methods and their keys can be found here: <br>
+        [aucmedi.xai.methods][]
+
+    ??? example "Example"
+        ```python
+        # Create a DataGenerator for data I/O
+        datagen = DataGenerator(samples[:3], "images_xray/", labels=None, resize=(299, 299))
+
+        # Get a model
+        model = Neural_Network(n_labels=3, channels=3, architecture="Xception",
+                               input_shape=(299,299))
+        model.load("model.xray.hdf5")
+
+        # Make some predictions
+        preds = model.predict(datagen)
+
+        # Compute XAI heatmaps via Grad-CAM (resulting heatmaps are strored in out_path)
+        xai_decoder(datagen, model, preds, method="gradcam", out_path="xai.xray_gradcam")
+        ```
+
+    Args:
+        data_gen (DataGenerator):           A data generator which will be used for inference.
+        model (Neural_Network):             Instance of a AUCMEDI neural network class.
+        preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
+        method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI method.
+        layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`, the last conv layer is used.
+        alpha (float):                      Transparency value for heatmap overlap plotting on input image (range: [0-1]).
+        out_path (str):                     Output path in which heatmaps are saved to disk as PNG files.
+
+    Returns:
+        heatmaps (numpy.ndarray):           Combined array of heatmaps. Will be only returned if `out_path` parameter is `None`.
+    """
     # Initialize & access some variables
     batch_size = data_gen.batch_size
     n_classes = model.n_labels
@@ -99,11 +122,12 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 #-----------------------------------------------------#
 #          Subroutine: Output Postprocessing          #
 #-----------------------------------------------------#
-""" Helper/Subroutine function for XAI Decoder.
-    Caches heatmap for direct output or generates a visualization as PNG.
-"""
 def postprocess_output(sample, image, xai_map, n_classes, data_gen,
                        res_img, res_xai, out_path, alpha):
+    """ Helper/Subroutine function for XAI Decoder.
+
+    Caches heatmap for direct output or generates a visualization as PNG.
+    """
     # Update result lists for direct output
     if out_path is None:
         res_img.append(image)

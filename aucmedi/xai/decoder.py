@@ -47,7 +47,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         A list of all implemented methods and their keys can be found here: <br>
         [aucmedi.xai.methods][]
 
-    ??? example "Example"
+    ???+ example "Example"
         ```python
         # Create a DataGenerator for data I/O
         datagen = DataGenerator(samples[:3], "images_xray/", labels=None, resize=(299, 299))

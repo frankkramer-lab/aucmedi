@@ -31,6 +31,7 @@ theme:
   name: "material"
   custom_dir: docs/theme_override/
   features:
+    - content.code.annotate
     - navigation.tabs
     - navigation.indexes
     - navigation.top
@@ -85,5 +86,7 @@ plugins:
         selection:
           docstring_style: google
         rendering:
-          members_order: source
+          merge_init_into_class: True
+          show_submodules: False
           show_root_heading: True
+          members_order: source

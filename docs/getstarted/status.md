@@ -8,7 +8,7 @@ AUCMEDI is still under active development, which is why the official status is:
 
 **Current Progress:**  
 
-[=69% "16 of 23"]
+[=64% "16 of 25 (64%)"]
 
 **Features that are already supported by AUCMEDI:**
 
@@ -31,10 +31,12 @@ AUCMEDI is still under active development, which is why the official status is:
 
 **Planed milestones and features are:**  
 
-- [ ] Unittesting -> CI/CD  
-- [ ] Interface for metadata / pandas table inclusion in model architectures  
-- [ ] Support for AutoML via CLI and Docker  
-- [ ] Examples for AutoML  
-- [ ] Documentation for AutoML  
-- [ ] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques  
-- [ ] Publication  
+- [ ] Unittesting -> CI/CD
+- [ ] Interface for metadata / pandas table inclusion in model architectures
+- [ ] Integrate evaluation functions
+- [ ] Support for AutoML via CLI and Docker
+- [ ] Examples for AutoML
+- [ ] Documentation for AutoML
+- [ ] Clean up Website
+- [ ] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
+- [ ] Publication

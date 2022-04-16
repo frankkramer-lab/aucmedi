@@ -55,6 +55,8 @@ class Neural_Network:
         asd
 
     ???+ example "How to obtain required parameters for the DataGenerator?"
+        Be aware that th
+
         ```python
         # Recommended way
         my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
@@ -119,15 +121,15 @@ class Neural_Network:
         # Initialize architecture if None provided
         if architecture is None:
             self.architecture = architecture_dict["2D.Vanilla"](**arch_paras)
-            self.standardize = ""
+            self.meta_standardize = ""
         # Initialize passed architecture from aucmedi library
         elif isinstance(architecture, str) and architecture in architecture_dict:
             self.architecture = architecture_dict[architecture](**arch_paras)
-            self.standardize = supported_standardize_mode[architecture]
+            self.meta_standardize = supported_standardize_mode[architecture]
         # Initialize passed architecture as parameter
         else:
             self.architecture = architecture
-            self.standardize = None
+            self.meta_standardize = None
 
         # Build model utilizing the selected architecture
         model_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
@@ -140,7 +142,8 @@ class Neural_Network:
                            loss=self.loss, metrics=self.metrics)
 
         # Obtain final input shape
-        self.input_shape = self.architecture.input
+        self.input_shape = self.architecture.input          # e.g. (224, 224, 3)
+        self.meta_input = self.architecture.input[:-1]      # e.g. (224, 224) -> for DataGenerator
         # Cache starting weights
         self.initialization_weights = self.model.get_weights()
 

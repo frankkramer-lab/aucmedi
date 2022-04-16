@@ -44,9 +44,11 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 **Planed milestones and features are:**
 - [ ] Unittesting -> CI/CD
 - [ ] Interface for metadata / pandas table inclusion in model architectures
+- [ ] Integrate evaluation functions 
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML
+- [ ] Clean up Website
 - [ ] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
 - [ ] Publication
 

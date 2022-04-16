@@ -16,6 +16,37 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+#-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" Core interface for XAI in AUCMEDI: [aucmedi.xai.decoder.xai_decoder][]
+
+???+ info "XAI Methods"
+    The XAI Decoder can be run with different XAI methods as backbone.
+
+    A list of all implemented methods and their keys can be found here: <br>
+    [aucmedi.xai.methods][]
+
+???+ example "Example"
+    ```python
+    # Create a DataGenerator for data I/O
+    datagen = DataGenerator(samples[:3], "images_xray/", labels=None, resize=(299, 299))
+
+    # Get a model
+    model = Neural_Network(n_labels=3, channels=3, architecture="Xception",
+                           input_shape=(299,299))
+    model.load("model.xray.hdf5")
+
+    # Make some predictions
+    preds = model.predict(datagen)
+
+    # Compute XAI heatmaps via Grad-CAM (resulting heatmaps are strored in out_path)
+    xai_decoder(datagen, model, preds, method="gradcam", out_path="xai.xray_gradcam")
+    ```
+"""
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
 # Import XAI functionalities
 from aucmedi.xai.methods import xai_dict
 from aucmedi.xai.decoder import xai_decoder

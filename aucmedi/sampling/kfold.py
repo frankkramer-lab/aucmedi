@@ -28,25 +28,27 @@ from aucmedi.sampling.iterative import MultilabelStratifiedKFold
 #-----------------------------------------------------#
 #    Function: Sampling via k-fold cross-validation   #
 #-----------------------------------------------------#
-""" Simple wrapper function for calling k-fold cross-validation sampling functions.
-    Allow usage of stratified and iterative sampling algorithm.
-
-    Be aware that multi-label data does not support random stratified sampling.
-
-    Returns:
-        List with length n_splits containing tuples with sampled data:
-        For example: (train_x, train_y, test_x, test_y)
-
-    Arguments:
-        samples (List of Strings):      List of sample/index encoded as Strings.
-        labels (NumPy matrix):          NumPy matrix containing the ohe encoded classification.
-        n_splits (Integer):             Number of folds (k). Must be at least 2.
-        stratified (Boolean):           Option whether to use stratified sampling based on provided labels.
-        iterative (Boolean):            Option whether to use iterative sampling algorithm.
-        seed (Integer):                 Seed to ensure reproducibility for random functions.
-"""
 def sampling_kfold(samples, labels, n_splits=3, stratified=True,
                    iterative=False, seed=None):
+    """ Simple wrapper function for calling k-fold cross-validation sampling functions.
+
+    Allow usage of stratified and iterative sampling algorithm.
+
+    ???+ warning
+        Be aware that multi-label data does not support random stratified sampling.
+
+    Args:
+        samples (list of str):      List of sample/index encoded as Strings.
+        labels (numpy.ndarray):     NumPy matrix containing the ohe encoded classification.
+        n_splits (int):             Number of folds (k). Must be at least 2.
+        stratified (bool):          Option whether to use stratified sampling based on provided labels.
+        iterative (bool):           Option whether to use iterative sampling algorithm.
+        seed (int):                 Seed to ensure reproducibility for random functions.
+
+    Returns:
+        sampling (list of tuple):   List with length n_splits containing tuples with sampled data: <br>
+                                    For example for n_splits=2: [(train_x, train_y, test_x, test_y), (train_x, train_y, test_x, test_y)]
+    """
     # Initialize variables
     results = []
     wk_labels = labels

@@ -26,23 +26,40 @@ import numpy as np
 #-----------------------------------------------------#
 #               Class Weight Computation              #
 #-----------------------------------------------------#
-""" Simple wrapper function for scikit learn class_weight function.
+def compute_class_weights(ohe_array, method="balanced"):
+    """ Simple wrapper function for scikit learn class_weight function.
+
     The class weights can be used for weighting the loss function on imbalanced data.
 
-    Return:
-        - class weight dictionary which can be feeded in Keras fit()
-        - class weight list which can be feeded to a loss function.
+    ???+ info
+        NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
 
-    NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
+    ???+ example "Example"
+        ```python
+        # Compute class weights
+        cw_loss, cw_fit = compute_class_weights(class_ohe)
 
-    Scikit learn class_weight function:
-    https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html
+        # Provide class weights to loss function
+        model = Neural_Network(nclasses, channels=3, loss=categorical_focal_loss(cw_loss))
 
-    Arguments:
-        ohe_array (NumPy matrix):       NumPy matrix containing the ohe encoded classification.
-        method (String):                Dictionary or modus, how class weights should be computed.
-"""
-def compute_class_weights(ohe_array, method="balanced"):
+        # Provide class weights to keras fit()
+        model.train(index_list, epochs=50, class_weights=cw_fit)
+        ```
+
+    ??? abstract "Based on Reference"
+        Scikit-learn class_weight function: <br>
+        https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html  <br>
+
+    Args:
+        ohe_array (numpy.ndarray):  NumPy matrix containing the ohe encoded classification.
+        method (str):               Dictionary or modus, how class weights should be computed.
+
+    Returns:
+        class_weights_list (numpy.ndarray):     Class weight list which can be feeded to a loss function.
+        class_weights_dict (dict):              Class weight dictionary which can be feeded to
+                                                [train()][aucmedi.neural_network.model.Neural_Network.train]
+                                                or keras.model.fit().
+    """
     # Obtain sparse categorical array and number of classes
     class_array = np.argmax(ohe_array, axis=-1)
     n_classes = np.unique(class_array)
@@ -57,20 +74,26 @@ def compute_class_weights(ohe_array, method="balanced"):
 #-----------------------------------------------------#
 #           Multi-Label Weight Computation            #
 #-----------------------------------------------------#
-""" Function for computing class weights individually for multi-label data.
+def compute_multilabel_weights(ohe_array, method="balanced"):
+    """ Function for computing class weights individually for multi-label data.
+
     Class weights can be used for weighting the loss function on imbalanced data.
     Returned is a class weight list which can be passed to loss functions.
 
-    NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
+    ???+ info
+        NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
 
-    Class weight compuation is based on Scikit learn class_weight function:
-    https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html
+    ??? abstract "Based on Reference"
+        Class weight compuation is based on Scikit learn class_weight function: <br>
+        https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html  <br>
 
-    Arguments:
-        ohe_array (NumPy matrix):       NumPy matrix containing the ohe encoded classification.
-        method (String):                Dictionary or modus, how class weights should be computed.
-"""
-def compute_multilabel_weights(ohe_array, method="balanced"):
+    Args:
+        ohe_array (numpy.ndarray):      NumPy matrix containing the ohe encoded classification.
+        method (str):                   Dictionary or modus, how class weights should be computed.
+
+    Returns:
+        class_weights (numpy.ndarray):      Class weight list which can be feeded to a loss function.
+    """
     # Identify number of classes
     n_classes = np.shape(ohe_array)[1]
     # Initialize class weight list
@@ -86,20 +109,27 @@ def compute_multilabel_weights(ohe_array, method="balanced"):
 #-----------------------------------------------------#
 #              Sample Weight Computation              #
 #-----------------------------------------------------#
-""" Simple wrapper function for scikit learn sample_weight function.
-    The sample weights can be used for weighting the loss function on imbalanced data.
-    Returned sample weight array which can be directly feeded to a AUCMEDi DataGenerator.
-
-    NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
-
-    Scikit learn sample_weight function:
-    https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_sample_weight.html
-
-    Arguments:
-        ohe_array (NumPy matrix):       NumPy matrix containing the ohe encoded classification.
-        method (String):                Dictionary or modus, how class weights should be computed.
-"""
 def compute_sample_weights(ohe_array, method="balanced"):
+    """ Simple wrapper function for scikit learn sample_weight function.
+
+    The sample weights can be used for weighting the loss function on imbalanced data.
+    Returned sample weight array which can be directly feeded to an AUCMEDI [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+    ???+ info
+        NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
+
+    ??? abstract "Based on Reference"
+        Scikit learn sample_weight function: <br>
+        https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_sample_weight.html <br>
+
+    Args:
+        ohe_array (numpy.ndarray):      NumPy matrix containing the ohe encoded classification.
+        method (str):                   Dictionary or modus, how class weights should be computed.
+
+    Returns:
+        sample_weights (numpy.ndarray):     Sample weight list which can be feeded to an AUCMEDI
+                                            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+    """
     # Compute sample weights with scikit learn
     sample_weights = compute_sample_weight(class_weight=method, y=ohe_array)
     # Return resulting sample weights

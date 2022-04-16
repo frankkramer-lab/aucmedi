@@ -65,6 +65,33 @@ architecture_dict = {
     "VGG16": Architecture_VGG16,
     "VGG19": Architecture_VGG19,
 }
+""" Dictionary of implemented 3D Architectures Methods in AUCMEDI.
+
+    The base key (str) or an initialized Architecture can be passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class as `architecture` parameter.
+
+    ???+ example "Example"
+        ```python title="Recommended via Neural_Network class"
+        my_model = Neural_Network(n_labels=4, channels=1, architecture="3D.ResNet50")
+        ```
+
+        ```python title="Manual via architecture_dict import"
+        from aucmedi.neural_network.architectures import architecture_dict
+        my_arch = architecture_dict["3D.ResNet50"](channels=1, input_shape=(128,128,128))
+        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
+        ```
+
+    ???+ warning
+        If passing an architecture key to the Neural_Network class, be aware that you have to add "3D." infront of it.
+
+        For example:
+        ```python
+        # for the volume architecture "ResNeXt101"
+        architecture="3D.ResNeXt101"
+        ```
+
+    Architectures are based on the abstract base class [aucmedi.neural_network.architectures.arch_base.Architecture_Base][].
+"""
+
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
 
@@ -89,3 +116,38 @@ supported_standardize_mode = {
     "VGG16": "caffe",
     "VGG19": "caffe",
 }
+""" Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 3D Architectures Methods in AUCMEDI.
+
+    The base key (str) can be passed to the [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] as `standardize_mode` parameter.
+
+    ???+ info
+        If training a new model from scratch, any Standardize technique can be used at will. <br>
+        However, if training via transfer learning, it is required to use the recommended Standardize technique!
+
+    ???+ example "Example"
+        ```python title="Recommended via the Neural_Network class"
+        my_model = Neural_Network(n_labels=8, channels=3, architecture="3D.DenseNet121")
+
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=my_model.meta_input,                  # (64, 64, 64)
+                              standardize_mode=my_model.meta_standardize)  # "torch"
+        ```
+
+        ```python title="Manual via supported_standardize_mode import"
+        from aucmedi.neural_network.architectures import supported_standardize_mode
+        sf_norm = supported_standardize_mode["3D.DenseNet121"]
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=(64, 64, 64),                         # (64, 64, 64)
+                              standardize_mode=sf_norm)                    # "torch"
+        ```
+
+    ???+ warning
+        If using an architecture key for the supported_standardize_mode dictionary, be aware that you have to add "3D." infront of it.
+
+        For example:
+        ```python
+        # for the volume architecture "ResNeXt101"
+        from aucmedi.neural_network.architectures import supported_standardize_mode
+        sf_norm = supported_standardize_mode["3D.ResNeXt101"]
+        ```
+"""

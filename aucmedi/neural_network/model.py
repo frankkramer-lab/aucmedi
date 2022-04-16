@@ -44,29 +44,44 @@ class Neural_Network:
 
     ???+ example "How to select an Architecture"
         ```python
-        # Recommended way
+        # 2D architecture
         my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        # 3D architecture
         my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50")
-
-        # Manual way
-
+        # 2D architecture with custom input_shape
+        my_model_c = Neural_Network(n_labels=8, channels=3,
+                                    architecture="2D.Xception", input_shape=(512,512))
         ```
+
     ???+ note "Architecture Dictionary"
-        asd
+        AUCMEDI provides a large library of state-of-the-art and ready-to-use architectures.
+
+
 
     ???+ example "How to obtain required parameters for the DataGenerator?"
-        Be aware that th
+        Be aware that the input_size and standardize_mode are just recommendations and
+        can be changed by desire. <br>
+        However, the recommended parameter are required for transfer learning.
 
-        ```python
-        # Recommended way
+        ```python title="Recommended way"
         my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
-                              resize=my_model.input_shape[:-1],         # (224,224,3) -> (224,224)
-                              standardize_mode=my_model.standardize)    # "torch"
+                              resize=my_model.meta_input,                  # (224,224)
+                              standardize_mode=my_model.meta_standardize)  # "torch"
+        ```
 
-        # Manual way
+        ```python title="Manual way"
+        from aucmedi.neural_network.architectures import architecture_dict
+        my_arch = architecture_dict["3D.DenseNet121"](channels=1,
+                                                      input_shape=(128,128,128))
+        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
 
+        from aucmedi.neural_network.architectures import supported_standardize_mode
+        sf_norm = supported_standardize_mode["3D.DenseNet121"]
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=(128,128,128),                        # (128,128,128)
+                              standardize_mode=sf_norm)                    # "torch"
         ```
     """
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,

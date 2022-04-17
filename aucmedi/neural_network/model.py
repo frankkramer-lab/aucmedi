@@ -226,7 +226,7 @@ class Neural_Network:
             transfer_learning (boolean):            Option whether a transfer learning training should be performed.
 
         Returns:
-            A Keras history object (dictionary) which contains several logs.
+            history (Keras History):                A Keras history object (dictionary) which contains several logs.
         """
         # Running a standard training process
         if not transfer_learning:

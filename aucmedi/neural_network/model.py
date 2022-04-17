@@ -102,7 +102,7 @@ class Neural_Network:
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
-                 fcl_dropout=True, learninig_rate=0.0001, batch_queue_size=10,
+                 fcl_dropout=True, learning_rate=0.0001, batch_queue_size=10,
                  workers=1, multiprocessing=False, verbose=1):
         """ Initialization function for creating a Neural Network (model) object.
 
@@ -148,7 +148,7 @@ class Neural_Network:
         self.channels = channels
         self.loss = loss
         self.metrics = metrics
-        self.learninig_rate = learninig_rate
+        self.learning_rate = learning_rate
         self.batch_queue_size = batch_queue_size
         self.workers = workers
         self.multiprocessing = multiprocessing
@@ -180,7 +180,7 @@ class Neural_Network:
         self.model = self.architecture.create_model(**model_paras)
 
         # Compile model
-        self.model.compile(optimizer=Adam(lr=learninig_rate),
+        self.model.compile(optimizer=Adam(lr=learning_rate),
                            loss=self.loss, metrics=self.metrics)
 
         # Obtain final input shape
@@ -347,5 +347,5 @@ class Neural_Network:
         # Create model input path
         self.model = load_model(file_path, custom_objects, compile=False)
         # Compile model
-        self.model.compile(optimizer=Adam(lr=self.learninig_rate),
+        self.model.compile(optimizer=Adam(lr=self.learning_rate),
                            loss=self.loss, metrics=self.metrics)

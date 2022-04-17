@@ -83,6 +83,7 @@ markdown_extensions:
 - pymdownx.tasklist
 - pymdownx.superfences
 - pymdownx.details
+- pymdownx.arithmatex
 - tables
 - toc:
     permalink: "¤"

@@ -27,21 +27,38 @@ import tensorflow as tf
 #-----------------------------------------------------#
 #                 Focal Loss - Binary                 #
 #-----------------------------------------------------#
-""" Binary form of focal loss computation.
+def binary_focal_loss(alpha=0.25, gamma=2.0):
+    """ Binary form of focal loss computation.
+
     FL(p_t) = -alpha * (1 - p_t)**gamma * log(p_t)
     where p = sigmoid(x), p_t = p or 1 - p depending on if the label is 1 or 0, respectively.
 
-    Reference:
-        Focal Loss for Dense Object Detection (Aug 2017)
-        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár
+    ??? example
+        ```python
+        from aucmedi.neural_network.loss_functions import *
+        my_loss = binary_focal_loss(alpha=0.75)
+
+        model = Neural_Network(n_labels=1, channels=3, loss=my_loss)
+        ```
+
+    ??? abstract "Reference - Implementation"
+        Author: Umberto Griffo <br>
+        GitHub: https://github.com/umbertogriffo <br>
+        Source: https://github.com/umbertogriffo/focal-loss-keras <br>
+
+    ??? abstract "Reference - Publication"
+        Focal Loss for Dense Object Detection (Aug 2017) <br>
+        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár <br>
         https://arxiv.org/abs/1708.02002
 
-    Source Implementation:
-        Author: Umberto Griffo
-        GitHub: https://github.com/umbertogriffo
-        Source: https://github.com/umbertogriffo/focal-loss-keras
-"""
-def binary_focal_loss(gamma=2.0, alpha=0.25):
+    Args:
+        alpha (float):      Class weight for positive class.
+        gamma (float):      Tunable focusing parameter (γ ≥ 0).
+
+    Returns:
+        loss (Loss Function):               A TensorFlow compatible loss function. This object can be
+                                            passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] `loss` parameter.
+    """
     def binary_focal_loss_fixed(y_true, y_pred):
         y_true = tf.cast(y_true, tf.float32)
         # Define epsilon so that the back-propagation will not result in NaN for 0 divisor case
@@ -69,35 +86,55 @@ def binary_focal_loss(gamma=2.0, alpha=0.25):
 #-----------------------------------------------------#
 #              Focal Loss - Categorical               #
 #-----------------------------------------------------#
-""" Softmax version of focal loss.
-    When there is a skew between different categories/labels in your data set, you can try to apply this function as a
-    loss.
+def categorical_focal_loss(alpha, gamma=2.0):
+    """ Softmax version of focal loss.
+
+    When there is a skew between different categories/labels in your data set,
+    you can try to apply this function as a loss.
+
+    ```
            m
       FL = ∑  -alpha * (1 - p_o,c)^gamma * y_o,c * log(p_o,c)
           c=1
 
       where m = number of classes, c = class and o = observation
+    ```
 
-    Parameters:
-      alpha -- the same as weighing factor in balanced cross entropy. Alpha is used to specify the weight of different
-      categories/labels, the size of the array needs to be consistent with the number of classes.
-      gamma -- focusing parameter for modulating factor (1-p)
+    The `class_weights_list` obtained from [compute_class_weights][aucmedi.utils.class_weights.compute_class_weights]
+    can be provided as parameter `alpha`.
 
-    Default value:
-      gamma -- 2.0 as mentioned in the paper
-      alpha -- 0.25 as mentioned in the paper
+    ??? example
+        ```python
+        # Compute class weights
+        from aucmedi.utils.class_weights import compute_class_weights
+        cw_loss, cw_fit = compute_class_weights(class_ohe)
 
-    Reference:
-        Focal Loss for Dense Object Detection (Aug 2017)
-        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár
+        from aucmedi.neural_network.loss_functions import *
+        my_loss = categorical_focal_loss(alpha=cw_loss)
+
+        model = Neural_Network(n_labels=6, channels=3, loss=my_loss)
+        ```
+
+    ??? abstract "Reference - Implementation"
+        Author: Umberto Griffo <br>
+        GitHub: https://github.com/umbertogriffo <br>
+        Source: https://github.com/umbertogriffo/focal-loss-keras <br>
+
+    ??? abstract "Reference - Publication"
+        Focal Loss for Dense Object Detection (Aug 2017) <br>
+        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár <br>
         https://arxiv.org/abs/1708.02002
 
-    Source Implementation:
-        Author: Umberto Griffo
-        GitHub: https://github.com/umbertogriffo
-        Source: https://github.com/umbertogriffo/focal-loss-keras
-"""
-def categorical_focal_loss(alpha, gamma=2.0):
+    Args:
+        alpha (list of float):      The same as weighing factor in balanced cross entropy.
+                                    Alpha is used to specify the weight of different categories/labels,
+                                    the size of the array needs to be consistent with the number of classes.
+        gamma (float):              Focusing parameter for modulating factor (1-p).
+
+    Returns:
+        loss (Loss Function):               A TensorFlow compatible loss function. This object can be
+                                            passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] `loss` parameter.
+    """
     alpha = np.array(alpha, dtype=np.float32)
 
     def categorical_focal_loss_fixed(y_true, y_pred):
@@ -120,32 +157,43 @@ def categorical_focal_loss(alpha, gamma=2.0):
 #-----------------------------------------------------#
 #               Focal Loss - Multilabel               #
 #-----------------------------------------------------#
-""" Focal loss for multi-label classification.
-
-    Arguments:
-        y_true {tensor} : Ground truth labels, with shape (batch_size, number_of_classes).
-        y_pred {tensor} : Model's predictions, with shape (batch_size, number_of_classes).
-    Keyword Arguments:
-        class_weights {list[float]} : Non-zero, positive class-weights. This is used instead
-                                      of Alpha parameter.
-        gamma {float} : The Gamma parameter in Focal Loss. Default value (2.0).
-        class_sparsity_coefficient {float} : The weight of True labels over False labels. Useful
-                                             if True labels are sparse. Default value (1.0).
-    Returns:
-        loss {tensor} : A tensor of focal loss.
-
-    Reference:
-        Focal Loss for Dense Object Detection (Aug 2017)
-        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár
-        https://arxiv.org/abs/1708.02002
-
-    Source Implementation:
-        Author: Sushant Tripathy
-        LinkedIn: https://www.linkedin.com/in/sushanttripathy/
-        Source: https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py
-"""
 def multilabel_focal_loss(class_weights, gamma=2.0,
                           class_sparsity_coefficient=1.0):
+    """ Focal loss for multi-label classification.
+
+    ??? example
+        ```python
+        # Compute class weights
+        from aucmedi.utils.class_weights import compute_class_weights
+        class_weights = compute_multilabel_weights(class_ohe)
+
+        from aucmedi.neural_network.loss_functions import *
+        my_loss = multilabel_focal_loss(alpha=class_weights)
+
+        model = Neural_Network(n_labels=6, channels=3, loss=my_loss,
+                               out_activation="sigmoid")
+        ```
+
+    ??? abstract "Reference - Implementation"
+        Author: Sushant Tripathy <br>
+        LinkedIn: https://www.linkedin.com/in/sushanttripathy/ <br>
+        Source: https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py <br>
+
+    ??? abstract "Reference - Publication"
+        Focal Loss for Dense Object Detection (Aug 2017) <br>
+        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár  <br>
+        https://arxiv.org/abs/1708.02002 <br>
+
+    Args:
+        class_weights (list of float):      Non-zero, positive class-weights. This is used instead
+                                            of alpha parameter.
+        gamma (float):                      The Gamma parameter in Focal Loss. Default value (2.0).
+        class_sparsity_coefficient (float): The weight of True labels over False labels. Useful
+                                            if True labels are sparse. Default value (1.0).
+    Returns:
+        loss (Loss Function):               A TensorFlow compatible loss function. This object can be
+                                            passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] `loss` parameter.
+    """
     class_weights = K.constant(class_weights, tf.float32)
     gamma = K.constant(gamma, tf.float32)
     class_sparsity_coefficient = K.constant(class_sparsity_coefficient,

@@ -180,7 +180,7 @@ class Neural_Network:
         self.model = self.architecture.create_model(**model_paras)
 
         # Compile model
-        self.model.compile(optimizer=Adam(lr=learning_rate),
+        self.model.compile(optimizer=Adam(learning_rate=learning_rate),
                            loss=self.loss, metrics=self.metrics)
 
         # Obtain final input shape
@@ -251,7 +251,7 @@ class Neural_Network:
                 if not lever and layer.name == "avg_pool" : lever = True
                 elif lever : layer.trainable = False
             # Compile model with high learning rate
-            self.model.compile(optimizer=Adam(lr=self.tf_lr_start),
+            self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_start),
                                loss=self.loss, metrics=self.metrics)
             # Run first training with freezed layers
             history_start = self.model.fit(training_generator,
@@ -268,7 +268,7 @@ class Neural_Network:
             for layer in self.model.layers:
                 layer.trainable = True
             # Compile model with lower learning rate
-            self.model.compile(optimizer=Adam(lr=self.tf_lr_end),
+            self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_end),
                                loss=self.loss, metrics=self.metrics)
             # Reset data generators
             training_generator.reset()
@@ -347,5 +347,5 @@ class Neural_Network:
         # Create model input path
         self.model = load_model(file_path, custom_objects, compile=False)
         # Compile model
-        self.model.compile(optimizer=Adam(lr=self.learning_rate),
+        self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
                            loss=self.loss, metrics=self.metrics)

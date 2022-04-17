@@ -39,7 +39,7 @@ class Architecture_Base(ABC):
             def __init__(self, channels, input_shape=(224, 224)):
                 pass
 
-            def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+            def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                              pretrained_weights=False):
                 return my_keras_model
         ```
@@ -73,7 +73,7 @@ class Architecture_Base(ABC):
     #                Create Model                 #
     #---------------------------------------------#
     @abstractmethod
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         """ Create the deep learning or convolutional neural network model.
 
@@ -81,14 +81,14 @@ class Architecture_Base(ABC):
         Keras model. The model itself should be created here or in a subfunction called
         by this function.
 
-        Modi for out_activation: Check out [TensorFlow.Keras doc on activation functions](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
+        Modi for activation_output: Check out [TensorFlow.Keras doc on activation functions](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
 
         The fully connected layer and dropout option utilizes a 512 unit Dense layer with 30% Dropout.
 
         Args:
             n_labels (int):                 Number of classes/labels (important for the last layer of classification head).
             fcl_dropout (bool):             Option whether to utilize a Dense & Dropout layer in the last classification layer.
-            out_activation (str):           Activation function which should be used in the last classification layer.
+            activation_output (str):           Activation function which should be used in the last classification layer.
             pretrained_weights (bool):      Option whether to utilize pretrained weights e.g. for ImageNet.
 
         Returns:

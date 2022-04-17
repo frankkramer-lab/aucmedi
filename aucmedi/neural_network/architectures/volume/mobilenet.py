@@ -61,7 +61,7 @@ class Architecture_MobileNet(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Get pretrained image weights from imagenet if desired
         if pretrained_weights : model_weights = "imagenet"
@@ -80,7 +80,7 @@ class Architecture_MobileNet(Architecture_Base):
             top_model = layers.Dense(units=512)(top_model)
             top_model = layers.Dropout(0.3)(top_model)
         top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(out_activation, name="probs")(top_model)
+        top_model = layers.Activation(activation_output, name="probs")(top_model)
 
         # Create model
         model = Model(inputs=base_model.input, outputs=top_model)

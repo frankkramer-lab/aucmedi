@@ -171,7 +171,7 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
         my_loss = multilabel_focal_loss(alpha=class_weights)
 
         model = Neural_Network(n_labels=6, channels=3, loss=my_loss,
-                               out_activation="sigmoid")
+                               activation_output="sigmoid")
         ```
 
     ??? abstract "Reference - Implementation"

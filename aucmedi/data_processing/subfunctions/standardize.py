@@ -28,32 +28,32 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #           Subfunction class: Standardize            #
 #-----------------------------------------------------#
-""" A Standardization method which utilizes custom normalization functions and the Keras
-    preprocess_input() functionality in order to normalize intensity value ranges to be
-    suitable for neural networks.
-
-    Default mode: "z-score"
-    Possible modes: ["z-score", "minmax", "grayscale", "tf", "caffe", "torch"]
-
-
-Mode Descriptons:
-    Custom Implementations:
-    z-score:    Sample-wise Z-score normalization (also called Z-transformation).
-    minmax:     Sample-wise scaling to range [0,1].
-    grayscale:  Sample-wise scaling to grayscale range [0, 255].
-
-    Keras Implementations: https://www.tensorflow.org/api_docs/python/tf/keras/applications/imagenet_utils/preprocess_input
-    caffe:      Will convert the images from RGB to BGR, then will zero-center each color channel
-                with respect to the ImageNet dataset, without scaling. (RGB encoding required!)
-    tf:         Will scale pixels between -1 and 1, sample-wise. (Grayscale/RGB encoding required!)
-    torch:      Will scale pixels between 0 and 1 and then will normalize each channel with respect
-                to the ImageNet dataset.  (RGB encoding required!)
-
-Methods:
-    __init__                Object creation function
-    transform:              Standardize an image input according to selected mode.
-"""
 class Standardize(Subfunction_Base):
+    """ A Standardization method which utilizes custom normalization functions and the Keras
+        preprocess_input() functionality in order to normalize intensity value ranges to be
+        suitable for neural networks.
+
+        Default mode: "z-score"
+        Possible modes: ["z-score", "minmax", "grayscale", "tf", "caffe", "torch"]
+
+
+    Mode Descriptons:
+        Custom Implementations:
+        z-score:    Sample-wise Z-score normalization (also called Z-transformation).
+        minmax:     Sample-wise scaling to range [0,1].
+        grayscale:  Sample-wise scaling to grayscale range [0, 255].
+
+        Keras Implementations: https://www.tensorflow.org/api_docs/python/tf/keras/applications/imagenet_utils/preprocess_input
+        caffe:      Will convert the images from RGB to BGR, then will zero-center each color channel
+                    with respect to the ImageNet dataset, without scaling. (RGB encoding required!)
+        tf:         Will scale pixels between -1 and 1, sample-wise. (Grayscale/RGB encoding required!)
+        torch:      Will scale pixels between 0 and 1 and then will normalize each channel with respect
+                    to the ImageNet dataset.  (RGB encoding required!)
+
+    Methods:
+        __init__                Object creation function
+        transform:              Standardize an image input according to selected mode.
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#

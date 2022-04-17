@@ -48,7 +48,7 @@ class Architecture_Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Initialize model
         model = Sequential()
@@ -76,7 +76,7 @@ class Architecture_Vanilla(Architecture_Base):
             model.add(Dense(units=512))
             model.add(Dropout(rate=0.3))
         model.add(Dense(n_labels, name="preds"))
-        model.add(Activation(out_activation, name="probs"))
+        model.add(Activation(activation_output, name="probs"))
 
         # Return created model
         return model

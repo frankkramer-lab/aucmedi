@@ -122,7 +122,7 @@ class Neural_Network:
             metrics (list of Metric Functions):     List of one or multiple Metric Functions, which will be shown during training.
                                                     Any Metric Function defined in Keras or any custom metric function, which follows the Keras
                                                     metric guidelines, can be used.
-            out_activation (str):                   Activation function which should be used in the last classification layer.
+            activation_output (str):                 Activation function which should be used in the last classification layer.
                                                     Based on https://www.tensorflow.org/api_docs/python/tf/keras/activations.
             fcl_dropout (bool):                     Option whether to utilize a Dense & Dropout layer in the last classification layer.
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
@@ -175,7 +175,7 @@ class Neural_Network:
 
         # Build model utilizing the selected architecture
         model_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
-                       "out_activation": activation_output,
+                       "activation_output": activation_output,
                        "pretrained_weights": pretrained_weights}
         self.model = self.architecture.create_model(**model_paras)
 

@@ -42,7 +42,21 @@ class Neural_Network:
 
     With an initialized Neural Network model instance, it is possible to run training and predictions.
 
-    ???+ example "How to select an Architecture"
+    ??? example "Example: How to use"
+        ```python
+        # Initialize model
+        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        # Do some training
+        datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
+                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
+        model.train(datagen_train, epochs=50)
+        # Do some predictions
+        datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
+                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        preds = model.predict(datagen_test)
+        ```
+
+    ??? example "Example: How to select an Architecture"
         ```python
         # 2D architecture
         my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
@@ -53,12 +67,13 @@ class Neural_Network:
                                     architecture="2D.Xception", input_shape=(512,512))
         ```
 
-    ???+ note "Architecture Dictionary"
+    ??? note "List of implemented Architectures"
         AUCMEDI provides a large library of state-of-the-art and ready-to-use architectures.
 
+        - 2D Architectures: [aucmedi.neural_network.architectures.image][]
+        - 3D Architectures: [aucmedi.neural_network.architectures.volume][]
 
-
-    ???+ example "How to obtain required parameters for the DataGenerator?"
+    ??? example "Example: How to obtain required parameters for the DataGenerator?"
         Be aware that the input_size and standardize_mode are just recommendations and
         can be changed by desire. <br>
         However, the recommended parameter are required for transfer learning.
@@ -115,6 +130,18 @@ class Neural_Network:
             workers (int):                          Number of workers/threads which preprocess batches during runtime.
             multiprocessing (bool):                 Option whether to utilize multi-processing for workers instead of threading .
             verbose (int):                          Option (0/1) how much information should be written to stdout.
+
+        ???+ danger
+            Class attributes can be modified also after initialization, at will.
+            However, be aware of unexpected adverse effects (experimental)!
+
+        Attributes:
+            tf_epochs (int, default=5):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
+            tf_lr_start (float, default=1e-4):      Transfer Learning configuration: Starting learning rate for frozen layer fitting.
+            tf_lr_end (float, default=1e-5):        Transfer Learning configuration: Starting learning rate after layer unfreezing.
+            meta_input (tuple of int):              Meta variable: Input shape of architecture which can be passed to a DataGenerator. For example: (224, 224).
+            meta_standardize (str):                 Meta variable: Recommended standardize_mode of architecture which can be passed to a DataGenerator.
+                                                    For example: "torch".
         """
         # Cache parameters
         self.n_labels = n_labels
@@ -178,27 +205,28 @@ class Neural_Network:
               iterations=None, callbacks=[], class_weights=None,
               transfer_learning=False):
         """ Fitting function for the Neural Network model performing a training process.
-          It is also possible to pass custom Callback classes in order to obtain more information.
 
-          If an optional validation generator is provided, a validation set is analyzed regularly
-          during the training process (after each epoch).
+        It is also possible to pass custom Callback classes in order to obtain more information.
 
-          The transfer learning training runs two fitting proesses.
-          The first one with freezed base model layers and a high learning rate,
-          whereas the second one with unfreezed layers and a small learning rate.
+        If an optional validation [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
+        is provided, a validation set is analyzed regularly during the training process (after each epoch).
+
+        The transfer learning training runs two fitting proesses.
+        The first one with freezed base model layers and a high learning rate,
+        whereas the second one with unfreezed layers and a small learning rate.
 
         Args:
-          training_generator (DataGenerator):     A data generator which will be used for training.
-          validation_generator (DataGenerator):   A data generator which will be used for validation.
-          epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
+            training_generator (DataGenerator):     A data generator which will be used for training.
+            validation_generator (DataGenerator):   A data generator which will be used for validation.
+            epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
                                                   the complete data set.
-          iterations (integer):                   Number of iterations (batches) in a single epoch.
-          callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-          class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
-          transfer_learning (boolean):            Option whether a transfer learning training should be performed.
+            iterations (integer):                   Number of iterations (batches) in a single epoch.
+            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
+            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+            transfer_learning (boolean):            Option whether a transfer learning training should be performed.
 
         Returns:
-          A Keras history object (dictionary) which contains several logs.
+            A Keras history object (dictionary) which contains several logs.
         """
         # Running a standard training process
         if not transfer_learning:
@@ -262,13 +290,17 @@ class Neural_Network:
     #---------------------------------------------#
     #                 Prediction                  #
     #---------------------------------------------#
-    """ Prediction function for the Neural Network model. The fitted model will predict classifications
-        for the provided data generator.
-
-    Args:
-        prediction_generator (DataGenerator):   A data generator which will be used for inference.
-    """
     def predict(self, prediction_generator):
+        """ Prediction function for the Neural Network model.
+
+        The fitted model will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            prediction_generator (DataGenerator):   A data generator which will be used for inference.
+
+        Returns:
+            preds (numpy.ndarray):                  A NumPy array of predictions formated with shape (n_samples, n_labels).
+        """
         # Run inference process with the Keras predict function
         preds = self.model.predict(prediction_generator, workers=self.workers,
                                    max_queue_size=self.batch_queue_size,
@@ -282,14 +314,36 @@ class Neural_Network:
     #---------------------------------------------#
     # Re-initialize model weights
     def reset_weights(self):
+        """ Re-initialize weights of the neural network model.
+
+        Useful for training multiple models with the same Neural_Network object.
+        """
         self.model.set_weights(self.initialization_weights)
 
     # Dump model to file
     def dump(self, file_path):
+        """ Store model to disk.
+
+        Recommended to utilize the file format ".hdf5".
+
+        Args:
+            file_path (str):    Path to store the model on disk.
+        """
         self.model.save(file_path)
 
     # Load model from file
     def load(self, file_path, custom_objects={}):
+        """ Load neural network model and its weights from a file.
+
+        After loading, the model will be compiled.
+
+        If loading a model in ".hdf5" format, it is not necessary to define any custom_objects.
+
+        Args:
+            file_path (str):            Input path, from which the model will be loaded.
+            custom_objects (dict):      Dictionary of custom objects for compiling
+                                        (e.g. non-TensorFlow based loss functions or architectures).
+        """
         # Create model input path
         self.model = load_model(file_path, custom_objects, compile=False)
         # Compile model

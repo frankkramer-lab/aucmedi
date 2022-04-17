@@ -17,16 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#          https://keras.io/api/applications/         #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     13 Jan 2018.                    #
-#        MobileNetV2: Inverted Residuals and          #
-#                   Linear Bottlenecks.               #
-#      Mark Sandler, Andrew Howard, Menglong Zhu,     #
-#          Andrey Zhmoginov, Liang-Chieh Chen         #
-#           https://arxiv.org/abs/1801.04381          #
+""" The classification variant of the MobileNetV2 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.MobileNetV2"           |
+| Input_shape              | (224, 224)                 |
+| Standardization          | "tf"                       |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/api/applications/mobilenet/ <br>
+
+???+ abstract "Reference - Publication"
+    Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen. 13 Jan 2018.
+    MobileNetV2: Inverted Residuals and Linear Bottlenecks.
+    <br>
+    https://arxiv.org/abs/1801.04381
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -40,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #           Architecture class: MobileNetV2           #
 #-----------------------------------------------------#
-""" The classification variant of the MobileNetV2 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the MobileNetV2 model for classification
-"""
 class Architecture_MobileNetV2(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

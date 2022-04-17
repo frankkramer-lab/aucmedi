@@ -17,16 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#            https://keras.io/applications/           #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                  REFERENCE PAPER:                   #
-#                     2 Dec 2015.                     #
-#      Rethinking the Inception Architecture for      #
-#                   Computer Vision.                  #
-# Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, #
-#           Jonathon Shlens, Zbigniew Wojna.          #
-#          https://arxiv.org/abs/1512.00567           #
+""" The classification variant of the InceptionV3 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.InceptionV3"           |
+| Input_shape              | (299, 299)                 |
+| Standardization          | "tf"                       |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/api/applications/inceptionv3/ <br>
+
+???+ abstract "Reference - Publication"
+    Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna. 2 Dec 2015.
+    Rethinking the Inception Architecture for Computer Vision.
+    <br>
+    https://arxiv.org/abs/1512.00567
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -40,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #           Architecture class: InceptionV3           #
 #-----------------------------------------------------#
-""" The classification variant of the InceptionV3 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the InceptionV3 model for classification
-"""
 class Architecture_InceptionV3(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

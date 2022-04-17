@@ -17,15 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#            https://keras.io/applications/           #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                  REFERENCE PAPER:                   #
-#                    28 May 2019.                     #
-#      EfficientNet: Rethinking Model Scaling for     #
-#            Convolutional Neural Networks.           #
-#              Mingxing Tan, Quoc V. Le.              #
-#          https://arxiv.org/abs/1905.11946           #
+""" The classification variant of the EfficientNetB2 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.EfficientNetB2"        |
+| Input_shape              | (260, 260)                 |
+| Standardization          | "caffe"                    |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/api/applications/efficientnet/ <br>
+
+???+ abstract "Reference - Publication"
+    Mingxing Tan, Quoc V. Le. 28 May 2019.
+    EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.
+    <br>
+    https://arxiv.org/abs/1905.11946
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -39,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #          Architecture class: EfficientNetB2         #
 #-----------------------------------------------------#
-""" The classification variant of the EfficientNet architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the EfficientNet model for classification
-"""
 class Architecture_EfficientNetB2(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

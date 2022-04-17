@@ -16,6 +16,44 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+#-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" Models are represented with the open-source neural network library [TensorFlow.Keras](https://www.tensorflow.org/api_docs/python/tf/keras)
+    which provides an user-friendly API for commonly used neural-network building blocks.
+
+The already implemented architectures are configurable by custom input sizes, optional dropouts, transfer learning via pretrained weights,
+meta data inclusion or activation output depending on classification type.
+
+Additionally, AUCMEDI offers architectures for 2D image and 3D volume classification.
+
+???+ example "Example: How to select an Architecture"
+    For architecture selection, just create a key (str) by adding "2D." or "3D." to the architecture name,
+    and pass the key to the `architecture` parameter of the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class.
+
+    ```python
+    # 2D architecture
+    my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+    # 3D architecture
+    my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50")
+    # 2D architecture with custom input_shape
+    my_model_c = Neural_Network(n_labels=8, channels=3,
+                                architecture="2D.Xception", input_shape=(512,512))
+    ```
+
+???+ note "List of implemented Architectures"
+    AUCMEDI provides a large library of state-of-the-art and ready-to-use architectures.
+
+    - 2D Architectures: [aucmedi.neural_network.architectures.image][]
+    - 3D Architectures: [aucmedi.neural_network.architectures.volume][]
+
+Besides the flexibility in switching between already implemented architecture,
+the [abstract base class interface][aucmedi.neural_network.architectures.arch_base.Architecture_Base]
+for architectures offers the possibility for custom architecture integration into the AUCMEDI pipeline.
+"""
+#-----------------------------------------------------#
+#               General library imports               #
+#-----------------------------------------------------#
 # Abstract Base Class for Architectures
 from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 

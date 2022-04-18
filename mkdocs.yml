@@ -1,0 +1,113 @@
+#==============================================================================#
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#                University of Augsburg                                        #
+#                                                                              #
+#  This program is free software: you can redistribute it and/or modify        #
+#  it under the terms of the GNU General Public License as published by        #
+#  the Free Software Foundation, either version 3 of the License, or           #
+#  (at your option) any later version.                                         #
+#                                                                              #
+#  This program is distributed in the hope that it will be useful,             #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+#  GNU General Public License for more details.                                #
+#                                                                              #
+#  You should have received a copy of the GNU General Public License           #
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+#==============================================================================#
+#-----------------------------------------------------#
+#                  Site Information                   #
+#-----------------------------------------------------#
+site_name: AUCMEDI
+site_description: a framework for Automated Classification of Medical Images
+site_author: University Augsburg
+copyright: Copyright &copy; 2021 - 2022 University of Augsburg
+
+#-----------------------------------------------------#
+#                       Layout                        #
+#-----------------------------------------------------#
+theme:
+  name: "material"
+  custom_dir: docs/theme_override/
+  features:
+    - content.code.annotate
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.top
+  palette:
+    primary: indigo
+  icon:
+    repo: fontawesome/brands/github
+
+repo_url: https://github.com/frankkramer-lab/MIScnn
+repo_name: frankkramer-lab/aucmedi
+
+extra_css:
+- css/mkdocstrings.css
+- css/progressbar.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: XplaceholderX
+    - icon: fontawesome/brands/docker
+      link: XplaceholderX
+
+#-----------------------------------------------------#
+#                       Content                       #
+#-----------------------------------------------------#
+nav:
+- Home: index.md
+- Getting Started:
+    - Introduction: getstarted/intro.md
+    - Current Status: getstarted/status.md
+    - Installation: getstarted/setup.md
+    - Modules:      getstarted/modules.md
+    - Basic Usage:  getstarted/usage.md
+    - Contributing: getstarted/contribution.md
+    - FAQ: getstarted/faq.md
+- Examples:
+  - Framework: examples/framework.md
+  - AutoML: examples/automl.md
+  - Applications: examples/applications.md
+- API Reference: reference/
+- About Us: about.md
+
+#-----------------------------------------------------#
+#                 Plugins & Extensions                #
+#-----------------------------------------------------#
+markdown_extensions:
+- admonition
+- pymdownx.progressbar
+- pymdownx.tasklist
+- pymdownx.superfences
+- pymdownx.details
+- pymdownx.arithmatex
+- tables
+- toc:
+    permalink: "¤"
+
+plugins:
+- search
+- gen-files:
+    scripts:
+      - docs/auto_docstring.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- section-index
+- mkdocstrings:
+    default_handler: python
+    watch:
+      - aucmedi
+    handlers:
+      python:
+        selection:
+          docstring_style: google
+        rendering:
+          show_root_heading: True
+          show_submodules: False
+          merge_init_into_class: True
+          separate_signature: True
+          members_order: source
+          docstring_section_style: spacy

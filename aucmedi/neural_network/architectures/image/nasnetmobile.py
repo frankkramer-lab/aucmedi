@@ -17,16 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#          https://keras.io/api/applications/         #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     10 Dec 2015.                    #
-#       Learning Transferable Architectures for       #
-#             Scalable Image Recognition.             #
-#    Barret Zoph, Vijay Vasudevan, Jonathon Shlens,   #
-#                     Quoc V. Le.                     #
-#           https://arxiv.org/abs/1707.07012          #
+""" The classification variant of the NASNetMobile architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.NASNetMobile"          |
+| Input_shape              | (224, 224)                 |
+| Standardization          | "tf"                       |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/api/applications/nasnet/ <br>
+
+???+ abstract "Reference - Publication"
+    Barret Zoph, Vijay Vasudevan, Jonathon Shlens, Quoc V. Le. 10 Dec 2015.
+    Learning Transferable Architectures for Scalable Image Recognition.
+    <br>
+    https://arxiv.org/abs/1707.07012
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -40,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #          Architecture class: NASNetMobile           #
 #-----------------------------------------------------#
-""" The classification variant of the NASNetMobile architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the NASNetMobile model for classification
-"""
 class Architecture_NASNetMobile(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

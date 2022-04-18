@@ -17,8 +17,21 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#       https://github.com/wanghsinwei/isic-2019      #
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" The classification variant of the Vanilla architecture.
+
+No intensive hardware requirements, which makes it ideal for debugging.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.Vanilla"               |
+| Input_shape              | (224, 224)                 |
+| Standardization          | "z-score"                  |
+
+???+ abstract "Reference - Implementation"
+    https://github.com/wanghsinwei/isic-2019/ <br>
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -31,13 +44,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #                 Vanilla Architecture                #
 #-----------------------------------------------------#
-""" A vanilla image classification model.
-    No intensive hardware requirements, which makes it ideal for debugging.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating a Keras model
-"""
 class Architecture_Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                   __init__                  #

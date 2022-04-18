@@ -17,20 +17,27 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# https://github.com/ZFTurbo/classification_models_3D #
-#   Solovyev, Roman & Kalinin, Alexandr & Gabruseva,  #
-#                  Tatiana. (2021).                   #
-#    3D Convolutional Neural Networks for Stalled     #
-#              Brain Capillary Detection.             #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     16 Nov 2016.                    #
-#       Aggregated Residual Transformations for       #
-#                Deep Neural Networks.                #
-#      Saining Xie, Ross Girshick, Piotr Dollár,      #
-#                 Zhuowen Tu, Kaiming He.             #
-#           https://arxiv.org/abs/1611.05431          #
+""" The classification variant of the ResNeXt50 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "3D.ResNeXt50"             |
+| Input_shape              | (64, 64, 64)               |
+| Standardization          | "grayscale"                |
+
+???+ abstract "Reference - Implementation"
+    Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
+    3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
+    https://github.com/ZFTurbo/classification_models_3D <br>
+
+???+ abstract "Reference - Publication"
+    Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He. 16 Nov 2016.
+    Aggregated Residual Transformations for Deep Neural Networks.
+    <br>
+    https://arxiv.org/abs/1611.05431
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -45,12 +52,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #            Architecture class: ResNeXt50            #
 #-----------------------------------------------------#
-""" The classification variant of the ResNeXt50 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the ResNeXt50 model for classification
-"""
 class Architecture_ResNeXt50(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

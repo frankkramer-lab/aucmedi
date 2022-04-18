@@ -17,19 +17,27 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# https://github.com/ZFTurbo/classification_models_3D #
-#   Solovyev, Roman & Kalinin, Alexandr & Gabruseva,  #
-#                  Tatiana. (2021).                   #
-#    3D Convolutional Neural Networks for Stalled     #
-#              Brain Capillary Detection.             #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     25 Aug 2016.                    #
-#      Densely Connected Convolutional Networks.      #
-#    Gao Huang, Zhuang Liu, Laurens van der Maaten,   #
-#                Kilian Q. Weinberger.                #
-#           https://arxiv.org/abs/1608.06993          #
+""" The classification variant of the DenseNet201 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "3D.DenseNet201"           |
+| Input_shape              | (64, 64, 64)               |
+| Standardization          | "torch"                    |
+
+???+ abstract "Reference - Implementation"
+    Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
+    3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
+    https://github.com/ZFTurbo/classification_models_3D <br>
+
+???+ abstract "Reference - Publication"
+    Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger. 25 Aug 2016.
+    Densely Connected Convolutional Networks.
+    <br>
+    https://arxiv.org/abs/1608.06993
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -43,12 +51,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #           Architecture class: DenseNet201           #
 #-----------------------------------------------------#
-""" The classification variant of the DenseNet201 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the DenseNet201 model for classification
-"""
 class Architecture_DenseNet201(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

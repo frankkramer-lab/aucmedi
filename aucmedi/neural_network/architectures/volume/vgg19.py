@@ -17,19 +17,27 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# https://github.com/ZFTurbo/classification_models_3D #
-#   Solovyev, Roman & Kalinin, Alexandr & Gabruseva,  #
-#                  Tatiana. (2021).                   #
-#    3D Convolutional Neural Networks for Stalled     #
-#              Brain Capillary Detection.             #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                  REFERENCE PAPER:                   #
-#                    04 Sep 2014.                     #
-#   Very Deep Convolutional Networks for Large-Scale  #
-#                  Image Recognition.                 #
-#          Karen Simonyan, Andrew Zisserman.          #
-#           https://arxiv.org/abs/1409.1556           #
+""" The classification variant of the VGG19 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "3D.VGG19"                 |
+| Input_shape              | (64, 64, 64)               |
+| Standardization          | "caffe"                    |
+
+???+ abstract "Reference - Implementation"
+    Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
+    3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
+    https://github.com/ZFTurbo/classification_models_3D <br>
+
+???+ abstract "Reference - Publication"
+    Karen Simonyan, Andrew Zisserman. 04 Sep 2014.
+    Very Deep Convolutional Networks for Large-Scale Image Recognition.
+    <br>
+    https://arxiv.org/abs/1409.1556
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -43,12 +51,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #              Architecture class: VGG19              #
 #-----------------------------------------------------#
-""" The classification variant of the VGG19 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the VGG19 model for classification
-"""
 class Architecture_VGG19(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

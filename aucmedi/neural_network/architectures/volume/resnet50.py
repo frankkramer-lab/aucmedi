@@ -17,18 +17,27 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# https://github.com/ZFTurbo/classification_models_3D #
-#   Solovyev, Roman & Kalinin, Alexandr & Gabruseva,  #
-#                  Tatiana. (2021).                   #
-#    3D Convolutional Neural Networks for Stalled     #
-#              Brain Capillary Detection.             #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     10 Dec 2015.                    #
-#    Deep Residual Learning for Image Recognition.    #
-#  Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. #
-#           https://arxiv.org/abs/1512.03385          #
+""" The classification variant of the ResNet50 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "3D.ResNet50"              |
+| Input_shape              | (64, 64, 64)               |
+| Standardization          | "grayscale"                |
+
+???+ abstract "Reference - Implementation"
+    Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
+    3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
+    https://github.com/ZFTurbo/classification_models_3D <br>
+
+???+ abstract "Reference - Publication"
+    Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. 10 Dec 2015.
+    Deep Residual Learning for Image Recognition.
+    <br>
+    https://arxiv.org/abs/1512.03385
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -42,12 +51,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #            Architecture class: ResNet50             #
 #-----------------------------------------------------#
-""" The classification variant of the ResNet50 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the ResNet50 model for classification
-"""
 class Architecture_ResNet50(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #

@@ -16,3 +16,36 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+#-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" A pillar of any AUCMEDI pipeline: [aucmedi.neural_network.model.Neural_Network][]
+
+The Neural Network class is an powerful interface to the deep neural network world in AUCMEDI.
+
+???+ info "Pillars of AUCMEDI"
+    - [aucmedi.data_processing.io_data][]
+    - [aucmedi.data_processing.data_generator.DataGenerator][]
+    - [aucmedi.neural_network.model.Neural_Network][]
+
+With an initialized Neural Network instance, it is possible to run training and predictions.
+
+???+ example
+    ```python
+    # Import
+    from aucmedi import *
+
+    # Initialize model
+    model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+
+    # Do some training
+    datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
+                                  resize=model.meta_input, standardize_mode=model.meta_standardize)
+    model.train(datagen_train, epochs=50)
+
+    # Do some predictions
+    datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
+                                 resize=model.meta_input, standardize_mode=model.meta_standardize)
+    preds = model.predict(datagen_test)
+    ```
+"""

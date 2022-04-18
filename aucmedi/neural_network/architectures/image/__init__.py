@@ -114,6 +114,12 @@ architecture_dict = {
         my_model = Neural_Network(n_labels=4, channels=3, architecture=my_arch)
         ```
 
+        ```python title="Manual via module import"
+        from aucmedi.neural_network.architectures.image import Architecture_Xception
+        my_arch = Architecture_Xception(channels=3, input_shape=(512,512))
+        my_model = Neural_Network(n_labels=4, channels=3, architecture=my_arch)
+        ```
+
     ???+ warning
         If passing an architecture key to the Neural_Network class, be aware that you have to add "2D." infront of it.
 

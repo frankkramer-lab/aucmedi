@@ -80,6 +80,12 @@ architecture_dict = {
         my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
         ```
 
+        ```python title="Manual via module import"
+        from aucmedi.neural_network.architectures.volume import Architecture_ResNet50
+        my_arch = Architecture_ResNet50(channels=1, input_shape=(128,128,128))
+        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
+        ```
+
     ???+ warning
         If passing an architecture key to the Neural_Network class, be aware that you have to add "3D." infront of it.
 

@@ -29,29 +29,67 @@ import aucmedi.data_processing.io_interfaces as io
 #-----------------------------------------------------#
 ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif",
                             "npy", "nii", "gz", "mha"]
+""" List of accepted image formats. """
 
 #-----------------------------------------------------#
 #             Input Interface for AUCMEDI             #
 #-----------------------------------------------------#
-""" Data Input Interface for all kinds of dataset structures.
+def input_interface(interface, path_imagedir, path_data=None, training=True,
+                    ohe=False, image_format=None, **kwargs):
+    """ Data Input Interface for all automatically extract various information of dataset structures.
+
     Different image file structures and annotation information are processed by
-    corresponding format interfaces.
+    corresponding format interfaces. These extracted information can be parsed to the
+    [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] and the
+    [Neural_Network][aucmedi.neural_network.model.Neural_Network].
+
+    The input_interface() function is the first of the three pillars of AUCMEDI.
+
+    ???+ info "Pillars of AUCMEDI"
+        - [aucmedi.data_processing.io_data.input_interface][]
+        - [aucmedi.data_processing.data_generator.DataGenerator][]
+        - [aucmedi.neural_network.model.Neural_Network][]
+
     Basically a wrapper function for calling the correct format interface,
     which loads a dataset from disk via the associated format parser.
 
-    Possible format interfaces: ["csv", "json", "directory"]
+    Possible format interfaces: `["csv", "json", "directory"]`
 
-    Arguments:
-        path_imagedir (String):         Path to the directory containing the images.
-        interface (String):             String defining format interface for loading/storing data.
-        path_data (String):             Path to the index/class annotation file if required. (csv/json)
-        training (Boolean):             Boolean option whether annotation data is available.
-        ohe (Boolean):                  Boolean option whether annotation data is sparse categorical or one-hot encoded.
-        image_format (String):          Force to use a specific image format. By default, image format is determined automatically.
-        kwargs (Dictionary):            Additional parameters for the format interfaces.
-"""
-def input_interface(interface, path_imagedir, path_data=None, training=True,
-                    ohe=False, image_format=None, **config):
+    ???+ example
+        ```python
+        # AUCMEDI library
+        from aucmedi import *
+
+        # Initialize input data reader
+        ds = input_interface(interface="csv",                       # Interface type
+                             path_imagedir="dataset/images/",
+                             path_data="dataset/annotations.csv",
+                             ohe=False, col_sample="ID", col_class="diagnosis")
+        (index_list, class_ohe, nclasses, class_names, image_format) = ds
+
+        # Pass variables to other AUCMEDI pillars like DataGenerator
+        datagen = DataGenerator(samples=index_list,                 # from input_interface()
+                                path_imagedir="dataset/images/",
+                                labels=class_ohe,                   # from input_interface()
+                                image_format=image_format)          # from input_interface()
+        ```
+
+    Args:
+        path_imagedir (str):            Path to the directory containing the images.
+        interface (str):                String defining format interface for loading/storing data.
+        path_data (str):                Path to the index/class annotation file if required. (csv/json)
+        training (bool):                Boolean option whether annotation data is available.
+        ohe (bool):                     Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        image_format (str):             Force to use a specific image format. By default, image format is determined automatically.
+        kwargs (dict):                  Additional parameters for the format interfaces.
+
+    Returns:
+        index_list (list of str):       List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
+        class_ohe (numpy.ndarray):      Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
+        class_n (int):                  Number of classes. Required in Neural_Network for Architecture design as `n_labels`.
+        class_names (list of str):      List of names for corresponding classes. Used for later prediction storage or evaluation.
+        image_format (str):             Image format to add at the end of the sample index for image loading. Required in DataGenerator.
+    """
     # Transform selected interface to lower case
     interface = interface.lower()
     # Pass image format if provided
@@ -74,7 +112,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         ds_loader = io.csv_loader
         additional_parameters = ["ohe_range", "col_sample", "col_class"]
         for para in additional_parameters:
-            if para in config : parameters[para] = config[para]
+            if para in kwargs : parameters[para] = kwargs[para]
     # Identify correct dataset loader and parameters for JSON format
     elif interface == "json" : ds_loader = io.json_loader
     # Identify correct dataset loader and parameters for directory format

@@ -33,10 +33,10 @@ from aucmedi.neural_network.architectures import architecture_dict, supported_st
 class Neural_Network:
     """ Neural Network class providing functionality for handling all model methods
 
-    This class is one of the three pillars of AUCMEDI.
+    This class is the third of the three pillars of AUCMEDI.
 
     ??? info "Pillars of AUCMEDI"
-        - [aucmedi.data_processing.io_data][]
+        - [aucmedi.data_processing.io_data.input_interface][]
         - [aucmedi.data_processing.data_generator.DataGenerator][]
         - [aucmedi.neural_network.model.Neural_Network][]
 

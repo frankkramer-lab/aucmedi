@@ -24,7 +24,7 @@
 The Neural Network class is an powerful interface to the deep neural network world in AUCMEDI.
 
 ???+ info "Pillars of AUCMEDI"
-    - [aucmedi.data_processing.io_data][]
+    - [aucmedi.data_processing.io_data.input_interface][]
     - [aucmedi.data_processing.data_generator.DataGenerator][]
     - [aucmedi.neural_network.model.Neural_Network][]
 

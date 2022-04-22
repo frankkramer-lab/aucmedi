@@ -17,17 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# https://github.com/nickshawn/Shades_of_Gray-color_  #
-# constancy_transformation                            #
-#-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                        2014.                        #
-#   Improving Dermoscopy Image Classification Using   #
-#                   Color Constancy.                  #
-#  Catarina Barata; M. Emre Celebi; Jorge S. Marques. #
-#https://ieeexplore.ieee.org/abstract/document/6866131#
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
@@ -38,24 +27,39 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #         Subfunction class: Color Constancy          #
 #-----------------------------------------------------#
-""" Description from: https://www.kaggle.com/apacheco/shades-of-gray-color-constancy
+class ColorConstancy(Subfunction_Base):
+    """  A Subfunction class which fixes the problem of Color Constancy in an image.
 
-    The paper Improving dermoscopy image classification using color constancy shows
+    ???+ warning
+        Can only be applied on RGB images.
+
+    "The paper Improving dermoscopy image classification using color constancy shows
     that using a color compensation technique to reduce the influence of the acquisition
     setup on the color features extracted from the images provides a improvementon the
-    performance for skin cancer classification.
+    performance for skin cancer classification."
 
-    Note: Can only be applied on RGB images.
+    ???+ cite
+        Description from: https://www.kaggle.com/apacheco/shades-of-gray-color-constancy
 
-Methods:
-    __init__                Object creation function.
-    transform:              Apply color constancy filter.
-"""
-class ColorConstancy(Subfunction_Base):
+    ??? abstract "Reference - Implementation"
+        https://github.com/nickshawn/Shades_of_Gray-color_constancy_transformation
+
+    ??? abstract "Reference - Publication"
+        Catarina Barata; M. Emre Celebi; Jorge S. Marques. 2014.
+        Improving Dermoscopy Image Classification Using Color Constancy.
+        <br>
+        https://ieeexplore.ieee.org/abstract/document/6866131
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, power=6):
+        """ Initialization function for creating a ColorConstancy Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            power (int):            Exponent for the image.
+        """
         self.power = power
 
     #---------------------------------------------#

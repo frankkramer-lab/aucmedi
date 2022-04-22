@@ -33,31 +33,38 @@ class Standardize(Subfunction_Base):
         preprocess_input() functionality in order to normalize intensity value ranges to be
         suitable for neural networks.
 
-        Default mode: "z-score"
-        Possible modes: ["z-score", "minmax", "grayscale", "tf", "caffe", "torch"]
+    Default mode: `"z-score"`
+
+    Possible modes: `["z-score", "minmax", "grayscale", "tf", "caffe", "torch"]`
 
 
-    Mode Descriptons:
-        Custom Implementations:
-        z-score:    Sample-wise Z-score normalization (also called Z-transformation).
-        minmax:     Sample-wise scaling to range [0,1].
-        grayscale:  Sample-wise scaling to grayscale range [0, 255].
+    ???+ info "Mode Descriptions"
 
-        Keras Implementations: https://www.tensorflow.org/api_docs/python/tf/keras/applications/imagenet_utils/preprocess_input
-        caffe:      Will convert the images from RGB to BGR, then will zero-center each color channel
-                    with respect to the ImageNet dataset, without scaling. (RGB encoding required!)
-        tf:         Will scale pixels between -1 and 1, sample-wise. (Grayscale/RGB encoding required!)
-        torch:      Will scale pixels between 0 and 1 and then will normalize each channel with respect
-                    to the ImageNet dataset.  (RGB encoding required!)
+        | Mode                | Description                                                               |
+        | ------------------- | ------------------------------------------------------------------------- |
+        | `"z-score"`         | Sample-wise Z-score normalization (also called Z-transformation).         |
+        | `"minmax"`          | Sample-wise scaling to range [0,1].                                       |
+        | `"grayscale"`       | Sample-wise scaling to grayscale range [0, 255].                          |
+        | `"caffe"`           |  Will convert the images from RGB to BGR, then will zero-center each color channel with respect to the ImageNet dataset, without scaling. (RGB encoding required!) |
+        | `"tf"`              | Will scale pixels between -1 and 1, sample-wise. (Grayscale/RGB encoding required!) |
+        | `"torch"`           | Will scale pixels between 0 and 1 and then will normalize each channel with respect to the ImageNet dataset. (RGB encoding required!) |
 
-    Methods:
-        __init__                Object creation function
-        transform:              Standardize an image input according to selected mode.
+    ??? abstract "Reference - Implementation"
+        Keras preprocess_input() for `"tf", "caffe", "torch"`
+
+        https://www.tensorflow.org/api_docs/python/tf/keras/applications/imagenet_utils/preprocess_input
     """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, mode="z-score", smooth=0.000001):
+        """ Initialization function for creating a Standardize Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            mode (str):         Selected mode which standardization/normalization technique should be applied.
+            smooth (float):     Smoothing factor to avoid zero devisions (epsilon).
+        """
         # Verify mode existence
         if mode not in ["z-score", "minmax", "grayscale", "tf", "caffe", "torch"]:
             raise ValueError("Subfunction - Standardize: Unknown modus", mode)

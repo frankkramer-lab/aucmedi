@@ -28,32 +28,35 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #             Subfunction class: Cropping             #
 #-----------------------------------------------------#
-""" A Crop Subfunction class which center/randomly crops a desired shape from an image.
-
-    List of valid modes for parameter "mode": ["center", "random"]
-
-2D image: Shape have to be defined as tuple with x and y size:
-    Crop(shape=(224, 224))
-
-    Cropping is done via albumentations CenterCrop and RandomCrop transform.
-    https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.CenterCrop
-    https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.RandomCrop
-
-3D volume: Shape have to be defined as tuple with x, y and z size:
-    Crop(shape=(224, 224, 244))
-
-    Cropping is done via volumentations CenterCrop and RandomCrop transform.
-    https://github.com/muellerdo/volumentations
-
-Methods:
-    __init__                Object creation function
-    transform:              Crops an image input with the defined shape.
-"""
 class Crop(Subfunction_Base):
+    """ A Crop Subfunction class which center/randomly crops a desired shape from an image.
+
+    List of valid modes for parameter "mode": `["center", "random"]`
+
+    ???+ info "2D image"
+        Shape have to be defined as tuple with x and y size: `Crop(shape=(224, 224))`
+
+        Cropping is done via albumentations CenterCrop and RandomCrop transform. <br>
+        https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.CenterCrop  <br>
+        https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.RandomCrop  <br>
+
+    ???+ info "3D volume"
+        Shape have to be defined as tuple with x, y and z size: `Crop(shape=(224, 224, 244))`
+
+        Cropping is done via volumentations CenterCrop and RandomCrop transform. <br>
+        https://github.com/muellerdo/volumentations
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, shape=(224, 224), mode="center"):
+        """ Initialization function for creating a Crop Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            shape (tuple of int):       Desired output shape after cropping.
+            mode (str):                 Selected mode for cropping.
+        """
         # Initialize parameter
         params = {"p":1.0, "always_apply":True}
         # Select augmentation module and add further parameter depending on dimension

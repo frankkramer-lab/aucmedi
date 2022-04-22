@@ -27,21 +27,24 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #               Subfunction class: Clip               #
 #-----------------------------------------------------#
-""" A clip Subfunction class which can be used for clipping intensity pixel
-    values on a certain range.
+class Clip(Subfunction_Base):
+    """ A Subfunction class which which can be used for clipping intensity pixel
+        values on a certain range.
 
     Typical use case is clipping Hounsfield Units (HU) in CT scans for focusing
     on tissue types of interest.
-
-Methods:
-    __init__                Object creation function.
-    transform:              Apply clipping.
-"""
-class Clip(Subfunction_Base):
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, min=None, max=None):
+        """ Initialization function for creating a Clip Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            min (float or int):         Desired minimum value for clipping (if `None`, no lower limit is applied).
+            max (float or int):         Desired maximum value for clipping (if `None`, no upper limit is applied).
+        """
         self.min = min
         self.max = max
 

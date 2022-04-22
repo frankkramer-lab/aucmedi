@@ -41,10 +41,30 @@ Methods:
     transform:              Apply chromer.
 """
 class Chromer(Subfunction_Base):
+    """ A Subfunction class which which can be used for color format transforming.
+
+    ```
+    Transforms:
+    - grayscale ->  RGB
+    - RGB       ->  grayscale
+
+    ```
+
+    Possible target formats: `["rgb", "grayscale"]`
+
+    Typical use case is converting a grayscale to RGB in order to utilize
+    transfer learning weights based on ImageNet.
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, target="rgb"):
+        """ Initialization function for creating a Chromer Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            target (str):               Transformation mode for desired target format.
+        """
         # Verify target format
         if target not in ["grayscale", "rgb"]:
             raise ValueError("Unknown target format for Chromer Subfunction",

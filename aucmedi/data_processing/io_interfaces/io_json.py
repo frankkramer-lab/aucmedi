@@ -28,24 +28,46 @@ import pandas as pd
 #-----------------------------------------------------#
 #         Data Loader Interface based on JSON         #
 #-----------------------------------------------------#
-""" Data Input Interface for loading a dataset via a JSON and an image directory.
-    This function allow simple parsing of class annotations encoded in a JSON.
-
-    Format Sparse:
-        - Name Index (key) : Class (value)
-
-    Format One-Hot Encoded:
-        - Name Index (key) : List consisting of binary integers.
-
-Arguments:
-    path_data (String):                     Path to the json file.
-    path_imagedir (String):                 Path to the directory containing the images.
-    allowed_image_formats (String list):    List of allowed imaging formats. (provided by IO_Interface)
-    training (Boolean):                     Boolean option whether annotation data is available.
-    ohe (Boolean):                          Boolean option whether annotation data is sparse categorical or one-hot encoded.
-"""
 def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
                 ohe=True):
+    """ Data Input Interface for loading a dataset via a JSON and an image directory.
+
+    This **internal** function allows simple parsing of class annotations encoded in a JSON.
+
+    ???+ info "Input Formats"
+        ```
+        Format Sparse:
+            - Name Index (key) : Class (value)
+
+        Format One-Hot Encoded:
+            - Name Index (key) : List consisting of binary integers.
+        ```
+
+    **Expected structure:**
+    ```
+    dataset/
+        images_dir/                 # path_imagedir = "dataset/images_dir"
+            sample001.png
+            sample002.png
+            ...
+            sample350.png
+        annotations.json            # path_data = "dataset/annotations.json"
+    ```
+
+    Args:
+        path_data (str):                        Path to the json file.
+        path_imagedir (str):                    Path to the directory containing the images.
+        allowed_image_formats (list of str):    List of allowed imaging formats. (provided by IO_Interface)
+        training (bool):                        Boolean option whether annotation data is available.
+        ohe (bool):                             Boolean option whether annotation data is sparse categorical or one-hot encoded.
+
+    Returns:
+        index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
+        class_ohe (numpy.ndarray):              Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
+        class_n (int):                          Number of classes. Required in Neural_Network for Architecture design as `n_labels`.
+        class_names (list of str):              List of names for corresponding classes. Used for later prediction storage or evaluation.
+        image_format (str):                     Image format to add at the end of the sample index for image loading. Required in DataGenerator.
+    """
     # Load JSON file
     with open(path_data, "r") as json_reader:
         dt_json = json.load(json_reader)

@@ -45,7 +45,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
 
     The input_interface() function is the first of the three pillars of AUCMEDI.
 
-    ???+ info "Pillars of AUCMEDI"
+    ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
         - [aucmedi.data_processing.data_generator.DataGenerator][]
         - [aucmedi.neural_network.model.Neural_Network][]
@@ -54,6 +54,14 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     which loads a dataset from disk via the associated format parser.
 
     Possible format interfaces: `["csv", "json", "directory"]`
+
+    ???+ info "Format Interfaces"
+        | Interface      | Internal Function                                                    | Description                                  |
+        | -------------- | -------------------------------------------------------------------- | -------------------------------------------- |
+        |  `"csv"`       | [io_csv()][aucmedi.data_processing.io_interfaces.io_csv]             | Storing class annotations in a CSV file.     |
+        |  `"directory"` | [io_directory()][aucmedi.data_processing.io_interfaces.io_directory] | Storing class annotations in subdirectories. |
+        |  `"json"`      | [io_json()][aucmedi.data_processing.io_interfaces.io_json]           | Storing class annotations in a JSON file.    |
+
 
     ???+ example
         ```python

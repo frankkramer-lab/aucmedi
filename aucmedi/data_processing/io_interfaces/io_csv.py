@@ -27,34 +27,58 @@ import pandas as pd
 #-----------------------------------------------------#
 #          Data Loader Interface based on CSV         #
 #-----------------------------------------------------#
-""" Data Input Interface for loading a dataset via a CSV and an image directory.
-    This function allow simple parsing of class annotations encoded in a CSV.
-
-    CSV Format 1:
-        - Name Column: "SAMPLE" -> String Value
-        - Class Column: "CLASS" -> Sparse Categorical Classes (String/Integers)
-        - Optional Meta Columns possible
-
-    CSV Format 2:
-        - Name Column: "SAMPLE"
-        - One-Hot Encoded Class Columns:
-            -> If OHE parameter provides list of column names -> use these
-            -> Else try to use all other columns as OHE columns
-        - Optional Meta Columns only possible if OHE parameter provided
-
-Arguments:
-    path_data (String):                     Path to the csv file.
-    path_imagedir (String):                 Path to the directory containing the images.
-    allowed_image_formats (String list):    List of allowed imaging formats. (provided by IO_Interface)
-    training (Boolean):                     Boolean option whether annotation data is available.
-    ohe (Boolean):                          Boolean option whether annotation data is sparse categorical or one-hot encoded.
-    ohe_range (String list):                List of column name values if annotation encoded in OHE. Example: ["classA", "classB", "classC"]
-    col_sample (String):                    Index column name for the sample name column. Default: 'SAMPLE'
-    col_class (String):                     Index column name for the sparse categorical classes column. Default: 'CLASS'
-"""
 def csv_loader(path_data, path_imagedir, allowed_image_formats,
                training=True, ohe=True, ohe_range=None,
                col_sample="SAMPLE", col_class="CLASS"):
+    """ Data Input Interface for loading a dataset via a CSV and an image directory.
+
+    This **internal** function allows simple parsing of class annotations encoded in a CSV,
+    and can be called via the [input_interface()][aucmedi.data_processing.io_data.input_interface]
+    function by passing `"csv"` as parameter `interface`.
+
+    ???+ info "Input Formats"
+        ```
+        CSV Format 1:
+           - Name Column: "SAMPLE" -> String Value
+           - Class Column: "CLASS" -> Sparse Categorical Classes (String/Integers)
+           - Optional Meta Columns possible
+
+        CSV Format 2:
+           - Name Column: "SAMPLE"
+           - One-Hot Encoded Class Columns:
+               -> If OHE parameter provides list of column names -> use these
+               -> Else try to use all other columns as OHE columns
+           - Optional Meta Columns only possible if OHE parameter provided
+        ```
+
+    **Expected structure:**
+    ```
+    dataset/
+        images_dir/                 # path_imagedir = "dataset/images_dir"
+            sample001.png
+            sample002.png
+            ...
+            sample350.png
+        annotations.csv             # path_data = "dataset/annotations.csv"
+    ```
+
+    Args:
+        path_data (str):                        Path to the csv file.
+        path_imagedir (str):                    Path to the directory containing the images.
+        allowed_image_formats (list of str):    List of allowed imaging formats. (provided by IO_Interface)
+        training (bool):                        Boolean option whether annotation data is available.
+        ohe (bool):                             Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        ohe_range (list of str):                List of column name values if annotation encoded in OHE. Example: ["classA", "classB", "classC"]
+        col_sample (str):                       Index column name for the sample name column. Default: 'SAMPLE'
+        col_class (str):                        Index column name for the sparse categorical classes column. Default: 'CLASS'
+
+    Returns:
+        index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
+        class_ohe (numpy.ndarray):              Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
+        class_n (int):                          Number of classes. Required in Neural_Network for Architecture design as `n_labels`.
+        class_names (list of str):              List of names for corresponding classes. Used for later prediction storage or evaluation.
+        image_format (str):                     Image format to add at the end of the sample index for image loading. Required in DataGenerator.
+    """
     # Load CSV file
     dt = pd.read_csv(path_data, sep=",", header=0)
     # Check if image index column exist and parse it
@@ -62,7 +86,7 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
     else : raise Exception("Sample column (" + str(col_sample) + \
                            ") not available in CSV file!", path_data)
     # Ensure index list to contain strings
-    index_list = [str(index) for index in index_list] 
+    index_list = [str(index) for index in index_list]
     # Identify image format by peaking first image
     image_format = None
     for file in os.listdir(path_imagedir):

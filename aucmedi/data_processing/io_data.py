@@ -62,7 +62,6 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         |  `"directory"` | [io_directory()][aucmedi.data_processing.io_interfaces.io_directory] | Storing class annotations in subdirectories. |
         |  `"json"`      | [io_json()][aucmedi.data_processing.io_interfaces.io_json]           | Storing class annotations in a JSON file.    |
 
-
     ???+ example
         ```python
         # AUCMEDI library

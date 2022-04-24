@@ -71,7 +71,8 @@ class DataGenerator(Iterator):
             resize (Tuple of Integers):     Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
             subfunctions (List of Subfunctions):
                                             List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
-            img_aug (ImageAugmentation):    Image Augmentation class instance which performs diverse data augmentation techniques.
+            data_aug (Augmentation Interface): Data Augmentation class instance which performs diverse augmentation techniques.
+                                            If `None` is provided, no augmentation will be performed.
             shuffle (Boolean):              Boolean, whether dataset should be shuffled.
             grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
             standardize_mode (String):      Standardization modus in which image intensity values are scaled.
@@ -85,7 +86,7 @@ class DataGenerator(Iterator):
     """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), subfunctions=[],
-                 img_aug=None, shuffle=False, grayscale=False,
+                 data_aug=None, shuffle=False, grayscale=False,
                  standardize_mode="z-score", sample_weights=None, workers=1,
                  prepare_images=False,  loader=image_loader, seed=None,
                  **kwargs):
@@ -101,7 +102,7 @@ class DataGenerator(Iterator):
         self.image_format = image_format
         self.grayscale = grayscale
         self.subfunctions = subfunctions
-        self.img_aug = img_aug
+        self.data_aug = data_aug
 
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
@@ -213,8 +214,8 @@ class DataGenerator(Iterator):
             with open(path_img + ".pickle", "rb") as pickle_loader:
                 img = pickle.load(pickle_loader)
             # Apply image augmentation on image if activated
-            if self.img_aug is not None and run_aug:
-                img = self.img_aug.apply(img)
+            if self.data_aug is not None and run_aug:
+                img = self.data_aug.apply(img)
             # Apply standardization on image if activated
             if self.sf_standardize is not None and run_standardize:
                 img = self.sf_standardize.transform(img)
@@ -232,8 +233,8 @@ class DataGenerator(Iterator):
             if self.sf_resize is not None:
                 img = self.sf_resize.transform(img)
             # Apply image augmentation on image if activated
-            if self.img_aug is not None and run_aug:
-                img = self.img_aug.apply(img)
+            if self.data_aug is not None and run_aug:
+                img = self.data_aug.apply(img)
             # Apply standardization on image if activated
             if self.sf_standardize is not None and run_standardize:
                 img = self.sf_standardize.transform(img)

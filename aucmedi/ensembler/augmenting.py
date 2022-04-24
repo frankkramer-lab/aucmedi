@@ -39,7 +39,7 @@ from aucmedi.data_processing.io_loader import image_loader
 
     The Image Augmentation class instance which will be used for inference augmenting,
     can be either predefined or leaving None.
-    If the img_aug is None, a Image Augmentation class instance is automatically created
+    If the data_aug is None, a Data Augmentation class instance is automatically created
     which applies rotation and flipping augmentations.
 
 Arguments:
@@ -47,7 +47,7 @@ Arguments:
     samples (List of Strings):      List of sample/index encoded as Strings.
     path_imagedir (String):         Path to the directory containing the images.
     n_cycles (Integer):             Number of image augmentations, which should be created per sample.
-    img_aug (ImageAugmentation):    Image Augmentation class instance which performs diverse data augmentation techniques.
+    data_aug (Data Augmentation):   Data Augmentation class instance which performs diverse augmentation techniques.
     aggregate (String or aggregate Function):
                                     Aggregate function class instance or a string for an AUCMEDI aggregate function.
     image_format (String):          Image format to add at the end of the sample index for image loading.
@@ -62,7 +62,7 @@ Arguments:
     workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
     kwargs (Dictionary):            Additional parameters for the sample loader.
 """
-def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
+def predict_augmenting(model, samples, path_imagedir, n_cycles=10, data_aug=None,
                        aggregate="mean", image_format=None, batch_size=32,
                        resize=(224, 224), grayscale=False, subfunctions=[],
                        standardize_mode="z-score", loader=image_loader,
@@ -73,16 +73,16 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
     else : agg_fun = aggregate
 
     # Initialize image augmentation if none provided (only flip, rotate)
-    if img_aug is None and len(model.input_shape) == 3:
-        img_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
+    if data_aug is None and len(model.input_shape) == 3:
+        data_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
                                      brightness=False, contrast=False,
                                      saturation=False, hue=False, crop=False,
                                      grid_distortion=False, compression=False,
                                      gamma=False, gaussian_noise=False,
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=False)
-    elif img_aug is None and len(model.input_shape) == 4:
-        img_aug = Volume_Augmentation(flip=True, rotate=True, scale=False,
+    elif data_aug is None and len(model.input_shape) == 4:
+        data_aug = Volume_Augmentation(flip=True, rotate=True, scale=False,
                                       brightness=False, contrast=False,
                                       saturation=False, hue=False, crop=False,
                                       grid_distortion=False, compression=False,
@@ -94,7 +94,7 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, img_aug=None,
 
     # Create DataGenerator for inference
     aug_gen = DataGenerator(samples_aug, path_imagedir, labels=None,
-                            batch_size=batch_size, img_aug=img_aug, seed=seed,
+                            batch_size=batch_size, data_aug=data_aug, seed=seed,
                             subfunctions=subfunctions, shuffle=False,
                             standardize_mode=standardize_mode, resize=resize,
                             grayscale=grayscale, prepare_images=False,

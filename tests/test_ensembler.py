@@ -62,7 +62,7 @@ class EnsemblerTEST(unittest.TestCase):
         preds = predict_augmenting(model=self.model, samples=self.sampleList,
                                    path_imagedir=self.tmp_data.name,
                                    n_cycles=1, batch_size=32,
-                                   img_aug=None, image_format=None,
+                                   data_aug=None, image_format=None,
                                    resize=(224, 224), grayscale=False,
                                    subfunctions=[], standardize_mode="tf",
                                    seed=None, workers=1)
@@ -70,7 +70,7 @@ class EnsemblerTEST(unittest.TestCase):
         preds = predict_augmenting(model=self.model, samples=self.sampleList,
                                    path_imagedir=self.tmp_data.name,
                                    n_cycles=5, batch_size=32,
-                                   img_aug=None, image_format=None,
+                                   data_aug=None, image_format=None,
                                    resize=(224, 224), grayscale=False,
                                    subfunctions=[], standardize_mode="tf",
                                    seed=None, workers=1)

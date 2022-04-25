@@ -88,7 +88,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         training (bool):                Boolean option whether annotation data is available.
         ohe (bool):                     Boolean option whether annotation data is sparse categorical or one-hot encoded.
         image_format (str):             Force to use a specific image format. By default, image format is determined automatically.
-        kwargs (dict):                  Additional parameters for the format interfaces.
+        **kwargs (dict):                Additional parameters for the format interfaces.
 
     Returns:
         index_list (list of str):       List of sample/index encoded as Strings. Required in DataGenerator as `samples`.

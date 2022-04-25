@@ -30,27 +30,27 @@ import numpy as np
 #-----------------------------------------------------#
 #        AUCMEDI Batchgenerators Augmentation         #
 #-----------------------------------------------------#
-""" The Batchgenerators Augmentation class performs diverse augmentation methods on given
-    numpy array. The class acts as an easy to use function/interface for applying
-    all types of augmentations with just one function call.
+class Batchgenerators_Augmentation():
+    """ The Batchgenerators Augmentation class performs diverse augmentation methods on given
+        numpy array. The class acts as an easy to use function/interface for applying
+        all types of augmentations with just one function call.
 
     The class can be configured beforehand by selecting desired augmentation techniques
     and method ranges or strength.
-    Afterwards, the class is passed to the Data Generator which utilizes it during
-    batch generation.
+    Afterwards, the class is passed to the [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
+    which utilizes it during batch generation.
 
     The specific configurations of selected methods can be adjusted by class variables.
 
-    Build on top of the library: Batchgenerators from the DKFZ.
-    https://github.com/MIC-DKFZ/batchgenerators
+    ???+ abstract "Build on top of the library"
+        Batchgenerators from the DKFZ - https://github.com/MIC-DKFZ/batchgenerators
 
-Reference:
-    Isensee Fabian, Jäger Paul, Wasserthal Jakob, Zimmerer David, Petersen Jens, Kohl Simon,
-    Schock Justus, Klein Andre, Roß Tobias, Wirkert Sebastian, Neher Peter, Dinkelacker Stefan,
-    Köhler Gregor, Maier-Hein Klaus (2020). batchgenerators - a python framework for data
-    augmentation. doi:10.5281/zenodo.3632567
-"""
-class Batchgenerators_Augmentation():
+    ???+ abstract "Reference - Publication"
+        Isensee Fabian, Jäger Paul, Wasserthal Jakob, Zimmerer David, Petersen Jens, Kohl Simon,
+        Schock Justus, Klein Andre, Roß Tobias, Wirkert Sebastian, Neher Peter, Dinkelacker Stefan,
+        Köhler Gregor, Maier-Hein Klaus (2020). batchgenerators - a python framework for data
+        augmentation. doi:10.5281/zenodo.3632567
+    """
     #-----------------------------------------------------#
     #              Augmentation Configuration             #
     #-----------------------------------------------------#
@@ -101,15 +101,51 @@ class Batchgenerators_Augmentation():
     #-----------------------------------------------------#
     #                    Initialization                   #
     #-----------------------------------------------------#
-    """ Initialization function for the Batchgenerators Augmentation interface.
+    def __init__(self, image_shape, mirror=False, rotate=True, scale=True,
+                 elastic_transform=False, gaussian_noise=True,
+                 brightness=True, contrast=True, gamma=True):
+        """ Initialization function for the Batchgenerators Augmentation interface.
 
         With boolean switches, it is possible to selected desired augmentation techniques.
         Recommended augmentation configurations are defined as class variables.
         Of course, these configs can be adjusted if needed.
-    """
-    def __init__(self, image_shape, mirror=False, rotate=True, scale=True,
-                 elastic_transform=False, gaussian_noise=True,
-                 brightness=True, contrast=True, gamma=True):
+
+        Args:
+            image_shape (tuple of int):     Target shape of image, which will be passed to the neural network model.
+            mirror (bool):                  Boolean, whether mirroring should be performed as data augmentation.
+            rotate (bool):                  Boolean, whether rotations should be performed as data augmentation.
+            scale (bool):                   Boolean, whether scaling should be performed as data augmentation.
+            elastic_transform (bool):       Boolean, whether elastic deformation should be performed as data augmentation.
+            gaussian_noise (bool):          Boolean, whether Gaussian noise should be added as data augmentation.
+            brightness (bool):              Boolean, whether brightness changes should be added as data augmentation.
+            contrast (bool):                Boolean, whether contrast changes should be added as data augmentation.
+            gamma (bool):                   Boolean, whether gamma changes should be added as data augmentation.
+
+        !!! warning
+            If class variables (attributes) are modified, the internal augmentation operator
+            has to be rebuild via the following call:
+
+            ```python
+            # initialize
+            aug = Batchgenerators_Augmentation(model.meta_input, mirror=True)
+
+            # set probability to 100% = always
+            aug.aug_mirror_p = 1.0
+            # rebuild
+            aug.build()
+            ```
+
+        Attributes:
+            refine (bool):                  Boolean, whether clipping to [0,255] should be performed if outside of range.
+            aug_mirror_p (float):           Probability of mirroring application if activated. Default=0.5.
+            aug_rotate_p (float):           Probability of rotation application if activated. Default=0.5.
+            aug_scale_p (float):            Probability of scaling application if activated. Default=0.5.
+            aug_elasticTransform_p (float): Probability of elastic deformation application if activated. Default=0.5.
+            aug_gaussianNoise_p (float):    Probability of Gaussian noise application if activated. Default=0.5.
+            aug_brightness_p (float):       Probability of brightness application if activated. Default=0.5.
+            aug_contrast_p (float):         Probability of contrast application if activated. Default=0.5.
+            aug_gamma_p (float):            Probability of gamma application if activated. Default=0.5.
+        """
         # Cache class variables
         self.image_shape = image_shape
         self.aug_mirror = mirror
@@ -126,13 +162,14 @@ class Batchgenerators_Augmentation():
     #-----------------------------------------------------#
     #               Batchgenerators Builder               #
     #-----------------------------------------------------#
-    """ Builds the batchgenerators augmentator by initializing  all transformations.
+    def build(self):
+        """ Builds the batchgenerators augmentator by initializing  all transformations.
+
         The activated transformation and their configurations are defined as
         class variables.
 
         -> Builds a new self.operator
-    """
-    def build(self):
+        """
         # Initialize transform list
         transforms = []
         # Fill transform list
@@ -193,15 +230,16 @@ class Batchgenerators_Augmentation():
     #-----------------------------------------------------#
     #                 Perform Augmentation                #
     #-----------------------------------------------------#
-    """ Performs image augmentation with defined configuration on an image.
-        This function is called in the Data Generator during batch generation.
-
-        Arguments:
-            - image (NumPy array):      An image encoded as NumPy array with shape (z, y, x, channels).
-        Returns:
-            - aug_image (NumPy array):  An augmented / transformed image.
-    """
     def apply(self, image):
+        """ Performs image augmentation with defined configuration on an image.
+
+        This **internal** function is called in the DataGenerator during batch generation.
+
+        Args:
+            image (numpy.ndarray):          An image encoded as NumPy array with shape (z, y, x, channels).
+        Returns:
+            aug_image (numpy.ndarray):      An augmented / transformed image.
+        """
         # Convert image to batchgenerators format (float32, channel first and with batch axis)
         image_bg = image.astype(np.float32)
         image_bg = np.expand_dims(image_bg, axis=0)

@@ -29,21 +29,21 @@ import random
 #-----------------------------------------------------#
 #              AUCMEDI Image Augmentation             #
 #-----------------------------------------------------#
-""" The Image Augmentation class performs diverse augmentation methods on given
-    numpy array. The class acts as an easy to use function/interface for applying
-    all types of augmentations with just one function call.
+class Image_Augmentation():
+    """ The Image Augmentation class performs diverse augmentation methods on given
+        numpy array. The class acts as an easy to use function/interface for applying
+        all types of augmentations with just one function call.
 
     The class can be configured beforehand by selecting desired augmentation techniques
     and method ranges or strength.
-    Afterwards, the class is passed to the Data Generator which utilizes it during
-    batch generation.
+    Afterwards, the class is passed to the [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
+    which utilizes it during batch generation.
 
     The specific configurations of selected methods can be adjusted by class variables.
 
-    Build on top of the library: Albumentations
-    https://github.com/albumentations-team/albumentations
-"""
-class Image_Augmentation():
+    ???+ abstract "Build on top of the library"
+        Albumentations - https://github.com/albumentations-team/albumentations
+    """
     #-----------------------------------------------------#
     #              Augmentation Configuration             #
     #-----------------------------------------------------#
@@ -109,17 +109,66 @@ class Image_Augmentation():
     #-----------------------------------------------------#
     #                    Initialization                   #
     #-----------------------------------------------------#
-    """ Initialization function for the Image Augmentation interface.
-
-        With boolean switches, it is possible to selected desired augmentation techniques.
-        Recommended augmentation configurations are defined as class variables.
-        Of course, these configs can be adjusted if needed.
-    """
     def __init__(self, flip=True, rotate=True, brightness=True, contrast=True,
                  saturation=True, hue=True, scale=True, crop=False,
                  grid_distortion=False, compression=False, gaussian_noise=False,
                  gaussian_blur=False, downscaling=False, gamma=False,
                  elastic_transform=False):
+        """ Initialization function for the Image Augmentation interface.
+
+        With boolean switches, it is possible to selected desired augmentation techniques.
+        Recommended augmentation configurations are defined as class variables.
+        Of course, these configs can be adjusted if needed.
+
+        Args:
+            flip (bool):                    Boolean, whether flipping should be performed as data augmentation.
+            rotate (bool):                  Boolean, whether rotations should be performed as data augmentation.
+            brightness (bool):              Boolean, whether brightness changes should be added as data augmentation.
+            contrast (bool):                Boolean, whether contrast changes should be added as data augmentation.
+            saturation (bool):              Boolean, whether saturation changes should be added as data augmentation.
+            hue (bool):                     Boolean, whether hue changes should be added as data augmentation.
+            scale (bool):                   Boolean, whether scaling should be performed as data augmentation.
+            crop (bool):                    Boolean, whether scaling cropping be performed as data augmentation.
+            grid_distortion (bool):         Boolean, whether grid_distortion should be performed as data augmentation.
+            compression (bool):             Boolean, whether compression should be performed as data augmentation.
+            gaussian_noise (bool):          Boolean, whether gaussian noise should be added as data augmentation.
+            gaussian_blur (bool):           Boolean, whether gaussian blur should be added as data augmentation.
+            downscaling (bool):             Boolean, whether downscaling should be added as data augmentation.
+            gamma (bool):                   Boolean, whether gamma changes should be added as data augmentation.
+            elastic_transform (bool):       Boolean, whether elastic deformation should be performed as data augmentation.
+
+        !!! warning
+            If class variables (attributes) are modified, the internal augmentation operator
+            has to be rebuild via the following call:
+
+            ```python
+            # initialize
+            aug = Image_Augmentation(flip=True)
+
+            # set probability to 100% = always
+            aug.aug_flip_p = 1.0
+            # rebuild
+            aug.build()
+            ```
+
+        Attributes:
+            refine (bool):                  Boolean, whether clipping to [0,255] and padding/cropping should be performed if outside of range.
+            aug_flip_p (float):             Probability of flipping application if activated. Default=0.5.
+            aug_rotate_p (float):           Probability of rotation application if activated. Default=0.5.
+            aug_brightness_p (float):       Probability of brightness application if activated. Default=0.5.
+            aug_contrast_p (float):         Probability of contrast application if activated. Default=0.5.
+            aug_saturation_p (float):       Probability of saturation application if activated. Default=0.5.
+            aug_hue_p (float):              Probability of hue application if activated. Default=0.5.
+            aug_scale_p (float):            Probability of scaling application if activated. Default=0.5.
+            aug_crop_p (float):             Probability of crop application if activated. Default=0.5.
+            aug_grid_distortion_p (float):  Probability of grid_distortion application if activated. Default=0.5.
+            aug_compression_p (float):      Probability of compression application if activated. Default=0.5.
+            aug_gaussianNoise_p (float):    Probability of gaussian noise application if activated. Default=0.5.
+            aug_gaussianBlur_p (float):     Probability of gaussian blur application if activated. Default=0.5.
+            aug_downscaling_p (float):      Probability of downscaling application if activated. Default=0.5.
+            aug_gamma_p (float):            Probability of gamma application if activated. Default=0.5.
+            aug_elasticTransform_p (float): Probability of elastic deformation application if activated. Default=0.5.
+        """
         # Cache class variables
         self.aug_flip = flip
         self.aug_rotate = rotate
@@ -142,13 +191,14 @@ class Image_Augmentation():
     #-----------------------------------------------------#
     #                Albumentations Builder               #
     #-----------------------------------------------------#
-    """ Builds the albumenations augmentator by initializing  all transformations.
+    def build(self):
+        """ Builds the albumenations augmentator by initializing  all transformations.
+
         The activated transformation and their configurations are defined as
         class variables.
 
         -> Builds a new self.operator
-    """
-    def build(self):
+        """
         # Initialize transform list
         transforms = []
         # Fill transform list
@@ -220,15 +270,16 @@ class Image_Augmentation():
     #-----------------------------------------------------#
     #                 Perform Augmentation                #
     #-----------------------------------------------------#
-    """ Performs image augmentation with defined configuration on an image.
-        This function is called in the Data Generator during batch generation.
-
-        Arguments:
-            - image (NumPy array):      An image encoded as NumPy array with shape (x, y, channels).
-        Returns:
-            - aug_image (NumPy array):  An augmented / transformed image.
-    """
     def apply(self, image):
+        """ Performs image augmentation with defined configuration on an image.
+
+        This **internal** function is called in the DataGenerator during batch generation.
+
+        Args:
+            image (numpy.ndarray):          An image encoded as NumPy array with shape (x, y, channels).
+        Returns:
+            aug_image (numpy.ndarray):      An augmented / transformed image.
+        """
         # Verify that image is in grayscale/RGB encoding
         if np.min(image) < 0 or np.max(image) > 255:
             warnings.warn("Image Augmentation: A value of the image is lower than 0 or higher than 255.",

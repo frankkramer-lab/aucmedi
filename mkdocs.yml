@@ -38,6 +38,7 @@ theme:
   palette:
     primary: indigo
   icon:
+    logo: material/heart-pulse
     repo: fontawesome/brands/github
 
 repo_url: https://github.com/frankkramer-lab/MIScnn

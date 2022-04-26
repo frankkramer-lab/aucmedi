@@ -80,12 +80,13 @@ nav:
 #-----------------------------------------------------#
 markdown_extensions:
 - admonition
+- def_list
+- tables
 - pymdownx.progressbar
 - pymdownx.tasklist
 - pymdownx.superfences
 - pymdownx.details
 - pymdownx.arithmatex
-- tables
 - toc:
     permalink: "¤"
 

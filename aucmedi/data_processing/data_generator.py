@@ -34,62 +34,116 @@ from aucmedi.data_processing.subfunctions import Standardize, Resize
 #-----------------------------------------------------#
 #                 Keras Data Generator                #
 #-----------------------------------------------------#
-""" Infinite Data Generator which automatically creates batches from a list of samples.
-    The created batches are model ready. This generator can be supplied directly
-    to the keras model fit() function.
+class DataGenerator(Iterator):
+    """ Infinite Data Generator which automatically creates batches from a list of samples.
 
-    The Data Generator can be used for training, validation as well as for prediction.
-    It supports real-time batch generation as well as beforehand preparation of batches,
-    which are then temporarly stored on disk.
+    The created batches are model ready. This generator can be supplied directly
+    to a [Neural_Network][aucmedi.neural_network.model.Neural_Network] train() & predict()
+    function (also compatible to tensorflow.keras.model fit() & predict() function).
+
+    The DataGenerator is the second of the three pillars of AUCMEDI.
+
+    ??? info "Pillars of AUCMEDI"
+        - [aucmedi.data_processing.io_data.input_interface][]
+        - [aucmedi.data_processing.data_generator.DataGenerator][]
+        - [aucmedi.neural_network.model.Neural_Network][]
+
+    The DataGenerator can be used for training, validation as well as for prediction.
+
+    ???+ example
+        ```python
+        # Import
+        from aucmedi import *
+
+        # Initialize model
+        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+
+        # Do some training
+        datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
+                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
+        model.train(datagen_train, epochs=50)
+
+        # Do some predictions
+        datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
+                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        preds = model.predict(datagen_test)
+        ```
+
+    It supports real-time batch generation as well as beforehand preprocessing of images,
+    which are then temporarly stored on disk (requires enough disk space!).
 
     The resulting batches are created based the following pipeline:
-    - Image Loading
-    - Optional application of Subfunctions
-    - Optional application of Data Augmentation
-    - Standardize image
-    - Stacking processed images to a batch
 
-    Build on top of Keras Iterator:
-    https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
-"""
-class DataGenerator(Iterator):
+    1. Image Loading
+    2. Application of Subfunctions
+    3. Resize image
+    4. Application of Data Augmentation
+    5. Standardize image
+    6. Stacking processed images to a batch
+
+    ???+ abstract "Build on top of the library"
+        Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
+    """
     #-----------------------------------------------------#
     #                    Initialization                   #
     #-----------------------------------------------------#
-    """Initialization function of the Data Generator which acts as a configuraiton hub.
-
-        If using for prediction, the 'labels' parameter have to be None.
-        Data augmentation is applied even for prediction if a DataAugmentation object is provided!
-        Applying 'None' to resize will result into no image resizing. Default (224, 224)
-
-        Arguments:
-            samples (List of Strings):      List of sample/index encoded as Strings.
-            path_imagedir (String):         Path to the directory containing the images.
-            labels (NumPy Array):           Classification list with One-Hot Encoding.
-            image_format (String):          Image format to add at the end of the sample index for image loading.
-            batch_size (Integer):           Number of samples inside a single batch.
-            resize (Tuple of Integers):     Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
-            subfunctions (List of Subfunctions):
-                                            List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
-            data_aug (Augmentation Interface): Data Augmentation class instance which performs diverse augmentation techniques.
-                                            If `None` is provided, no augmentation will be performed.
-            shuffle (Boolean):              Boolean, whether dataset should be shuffled.
-            grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-            standardize_mode (String):      Standardization modus in which image intensity values are scaled.
-            sample_weights (List of Floats):List of weights for samples.
-            workers (Integer):              Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
-            prepare_images (Boolean):       Boolean, whether all images should be prepared and backup to disk before training.
-                                            Recommended for large images or volumes to reduce CPU computing time.
-            loader (Function):              Function for loading samples/images from disk.
-            seed (Integer):                 Seed to ensure reproducibility for random function.
-            kwargs (Dictionary):            Additional parameters for the sample loader.
-    """
     def __init__(self, samples, path_imagedir, labels=None, image_format=None,
                  batch_size=32, resize=(224, 224), subfunctions=[],
                  data_aug=None, shuffle=False, grayscale=False,
                  standardize_mode="z-score", sample_weights=None, workers=1,
                  prepare_images=False,  loader=image_loader, seed=None,
                  **kwargs):
+        """ Initialization function of the DataGenerator which acts as a configuraiton hub.
+
+        If using for prediction, the 'labels' parameter have to be `None`.
+
+        For more information on Subfunctions, read here: [aucmedi.data_processing.subfunctions][].
+
+        Data augmentation is applied even for prediction if a DataAugmentation object is provided!
+
+        ???+ warning
+            Augmentation should only be applied to a **training** DataGenerator!
+
+            For test-time augmentation, [aucmedi.ensembler.augmenting][] should be used.
+
+        Applying `None` to `resize` will result into no image resizing. Default (224, 224)
+
+        ???+ info "IO_loader Functions"
+            | Interface                                                        | Description                                  |
+            | ---------------------------------------------------------------- | -------------------------------------------- |
+            | [image_loader()][aucmedi.data_processing.io_loader.image_loader] | Cache Loader for passing already loaded images. |
+            | [sitk_loader()][aucmedi.data_processing.io_loader.sitk_loader]   | Image Loader for image loading via Pillow.    |
+            | [numpy_loader()][aucmedi.data_processing.io_loader.numpy_loader] | NumPy Loader for image loading of .npy files.    |
+            | [cache_loader()][aucmedi.data_processing.io_loader.cache_loader] | SimpleITK Loader for loading NIfTI (nii) or Metafile (mha) formats. |
+
+            More information on IO_loader functions can be found here: [aucmedi.data_processing.io_loader][].
+
+        Args:
+            samples (list of str):              List of sample/index encoded as Strings. Provided by
+                                                [input_interface][aucmedi.data_processing.io_data.input_interface].
+            path_imagedir (str):                Path to the directory containing the images.
+            labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
+                                                [input_interface][aucmedi.data_processing.io_data.input_interface].
+            image_format (str):                 Image format to add at the end of the sample index for image loading.
+                                                Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+            batch_size (int):                   Number of samples inside a single batch.
+            resize (tuple of int):              Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
+            subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
+            data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation techniques.
+                                                If `None` is provided, no augmentation will be performed.
+            shuffle (bool):                     Boolean, whether dataset should be shuffled.
+            grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+            standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+                                                Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
+            sample_weights (list of float):     List of weights for samples. Can be computed via
+                                                [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
+            workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
+            prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk before training.
+                                                Recommended for large images or volumes to reduce CPU computing time.
+            loader (io_loader function):        Function for loading samples/images from disk.
+            seed (int):                         Seed to ensure reproducibility for random function.
+            **kwargs (dictionary):              Additional parameters for the sample loader.
+        """
         # Cache class variables
         self.labels = labels
         self.sample_weights = sample_weights
@@ -157,7 +211,7 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #              Batch Generation Function              #
     #-----------------------------------------------------#
-    """Function for batch generation given a list of random selected samples."""
+    """ Internal function for batch generation given a list of random selected samples. """
     def _get_batches_of_transformed_samples(self, index_array):
         # Initialize Batch stack
         batch_stack = ([],)
@@ -198,12 +252,14 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #                 Image Preprocessing                 #
     #-----------------------------------------------------#
-    """Preprocessing function for applying subfunctions, augmentation, resizing and standardization
-       on an image given its index.
+    """ Internal preprocessing function for applying subfunctions, augmentation, resizing and standardization
+        on an image given its index.
 
-       Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
-       Deactivating the run_aug & run_standardize option to output image without augmentation and standardization.
-       Activating dump_pickle will store the preprocessed image as pickle on disk instead of returning.
+    Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
+
+    Deactivating the run_aug & run_standardize option to output image without augmentation and standardization.
+
+    Activating dump_pickle will store the preprocessed image as pickle on disk instead of returning.
     """
     def preprocess_image(self, index, prepared_image=False, run_aug=True,
                          run_standardize=True, dump_pickle=False):

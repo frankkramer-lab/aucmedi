@@ -116,7 +116,8 @@ class DataGenerator(Iterator):
             | [numpy_loader()][aucmedi.data_processing.io_loader.numpy_loader] | NumPy Loader for image loading of .npy files.    |
             | [cache_loader()][aucmedi.data_processing.io_loader.cache_loader] | SimpleITK Loader for loading NIfTI (nii) or Metafile (mha) formats. |
 
-            More information on IO_loader functions can be found here: [aucmedi.data_processing.io_loader][].
+            More information on IO_loader functions can be found here: [aucmedi.data_processing.io_loader][]. <br>
+            Parameters defined in `**kwargs` are passed down to IO_loader functions.
 
         Args:
             samples (list of str):              List of sample/index encoded as Strings. Provided by

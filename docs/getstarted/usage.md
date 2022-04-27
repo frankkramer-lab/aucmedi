@@ -2,6 +2,8 @@
 
 # Coming soon.
 
+Some pillars of aucmedi talk.
+
 Simply install AUCMEDI with a single line of code via pip.
 
 **Install AUCMEDI via PyPI**

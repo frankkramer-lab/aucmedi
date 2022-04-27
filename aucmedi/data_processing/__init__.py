@@ -37,16 +37,23 @@ With an initialized Neural Network instance, it is possible to run training and 
     # Import
     from aucmedi import *
 
+    # Initialize input data reader
+    ds = input_interface(interface="csv",
+                         path_imagedir="dataset/images/",
+                         path_data="dataset/annotations.csv",
+                         ohe=False, col_sample="ID", col_class="diagnosis")
+    (samples, class_ohe, nclasses, class_names, image_format) = ds
+
     # Initialize model
-    model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+    model = Neural_Network(n_labels=nclasses, channels=3, architecture="2D.ResNet50")
 
     # Do some training
-    datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
+    datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100], image_format=image_format,
                                   resize=model.meta_input, standardize_mode=model.meta_standardize)
     model.train(datagen_train, epochs=50)
 
     # Do some predictions
-    datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
+    datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None, image_format=image_format,
                                  resize=model.meta_input, standardize_mode=model.meta_standardize)
     preds = model.predict(datagen_test)
     ```

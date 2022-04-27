@@ -25,12 +25,6 @@ from abc import ABC, abstractmethod
 #-----------------------------------------------------#
 #         Abstract Base Class for Subfunctions        #
 #-----------------------------------------------------#
-""" An abstract base class for a preprocessing Subfunction class.
-
-Methods:
-    __init__                Object creation function.
-    transform:              Transform the imaging data.
-"""
 class Subfunction_Base(ABC):
     """ An abstract base class for a Subfunction class.
 

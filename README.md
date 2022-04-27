@@ -44,7 +44,7 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 **Planed milestones and features are:**
 - [ ] Unittesting -> CI/CD
 - [ ] Interface for metadata / pandas table inclusion in model architectures
-- [ ] Integrate evaluation functions 
+- [ ] Integrate evaluation functions
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML
@@ -61,6 +61,11 @@ Simply install AUCMEDI with a single line of code via pip.
 pip install aucmedi
 ```
 
+Now, you can build a state-of-the-art and complex medical image classification pipeline with just the 3 AUCMEDI pillars.
+- Pillar #1: `input_interface()` for obtaining general dataset information
+- Pillar #2: `Neural_Network()` for the deep learning model
+- Pillar #3: `DataGenerator()` for a powerful interface to load any images/volumes into your model
+
 Let's build a COVID-19 Detection AI on CT scans!
 
 **Build a pipeline**
@@ -68,14 +73,14 @@ Let's build a COVID-19 Detection AI on CT scans!
 # AUCMEDI library
 from aucmedi import *
 
-# Initialize input data reader
+# Pillar #1: Initialize input data reader
 ds = input_interface(interface="csv",
                      path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                      path_data="/home/muellerdo/COVdataset/classes.csv",
                      ohe=False, col_sample="ID", col_class="PCRpositive")
 (index_list, class_ohe, nclasses, class_names, image_format) = ds
 
-# Initialize a DenseNet121 model with ImageNet weights
+# Pillar #2: Initialize a DenseNet121 model with ImageNet weights
 model = Neural_Network(n_labels=nclasses, channels=3,
                        architecture="2D.DenseNet121",
                        pretrained_weights=True)
@@ -84,7 +89,7 @@ Congratulations to your ready-to-use Medical Image Classification pipeline inclu
 
 **Train a model and use it!**
 ```python
-# Initialize training Data Generator for first 1000 samples
+# Pillar #3: Initialize training Data Generator for first 1000 samples
 train_gen = DataGenerator(samples=index_list[:1000],
                           path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                           labels=class_ohe[:1000],
@@ -92,7 +97,7 @@ train_gen = DataGenerator(samples=index_list[:1000],
 # Run model training with Transfer Learning
 model.train(train_gen, epochs=20, transfer_learning=True)
 
-# Initialize testing Data Generator for 500 samples
+# Pillar #3: Initialize testing Data Generator for 500 samples
 test_gen = DataGenerator(samples=index_list[1000:1500],
                          path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                          labels=None,

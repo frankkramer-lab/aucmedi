@@ -16,4 +16,32 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+#-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" State-of-the-art and high-performance medical image classification pipelines
+    are heavily utilizing Ensemble Learning strategies.
+
+The idea of Ensemble Learning is to assemble diverse models or multiple predictions and, thus,
+boost prediction performance.
+
+AUCMEDI currently supports the following Ensemble Learning techniques:
+
+| Technique                                  | Description                                                                                          |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| [Augmenting][aucmedi.ensembler.augmenting] | Inference Augmenting (test-time augmentation) function for augmenting unknown images for prediction. |
+| Bagging                                    | Coming soon. |
+| Stacking                                   | Coming soon. |
+
+???+ info
+    More information on performance impact of Ensemble Learning in medical image classification can be found here: <br>
+
+    Dominik Müller, Iñaki Soto-Rey, Frank Kramer. (2022)
+    An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
+    arXiv e-print: https://arxiv.org/abs/2201.11440
+
+"""
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
 from aucmedi.ensembler.augmenting import predict_augmenting

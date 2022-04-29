@@ -122,12 +122,12 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 #-----------------------------------------------------#
 #          Subroutine: Output Postprocessing          #
 #-----------------------------------------------------#
+""" Helper/Subroutine function for XAI Decoder.
+
+Caches heatmap for direct output or generates a visualization as PNG.
+"""
 def postprocess_output(sample, image, xai_map, n_classes, data_gen,
                        res_img, res_xai, out_path, alpha):
-    """ Helper/Subroutine function for XAI Decoder.
-
-    Caches heatmap for direct output or generates a visualization as PNG.
-    """
     # Update result lists for direct output
     if out_path is None:
         res_img.append(image)

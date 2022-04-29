@@ -65,7 +65,8 @@ nav:
     - Current Status: getstarted/status.md
     - Installation: getstarted/setup.md
     - Modules:      getstarted/modules.md
-    - Basic Usage:  getstarted/usage.md
+    - Quick Start - Framework:  getstarted/usage_api.md
+    - Quick Start - AutoML:  getstarted/usage_automl.md
     - Contributing: getstarted/contribution.md
     - FAQ: getstarted/faq.md
 - Examples:

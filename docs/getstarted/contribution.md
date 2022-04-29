@@ -50,3 +50,9 @@ Here, we want to cite the guideline of [Marc Diethelm](https://gist.github.com/M
 13) Wait for reviewers to have a look on your contributions.  
 14) Communicate with the reviewers and revise your contribution if necessary.  
 15) Once the pull request is approved and merged you can pull the changes from upstream to your local repo and delete your extra branch(es).  
+
+## Implementation Notes for AUCMEDI
+
+- Unittesting is key
+- Standard docstrings for documentation. Internal docstrings are placed on top of the function / class.
+- 80 character maximum line length for code and 500 character for docstrings.

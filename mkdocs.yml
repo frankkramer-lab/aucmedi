@@ -68,7 +68,7 @@ nav:
     - Quick Start - Framework:  getstarted/usage_api.md
     - Quick Start - AutoML:  getstarted/usage_automl.md
     - Contributing: getstarted/contribution.md
-    - FAQ: getstarted/faq.md
+    - How to cite: getstarted/cite.md
 - Examples:
   - Framework: examples/framework.md
   - AutoML: examples/automl.md
@@ -88,6 +88,7 @@ markdown_extensions:
 - pymdownx.superfences
 - pymdownx.details
 - pymdownx.arithmatex
+- pymdownx.snippets
 - toc:
     permalink: "¤"
 

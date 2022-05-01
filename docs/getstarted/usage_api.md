@@ -14,7 +14,7 @@ The passed parameters allow configuration of the automatically created image cla
 The pillar interface of AUCMEDI combines intuitive and straightforward setup with the possibility
 of detailed custom specification.
 
-![alt text](../images/aucmedi.pillars.png)
+![Figure: AUCMEDI Pillars](../images/aucmedi.pillars.png)
 *Flowchart diagram of the AUCMEDI pipeline showing the three pillars acting as access points: input_interface() for extracting relevant dataset information, Neural_Network for building the deep learning model and DataGenerator for data loading as well as preprocessing.*
 
 ## Basic Usage

@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
    name='aucmedi',
-   version='0.4.0',
+   version='0.4.1',
    description='AUCMEDI - Framework for Automated Classification of Medical Images',
    url='https://github.com/frankkramer-lab/aucmedi',
    author='Dominik Müller',

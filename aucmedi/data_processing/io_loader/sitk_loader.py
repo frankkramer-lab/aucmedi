@@ -78,27 +78,31 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
     path_img = os.path.join(path_imagedir, img_file)
     # Load image via the SimpleITK package
     sample_itk = sitk.ReadImage(path_img)
-    # Extract information from sample
-    shape = sample_itk.GetSize()
-    spacing = sample_itk.GetSpacing()
-    # Reverse resampling spacing to sITK mapping (z,y,x -> x,y,z)
-    new_spacing = resampling[::-1]
-    # Estimate output shape after resampling
-    output_shape = []
-    for t in zip(shape, spacing, new_spacing):
-        s = int(t[0] * t[1] / t[2])
-        output_shape.append(s)
-    output_shape = tuple(output_shape)
-    # Perform resampling via sITK
-    sample_itk_resampled = sitk.Resample(sample_itk,
-                                         output_shape,
-                                         sitk.Transform(),
-                                         sitk.sitkLinear,
-                                         sample_itk.GetOrigin(),
-                                         new_spacing,
-                                         sample_itk.GetDirection(),
-                                         outside_value,
-                                         sitk.sitkFloat32)
+    # Perform resampling
+    if resampling is not None:
+        # Extract information from sample
+        shape = sample_itk.GetSize()
+        spacing = sample_itk.GetSpacing()
+        # Reverse resampling spacing to sITK mapping (z,y,x -> x,y,z)
+        new_spacing = resampling[::-1]
+        # Estimate output shape after resampling
+        output_shape = []
+        for t in zip(shape, spacing, new_spacing):
+            s = int(t[0] * t[1] / t[2])
+            output_shape.append(s)
+        output_shape = tuple(output_shape)
+        # Perform resampling via sITK
+        sample_itk_resampled = sitk.Resample(sample_itk,
+                                             output_shape,
+                                             sitk.Transform(),
+                                             sitk.sitkLinear,
+                                             sample_itk.GetOrigin(),
+                                             new_spacing,
+                                             sample_itk.GetDirection(),
+                                             outside_value,
+                                             sitk.sitkFloat32)
+    # Skip resampling if None
+    else : sample_itk_resampled = sample_itk
     # Convert to NumPy
     img = sitk.GetArrayFromImage(sample_itk_resampled)
     # Add single channel axis

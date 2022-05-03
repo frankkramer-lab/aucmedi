@@ -267,6 +267,11 @@ class IOloaderTEST(unittest.TestCase):
             img = sitk_loader(index, tmp_data.name, image_format=None,
                               resampling=(2.0,0.5,0.5))
             self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
+        # Load images with Resampling None
+        for index in sample_list:
+            img = sitk_loader(index, tmp_data.name, image_format=None,
+                              resampling=None)
+            self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
         # Load images via DataGenerator
         data_gen = DataGenerator(sample_list, tmp_data.name,
                                  loader=sitk_loader, resampling=(1.75,0.75,0.75),

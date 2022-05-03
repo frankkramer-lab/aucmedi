@@ -27,6 +27,7 @@ from PIL import Image
 import numpy as np
 #Internal libraries
 from aucmedi import Neural_Network
+from aucmedi.data_processing.io_loader import numpy_loader
 from aucmedi.ensembler import *
 
 #-----------------------------------------------------#
@@ -40,38 +41,68 @@ class EnsemblerTEST(unittest.TestCase):
         # Initialize temporary directory
         self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                     suffix=".data")
-        # Create data
-        self.sampleList = []
+        # Create 2D data
+        self.sampleList2D = []
         for i in range(0, 3):
             img = np.random.rand(16, 16, 3) * 255
             img_pillow = Image.fromarray(img.astype(np.uint8))
             index = "image.sample_" + str(i) + ".png"
             path_sample = os.path.join(self.tmp_data.name, index)
             img_pillow.save(path_sample)
-            self.sampleList.append(index)
+            self.sampleList2D.append(index)
+        # Create 3D data
+        self.sampleList3D = []
+        for i in range(0, 3):
+            img_gray = np.random.rand(16, 16, 16) * 255
+            index = "image.sample_" + str(i) + ".GRAY.npy"
+            path_sampleGRAY = os.path.join(self.tmp_data.name, index)
+            np.save(path_sampleGRAY, img_gray)
+            self.sampleList3D.append(index)
         # Initialize model
-        self.model = Neural_Network(n_labels=4, channels=3,
-                                    architecture="2D.Vanilla",
-                                    batch_queue_size=1,
-                                    input_shape=(16, 16))
+        self.model2D = Neural_Network(n_labels=4, channels=3,
+                                      architecture="2D.Vanilla",
+                                      batch_queue_size=1,
+                                      input_shape=(16, 16))
+        self.model3D = Neural_Network(n_labels=4, channels=1,
+                                      architecture="3D.Vanilla",
+                                      batch_queue_size=1,
+                                      input_shape=(16, 16, 16))
 
     #-------------------------------------------------#
     #               Inference Augmenting              #
     #-------------------------------------------------#
-    def test_Augmenting_core(self):
-        preds = predict_augmenting(model=self.model, samples=self.sampleList,
+    def test_Augmenting_2D(self):
+        preds = predict_augmenting(model=self.model2D, samples=self.sampleList2D,
                                    path_imagedir=self.tmp_data.name,
-                                   n_cycles=1, batch_size=32,
+                                   n_cycles=1, batch_size=10,
                                    data_aug=None, image_format=None,
-                                   resize=(224, 224), grayscale=False,
+                                   resize=None, grayscale=False,
                                    subfunctions=[], standardize_mode="tf",
                                    seed=None, workers=1)
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
-        preds = predict_augmenting(model=self.model, samples=self.sampleList,
+        preds = predict_augmenting(model=self.model2D, samples=self.sampleList2D,
                                    path_imagedir=self.tmp_data.name,
-                                   n_cycles=5, batch_size=32,
+                                   n_cycles=5, batch_size=10,
                                    data_aug=None, image_format=None,
-                                   resize=(224, 224), grayscale=False,
+                                   resize=None, grayscale=False,
                                    subfunctions=[], standardize_mode="tf",
                                    seed=None, workers=1)
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+
+    def test_Augmenting_3D(self):
+        preds = predict_augmenting(model=self.model3D, samples=self.sampleList3D,
+                                   path_imagedir=self.tmp_data.name,
+                                   n_cycles=1, batch_size=3,
+                                   data_aug=None, image_format=None,
+                                   resize=None, grayscale=True, two_dim=False,
+                                   subfunctions=[], standardize_mode="tf",
+                                   seed=None, workers=1, loader=numpy_loader)
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        preds = predict_augmenting(model=self.model3D, samples=self.sampleList3D,
+                                   path_imagedir=self.tmp_data.name,
+                                   n_cycles=5, batch_size=8,
+                                   data_aug=None, image_format=None,
+                                   resize=None, grayscale=True, two_dim=False,
+                                   subfunctions=[], standardize_mode="tf",
+                                   seed=None, workers=1, loader=numpy_loader)
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))

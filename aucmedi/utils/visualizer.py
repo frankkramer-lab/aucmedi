@@ -17,11 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# Author: François Chollet                            #
-# Date: April 26, 2020                                #
-# https://keras.io/examples/vision/grad_cam/          #
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
@@ -32,15 +27,16 @@ import matplotlib.cm as cm
 #-----------------------------------------------------#
 #                   Image Visualizer                  #
 #-----------------------------------------------------#
-""" Simple wrapper function to visualize a NumPy matrix as image via PIL.
-
-    NumPy array shape has to be (x, y, channel) like this: (224, 224, 3)
-
-    Arguments:
-        array (NumPy matrix):           NumPy matrix containing an image.
-        out_path (String):              Path in which image is stored (else live output).
-"""
 def visualize_array(array, out_path=None):
+    """ Simple wrapper function to visualize a NumPy matrix as image via PIL.
+
+    ???+ info
+        NumPy array shape has to be (x, y, channel) like this: (224, 224, 3)
+
+    Args:
+        array (numpy.ndarray):          NumPy matrix containing an image.
+        out_path (str):                 Path in which image is stored (else live output).
+    """
     # Ensure integer intensity values
     array = np.uint8(array)
     # Remove channel axis if grayscale
@@ -54,16 +50,21 @@ def visualize_array(array, out_path=None):
 #-----------------------------------------------------#
 #               XAI Heatmap Visualizer                #
 #-----------------------------------------------------#
-""" Simple wrapper function to visualize a heatmap encoded as NumPy matrix with a
-    [0-1] range as image via matplotlib and PILLOW.
-
-    Arguments:
-        image (NumPy matrix):           NumPy matrix containing an image.
-        heatmap (NumPy matrix):         NumPy matrix containing a XAI heatmap.
-        out_path (String):              Path in which image is stored (else live output).
-        alpha (float):                  Transparency value for heatmap overlap on image (range: [0-1]).
-"""
 def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
+    """ Simple wrapper function to visualize a heatmap encoded as NumPy matrix with a
+        [0-1] range as image via matplotlib and PILLOW.
+
+    ??? abstract "Reference - Implementation"
+        Author: François Chollet <br>
+        Date: April 26, 2020 <br>
+        https://keras.io/examples/vision/grad_cam/ <br>
+
+    Args:
+        image (numpy.ndarray):          NumPy matrix containing an image.
+        heatmap (numpy.ndarray):        NumPy matrix containing a XAI heatmap.
+        out_path (str):                 Path in which image is stored (else live output).
+        alpha (float):                  Transparency value for heatmap overlap on image (range: [0-1]).
+    """
     # If image is grayscale, convert to RGB
     if image.shape[-1] == 1 : image = np.concatenate((image,)*3, axis=-1)
     # Rescale heatmap to grayscale range

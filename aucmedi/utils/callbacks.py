@@ -24,14 +24,15 @@ from tensorflow.keras.callbacks import EarlyStopping
 #-----------------------------------------------------#
 #                   Custom Callbacks                  #
 #-----------------------------------------------------#
-"""
-Author:   JBSnorro
-Source:   https://stackoverflow.com/questions/53500047/stop-training-in-keras-when-accuracy-is-already-1-0
-
-Changed baseline to act as a real baseline.
-The number of patience epochs are only counted when baseline loss is achieved.
-"""
 class ThresholdEarlyStopping(EarlyStopping):
+    """ Changed baseline to act as a real baseline.
+
+    The number of patience epochs are only counted when baseline loss is achieved.
+
+    ??? abstract "Reference - Implementation"
+        Author:   JBSnorro <br>
+        Source:   https://stackoverflow.com/questions/53500047/stop-training-in-keras-when-accuracy-is-already-1-0  <br>
+    """
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self.baseline_attained = False
@@ -49,15 +50,15 @@ class ThresholdEarlyStopping(EarlyStopping):
                 return
         super(ThresholdEarlyStopping, self).on_epoch_end(epoch, logs)
 
-
-"""
-Author:   McLawrence
-Source:   https://stackoverflow.com/questions/46287403/is-there-a-way-to-implement-early-stopping-in-keras-only-after-the-first-say-1
-
-Changed baseline to act as a real baseline.
-The number of patience epochs are only counted when baseline loss is achieved.
-"""
 class MinEpochEarlyStopping(EarlyStopping):
+    """ Changed baseline to act as a real baseline.
+
+    The number of patience epochs are only counted when baseline loss is achieved.
+
+    ??? abstract "Reference - Implementation"
+        Author:   McLawrence  <br>
+        Source:   https://stackoverflow.com/questions/46287403/is-there-a-way-to-implement-early-stopping-in-keras-only-after-the-first-say-1  <br>
+    """
     def __init__(self, monitor='val_loss', min_delta=0, patience=0, verbose=0,
                  mode='auto', start_epoch = 100): # add argument for starting epoch
         super(MinEpochEarlyStopping, self).__init__()

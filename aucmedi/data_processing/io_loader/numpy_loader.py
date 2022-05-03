@@ -26,18 +26,43 @@ import numpy as np
 #-----------------------------------------------------#
 #             Numpy Loader for AUCMEDI IO             #
 #-----------------------------------------------------#
-""" NumPy Loader for image loading within the AUCMEDI pipeline.
-
-    Arguments:
-        sample (String):                Sample name/index of an image.
-        path_imagedir (String):         Path to the directory containing the images.
-        image_format (String):          Image format to add at the end of the sample index for image loading.
-        grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-        two_dim (Boolean):              Boolean, whether image is 2D or 3D.
-        kwargs (Dictionary):            Additional parameters for the sample loader.
-"""
 def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
                  two_dim=True, **kwargs):
+    """ NumPy Loader for image loading within the AUCMEDI pipeline.
+
+    The NumPy Loader is an IO_loader function, which have to be passed to the
+    [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+    The NumPy load function `np.load(path_img, allow_pickle=True)` is used.
+
+    ???+ example
+        ```python
+        # Import required libraries
+        from aucmedi import *
+        from aucmedi.data_processing.io_loader import numpy_loader
+
+        # Initialize input data reader
+        ds = input_interface(interface="csv",
+                             path_imagedir="dataset/npy_files/",
+                             path_data="dataset/annotations.csv",
+                             ohe=False, col_sample="ID", col_class="diagnosis")
+        (samples, class_ohe, nclasses, class_names, image_format) = ds
+
+        # Initialize DataGenerator with numpy_loader
+        data_gen = DataGenerator(samples, "dataset/npy_files/", labels=class_ohe,
+                                 image_format=image_format, resize=None,
+                                 grayscale=True, two_dim=False,
+                                 loader=numpy_loader)
+        ```
+
+    Args:
+        sample (str):               Sample name/index of an image.
+        path_imagedir (str):        Path to the directory containing the images.
+        image_format (str):         Image format to add at the end of the sample index for image loading.
+        grayscale (bool):           Boolean, whether images are grayscale or RGB.
+        two_dim (bool):             Boolean, whether image is 2D or 3D.
+        **kwargs (dict):            Additional parameters for the sample loader.
+    """
     # Get image path
     if image_format : img_file = sample + "." + image_format
     else : img_file = sample

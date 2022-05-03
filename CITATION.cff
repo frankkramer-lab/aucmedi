@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Müller"
+  given-names: "Dominik"
+  orcid: "https://orcid.org/0000-0003-0838-9885"
+- family-names: "Soto-Rey"
+  given-names: "Iñaki"
+  orcid: "https://orcid.org/0000-0003-3061-5818"
+- family-names: "Kramer"
+  given-names: "Frank"
+  orcid: "https://orcid.org/0000-0002-2857-7122"
+title: "AUCMEDI: a framework for Automated Classification of Medical Images"
+version: 1.0.0
+date-released: 2022-06-01
+url: "https://github.com/frankkramer-lab/aucmedi"

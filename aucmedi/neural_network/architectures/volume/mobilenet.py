@@ -17,21 +17,28 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# https://github.com/ZFTurbo/classification_models_3D #
-#   Solovyev, Roman & Kalinin, Alexandr & Gabruseva,  #
-#                  Tatiana. (2021).                   #
-#    3D Convolutional Neural Networks for Stalled     #
-#              Brain Capillary Detection.             #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     17 Apr 2017.                    #
-#      MobileNets: Efficient Convolutional Neural     #
-#       Networks for Mobile Vision Applications.      #
-#      Andrew G. Howard, Menglong Zhu, Bo Chen,       #
-#   Dmitry Kalenichenko, Weijun Wang, Tobias Weyand,  #
-#           Marco Andreetto, Hartwig Adam.            #
-#           https://arxiv.org/abs/1704.04861          #
+""" The classification variant of the MobileNet architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "3D.MobileNet"             |
+| Input_shape              | (64, 64, 64)               |
+| Standardization          | "tf"                       |
+
+???+ abstract "Reference - Implementation"
+    Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
+    3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
+    https://github.com/ZFTurbo/classification_models_3D <br>
+
+???+ abstract "Reference - Publication"
+    Andrew G. Howard, Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, Tobias Weyand,
+    Marco Andreetto, Hartwig Adam. 17 Apr 2017.
+    MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications.
+    <br>
+    https://arxiv.org/abs/1704.04861
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -61,7 +68,7 @@ class Architecture_MobileNet(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Get pretrained image weights from imagenet if desired
         if pretrained_weights : model_weights = "imagenet"
@@ -80,7 +87,7 @@ class Architecture_MobileNet(Architecture_Base):
             top_model = layers.Dense(units=512)(top_model)
             top_model = layers.Dropout(0.3)(top_model)
         top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(out_activation, name="probs")(top_model)
+        top_model = layers.Activation(activation_output, name="probs")(top_model)
 
         # Create model
         model = Model(inputs=base_model.input, outputs=top_model)

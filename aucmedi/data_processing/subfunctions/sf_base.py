@@ -25,40 +25,63 @@ from abc import ABC, abstractmethod
 #-----------------------------------------------------#
 #         Abstract Base Class for Subfunctions        #
 #-----------------------------------------------------#
-""" An abstract base class for a preprocessing Subfunction class.
-
-Methods:
-    __init__                Object creation function.
-    transform:              Transform the imaging data.
-"""
 class Subfunction_Base(ABC):
+    """ An abstract base class for a Subfunction class.
+
+    A child of this ABC can be used as a [Subfunction][aucmedi.data_processing.subfunctions]
+    and be passed to a [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+    This class provides functionality for running the transform function,
+    which preprocesses an image during the processing (batch preparation) of the DataGenerator.
+
+    ???+ example "Create a custom Subfunction"
+        ```python
+        from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
+        class My_custom_Subfunction(Subfunction_Base):
+            def __init__(self):                 # you can pass here class variables
+                pass
+
+            def transform(self, image):
+                new_image = image + 1.0         # do some operation
+                return new_image                # return modified image
+        ```
+
+    ???+ info "Required Functions"
+        | Function            | Description                                |
+        | ------------------- | ------------------------------------------ |
+        | `__init__()`        | Object creation function.                  |
+        | `transform()`       | Transform the image.                       |
+
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    """ Functions which will be called during the Subfunction object creation.
-        This function can be used to pass variables and options in the Subfunction instance.
-        The are no mandatory required parameters for the initialization.
-
-        Parameter:
-            None
-        Return:
-            None
-    """
     @abstractmethod
     def __init__(self):
+        """ Functions which will be called during the Subfunction object creation.
+
+        ```
+        __init__(model, layerName=None)
+        ```
+
+        This function can be used to pass variables and options in the Subfunction instance.
+        The are no mandatory required parameters for the initialization.
+        """
         pass
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#
-    """ Transform the image according to the subfunction during preprocessing (training + prediction).
-        It is required to return the transformed image object (as NumPy array).
-        It is possible to pass configurations through the initialization function for this class.
-
-        Parameter:
-            image (Numpy Array):        Image encoded as NumPy matrix with 1 or 3 channels.
-        Return:
-            image (Numpy Array):        Transformed image encoded as NumPy matrix with 1 or 3 channels.
-    """
     @abstractmethod
     def transform(self, image):
+        """ Transform the image according to the subfunction during preprocessing (training + prediction).
+
+        It is required to return the transformed image object (as NumPy array).
+
+        Args:
+            image (numpy.ndarray):      Image encoded as NumPy matrix with 1 or 3 channels. (e.g. 224x224x3)
+
+        Returns:
+            image (numpy.ndarray):      Transformed image encoded as NumPy matrix with 1 or 3 channels. (e.g. 224x224x3)
+        """
         return image

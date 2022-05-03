@@ -17,15 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#            https://keras.io/applications/           #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                  REFERENCE PAPER:                   #
-#                    28 May 2019.                     #
-#      EfficientNet: Rethinking Model Scaling for     #
-#            Convolutional Neural Networks.           #
-#              Mingxing Tan, Quoc V. Le.              #
-#          https://arxiv.org/abs/1905.11946           #
+""" The classification variant of the EfficientNetB5 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.EfficientNetB5"        |
+| Input_shape              | (456, 456)                 |
+| Standardization          | "caffe"                    |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/api/applications/efficientnet/ <br>
+
+???+ abstract "Reference - Publication"
+    Mingxing Tan, Quoc V. Le. 28 May 2019.
+    EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.
+    <br>
+    https://arxiv.org/abs/1905.11946
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -39,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #          Architecture class: EfficientNetB5         #
 #-----------------------------------------------------#
-""" The classification variant of the EfficientNet architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the EfficientNet model for classification
-"""
 class Architecture_EfficientNetB5(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
@@ -55,7 +59,7 @@ class Architecture_EfficientNetB5(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Get pretrained image weights from imagenet if desired
         if pretrained_weights : model_weights = "imagenet"
@@ -73,7 +77,7 @@ class Architecture_EfficientNetB5(Architecture_Base):
             top_model = layers.Dense(units=512)(top_model)
             top_model = layers.Dropout(0.3)(top_model)
         top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(out_activation, name="probs")(top_model)
+        top_model = layers.Activation(activation_output, name="probs")(top_model)
 
         # Create model
         model = Model(inputs=base_model.input, outputs=top_model)

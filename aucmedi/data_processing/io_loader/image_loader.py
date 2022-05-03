@@ -27,17 +27,47 @@ from PIL import Image
 #-----------------------------------------------------#
 #             Image Loader for AUCMEDI IO             #
 #-----------------------------------------------------#
-""" Image Loader for image loading within the AUCMEDI pipeline.
-
-    Arguments:
-        sample (String):                Sample name/index of an image.
-        path_imagedir (String):         Path to the directory containing the images.
-        image_format (String):          Image format to add at the end of the sample index for image loading.
-        grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-        kwargs (Dictionary):            Additional parameters for the sample loader.
-"""
 def image_loader(sample, path_imagedir, image_format=None, grayscale=False,
                  **kwargs):
+    """ Image Loader for image loading within the AUCMEDI pipeline.
+
+    The Image Loader is an IO_loader function, which have to be passed to the
+    [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+    ???+ info
+        The Image Loader utilizes Pillow for image loading: <br>
+        https://github.com/python-pillow/Pillow
+
+    ???+ example
+        ```python
+        # Import required libraries
+        from aucmedi import *
+
+        # Initialize input data reader
+        ds = input_interface(interface="csv",
+                             path_imagedir="dataset/images/",
+                             path_data="dataset/annotations.csv",
+                             ohe=False, col_sample="ID", col_class="diagnosis")
+        (samples, class_ohe, nclasses, class_names, image_format) = ds
+
+        # Initialize DataGenerator with by default using image_loader
+        data_gen = DataGenerator(samples, "dataset/images/", labels=class_ohe,
+                                 image_format=image_format, resize=None)
+
+        # Initialize DataGenerator with manually selected image_loader
+        from aucmedi.data_processing.io_loader import image_loader
+        data_gen = DataGenerator(samples, "dataset/images/", labels=class_ohe,
+                                 image_format=image_format, resize=None,
+                                 loader=image_loader)
+        ```
+
+    Args:
+        sample (str):               Sample name/index of an image.
+        path_imagedir (str):        Path to the directory containing the images.
+        image_format (str):         Image format to add at the end of the sample index for image loading.
+        grayscale (bool):           Boolean, whether images are grayscale or RGB.
+        **kwargs (dict):            Additional parameters for the sample loader.
+    """
     # Get image path
     if image_format : img_file = sample + "." + image_format
     else : img_file = sample

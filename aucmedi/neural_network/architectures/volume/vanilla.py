@@ -17,8 +17,21 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#       https://github.com/wanghsinwei/isic-2019      #
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" The classification variant of the Vanilla architecture.
+
+No intensive hardware requirements, which makes it ideal for debugging.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "3D.Vanilla"               |
+| Input_shape              | (128, 128, 128)            |
+| Standardization          | "z-score"                  |
+
+???+ abstract "Reference - Implementation"
+    https://github.com/wanghsinwei/isic-2019/ <br>
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -31,13 +44,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #                 Vanilla Architecture                #
 #-----------------------------------------------------#
-""" A vanilla image classification model.
-    No intensive hardware requirements, which makes it ideal for debugging.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating a Keras model
-"""
 class Architecture_Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                   __init__                  #
@@ -48,7 +54,7 @@ class Architecture_Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Initialize model
         model = Sequential()
@@ -76,7 +82,7 @@ class Architecture_Vanilla(Architecture_Base):
             model.add(Dense(units=512))
             model.add(Dropout(rate=0.3))
         model.add(Dense(n_labels, name="preds"))
-        model.add(Activation(out_activation, name="probs"))
+        model.add(Activation(activation_output, name="probs"))
 
         # Return created model
         return model

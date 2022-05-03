@@ -17,16 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#  https://keras.io/applications/#inceptionresnetv2   #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                  REFERENCE PAPER:                   #
-#                    23 Feb 2016.                     #
-#   Inception-v4, Inception-ResNet and the Impact of  #
-#          Residual Connections on Learning.          #
-#           Christian Szegedy, Sergey Ioffe,          #
-#            Vincent Vanhoucke, Alex Alemi.           #
-#          https://arxiv.org/abs/1602.07261           #
+""" The classification variant of the InceptionResNetV2 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.InceptionResNetV2"     |
+| Input_shape              | (299, 299)                 |
+| Standardization          | "tf"                       |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/api/applications/inceptionresnetv2/ <br>
+
+???+ abstract "Reference - Publication"
+    Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi. 23 Feb 2016.
+    Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning.
+    <br>
+    https://arxiv.org/abs/1602.07261
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -40,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #        Architecture class: InceptionResNetV2        #
 #-----------------------------------------------------#
-""" The classification variant of the InceptionResNetV2 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the InceptionResNetV2 model for classification
-"""
 class Architecture_InceptionResNetV2(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
@@ -56,7 +59,7 @@ class Architecture_InceptionResNetV2(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Get pretrained image weights from imagenet if desired
         if pretrained_weights : model_weights = "imagenet"
@@ -74,7 +77,7 @@ class Architecture_InceptionResNetV2(Architecture_Base):
             top_model = layers.Dense(units=512)(top_model)
             top_model = layers.Dropout(0.3)(top_model)
         top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(out_activation, name="probs")(top_model)
+        top_model = layers.Activation(activation_output, name="probs")(top_model)
 
         # Create model
         model = Model(inputs=base_model.input, outputs=top_model)

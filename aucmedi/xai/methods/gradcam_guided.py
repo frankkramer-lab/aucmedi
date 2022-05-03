@@ -17,28 +17,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-# Author: Swapnil Ahlawat                             #
-# Date: Jul 06, 2020                                  #
-# https://github.com/swapnil-ahlawat/Guided-GradCAM-K #
-# eras                                                #
-#-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     21 Dec 2014.                    #
-# Striving for Simplicity: The All Convolutional Net. #
-#    Jost Tobias Springenberg, Alexey Dosovitskiy,    #
-#           Thomas Brox, Martin Riedmiller.           #
-#           https://arxiv.org/abs/1412.6806           #
-#-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     7 Oct 2016.                     #
-#   Grad-CAM: Visual Explanations from Deep Networks  #
-#           via Gradient-based Localization.          #
-#     Ramprasaath R. Selvaraju, Michael Cogswell,     #
-#   Abhishek Das, Ramakrishna Vedantam, Devi Parikh,  #
-#                     Dhruv Batra.                    #
-#           https://arxiv.org/abs/1610.02391          #
-#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External Libraries
@@ -53,17 +31,37 @@ from aucmedi.data_processing.subfunctions import Resize
 #                   Guided Grad-CAM                   #
 #-----------------------------------------------------#
 class GuidedGradCAM(XAImethod_Base):
-    """ Initialization function for creating a Guided Grad-CAM as XAI Method object.
-    Normally, this class is used internally in the xai_decoder function in the AUCMEDI XAI module.
+    """ XAI Method for Guided Grad-CAM.
+
+    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+
+    ??? abstract "Reference - Implementation"
+        Author: Swapnil Ahlawat <br>
+        Date: Jul 06, 2020 <br>
+        https://github.com/swapnil-ahlawat/Guided-GradCAM-Keras <br>
+
+    ??? abstract "Reference - Publication #1"
+        Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, Martin Riedmiller. 21 Dec 2014.
+        Striving for Simplicity: The All Convolutional Net.
+        <br>
+        https://arxiv.org/abs/1412.6806
+
+    ??? abstract "Reference - Publication #2"
+        Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, Dhruv Batra. 7 Oct 2016.
+        Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.
+        <br>
+        https://arxiv.org/abs/1610.02391
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Guided Grad-CAM heatmap for an image with a model.
-
-    Args:
-        model (Keras Model):               Keras model object.
-        layerName (String):                Layer name of the convolutional layer for heatmap computation.
     """
     def __init__(self, model, layerName=None):
+        """ Initialization function for creating a Guided Grad-CAM as XAI Method object.
+
+        Args:
+            model (keras.model):               Keras model object.
+            layerName (str):                   Layer name of the convolutional layer for heatmap computation.
+        """
         # Initialize XAI methods
         self.bp = GuidedBackpropagation(model, layerName)
         self.gc = GradCAM(model, layerName)
@@ -71,17 +69,25 @@ class GuidedGradCAM(XAImethod_Base):
     #---------------------------------------------#
     #             Heatmap Computation             #
     #---------------------------------------------#
-    """ Core function for computing the Guided Grad-CAM heatmap for a provided image and for specific classification outcome.
-    The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
-
-    Be aware that the image has to be provided in batch format.
-
-    Args:
-        image (NumPy Array):                Image matrix encoded as NumPy Array (provided as one-element batch).
-        class_index (Integer):              Classification index for which the heatmap should be computed.
-        eps (Float):                        Epsilon for rounding.
-    """
     def compute_heatmap(self, image, class_index, eps=1e-8):
+        """ Core function for computing the Guided Grad-CAM heatmap for a provided image and for specific classification outcome.
+
+        ???+ attention
+            Be aware that the image has to be provided in batch format.
+
+        Args:
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            class_index (int):                  Classification index for which the heatmap should be computed.
+            eps (float):                        Epsilon for rounding.
+
+        The returned heatmap is encoded within a range of [0,1]
+
+        ???+ attention
+            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+
+        Returns:
+            heatmap (numpy.ndarray):            Computed Guided Grad-CAM for provided image.
+        """
         # Compute Guided Backpropagation
         hm_bp = self.bp.compute_heatmap(image, class_index, eps)
         # Compute Grad-CAM

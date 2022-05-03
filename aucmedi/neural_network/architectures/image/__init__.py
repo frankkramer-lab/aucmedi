@@ -99,6 +99,39 @@ architecture_dict = {
     "VGG19": Architecture_VGG19,
     "Xception": Architecture_Xception
 }
+""" Dictionary of implemented 2D Architectures Methods in AUCMEDI.
+
+    The base key (str) or an initialized Architecture can be passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class as `architecture` parameter.
+
+    ???+ example "Example"
+        ```python title="Recommended via Neural_Network class"
+        my_model = Neural_Network(n_labels=4, channels=3, architecture="2D.Xception")
+        ```
+
+        ```python title="Manual via architecture_dict import"
+        from aucmedi.neural_network.architectures import architecture_dict
+        my_arch = architecture_dict["2D.Xception"](channels=3, input_shape=(512,512))
+        my_model = Neural_Network(n_labels=4, channels=3, architecture=my_arch)
+        ```
+
+        ```python title="Manual via module import"
+        from aucmedi.neural_network.architectures.image import Architecture_Xception
+        my_arch = Architecture_Xception(channels=3, input_shape=(512,512))
+        my_model = Neural_Network(n_labels=4, channels=3, architecture=my_arch)
+        ```
+
+    ???+ warning
+        If passing an architecture key to the Neural_Network class, be aware that you have to add "2D." infront of it.
+
+        For example:
+        ```python
+        # for the image architecture "ResNeXt101"
+        architecture="2D.ResNeXt101"
+        ```
+
+    Architectures are based on the abstract base class [aucmedi.neural_network.architectures.arch_base.Architecture_Base][].
+"""
+
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
 
@@ -137,3 +170,38 @@ supported_standardize_mode = {
     "VGG19": "caffe",
     "Xception": "tf"
 }
+""" Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 2D Architectures Methods in AUCMEDI.
+
+    The base key (str) can be passed to the [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] as `standardize_mode` parameter.
+
+    ???+ info
+        If training a new model from scratch, any Standardize technique can be used at will. <br>
+        However, if training via transfer learning, it is required to use the recommended Standardize technique!
+
+    ???+ example "Example"
+        ```python title="Recommended via the Neural_Network class"
+        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=my_model.meta_input,                  # (224, 224)
+                              standardize_mode=my_model.meta_standardize)  # "torch"
+        ```
+
+        ```python title="Manual via supported_standardize_mode import"
+        from aucmedi.neural_network.architectures import supported_standardize_mode
+        sf_norm = supported_standardize_mode["2D.DenseNet121"]
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=(224, 224),                           # (224, 224)
+                              standardize_mode=sf_norm)                    # "torch"
+        ```
+
+    ???+ warning
+        If using an architecture key for the supported_standardize_mode dictionary, be aware that you have to add "2D." infront of it.
+
+        For example:
+        ```python
+        # for the image architecture "ResNeXt101"
+        from aucmedi.neural_network.architectures import supported_standardize_mode
+        sf_norm = supported_standardize_mode["2D.ResNeXt101"]
+        ```
+"""

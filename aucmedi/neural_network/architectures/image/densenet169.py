@@ -17,15 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
-#              REFERENCE IMPLEMENTATION:              #
-#       https://keras.io/applications/#densenet       #
+#                    Documentation                    #
 #-----------------------------------------------------#
-#                   REFERENCE PAPER:                  #
-#                     25 Aug 2016.                    #
-#      Densely Connected Convolutional Networks.      #
-#    Gao Huang, Zhuang Liu, Laurens van der Maaten,   #
-#                Kilian Q. Weinberger.                #
-#           https://arxiv.org/abs/1608.06993          #
+""" The classification variant of the DenseNet169 architecture.
+
+| Architecture Variable    | Value                      |
+| ------------------------ | -------------------------- |
+| Key in architecture_dict | "2D.DenseNet169"           |
+| Input_shape              | (224, 224)                 |
+| Standardization          | "torch"                    |
+
+???+ abstract "Reference - Implementation"
+    https://keras.io/applications/#densenet <br>
+
+???+ abstract "Reference - Publication"
+    Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger. 25 Aug 2016.
+    Densely Connected Convolutional Networks.
+    <br>
+    https://arxiv.org/abs/1608.06993
+"""
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -39,12 +49,6 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #           Architecture class: DenseNet169           #
 #-----------------------------------------------------#
-""" The classification variant of the DenseNet169 architecture.
-
-Methods:
-    __init__                Object creation function
-    create_model:           Creating the DenseNet169 model for classification
-"""
 class Architecture_DenseNet169(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
@@ -55,7 +59,7 @@ class Architecture_DenseNet169(Architecture_Base):
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, out_activation="softmax",
+    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Get pretrained image weights from imagenet if desired
         if pretrained_weights : model_weights = "imagenet"
@@ -73,7 +77,7 @@ class Architecture_DenseNet169(Architecture_Base):
             top_model = layers.Dense(units=512)(top_model)
             top_model = layers.Dropout(0.3)(top_model)
         top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(out_activation, name="probs")(top_model)
+        top_model = layers.Activation(activation_output, name="probs")(top_model)
 
         # Create model
         model = Model(inputs=base_model.input, outputs=top_model)

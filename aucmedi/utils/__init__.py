@@ -16,3 +16,12 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+#-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" [aucmedi.utils][] is a collection of small functions and classes which make
+    common tasks shorter and easier.
+
+The core features of utils are the [Class Weight computation][aucmedi.utils.class_weights]
+and [Visualizer][aucmedi.utils.visualizer] functions.
+"""

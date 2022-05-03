@@ -24,51 +24,131 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 # Internal libraries/scripts
-from aucmedi.neural_network.architectures import architecture_dict
+from aucmedi.neural_network.architectures import architecture_dict, supported_standardize_mode
 
 #-----------------------------------------------------#
 #            Neural Network (model) class             #
 #-----------------------------------------------------#
 # Class which represents the Neural Network
 class Neural_Network:
-    """ Initialization function for creating a Neural Network (model) object.
-    This class provides functionality for handling all model methods.
+    """ Neural Network class providing functionality for handling all model methods
+
+    This class is the third of the three pillars of AUCMEDI.
+
+    ??? info "Pillars of AUCMEDI"
+        - [aucmedi.data_processing.io_data.input_interface][]
+        - [aucmedi.data_processing.data_generator.DataGenerator][]
+        - [aucmedi.neural_network.model.Neural_Network][]
 
     With an initialized Neural Network model instance, it is possible to run training and predictions.
 
-    Args:
+    ??? example "Example: How to use"
+        ```python
+        # Initialize model
+        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        # Do some training
+        datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
+                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
+        model.train(datagen_train, epochs=50)
+        # Do some predictions
+        datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
+                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        preds = model.predict(datagen_test)
+        ```
 
-        n_labels (Integer):                     Number of classes/labels (important for the last layer).
-        channels (Integer):                     Number of channels. Grayscale:1 or RGB:3.
-        input_shape (Tuple):                    Input shape of the batch imaging data (including channel axis).
-        architecture (Architecture):            Instance of a neural network model Architecture class instance.
-                                                By default, a 2D Vanilla Model is used as Architecture.
-        pretrained_weights (Boolean):           Option whether to utilize pretrained weights e.g. for ImageNet.
-        loss (Metric Function):                 The metric function which is used as loss for training.
-                                                Any Metric Function defined in Keras, in aucmedi.neural_network.loss_functions or any custom
-                                                metric function, which follows the Keras metric guidelines, can be used.
-        metrics (List of Metric Functions):     List of one or multiple Metric Functions, which will be shown during training.
-                                                Any Metric Function defined in Keras or any custom metric function, which follows the Keras
-                                                metric guidelines, can be used.
-        out_activation (String):                Activation function which should be used in the last classification layer.
-        fcl_dropout (Boolean):                  Option whether to utilize a Dense & Dropout layer in the last classification layer.
-        learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
-        batch_queue_size (integer):             The batch queue size is the number of previously prepared batches in the cache during runtime.
-        workers (integer):                      Number of workers/threads which preprocess batches during runtime.
-        multiprocessing (boolean):              Option whether to utilize multi-processing for workers instead of threading .
-        verbose (integer):                      Option (0/1) how much information should be written to stdout.
+    ??? example "Example: How to select an Architecture"
+        ```python
+        # 2D architecture
+        my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        # 3D architecture
+        my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50")
+        # 2D architecture with custom input_shape
+        my_model_c = Neural_Network(n_labels=8, channels=3,
+                                    architecture="2D.Xception", input_shape=(512,512))
+        ```
+
+    ??? note "List of implemented Architectures"
+        AUCMEDI provides a large library of state-of-the-art and ready-to-use architectures.
+
+        - 2D Architectures: [aucmedi.neural_network.architectures.image][]
+        - 3D Architectures: [aucmedi.neural_network.architectures.volume][]
+
+    ??? example "Example: How to obtain required parameters for the DataGenerator?"
+        Be aware that the input_size and standardize_mode are just recommendations and
+        can be changed by desire. <br>
+        However, the recommended parameter are required for transfer learning.
+
+        ```python title="Recommended way"
+        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=my_model.meta_input,                  # (224,224)
+                              standardize_mode=my_model.meta_standardize)  # "torch"
+        ```
+
+        ```python title="Manual way"
+        from aucmedi.neural_network.architectures import architecture_dict
+        my_arch = architecture_dict["3D.DenseNet121"](channels=1,
+                                                      input_shape=(128,128,128))
+        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
+
+        from aucmedi.neural_network.architectures import supported_standardize_mode
+        sf_norm = supported_standardize_mode["3D.DenseNet121"]
+        my_dg = DataGenerator(samples, "images_dir/", labels=None,
+                              resize=(128,128,128),                        # (128,128,128)
+                              standardize_mode=sf_norm)                    # "torch"
+        ```
     """
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
-                 fcl_dropout=True, learninig_rate=0.0001, batch_queue_size=10,
+                 fcl_dropout=True, learning_rate=0.0001, batch_queue_size=10,
                  workers=1, multiprocessing=False, verbose=1):
+        """ Initialization function for creating a Neural Network (model) object.
+
+        Args:
+            n_labels (int):                         Number of classes/labels (important for the last layer).
+            channels (int):                         Number of channels. Grayscale:1 or RGB:3.
+            input_shape (tuple):                    Input shape of the batch imaging data (including channel axis).
+                                                    If None is provided, the default input_shape for the architecture is selected
+                                                    from the architecture dictionary.
+            architecture (str or Architecture):     Key (str) or instance of a neural network model Architecture class instance.
+                                                    If a String is provided, the corresponding architecture is selected from the architecture dictionary.
+                                                    By default, a 2D Vanilla Model is used as Architecture.
+            pretrained_weights (bool):              Option whether to utilize pretrained weights e.g. for ImageNet.
+            loss (Metric Function):                 The metric function which is used as loss for training.
+                                                    Any Metric Function defined in Keras, in aucmedi.neural_network.loss_functions or any custom
+                                                    metric function, which follows the Keras metric guidelines, can be used.
+            metrics (list of Metric Functions):     List of one or multiple Metric Functions, which will be shown during training.
+                                                    Any Metric Function defined in Keras or any custom metric function, which follows the Keras
+                                                    metric guidelines, can be used.
+            activation_output (str):                 Activation function which should be used in the last classification layer.
+                                                    Based on https://www.tensorflow.org/api_docs/python/tf/keras/activations.
+            fcl_dropout (bool):                     Option whether to utilize a Dense & Dropout layer in the last classification layer.
+            learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
+            batch_queue_size (int):                 The batch queue size is the number of previously prepared batches in the cache during runtime.
+            workers (int):                          Number of workers/threads which preprocess batches during runtime.
+            multiprocessing (bool):                 Option whether to utilize multi-processing for workers instead of threading .
+            verbose (int):                          Option (0/1) how much information should be written to stdout.
+
+        ???+ danger
+            Class attributes can be modified also after initialization, at will.
+            However, be aware of unexpected adverse effects (experimental)!
+
+        Attributes:
+            tf_epochs (int, default=5):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
+            tf_lr_start (float, default=1e-4):      Transfer Learning configuration: Starting learning rate for frozen layer fitting.
+            tf_lr_end (float, default=1e-5):        Transfer Learning configuration: Starting learning rate after layer unfreezing.
+            meta_input (tuple of int):              Meta variable: Input shape of architecture which can be passed to a DataGenerator. For example: (224, 224).
+            meta_standardize (str):                 Meta variable: Recommended standardize_mode of architecture which can be passed to a DataGenerator.
+                                                    For example: "torch".
+        """
         # Cache parameters
         self.n_labels = n_labels
         self.channels = channels
         self.loss = loss
         self.metrics = metrics
-        self.learninig_rate = learninig_rate
+        self.learning_rate = learning_rate
         self.batch_queue_size = batch_queue_size
         self.workers = workers
         self.multiprocessing = multiprocessing
@@ -83,24 +163,29 @@ class Neural_Network:
         # Initialize architecture if None provided
         if architecture is None:
             self.architecture = architecture_dict["2D.Vanilla"](**arch_paras)
+            self.meta_standardize = ""
         # Initialize passed architecture from aucmedi library
         elif isinstance(architecture, str) and architecture in architecture_dict:
             self.architecture = architecture_dict[architecture](**arch_paras)
+            self.meta_standardize = supported_standardize_mode[architecture]
         # Initialize passed architecture as parameter
-        else : self.architecture = architecture
+        else:
+            self.architecture = architecture
+            self.meta_standardize = None
 
         # Build model utilizing the selected architecture
         model_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
-                       "out_activation": activation_output,
+                       "activation_output": activation_output,
                        "pretrained_weights": pretrained_weights}
         self.model = self.architecture.create_model(**model_paras)
 
         # Compile model
-        self.model.compile(optimizer=Adam(lr=learninig_rate),
+        self.model.compile(optimizer=Adam(learning_rate=learning_rate),
                            loss=self.loss, metrics=self.metrics)
 
         # Obtain final input shape
-        self.input_shape = self.architecture.input
+        self.input_shape = self.architecture.input          # e.g. (224, 224, 3)
+        self.meta_input = self.architecture.input[:-1]      # e.g. (224, 224) -> for DataGenerator
         # Cache starting weights
         self.initialization_weights = self.model.get_weights()
 
@@ -115,33 +200,34 @@ class Neural_Network:
     #---------------------------------------------#
     #                  Training                   #
     #---------------------------------------------#
-    """ Fitting function for the Neural Network model performing a training process.
+    # Training the Neural Network model
+    def train(self, training_generator, validation_generator=None, epochs=20,
+              iterations=None, callbacks=[], class_weights=None,
+              transfer_learning=False):
+        """ Fitting function for the Neural Network model performing a training process.
+
         It is also possible to pass custom Callback classes in order to obtain more information.
 
-        If an optional validation generator is provided, a validation set is analyzed regularly
-        during the training process (after each epoch).
+        If an optional validation [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
+        is provided, a validation set is analyzed regularly during the training process (after each epoch).
 
         The transfer learning training runs two fitting proesses.
         The first one with freezed base model layers and a high learning rate,
         whereas the second one with unfreezed layers and a small learning rate.
 
-    Args:
-        training_generator (DataGenerator):     A data generator which will be used for training.
-        validation_generator (DataGenerator):   A data generator which will be used for validation.
-        epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
-                                                the complete data set.
-        iterations (integer):                   Number of iterations (batches) in a single epoch.
-        callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-        class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
-        transfer_learning (boolean):            Option whether a transfer learning training should be performed.
+        Args:
+            training_generator (DataGenerator):     A data generator which will be used for training.
+            validation_generator (DataGenerator):   A data generator which will be used for validation.
+            epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
+                                                  the complete data set.
+            iterations (integer):                   Number of iterations (batches) in a single epoch.
+            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
+            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+            transfer_learning (boolean):            Option whether a transfer learning training should be performed.
 
-    Returns:
-        A Keras history object (dictionary) which contains several logs.
-    """
-    # Training the Neural Network model
-    def train(self, training_generator, validation_generator=None, epochs=20,
-              iterations=None, callbacks=[], class_weights=None,
-              transfer_learning=False):
+        Returns:
+            history (Keras History):                A Keras history object (dictionary) which contains several logs.
+        """
         # Running a standard training process
         if not transfer_learning:
             # Run training process with the Keras fit function
@@ -165,7 +251,7 @@ class Neural_Network:
                 if not lever and layer.name == "avg_pool" : lever = True
                 elif lever : layer.trainable = False
             # Compile model with high learning rate
-            self.model.compile(optimizer=Adam(lr=self.tf_lr_start),
+            self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_start),
                                loss=self.loss, metrics=self.metrics)
             # Run first training with freezed layers
             history_start = self.model.fit(training_generator,
@@ -182,7 +268,7 @@ class Neural_Network:
             for layer in self.model.layers:
                 layer.trainable = True
             # Compile model with lower learning rate
-            self.model.compile(optimizer=Adam(lr=self.tf_lr_end),
+            self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_end),
                                loss=self.loss, metrics=self.metrics)
             # Reset data generators
             training_generator.reset()
@@ -204,13 +290,17 @@ class Neural_Network:
     #---------------------------------------------#
     #                 Prediction                  #
     #---------------------------------------------#
-    """ Prediction function for the Neural Network model. The fitted model will predict classifications
-        for the provided data generator.
-
-    Args:
-        prediction_generator (DataGenerator):   A data generator which will be used for inference.
-    """
     def predict(self, prediction_generator):
+        """ Prediction function for the Neural Network model.
+
+        The fitted model will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            prediction_generator (DataGenerator):   A data generator which will be used for inference.
+
+        Returns:
+            preds (numpy.ndarray):                  A NumPy array of predictions formated with shape (n_samples, n_labels).
+        """
         # Run inference process with the Keras predict function
         preds = self.model.predict(prediction_generator, workers=self.workers,
                                    max_queue_size=self.batch_queue_size,
@@ -224,16 +314,38 @@ class Neural_Network:
     #---------------------------------------------#
     # Re-initialize model weights
     def reset_weights(self):
+        """ Re-initialize weights of the neural network model.
+
+        Useful for training multiple models with the same Neural_Network object.
+        """
         self.model.set_weights(self.initialization_weights)
 
     # Dump model to file
     def dump(self, file_path):
+        """ Store model to disk.
+
+        Recommended to utilize the file format ".hdf5".
+
+        Args:
+            file_path (str):    Path to store the model on disk.
+        """
         self.model.save(file_path)
 
     # Load model from file
     def load(self, file_path, custom_objects={}):
+        """ Load neural network model and its weights from a file.
+
+        After loading, the model will be compiled.
+
+        If loading a model in ".hdf5" format, it is not necessary to define any custom_objects.
+
+        Args:
+            file_path (str):            Input path, from which the model will be loaded.
+            custom_objects (dict):      Dictionary of custom objects for compiling
+                                        (e.g. non-TensorFlow based loss functions or architectures).
+        """
         # Create model input path
         self.model = load_model(file_path, custom_objects, compile=False)
         # Compile model
-        self.model.compile(optimizer=Adam(lr=self.learninig_rate),
+        self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
                            loss=self.loss, metrics=self.metrics)

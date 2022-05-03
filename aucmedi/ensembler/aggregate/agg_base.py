@@ -25,8 +25,10 @@ from abc import ABC, abstractmethod
 #-----------------------------------------------------#
 #         Abstract Base Class for Aggregation         #
 #-----------------------------------------------------#
-""" An abstract base class for a Aggregation class.
+class Aggregate_Base(ABC):
+    """ An abstract base class for a Aggregation class.
 
+    ```
     Augmented predictions encoded in a NumPy Matrix with shape (N_cycles, N_classes).
     Example: [[0.5, 0.4, 0.1],
               [0.4, 0.3, 0.3],
@@ -36,39 +38,51 @@ from abc import ABC, abstractmethod
     Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
     Example: [[0.4, 0.3, 0.3]]
     -> shape (1, 3)
+    ```
 
-    Methods:
-        __init__:               Object creation function.
-        aggregate:              Merge multiple class predictions into a single prediction.
-"""
-class Aggregate_Base(ABC):
+    ???+ example "Create a custom Aggregation class"
+        ```python
+        from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
+
+        class My_custom_Aggregate(Aggregate_Base):
+            def __init__(self):                 # you can pass here class variables
+                pass
+
+            def aggregate(self, preds):
+                preds_combined = np.mean(preds, axis=0)     # do some combination operation
+                return preds_combined                       # return combined predictions
+        ```
+
+    !!! info "Required Functions"
+        | Function            | Description                                                |
+        | ------------------- | ---------------------------------------------------------- |
+        | `__init__()`        | Object creation function.                                  |
+        | `aggregate()`       | Merge multiple class predictions into a single prediction. |
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    """ Functions which will be called during the Aggregation object creation.
-        This function can be used to pass variables and options in the Aggregation instance.
-        The are no mandatory required parameters for the initialization.
-
-        Parameter:
-            None
-        Return:
-            None
-    """
     @abstractmethod
     def __init__(self):
+        """ Initialization function which will be called during the Aggregation object creation.
+
+        This function can be used to pass variables and options in the Aggregation instance.
+        The are no mandatory required parameters for the initialization.
+        """
         pass
     #---------------------------------------------#
     #                  Aggregate                  #
     #---------------------------------------------#
-    """ Aggregate the image according to the subfunction during preprocessing (training + prediction).
+    @abstractmethod
+    def aggregate(self, preds):
+        """ Aggregate the image according to the subfunction during preprocessing (training + prediction).
+
         It is required to return the merged predictions (as NumPy matrix).
         It is possible to pass configurations through the initialization function for this class.
 
-        Parameter:
-            preds (Numpy Matrix):       Augmented predictions encoded in a NumPy Matrix with shape (N_cycles, N_classes).
-        Return:
-            pred (Numpy Matrix):        Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
-    """
-    @abstractmethod
-    def aggregate(self, preds):
+        Args:
+            preds (numpy.ndarray):      Augmented predictions encoded in a NumPy Matrix with shape (N_cycles, N_classes).
+        Returns:
+            pred (numpy.ndarray):       Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+        """
         return pred

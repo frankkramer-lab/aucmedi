@@ -25,26 +25,52 @@ import numpy as np
 #-----------------------------------------------------#
 #             Cache Loader for AUCMEDI IO             #
 #-----------------------------------------------------#
-""" Cache Loader for passing already loaded images within the AUCMEDI pipeline.
+def cache_loader(sample, path_imagedir=None, image_format=None,
+                 grayscale=False, two_dim=True, cache=None, **kwargs):
+    """ Cache Loader for passing already loaded images within the AUCMEDI pipeline.
+
+    The Cache Loader is an IO_loader function, which have to be passed to the 
+    [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
     The complete data management happens in the memory.
     Thus, for multiple images or common data set sizes, this is NOT recommended!
 
-    This functions requires to pass a Dictionary to the parameter 'cache'!
+    !!! warning
+        This functions requires to pass a Dictionary to the parameter `cache`!
 
-    Dictionary structure: key=index as String; value=Image as NumPy array
-        e.g. cache = {"my_index_001": my_image}
+    Dictionary structure: key=index as String; value=Image as NumPy array <br>
+    e.g. cache = {"my_index_001": my_image}
 
-    Arguments:
-        sample (String):                Sample name/index of an image.
-        path_imagedir (String):         Path to the directory containing the images.
-        image_format (String):          Image format to add at the end of the sample index for image loading.
-        grayscale (Boolean):            Boolean, whether images are grayscale or RGB.
-        two_dim (Boolean):              Boolean, whether image is 2D or 3D.
-        cache (Dictionary):             A Python Dictioanry containing one or multiple images.
-        kwargs (Dictionary):            Additional parameters for the sample loader.
-"""
-def cache_loader(sample, path_imagedir=None, image_format=None,
-                 grayscale=False, two_dim=True, cache=None, **kwargs):
+    ???+ example
+        ```python
+        # Import required libraries
+        from aucmedi import *
+        from aucmedi.data_processing.io_loader import cache_loader
+
+        # Encode information as dictionary
+        cache = {"sample_a": image_a,
+                 "sample_b": image_b,
+                 "sample_n": image_n}
+
+        # Obtain meta data
+        my_labels = [[1,0], [0,1], [1,0]]      # one-hot encoded annotation matrix
+        sample_list = cache.keys()
+
+        # Initialize DataGenerator
+        data_gen = DataGenerator(sample_list, None, labels=my_labels,
+                                 resize=None, grayscale=False, two_dim=True,
+                                 loader=cache_loader, cache=cache)
+        ```
+
+    Args:
+        sample (str):               Sample name/index of an image.
+        path_imagedir (str):        Path to the directory containing the images.
+        image_format (str):         Image format to add at the end of the sample index for image loading.
+        grayscale (bool):           Boolean, whether images are grayscale or RGB.
+        two_dim (bool):             Boolean, whether image is 2D or 3D.
+        cache (dict):               A Python Dictioanry containing one or multiple images.
+        **kwargs (dict):            Additional parameters for the sample loader.
+    """
     # Verify if a cache is provided
     if cache is None or type(cache) is not dict:
         raise TypeError("No dictionary was provided to cache_loader()!")

@@ -27,27 +27,30 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #              Subfunction class: Padding             #
 #-----------------------------------------------------#
-""" A Padding Subfunction class which pads an images according to a desired shape.
+class Padding(Subfunction_Base):
+    """ A Padding Subfunction class which pads an images according to a desired shape.
 
     Standard application is to square images to keep original aspect ratio.
     If another mode as "square" is selected, than a shape and NumPy pad mode is required!
 
-    Shape should be defined as tuple with x and y size:
-    Padding(shape=(224, 224))
+    Shape should be defined as tuple with x and y size: <br>
+    `Padding(mode="edge", shape=(224, 224))`
 
     Padding is done via NumPy pad function which uses can be called with different
-    modes like "edge" or "minimum".
+    modes like "edge" or "minimum". <br>
     https://numpy.org/doc/stable/reference/generated/numpy.pad.html
-
-Methods:
-    __init__                Object creation function
-    transform:              Pad an image input according to desired shape.
-"""
-class Padding(Subfunction_Base):
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, mode="square", shape=None):
+        """ Initialization function for creating a Padding Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            mode (str):                 Selected mode for image padding. If not `"square"`, then NumPy modes are used.
+            shape (tuple of int):       Minimum image shape for non-`"square"` modes.
+        """
         self.shape = shape
         self.mode = mode
 

@@ -27,14 +27,11 @@ from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
 #-----------------------------------------------------#
 #               Aggregate: Majority Vote              #
 #-----------------------------------------------------#
-""" Aggregate function based on majority vote.
-
-    Methods:
-        __init__:               Object creation function.
-        aggregate:              Merge multiple class predictions into a single prediction.
-"""
-
 class Majority_Vote(Aggregate_Base):
+    """ Aggregate function based on majority vote.
+
+    This class should be passed to a Ensembler function for combining predictions.
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#

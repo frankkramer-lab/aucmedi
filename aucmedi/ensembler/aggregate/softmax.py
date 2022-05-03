@@ -27,14 +27,11 @@ from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
 #-----------------------------------------------------#
 #                  Aggregate: Softmax                 #
 #-----------------------------------------------------#
-""" Aggregate function based on softmax.
-
-    Methods:
-        __init__:               Object creation function.
-        aggregate:              Merge multiple class predictions into a single prediction.
-"""
-
 class Softmax(Aggregate_Base):
+    """ Aggregate function based on softmax.
+
+    This class should be passed to a Ensembler function for combining predictions.
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#

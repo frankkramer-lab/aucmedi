@@ -79,10 +79,10 @@ class AugmentationTEST(unittest.TestCase):
         data_aug.aug_flip_p = 1.0
         data_aug.aug_crop_shape = (8, 8)
         data_aug.build()
-        img_augGRAY = data_aug.apply(self.imgGRAY2d)
-        img_augRGB = data_aug.apply(self.imgRGB2d)
-        self.assertFalse(np.array_equal(img_augGRAY, self.imgGRAY2d))
-        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB2d))
+        data_augGRAY = data_aug.apply(self.imgGRAY2d)
+        data_augRGB = data_aug.apply(self.imgRGB2d)
+        self.assertFalse(np.array_equal(data_augGRAY, self.imgGRAY2d))
+        self.assertFalse(np.array_equal(data_augRGB, self.imgRGB2d))
 
     # Rebuild Augmentation Operator
     def test_IMAGE_rebuild(self):
@@ -92,13 +92,13 @@ class AugmentationTEST(unittest.TestCase):
                      compression=False, gaussian_noise=False,
                      gaussian_blur=False, downscaling=False, gamma=False,
                      elastic_transform=False)
-        img_augRGB = data_aug.apply(self.imgRGB2d)
-        self.assertTrue(np.array_equal(img_augRGB, self.imgRGB2d))
+        data_augRGB = data_aug.apply(self.imgRGB2d)
+        self.assertTrue(np.array_equal(data_augRGB, self.imgRGB2d))
         data_aug.aug_flip = True
         data_aug.aug_flip_p = 1.0
         data_aug.build()
-        img_augRGB = data_aug.apply(self.imgRGB2d)
-        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB2d))
+        data_augRGB = data_aug.apply(self.imgRGB2d)
+        self.assertFalse(np.array_equal(data_augRGB, self.imgRGB2d))
 
     #-------------------------------------------------#
     #               Volume Functionality              #
@@ -133,10 +133,10 @@ class AugmentationTEST(unittest.TestCase):
         data_aug.aug_flip_p = 1.0
         data_aug.aug_crop_shape = (8, 8, 8)
         data_aug.build()
-        img_augGRAY = data_aug.apply(self.imgGRAY3d)
-        img_augRGB = data_aug.apply(self.imgRGB3d)
-        self.assertFalse(np.array_equal(img_augGRAY, self.imgGRAY3d))
-        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_augGRAY = data_aug.apply(self.imgGRAY3d)
+        data_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertFalse(np.array_equal(data_augGRAY, self.imgGRAY3d))
+        self.assertFalse(np.array_equal(data_augRGB, self.imgRGB3d))
 
     # Rebuild Augmentation Operator
     def test_VOLUME_rebuild(self):
@@ -146,13 +146,13 @@ class AugmentationTEST(unittest.TestCase):
                      compression=False, gaussian_noise=False,
                      gaussian_blur=False, downscaling=False, gamma=False,
                      elastic_transform=False)
-        img_augRGB = data_aug.apply(self.imgRGB3d)
-        self.assertTrue(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertTrue(np.array_equal(data_augRGB, self.imgRGB3d))
         data_aug.aug_flip = True
         data_aug.aug_flip_p = 1.0
         data_aug.build()
-        img_augRGB = data_aug.apply(self.imgRGB3d)
-        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertFalse(np.array_equal(data_augRGB, self.imgRGB3d))
 
     #-------------------------------------------------#
     #          Batchgenerators Functionality          #
@@ -177,10 +177,10 @@ class AugmentationTEST(unittest.TestCase):
         data_aug.aug_rotate_p = 1.0
         data_aug.aug_mirror_p = 1.0
         data_aug.build()
-        img_augGRAY = data_aug.apply(self.imgGRAY3d)
-        img_augRGB = data_aug.apply(self.imgRGB3d)
-        self.assertFalse(np.array_equal(img_augGRAY, self.imgGRAY3d))
-        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_augGRAY = data_aug.apply(self.imgGRAY3d)
+        data_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertFalse(np.array_equal(data_augGRAY, self.imgGRAY3d))
+        self.assertFalse(np.array_equal(data_augRGB, self.imgRGB3d))
 
     # Rebuild Augmentation Operator
     def test_BATCHGENERATORS_rebuild(self):
@@ -188,10 +188,10 @@ class AugmentationTEST(unittest.TestCase):
                         mirror=False, rotate=False, scale=False,
                         elastic_transform=False, gaussian_noise=False,
                         brightness=False, contrast=False, gamma=False)
-        img_augRGB = data_aug.apply(self.imgRGB3d)
-        self.assertTrue(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertTrue(np.array_equal(data_augRGB, self.imgRGB3d))
         data_aug.aug_mirror = True
         data_aug.aug_mirror_p = 1.0
         data_aug.build()
-        img_augRGB = data_aug.apply(self.imgRGB3d)
-        self.assertFalse(np.array_equal(img_augRGB, self.imgRGB3d))
+        data_augRGB = data_aug.apply(self.imgRGB3d)
+        self.assertFalse(np.array_equal(data_augRGB, self.imgRGB3d))

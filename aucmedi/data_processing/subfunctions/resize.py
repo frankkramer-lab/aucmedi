@@ -28,29 +28,33 @@ from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 #-----------------------------------------------------#
 #              Subfunction class: Resize              #
 #-----------------------------------------------------#
-""" A Resize Subfunction class which resizes an images according to a desired shape.
-
-2D image: Shape have to be defined as tuple with x and y size:
-    Resize(shape=(224, 224))
-
-    Resizing is done via albumentations resize transform which uses bi-linear interpolation by default.
-    https://albumentations.ai/docs/api_reference/augmentations/geometric/resize/
-
-3D volume: Shape have to be defined as tuple with x, y and z size:
-    Resize(shape=(128, 128, 128))
-
-    Resizing is done via volumentations resize transform which uses bi-linear interpolation by default.
-    https://github.com/muellerdo/volumentations
-
-Methods:
-    __init__                Object creation function
-    transform:              Resize an image input according to defined shape.
-"""
 class Resize(Subfunction_Base):
+    """ A Resize Subfunction class which resizes an images according to a desired shape.
+
+    ???+ info "2D image"
+        Shape have to be defined as tuple with x and y size: `Resize(shape=(224, 224))`
+
+        Resizing is done via albumentations resize transform which uses bi-linear interpolation by default. <br>
+        https://albumentations.ai/docs/api_reference/augmentations/geometric/resize/
+
+    ???+ info "3D volume"
+        Shape have to be defined as tuple with x, y and z size: `Resize(shape=(128, 128, 128))`
+
+        Resizing is done via volumentations resize transform which uses bi-linear interpolation by default. <br>
+        https://github.com/muellerdo/volumentations
+    """
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self, shape=(224, 224), interpolation=1):
+        """ Initialization function for creating a Resize Subfunction which can be passed to a
+            [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        Args:
+            shape (tuple of int):       Resizing shape consisting of a X and Y size. (optional Z size for Volumes).
+            interpolation (int):        Interpolation mode for resizing. Using encoding from cv2:
+                                        https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
+        """
         # Initialize parameter
         params = {"p":1.0, "always_apply":True, "interpolation":interpolation}
         # Select augmentation module and add further parameter depending on dimension

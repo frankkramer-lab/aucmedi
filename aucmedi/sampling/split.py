@@ -28,31 +28,43 @@ from aucmedi.sampling.iterative import MultilabelStratifiedShuffleSplit
 #-----------------------------------------------------#
 #       Function: Sampling via Percentage Split       #
 #-----------------------------------------------------#
-""" Simple wrapper function for calling percentage split sampling functions.
+def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
+                   iterative=False, seed=None):
+    """ Simple wrapper function for calling percentage split sampling functions.
+
     Allow usage of stratified and iterative sampling algorithm.
 
-    Be aware that multi-label data does not support random stratified sampling.
+    ???+ warning
+        Be aware that multi-label data does not support random stratified sampling.
 
     Percentage split ratios have to be provided with a sampling list.
     Each percentage value in the list defines the approximate split size.
     Sum of percentage split ratios have to equal 1!
 
-    For example: sampling = [0.7, 0.25, 0.05]
-    Returns a list with the following elements as tuples:
-        -> (samples_a, labels_a) with 70% of complete dataset
-        -> (samples_b, labels_b) with 25% of complete dataset
-        -> (samples_c, labels_c) with  5% of complete dataset
+    ???+ example
+        ```python
+        split_ratio = [0.7, 0.25, 0.05]
+        ds = sampling_split(samples, labels, sampling=split_ratio)
 
-    Arguments:
+        # Returns a list with the following elements as tuples:
+        print(ds[0])  # -> (samples_a, labels_a) with 70% of complete dataset
+        print(ds[1])  # -> (samples_b, labels_b) with 25% of complete dataset
+        print(ds[2])  # -> (samples_c, labels_c) with  5% of complete dataset
+        ```
+
+
+    Args:
         samples (List of Strings):      List of sample/index encoded as Strings.
         labels (NumPy matrix):          NumPy matrix containing the ohe encoded classification.
         sampling (List of Floats):      List of percentage values with split sizes.
         stratified (Boolean):           Option whether to use stratified sampling based on provided labels.
         iterative (Boolean):            Option whether to use iterative sampling algorithm.
         seed (Integer):                 Seed to ensure reproducibility for random functions.
-"""
-def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
-                   iterative=False, seed=None):
+
+    Returns:
+        results (list of tuple):        List with len(sampling) containing tuples with sampled data:
+                                        (samples_a, labels_a)
+    """
     # Verify sampling percentages
     if not np.isclose(sum(sampling), 1.0):
         raise ValueError("Sum of Percentage split ratios as sampling do not" + \

@@ -16,6 +16,9 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
 # Import XAI methods
 from aucmedi.xai.methods.gradcam import GradCAM
 from aucmedi.xai.methods.gradcam_pp import GradCAMpp
@@ -26,7 +29,10 @@ from aucmedi.xai.methods.gradcam_guided import GuidedGradCAM
 from aucmedi.xai.methods.occlusion_sensitivity import OcclusionSensitivity
 from aucmedi.xai.methods.lime_pro import LimePro
 from aucmedi.xai.methods.lime_con import LimeCon
-# XAI method dictionary
+
+#-----------------------------------------------------#
+#                XAI method dictionary                #
+#-----------------------------------------------------#
 xai_dict = {
     "gradcam": GradCAM,
     "GradCAM": GradCAM,
@@ -45,10 +51,27 @@ xai_dict = {
     "gb": GuidedBackpropagation,
     "IntegratedGradients": IntegratedGradients,
     "ig":IntegratedGradients,
-    "OcclusionSensitivity":OcclusionSensitivity,
-    "os":OcclusionSensitivity,
-    "LimePro":LimePro,
-    "lp":LimePro,
-    "LimeCon":LimeCon,
-    "lc":LimeCon
+    "OcclusionSensitivity": OcclusionSensitivity,
+    "os": OcclusionSensitivity,
+    "LimePro": LimePro,
+    "lp": LimePro,
+    "LimeCon": LimeCon,
+    "lc": LimeCon
 }
+""" Dictionary of implemented XAI Methods in AUCMEDI.
+
+    A key (str) or an initialized XAI Method can be passed to the [aucmedi.xai.decoder.xai_decoder][] function as method parameter.
+
+    ???+ example "Example"
+        ```python
+        # Select desired XAI Methods
+        xai_list = ["gradcam", "gc++", OcclusionSensitivity(model), xai_dict["LimePro"](model), "lc"]
+
+        # Iterate over each method
+        for m in xai_list:
+            # Compute XAI heatmaps with method m
+            heatmaps = xai_decoder(datagen, model, preds, method=m)
+        ```
+
+    XAI Methods are based on the abstract base class [aucmedi.xai.methods.xai_base][].
+"""

@@ -253,7 +253,7 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #                 Image Preprocessing                 #
     #-----------------------------------------------------#
-    """ Internal preprocessing function for applying subfunctions, augmentation, resizing and standardization
+    """ Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
         on an image given its index.
 
     Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.

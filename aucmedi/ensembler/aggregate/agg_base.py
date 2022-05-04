@@ -75,7 +75,7 @@ class Aggregate_Base(ABC):
     #---------------------------------------------#
     @abstractmethod
     def aggregate(self, preds):
-        """ Aggregate the image according to the subfunction during preprocessing (training + prediction).
+        """ Aggregate the image by merging multiple predictions into a single one.
 
         It is required to return the merged predictions (as NumPy matrix).
         It is possible to pass configurations through the initialization function for this class.

@@ -212,14 +212,14 @@ class Neural_Network:
         is provided, a validation set is analyzed regularly during the training process (after each epoch).
 
         The transfer learning training runs two fitting proesses.
-        The first one with freezed base model layers and a high learning rate,
-        whereas the second one with unfreezed layers and a small learning rate.
+        The first one with frozen base model layers and a high learning rate,
+        whereas the second one with unfrozen layers and a small learning rate.
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training.
             validation_generator (DataGenerator):   A data generator which will be used for validation.
             epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
-                                                  the complete data set.
+                                                    the complete data set.
             iterations (integer):                   Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
@@ -253,7 +253,7 @@ class Neural_Network:
             # Compile model with high learning rate
             self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_start),
                                loss=self.loss, metrics=self.metrics)
-            # Run first training with freezed layers
+            # Run first training with frozen layers
             history_start = self.model.fit(training_generator,
                                            validation_data=validation_generator,
                                            callbacks=callbacks,
@@ -273,7 +273,7 @@ class Neural_Network:
             # Reset data generators
             training_generator.reset()
             if validation_generator is not None : validation_generator.reset()
-            # Run second training with unfreezed layers
+            # Run second training with unfrozed layers
             history_end = self.model.fit(training_generator,
                                          validation_data=validation_generator,
                                          callbacks=callbacks, epochs=epochs,

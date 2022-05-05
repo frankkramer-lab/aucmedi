@@ -121,7 +121,7 @@ architecture_dict = {
         ```
 
     ???+ warning
-        If passing an architecture key to the Neural_Network class, be aware that you have to add "2D." infront of it.
+        If passing an architecture key to the Neural_Network class, be aware that you have to add "2D." in front of it.
 
         For example:
         ```python
@@ -196,7 +196,7 @@ supported_standardize_mode = {
         ```
 
     ???+ warning
-        If using an architecture key for the supported_standardize_mode dictionary, be aware that you have to add "2D." infront of it.
+        If using an architecture key for the supported_standardize_mode dictionary, be aware that you have to add "2D." in front of it.
 
         For example:
         ```python

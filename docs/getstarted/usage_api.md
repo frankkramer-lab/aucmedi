@@ -3,11 +3,11 @@
 AUCMEDI is based on 3 pillars which allow building any state-of-the-art medical image classification pipeline.
 
 !!! info "Pillars of AUCMEDI"
-    | Pillar                                                                       | Description                                                    |
-    | ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-    | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Obtaining general information from the dataset.                   |
-    | #2: [Neural_Network][aucmedi.neural_network.model.Neural_Network]         | Building the deep learning model.                                 |
-    | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Powerful interface for loading any images/volumes into the model. |
+    | Pillar                                                                    | Type     | Description                                                       |
+    | ------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
+    | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Function | Obtaining general information from the dataset.                   |
+    | #2: [Neural_Network][aucmedi.neural_network.model.Neural_Network]         | Class    | Building the deep learning model.                                 | 
+    | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Class    | Powerful interface for loading any images/volumes into the model. |
 
 The different pillars are represented in Python as function and classes.
 The passed parameters allow configuration of the automatically created image classification pipeline.

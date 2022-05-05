@@ -70,7 +70,7 @@ class DataGenerator(Iterator):
         ```
 
     It supports real-time batch generation as well as beforehand preprocessing of images,
-    which are then temporarly stored on disk (requires enough disk space!).
+    which are then temporarily stored on disk (requires enough disk space!).
 
     The resulting batches are created based the following pipeline:
 
@@ -93,9 +93,9 @@ class DataGenerator(Iterator):
                  standardize_mode="z-score", sample_weights=None, workers=1,
                  prepare_images=False,  loader=image_loader, seed=None,
                  **kwargs):
-        """ Initialization function of the DataGenerator which acts as a configuraiton hub.
+        """ Initialization function of the DataGenerator which acts as a configuration hub.
 
-        If using for prediction, the 'labels' parameter have to be `None`.
+        If using for prediction, the 'labels' parameter has to be `None`.
 
         For more information on Subfunctions, read here: [aucmedi.data_processing.subfunctions][].
 
@@ -253,7 +253,7 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #                 Image Preprocessing                 #
     #-----------------------------------------------------#
-    """ Internal preprocessing function for applying subfunctions, augmentation, resizing and standardization
+    """ Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
         on an image given its index.
 
     Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.

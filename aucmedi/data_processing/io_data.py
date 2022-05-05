@@ -107,7 +107,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         raise Exception("Unknown interface code provided.", interface)
     # Verify that annotation file is available if CSV/JSON interface is used
     if interface in ["csv", "json"] and path_data is None:
-        raise Exception("No annoation file provided for CSV/JSON interface!")
+        raise Exception("No annotation file provided for CSV/JSON interface!")
 
     # Initialize parameter dictionary
     parameters = {"path_data": path_data,

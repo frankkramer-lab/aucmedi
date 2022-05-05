@@ -38,7 +38,7 @@ class Resize(Subfunction_Base):
         https://albumentations.ai/docs/api_reference/augmentations/geometric/resize/
 
     ???+ info "3D volume"
-        Shape have to be defined as tuple with x, y and z size: `Resize(shape=(128, 128, 128))`
+        Shape has to be defined as tuple with x, y and z size: `Resize(shape=(128, 128, 128))`
 
         Resizing is done via volumentations resize transform which uses bi-linear interpolation by default. <br>
         https://github.com/muellerdo/volumentations

@@ -35,7 +35,7 @@ class ColorConstancy(Subfunction_Base):
 
     "The paper Improving dermoscopy image classification using color constancy shows
     that using a color compensation technique to reduce the influence of the acquisition
-    setup on the color features extracted from the images provides a improvementon the
+    setup on the color features extracted from the images provides a improvement on the
     performance for skin cancer classification."
 
     ???+ cite

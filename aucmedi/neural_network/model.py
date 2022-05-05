@@ -211,9 +211,9 @@ class Neural_Network:
         If an optional validation [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
         is provided, a validation set is analyzed regularly during the training process (after each epoch).
 
-        The transfer learning training runs two fitting proesses.
-        The first one with freezed base model layers and a high learning rate,
-        whereas the second one with unfreezed layers and a small learning rate.
+        The transfer learning training runs two fitting processes.
+        The first one with fixed base model layers and a high learning rate,
+        whereas the second one with free layers and a small learning rate.
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training.
@@ -299,7 +299,7 @@ class Neural_Network:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
 
         Returns:
-            preds (numpy.ndarray):                  A NumPy array of predictions formated with shape (n_samples, n_labels).
+            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
         """
         # Run inference process with the Keras predict function
         preds = self.model.predict(prediction_generator, workers=self.workers,

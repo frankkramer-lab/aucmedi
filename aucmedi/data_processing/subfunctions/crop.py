@@ -41,7 +41,7 @@ class Crop(Subfunction_Base):
         https://albumentations.ai/docs/api_reference/augmentations/crops/transforms/#albumentations.augmentations.crops.transforms.RandomCrop  <br>
 
     ???+ info "3D volume"
-        Shape have to be defined as tuple with x, y and z size: `Crop(shape=(224, 224, 244))`
+        Shape has to be defined as tuple with x, y and z size: `Crop(shape=(224, 224, 244))`
 
         Cropping is done via volumentations CenterCrop and RandomCrop transform. <br>
         https://github.com/muellerdo/volumentations

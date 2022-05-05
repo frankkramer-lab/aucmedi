@@ -77,7 +77,8 @@ from aucmedi import *
 ds = input_interface(interface="csv",
                      path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                      path_data="/home/muellerdo/COVdataset/classes.csv",
-                     ohe=False, col_sample="ID", col_class="PCRpositive")
+                     ohe=False,           # OHE short for one-hot encoding
+                     col_sample="ID", col_class="PCRpositive")
 (index_list, class_ohe, nclasses, class_names, image_format) = ds
 
 # Pillar #2: Initialize a DenseNet121 model with ImageNet weights

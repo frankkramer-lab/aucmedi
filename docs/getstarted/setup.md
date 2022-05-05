@@ -16,6 +16,8 @@ There are three ways to install AUCMEDI which depends on the preferred usage:
 
 ### Install from PyPI (recommended)
 
+Note: These installation steps assume that you are on a Linux or Mac environment. If you are on Windows or in a virtual environment without root, you will need to remove sudo to run the commands below.
+
 This will allow utilizing the framework (in your favorite Python IDE or in a Jupyter Notebook) or the AutoML module via the command line interface (CLI).
 
 ```sh

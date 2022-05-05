@@ -45,7 +45,7 @@ class Aggregate_Base(ABC):
         from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
 
         class My_custom_Aggregate(Aggregate_Base):
-            def __init__(self):                 # you can pass here class variables
+            def __init__(self):                 # you can pass class variables here
                 pass
 
             def aggregate(self, preds):

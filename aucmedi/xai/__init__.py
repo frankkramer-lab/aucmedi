@@ -40,7 +40,7 @@
     # Make some predictions
     preds = model.predict(datagen)
 
-    # Compute XAI heatmaps via Grad-CAM (resulting heatmaps are strored in out_path)
+    # Compute XAI heatmaps via Grad-CAM (resulting heatmaps are stored in out_path)
     xai_decoder(datagen, model, preds, method="gradcam", out_path="xai.xray_gradcam")
     ```
 """

@@ -147,7 +147,7 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
 
     # Validate if number of samples and number of annotations match
     if len(index_list) != len(class_ohe):
-        raise Exception("Number of samples and annotation does not match!",
+        raise Exception("Numbers of samples and annotations do not match!",
                         len(index_list), len(class_ohe))
 
     # Return parsed JSON data

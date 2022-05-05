@@ -20,7 +20,7 @@
 #                    Documentation                    #
 #-----------------------------------------------------#
 """ Internal classes to allow iterative stratification in percentage-split and
-    k-fold cross-valdiation for multi-label sampling.
+    k-fold cross-validation for multi-label sampling.
 
 Use the corresponding core functions from [aucmedi.sampling.split][] and [aucmedi.sampling.kfold][]
 with the parameter `iterative=True`.

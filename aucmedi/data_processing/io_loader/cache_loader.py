@@ -68,7 +68,7 @@ def cache_loader(sample, path_imagedir=None, image_format=None,
         image_format (str):         Image format to add at the end of the sample index for image loading.
         grayscale (bool):           Boolean, whether images are grayscale or RGB.
         two_dim (bool):             Boolean, whether image is 2D or 3D.
-        cache (dict):               A Python Dictioanry containing one or multiple images.
+        cache (dict):               A Python dictionary containing one or multiple images.
         **kwargs (dict):            Additional parameters for the sample loader.
     """
     # Verify if a cache is provided

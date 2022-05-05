@@ -84,7 +84,7 @@ def compute_multilabel_weights(ohe_array, method="balanced"):
         NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
 
     ??? abstract "Based on Reference"
-        Class weight compuation is based on Scikit learn class_weight function: <br>
+        Class weight computation is based on Scikit learn class_weight function: <br>
         https://scikit-learn.org/stable/modules/generated/sklearn.utils.class_weight.compute_class_weight.html  <br>
 
     Args:
@@ -92,7 +92,7 @@ def compute_multilabel_weights(ohe_array, method="balanced"):
         method (str):                   Dictionary or modus, how class weights should be computed.
 
     Returns:
-        class_weights (numpy.ndarray):      Class weight list which can be feeded to a loss function.
+        class_weights (numpy.ndarray):      Class weight list which can be fed to a loss function.
     """
     # Identify number of classes
     n_classes = np.shape(ohe_array)[1]
@@ -113,7 +113,7 @@ def compute_sample_weights(ohe_array, method="balanced"):
     """ Simple wrapper function for scikit learn sample_weight function.
 
     The sample weights can be used for weighting the loss function on imbalanced data.
-    Returned sample weight array which can be directly feeded to an AUCMEDI [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+    Returned sample weight array which can be directly fed to an AUCMEDI [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
     ???+ info
         NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).
@@ -127,7 +127,7 @@ def compute_sample_weights(ohe_array, method="balanced"):
         method (str):                   Dictionary or modus, how class weights should be computed.
 
     Returns:
-        sample_weights (numpy.ndarray):     Sample weight list which can be feeded to an AUCMEDI
+        sample_weights (numpy.ndarray):     Sample weight list which can be fed to an AUCMEDI
                                             [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
     """
     # Compute sample weights with scikit learn

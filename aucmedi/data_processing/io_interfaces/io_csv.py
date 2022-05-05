@@ -137,7 +137,7 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
 
     # Validate if number of samples and number of annotations match
     if len(index_list) != len(class_ohe):
-        raise Exception("Number of samples and annotation does not match!",
+        raise Exception("Numbers of samples and annotations do not match!",
                         len(index_list), len(class_ohe))
     # Return parsed CSV data
     return index_list, class_ohe, class_n, class_names, image_format

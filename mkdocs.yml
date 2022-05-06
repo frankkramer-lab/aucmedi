@@ -41,7 +41,7 @@ theme:
     logo: material/heart-pulse
     repo: fontawesome/brands/github
 
-repo_url: https://github.com/frankkramer-lab/MIScnn
+repo_url: https://github.com/frankkramer-lab/aucmedi
 repo_name: frankkramer-lab/aucmedi
 
 extra_css:

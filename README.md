@@ -1,5 +1,12 @@
 # AUCMEDI: a framework for Automated Classification of Medical Images
 
+[![shield_python](https://img.shields.io/pypi/pyversions/aucmedi?style=flat-square)](https://www.python.org/)
+[![shield_build](https://img.shields.io/github/workflow/status/frankkramer-lab/aucmedi/Python%20package?style=flat-square)](https://github.com/frankkramer-lab/aucmedi)
+[![shield_docs](https://img.shields.io/website?down_message=offline&label=docs&style=flat-square&up_message=online&url=https%3A%2F%2Ffrankkramer-lab.github.io%2Faucmedi%2Freference%2F)](https://frankkramer-lab.github.io/aucmedi/reference/)
+[![shield_pypi_version](https://img.shields.io/pypi/v/aucmedi?style=flat-square)](https://pypi.org/project/aucmedi/)
+[![shield_pypi_downloads](https://img.shields.io/pypi/dm/aucmedi?style=flat-square)](https://pypistats.org/packages/aucmedi)
+[![shield_license](https://img.shields.io/github/license/frankkramer-lab/aucmedi?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
 ## Work in Progress!
 
 This framework is currently under active development.  
@@ -11,15 +18,16 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 **Stay tuned and please have a look on AUCMEDI in 1-2 months, again! :)**  
 
 ## Resources
-- Website: [https://frankkramer-lab.github.io/aucmedi/](https://frankkramer-lab.github.io/aucmedi/)
-- Git Repository: [https://github.com/frankkramer-lab/aucmedi](https://github.com/frankkramer-lab/aucmedi)
-- API Documentation: [https://frankkramer-lab.github.io/aucmedi/reference/](https://frankkramer-lab.github.io/aucmedi/reference/)
-- Getting Started: [https://frankkramer-lab.github.io/aucmedi/intro/](https://frankkramer-lab.github.io/aucmedi/intro/)
-- Examples: [https://frankkramer-lab.github.io/aucmedi/examples/framework/](https://frankkramer-lab.github.io/aucmedi/examples/framework/)
+- Website: [AUCMEDI Website - Home](https://frankkramer-lab.github.io/aucmedi/)
+- Git Repository: [GitHub - frankkramer-lab/aucmedi](https://github.com/frankkramer-lab/aucmedi)
+- Documentation: [AUCMEDI Wiki - API Reference](https://frankkramer-lab.github.io/aucmedi/reference/)
+- Getting Started: [AUCMEDI Website - Getting Started](https://frankkramer-lab.github.io/aucmedi/intro/)
+- Examples: [AUCMEDI Wiki - Examples](https://frankkramer-lab.github.io/aucmedi/examples/framework/)
 - Tutorials: Coming soon.
-- Applications: [https://frankkramer-lab.github.io/aucmedi/examples/applications/](https://frankkramer-lab.github.io/aucmedi/examples/applications/)
-- PyPI package: [https://pypi.org/project/aucmedi/](https://pypi.org/project/aucmedi/)
+- Applications: [AUCMEDI Wiki - Applications](https://frankkramer-lab.github.io/aucmedi/examples/applications/)
+- PyPI Package: [PyPI - aucmedi](https://pypi.org/project/aucmedi/)
 - Docker Hub: Coming soon.
+- Zenodo Repository: [Zenodo - AUCMEDI](https://pypi.org/project/aucmedi/)
 
 ## Roadmap
 
@@ -113,7 +121,7 @@ preds = model.predict(test_gen)
 ## Lead Author
 
 Dominik Müller\
-Email: dominik.mueller@informatik.uni-augsburg.de\
+Email: dominik.mueller@uni-a.de\
 IT-Infrastructure for Translational Medical Research\
 University Augsburg\
 Bavaria, Germany

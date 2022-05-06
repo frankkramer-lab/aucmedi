@@ -51,9 +51,13 @@ extra_css:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: XplaceholderX
+      link: https://github.com/frankkramer-lab/aucmedi
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/aucmedi/
     - icon: fontawesome/brands/docker
-      link: XplaceholderX
+      link: Xplaceholder_for_dockerhubX
+    - icon: fontawesome/solid/book
+      link: Xplaceholder_for_zenodoX
 
 #-----------------------------------------------------#
 #                       Content                       #

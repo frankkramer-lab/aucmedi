@@ -22,6 +22,7 @@
 #External libraries
 import unittest
 import numpy as np
+import pandas as pd
 import tempfile
 from PIL import Image
 import json
@@ -72,7 +73,7 @@ class IOinterfacesTEST(unittest.TestCase):
         # Run Directory IO
         ds = directory_loader(tmp_data.name, self.aif, training=True)
         self.assertTrue(len(ds[0]), 25)
-
+        self.assertTrue(len(ds[1]), 25)
 
     #-------------------------------------------------#
     #                JSON IO Interface                #
@@ -121,6 +122,7 @@ class IOinterfacesTEST(unittest.TestCase):
                          allowed_image_formats=self.aif, training=True,
                          ohe=False)
         self.assertTrue(len(ds[0]), 25)
+        self.assertTrue(len(ds[1]), 25)
 
     def test_JSON_training_withOHE(self):
         # Create imaging data with subdirectories
@@ -147,3 +149,88 @@ class IOinterfacesTEST(unittest.TestCase):
                          allowed_image_formats=self.aif, training=True,
                          ohe=True)
         self.assertTrue(len(ds[0]), 25)
+        self.assertTrue(len(ds[1]), 25)
+
+    #-------------------------------------------------#
+    #                 CSV IO Interface                #
+    #-------------------------------------------------#
+    def test_CSV_testing(self):
+        # Create imaging data
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        data = {}
+        for i in range(0, 25):
+            img = np.random.rand(16, 16, 3) * 255
+            img_pillow = Image.fromarray(img.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".png"
+            data[index[:-4]] = 0
+            path_sample = os.path.join(tmp_data.name, index)
+            img_pillow.save(path_sample)
+        # Create CSV data
+        tmp_csv = tempfile.NamedTemporaryFile(mode="w", prefix="tmp.aucmedi.",
+                                              suffix=".csv")
+        df = pd.DataFrame.from_dict(data, orient="index", columns=["class"])
+        df.index.name = "index"
+        df.to_csv(tmp_csv.name, index=True, header=True)
+
+        # Run CSV IO
+        ds = csv_loader(path_data=tmp_csv.name, path_imagedir=tmp_data.name,
+                        allowed_image_formats=self.aif, training=False,
+                        col_sample="index")
+        self.assertTrue(len(ds[0]), 25)
+
+    def test_CSV_training_woOHE(self):
+        # Create imaging data with subdirectories
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        data = {}
+        for i in range(0, 25):
+            img = np.random.rand(16, 16, 3) * 255
+            img_pillow = Image.fromarray(img.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".png"
+            data[index[:-4]] = np.random.randint(5)
+            path_sample = os.path.join(tmp_data.name, index)
+            img_pillow.save(path_sample)
+        # Create CSV data
+        tmp_csv = tempfile.NamedTemporaryFile(mode="w", prefix="tmp.aucmedi.",
+                                              suffix=".csv")
+        df = pd.DataFrame.from_dict(data, orient="index", columns=["class"])
+        df.index.name = "index"
+        df.to_csv(tmp_csv.name, index=True, header=True)
+
+        # Run CSV IO
+        ds = csv_loader(path_data=tmp_csv.name, path_imagedir=tmp_data.name,
+                        allowed_image_formats=self.aif, training=True,
+                        ohe=False, col_sample="index", col_class="class")
+        self.assertTrue(len(ds[0]), 25)
+        self.assertTrue(len(ds[1]), 25)
+
+    def test_CSV_training_withOHE(self):
+        # Create imaging data with subdirectories
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        data = {}
+        for i in range(0, 25):
+            img = np.random.rand(16, 16, 3) * 255
+            img_pillow = Image.fromarray(img.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".png"
+            labels_ohe = [0, 0, 0, 0]
+            class_index = np.random.randint(0, 4)
+            labels_ohe[class_index] = 1
+            data[index[:-4]] = labels_ohe
+            path_sample = os.path.join(tmp_data.name, index)
+            img_pillow.save(path_sample)
+        # Create CSV data
+        tmp_csv = tempfile.NamedTemporaryFile(mode="w", prefix="tmp.aucmedi.",
+                                              suffix=".csv")
+        df = pd.DataFrame.from_dict(data, orient="index",
+                                    columns=["a", "b", "c", "d"])
+        df.index.name = "index"
+        df.to_csv(tmp_csv.name, index=True, header=True)
+
+        # Run CSV IO
+        ds = csv_loader(path_data=tmp_csv.name, path_imagedir=tmp_data.name,
+                        allowed_image_formats=self.aif, training=True,
+                        ohe=True, col_sample="index")
+        self.assertTrue(len(ds[0]), 25)
+        self.assertTrue(len(ds[1]), 25)

@@ -9,7 +9,6 @@ setup(
     name='aucmedi',
     version='0.4.1',
     description='AUCMEDI - Framework for Automated Classification of Medical Images',
-    url='https://github.com/frankkramer-lab/aucmedi',
     author='Dominik Müller',
     author_email='dominik.mueller@informatik.uni-augsburg.de',
     license='GPLv3',

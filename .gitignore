@@ -6,6 +6,9 @@ build/
 dist/
 *.egg-info/
 
+# PyPI
+release.sh
+
 # Testing
 debug.sh
 debug.py

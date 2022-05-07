@@ -2,7 +2,7 @@ name: Website - MkDocs
 on:
   push:
     branches:
-      - website_action
+      - master
 jobs:
   deploy:
     runs-on: ubuntu-latest

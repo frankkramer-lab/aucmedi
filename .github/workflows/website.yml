@@ -13,6 +13,7 @@ jobs:
           python-version: 3.8
       - run: pip install \
           mkdocs-material \
+          griffe==0.18.0 \
           mkdocstrings-python \
           mkdocs-gen-files \
           mkdocs-literate-nav \

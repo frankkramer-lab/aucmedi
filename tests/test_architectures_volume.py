@@ -27,6 +27,7 @@ import numpy as np
 #Internal libraries
 from aucmedi.neural_network.architectures.volume import *
 from aucmedi.neural_network.architectures import supported_standardize_mode as sdm_global
+from aucmedi.neural_network.architectures import Classifier
 from aucmedi import *
 from aucmedi.data_processing.subfunctions import Resize
 from aucmedi.data_processing.io_loader import numpy_loader
@@ -51,15 +52,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             np.save(path_sampleHU, img_hu)
             self.sampleList_hu.append(index)
 
-        # Create RGB data
-        self.sampleList_rgb = []
-        for i in range(0, 1):
-            img_rgb = np.random.rand(32, 32, 8, 3) * 255
-            index = "image.sample_" + str(i) + ".RGB.npy"
-            path_sampleRGB = os.path.join(self.tmp_data.name, index)
-            np.save(path_sampleRGB, img_rgb)
-            self.sampleList_rgb.append(index)
-
         # Create classification labels
         self.labels_ohe = np.zeros((1, 4), dtype=np.uint8)
         for i in range(0, 1):
@@ -73,13 +65,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
                                         resize=(32, 32, 32),
                                         loader=numpy_loader, two_dim=False,
                                         grayscale=True, batch_size=1)
-        # Create RGB Data Generator
-        self.datagen_RGB = DataGenerator(self.sampleList_rgb,
-                                         self.tmp_data.name,
-                                         labels=self.labels_ohe,
-                                         resize=(32, 32, 32),
-                                         loader=numpy_loader, two_dim=False,
-                                         grayscale=False, batch_size=1)
 
     #-------------------------------------------------#
     #              Architecture: Vanilla              #
@@ -89,10 +74,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_Vanilla(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.Vanilla",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -108,10 +89,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_DenseNet121(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet121",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -127,10 +104,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_DenseNet169(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet169",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -146,10 +119,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_DenseNet201(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet201",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -165,10 +134,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNet18(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet18",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -184,10 +149,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNet34(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet34",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -203,10 +164,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNet50(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet50",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -222,10 +179,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNet101(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet101",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -241,10 +194,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNet152(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet152",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -260,10 +209,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNeXt50(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNeXt50",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -279,10 +224,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_ResNeXt101(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNeXt101",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -298,10 +239,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_VGG16(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.VGG16",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -317,10 +254,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_VGG19(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.VGG19",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -336,10 +269,6 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_MobileNet(channels=3, input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.MobileNet",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
@@ -351,14 +280,11 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: MobileNetV2            #
     #-------------------------------------------------#
     def test_MobileNetV2(self):
-        arch = Architecture_MobileNetV2(channels=1, input_shape=(64, 64, 64))
+        arch = Architecture_MobileNetV2(Classifier(n_labels=4), channels=1,
+                                        input_shape=(64, 64, 64))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_MobileNetV2(channels=3, input_shape=(64, 64, 64))
-        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.MobileNetV2",
                                batch_queue_size=1, input_shape=(64, 64, 64))
         try : model.model.summary()

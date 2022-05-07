@@ -351,16 +351,16 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: MobileNetV2            #
     #-------------------------------------------------#
     def test_MobileNetV2(self):
-        arch = Architecture_MobileNetV2(channels=1, input_shape=(32, 32, 32))
+        arch = Architecture_MobileNetV2(channels=1, input_shape=(64, 64, 64))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        arch = Architecture_MobileNetV2(channels=3, input_shape=(32, 32, 32))
+        arch = Architecture_MobileNetV2(channels=3, input_shape=(64, 64, 64))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
         model = Neural_Network(n_labels=4, channels=3, architecture="3D.MobileNetV2",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               batch_queue_size=1, input_shape=(64, 64, 64))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")

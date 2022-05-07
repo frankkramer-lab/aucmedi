@@ -15,7 +15,7 @@ The main reason this developed project is already publicly available is due to g
 Right now, it is possible to utilize the AUCMEDI framework as an high-level API for building state-of-the-art medical image classification pipelines.  
 But more things like CLI/Docker for AutoML and straightforward application are coming!  
 
-**Stay tuned and please have a look on AUCMEDI in 1-2 months, again! :)**  
+**Stay tuned and please have a look on AUCMEDI in the end of June, again! :)**  
 
 ## Resources
 - Website: [AUCMEDI Website - Home](https://frankkramer-lab.github.io/aucmedi/)

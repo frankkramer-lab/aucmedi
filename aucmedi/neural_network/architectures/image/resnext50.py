@@ -40,8 +40,6 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import Model
-from tensorflow.keras import layers
 from tensorflow import keras
 from keras_applications.resnext import ResNeXt50
 # Internal libraries
@@ -54,8 +52,11 @@ class Architecture_ResNeXt50(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, channels, input_shape=(224, 224)):
+    def __init__(self, classification_head, channels, input_shape=(224, 224),
+                 pretrained_weights=False):
+        self.classifier = classification_head
         self.input = input_shape + (channels,)
+        self.pretrained_weights = pretrained_weights
 
     #---------------------------------------------#
     #                Create Model                 #

@@ -40,8 +40,6 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import Model
-from tensorflow.keras import layers
 from tensorflow.keras.applications.vgg16 import VGG16
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -53,8 +51,11 @@ class Architecture_VGG16(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, channels, input_shape=(224, 224)):
+    def __init__(self, classification_head, channels, input_shape=(224, 224),
+                 pretrained_weights=False):
+        self.classifier = classification_head
         self.input = input_shape + (channels,)
+        self.pretrained_weights = pretrained_weights
 
     #---------------------------------------------#
     #                Create Model                 #

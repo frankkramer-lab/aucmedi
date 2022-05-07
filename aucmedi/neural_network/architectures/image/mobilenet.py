@@ -41,8 +41,6 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import Model
-from tensorflow.keras import layers
 from tensorflow.keras.applications import MobileNet
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -54,8 +52,11 @@ class Architecture_MobileNet(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, channels, input_shape=(224, 224)):
+    def __init__(self, classification_head, channels, input_shape=(224, 224),
+                 pretrained_weights=False):
+        self.classifier = classification_head
         self.input = input_shape + (channels,)
+        self.pretrained_weights = pretrained_weights
 
     #---------------------------------------------#
     #                Create Model                 #

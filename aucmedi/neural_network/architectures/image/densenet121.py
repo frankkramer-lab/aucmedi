@@ -71,16 +71,10 @@ class Architecture_DenseNet121(Architecture_Base):
                                  pooling=None)
         top_model = base_model.output
 
-        # Add classification head as top model
-        
-        
-            
-            
-        
-        
-
-        
-        model = Model(inputs=base_model.input, outputs=top_model)
+        # Add classification head
+        model = self.classifier.build(model_input=base_model.input,
+                                      model_output=top_model,
+                                      two_dim=True)
 
         # Return created model
         return model

@@ -37,7 +37,7 @@ No intensive hardware requirements, which makes it ideal for debugging.
 #-----------------------------------------------------#
 # External libraries
 from tensorflow.keras import Input
-from tensorflow.keras.layers import Conv3D, MaxPooling3D,
+from tensorflow.keras.layers import Conv3D, MaxPooling3D
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 

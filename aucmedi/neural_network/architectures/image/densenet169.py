@@ -63,7 +63,7 @@ class Architecture_DenseNet169(Architecture_Base):
     def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
                      pretrained_weights=False):
         # Get pretrained image weights from imagenet if desired
-        if pretrained_weights : model_weights = "imagenet"
+        if self.pretrained_weights : model_weights = "imagenet"
         else : model_weights = None
 
         # Obtain DenseNet169 as base model
@@ -73,14 +73,14 @@ class Architecture_DenseNet169(Architecture_Base):
         top_model = base_model.output
 
         # Add classification head as top model
-        top_model = layers.GlobalAveragePooling2D(name="avg_pool")(top_model)
-        if fcl_dropout:
-            top_model = layers.Dense(units=512)(top_model)
-            top_model = layers.Dropout(0.3)(top_model)
-        top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(activation_output, name="probs")(top_model)
+        
+        
+            
+            
+        
+        
 
-        # Create model
+        
         model = Model(inputs=base_model.input, outputs=top_model)
 
         # Return created model

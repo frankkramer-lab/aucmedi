@@ -100,8 +100,9 @@ class Neural_Network:
         ```
 
         ```python title="Manual way"
-        from aucmedi.neural_network.architectures import Classifier
-        from aucmedi.neural_network.architectures import architecture_dict
+        from aucmedi.neural_network.architectures import Classifier, \
+                                                         architecture_dict, \
+                                                         supported_standardize_mode
 
         classification_head = Classifier(n_labels=4, activation_output="softmax")
         my_arch = architecture_dict["3D.DenseNet121"](classification_head,

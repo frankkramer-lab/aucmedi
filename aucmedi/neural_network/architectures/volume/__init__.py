@@ -71,19 +71,28 @@ architecture_dict = {
 
     ???+ example "Example"
         ```python title="Recommended via Neural_Network class"
-        my_model = Neural_Network(n_labels=4, channels=1, architecture="3D.ResNet50")
+        my_model = Neural_Network(n_labels=4, channels=1, architecture="3D.ResNet50",
+                                  input_shape(128,128,128), activation_output="softmax")
         ```
 
         ```python title="Manual via architecture_dict import"
-        from aucmedi.neural_network.architectures import architecture_dict
-        my_arch = architecture_dict["3D.ResNet50"](channels=1, input_shape=(128,128,128))
-        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
+        from aucmedi.neural_network.architectures import Classifier, architecture_dict
+
+        classification_head = Classifier(n_labels=4, activation_output="softmax")
+        my_arch = architecture_dict["3D.ResNet50"](classification_head,
+                                                   channels=1, input_shape=(128,128,128))
+        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
         ```
 
         ```python title="Manual via module import"
+        from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.volume import Architecture_ResNet50
-        my_arch = Architecture_ResNet50(channels=1, input_shape=(128,128,128))
-        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
+
+        classification_head = Classifier(n_labels=4, activation_output="softmax")
+        my_arch = Architecture_ResNet50(classification_head,
+                                        channels=1, input_shape=(128,128,128))
+
+        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
         ```
 
     ???+ warning
@@ -142,6 +151,7 @@ supported_standardize_mode = {
         ```python title="Manual via supported_standardize_mode import"
         from aucmedi.neural_network.architectures import supported_standardize_mode
         sf_norm = supported_standardize_mode["3D.DenseNet121"]
+
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=(64, 64, 64),                         # (64, 64, 64)
                               standardize_mode=sf_norm)                    # "torch"

@@ -121,8 +121,9 @@ class Neural_Network:
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
-                 fcl_dropout=True, learning_rate=0.0001, batch_queue_size=10,
-                 workers=1, multiprocessing=False, verbose=1):
+                 fcl_dropout=True, meta_variables=None, learning_rate=0.0001,
+                 batch_queue_size=10, workers=1, multiprocessing=False,
+                 verbose=1):
         """ Initialization function for creating a Neural Network (model) object.
 
         Args:
@@ -145,6 +146,9 @@ class Neural_Network:
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
                                                     Based on https://www.tensorflow.org/api_docs/python/tf/keras/activations.
             fcl_dropout (bool):                     Option whether to utilize an additonal Dense & Dropout layer in the classification head
+                                                    ([Classifier][aucmedi.neural_network.architectures.classifier]).
+            meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
+                                                    If `None`is provided, no metadata integration block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
             batch_queue_size (int):                 The batch queue size is the number of previously prepared batches in the cache during runtime.
@@ -176,15 +180,19 @@ class Neural_Network:
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
+        self.meta_variables = meta_variables
         self.verbose = verbose
 
         # Assemble architecture parameters
         arch_paras = {"channels":channels,
                       "pretrained_weights": pretrained_weights}
         if input_shape is not None : arch_paras["input_shape"] = input_shape
-        # Initialize classifier for the classification head
+        # Assemble classifier parameters
         classifier_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
                             "activation_output": activation_output}
+        if meta_variables is not None:
+            classifier_paras["meta_variables"] = meta_variables
+        # Initialize classifier for the classification head
         arch_paras["classification_head"] = Classifier(**classifier_paras)
         # Initialize architecture if None provided
         if architecture is None:

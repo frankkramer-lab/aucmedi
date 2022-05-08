@@ -51,6 +51,11 @@ class Classifier:
         | GlobalAveragePooling          | Pooling from Architecture Output to a single spatial dimensions. |
         | Dense(units=512)              | Optional dense & dropout layer if `fcl_dropout=True`.            |
         | Dropout(0.3)                  | Optional dense & dropout layer if `fcl_dropout=True`.            |
+        | Concatenate()                 | Optional appending of metadata to classification head.           |
+        | Dense(units=512)              | Optional dense & dropout layer if metadata is present.           |
+        | Dropout(0.3)                  | Optional dense & dropout layer if metadata is present.           |
+        | Dense(units=256)              | Optional dense & dropout layer if metadata is present.           |
+        | Dropout(0.3)                  | Optional dense & dropout layer if metadata is present.           |
         | Dense(units=n_labels)         | Dense layer to the number of labels (classes).                   |
         | Activation(activation_output) | Activation function corresponding to classification type.        |
 
@@ -87,7 +92,8 @@ class Classifier:
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, n_labels, fcl_dropout=True, activation_output="softmax"):
+    def __init__(self, n_labels, activation_output="softmax",
+                 meta_variables=None, fcl_dropout=True):
         """ Initialization function for creating a Classifier object.
 
         The fully connected layer and dropout option (`fcl_dropout`) utilizes a 512 unit Dense layer with 30% Dropout.
@@ -96,12 +102,15 @@ class Classifier:
 
         Args:
             n_labels (int):                 Number of classes/labels (important for the last layer of classification head).
-            fcl_dropout (bool):             Option whether to utilize a Dense & Dropout layer before the last classification layer.
             activation_output (str):        Activation function which is used in the last classification layer.
+            meta_variables (int):           Number of metadata variables, which should be included in the classification head.
+                                            If `None`is provided, no metadata integration block will be added to the classification head.
+            fcl_dropout (bool):             Option whether to utilize a Dense & Dropout layer before the last classification layer.
         """
         self.n_labels = n_labels
-        self.fcl_dropout = fcl_dropout
         self.activation_output = activation_output
+        self.meta_variables = meta_variables
+        self.fcl_dropout = fcl_dropout
 
     #---------------------------------------------#
     #                Create Model                 #
@@ -132,13 +141,32 @@ class Classifier:
             model_head = layers.Dense(units=512)(model_head)
             model_head = layers.Dropout(0.3)(model_head)
 
+        # Apply metadata integration block
+        if self.meta_variables is not None:
+            # Define metadata input
+            model_meta = Input(shape=(self.meta_variables,))
+
+            # Integrate metadata into classification had
+            model_head = layers.concatenate([model_head, model_meta])
+
+            # Apply additional densely-connected NN layers
+            model_head = layers.Dense(units=512, activation="relu")(model_head)
+            model_head = layers.Dropout(0.3)(model_head)
+            model_head = layers.Dense(units=256, activation="relu")(model_head)
+            model_head = layers.Dropout(0.3)(model_head)
+
         # Apply classifier
         model_head = layers.Dense(self.n_labels, name="preds")(model_head)
         # Apply activation output according to classification type
         model_head = layers.Activation(self.activation_output, name="probs")(model_head)
 
+        # Obtain input layer
+        if self.meta_variables is not None:
+            input_layer = [model_input, model_meta]
+        else : input_layer = model_input
+
         # Create tf.keras model
-        model = Model(inputs=model_input, outputs=model_head)
+        model = Model(inputs=input_layer, outputs=model_head)
 
         # Return ready-to-use classifier model
         return model

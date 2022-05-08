@@ -87,11 +87,11 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #                    Initialization                   #
     #-----------------------------------------------------#
-    def __init__(self, samples, path_imagedir, labels=None, image_format=None,
-                 batch_size=32, resize=(224, 224), subfunctions=[],
-                 data_aug=None, shuffle=False, grayscale=False,
-                 standardize_mode="z-score", sample_weights=None, workers=1,
-                 prepare_images=False,  loader=image_loader, seed=None,
+    def __init__(self, samples, path_imagedir, labels=None, metadata=None,
+                 image_format=None, subfunctions=[], batch_size=32,
+                 resize=(224, 224), standardize_mode="z-score", data_aug=None,
+                 shuffle=False, grayscale=False, sample_weights=None, workers=1,
+                 prepare_images=False, loader=image_loader, seed=None,
                  **kwargs):
         """ Initialization function of the DataGenerator which acts as a configuration hub.
 
@@ -125,17 +125,18 @@ class DataGenerator(Iterator):
             path_imagedir (str):                Path to the directory containing the images.
             labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
                                                 [input_interface][aucmedi.data_processing.io_data.input_interface].
+            metadata (numpy.ndarray):           NumPy Array with additional metadata. Have to be shape (n_samples, meta_variables).
             image_format (str):                 Image format to add at the end of the sample index for image loading.
                                                 Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+            subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
             batch_size (int):                   Number of samples inside a single batch.
             resize (tuple of int):              Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
-            subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
+            standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+                                                Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
             data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation techniques.
                                                 If `None` is provided, no augmentation will be performed.
             shuffle (bool):                     Boolean, whether dataset should be shuffled.
             grayscale (bool):                   Boolean, whether images are grayscale or RGB.
-            standardize_mode (str):             Standardization modus in which image intensity values are scaled.
-                                                Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
             workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
@@ -147,6 +148,7 @@ class DataGenerator(Iterator):
         """
         # Cache class variables
         self.labels = labels
+        self.metadata = metadata
         self.sample_weights = sample_weights
         self.prepare_images = prepare_images
         self.workers = workers
@@ -173,13 +175,19 @@ class DataGenerator(Iterator):
         if labels is not None and len(samples) != len(labels):
             raise ValueError("Samples and labels do not have same size!",
                              len(samples), len(labels))
+        # Sanity check for metadata correctness
+        if metadata is not None and len(samples) != len(metadata):
+            raise ValueError("Samples and metadata do not have same size!",
+                             len(samples), len(metadata))
         # Sanity check for sample weights correctness
         if sample_weights is not None and len(samples) != len(sample_weights):
             raise ValueError("Samples and sample weights do not have same size!",
                              len(samples), len(sample_weights))
-        # Verify that labels and sample weights are NumPy arrays
+        # Verify that labels, metadata and sample weights are NumPy arrays
         if labels is not None and not isinstance(labels, np.ndarray):
             self.labels = np.asarray(self.labels)
+        if metadata is not None and not isinstance(metadata, np.ndarray):
+            self.metadata = np.asarray(self.metadata)
         if sample_weights is not None and not isinstance(sample_weights,
                                                          np.ndarray):
             self.sample_weights = np.asarray(self.sample_weights)
@@ -239,8 +247,11 @@ class DataGenerator(Iterator):
         if self.sample_weights is not None:
             batch_stack[2].extend(self.sample_weights[index_array])
 
-        # Stack images together into a batch
-        batch = (np.stack(batch_stack[0], axis=0), )
+        # Stack images and optional metadata together into a batch
+        input_stack = np.stack(batch_stack[0], axis=0)
+        if self.metadata is not None:
+            input_stack = [input_stack, self.metadata[index_array]]
+        batch = (input_stack, )
         # Stack classifications together into a batch if available
         if self.labels is not None:
             batch += (np.stack(batch_stack[1], axis=0), )

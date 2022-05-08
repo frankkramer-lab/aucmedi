@@ -28,6 +28,7 @@ import numpy as np
 #Internal libraries
 from aucmedi.neural_network.architectures.image import *
 from aucmedi.neural_network.architectures import supported_standardize_mode as sdm_global
+from aucmedi.neural_network.architectures import Classifier
 from aucmedi import *
 from aucmedi.data_processing.subfunctions import Resize
 
@@ -85,11 +86,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #              Architecture: Vanilla              #
     #-------------------------------------------------#
     def test_Vanilla(self):
-        arch = Architecture_Vanilla(channels=1, input_shape=(32, 32))
+        arch = Architecture_Vanilla(Classifier(n_labels=4), channels=1,
+                                    input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_Vanilla(channels=3, input_shape=(32, 32))
+        arch = Architecture_Vanilla(Classifier(n_labels=4), channels=3,
+                                    input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -104,11 +107,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #              Architecture: ResNet50             #
     #-------------------------------------------------#
     def test_ResNet50(self):
-        arch = Architecture_ResNet50(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNet50(Classifier(n_labels=4), channels=1,
+                                     input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNet50(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNet50(Classifier(n_labels=4), channels=3,
+                                     input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -123,11 +128,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNet101             #
     #-------------------------------------------------#
     def test_ResNet101(self):
-        arch = Architecture_ResNet101(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNet101(Classifier(n_labels=4), channels=1,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNet101(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNet101(Classifier(n_labels=4), channels=3,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -142,11 +149,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNet152             #
     #-------------------------------------------------#
     def test_ResNet152(self):
-        arch = Architecture_ResNet152(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNet152(Classifier(n_labels=4), channels=1,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNet152(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNet152(Classifier(n_labels=4), channels=3,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -161,11 +170,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNet50V2            #
     #-------------------------------------------------#
     def test_ResNet50V2(self):
-        arch = Architecture_ResNet50V2(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNet50V2(Classifier(n_labels=4), channels=1,
+                                       input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNet50V2(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNet50V2(Classifier(n_labels=4), channels=3,
+                                       input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -180,11 +191,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNet101V2           #
     #-------------------------------------------------#
     def test_ResNet101V2(self):
-        arch = Architecture_ResNet101V2(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNet101V2(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNet101V2(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNet101V2(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -199,11 +212,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNet152V2           #
     #-------------------------------------------------#
     def test_ResNet152V2(self):
-        arch = Architecture_ResNet152V2(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNet152V2(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNet152V2(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNet152V2(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -218,11 +233,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNeXt50             #
     #-------------------------------------------------#
     def test_ResNeXt50(self):
-        arch = Architecture_ResNeXt50(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNeXt50(Classifier(n_labels=4), channels=1,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNeXt50(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNeXt50(Classifier(n_labels=4), channels=3,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -237,11 +254,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: ResNeXt101            #
     #-------------------------------------------------#
     def test_ResNeXt101(self):
-        arch = Architecture_ResNeXt101(channels=1, input_shape=(32, 32))
+        arch = Architecture_ResNeXt101(Classifier(n_labels=4), channels=1,
+                                       input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_ResNeXt101(channels=3, input_shape=(32, 32))
+        arch = Architecture_ResNeXt101(Classifier(n_labels=4), channels=3,
+                                       input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -256,11 +275,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: DenseNet121            #
     #-------------------------------------------------#
     def test_DenseNet121(self):
-        arch = Architecture_DenseNet121(channels=1, input_shape=(32, 32))
+        arch = Architecture_DenseNet121(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_DenseNet121(channels=3, input_shape=(32, 32))
+        arch = Architecture_DenseNet121(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -275,11 +296,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: DenseNet169            #
     #-------------------------------------------------#
     def test_DenseNet169(self):
-        arch = Architecture_DenseNet169(channels=1, input_shape=(32, 32))
+        arch = Architecture_DenseNet169(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_DenseNet169(channels=3, input_shape=(32, 32))
+        arch = Architecture_DenseNet169(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -294,11 +317,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: DenseNet201            #
     #-------------------------------------------------#
     def test_DenseNet201(self):
-        arch = Architecture_DenseNet201(channels=1, input_shape=(32, 32))
+        arch = Architecture_DenseNet201(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_DenseNet201(channels=3, input_shape=(32, 32))
+        arch = Architecture_DenseNet201(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -313,11 +338,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB0          #
     #-------------------------------------------------#
     def test_EfficientNetB0(self):
-        arch = Architecture_EfficientNetB0(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB0(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB0(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB0(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -332,11 +359,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB1          #
     #-------------------------------------------------#
     def test_EfficientNetB1(self):
-        arch = Architecture_EfficientNetB1(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB1(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB1(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB1(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -351,11 +380,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB2          #
     #-------------------------------------------------#
     def test_EfficientNetB2(self):
-        arch = Architecture_EfficientNetB2(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB2(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB2(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB2(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -370,11 +401,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB3          #
     #-------------------------------------------------#
     def test_EfficientNetB2(self):
-        arch = Architecture_EfficientNetB3(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB3(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB3(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB3(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -389,11 +422,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB4          #
     #-------------------------------------------------#
     def test_EfficientNetB4(self):
-        arch = Architecture_EfficientNetB4(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB4(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB4(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB4(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -408,11 +443,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB5          #
     #-------------------------------------------------#
     def test_EfficientNetB5(self):
-        arch = Architecture_EfficientNetB5(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB5(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB5(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB5(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -427,11 +464,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB6          #
     #-------------------------------------------------#
     def test_EfficientNetB6(self):
-        arch = Architecture_EfficientNetB6(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB6(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB6(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB6(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -446,11 +485,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB7          #
     #-------------------------------------------------#
     def test_EfficientNetB7(self):
-        arch = Architecture_EfficientNetB7(channels=1, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB7(Classifier(n_labels=4), channels=1,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_EfficientNetB7(channels=3, input_shape=(32, 32))
+        arch = Architecture_EfficientNetB7(Classifier(n_labels=4), channels=3,
+                                           input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -465,11 +506,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #             Architecture: MobileNet             #
     #-------------------------------------------------#
     def test_MobileNet(self):
-        arch = Architecture_MobileNet(channels=1, input_shape=(32, 32))
+        arch = Architecture_MobileNet(Classifier(n_labels=4), channels=1,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_MobileNet(channels=3, input_shape=(32, 32))
+        arch = Architecture_MobileNet(Classifier(n_labels=4), channels=3,
+                                      input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -484,11 +527,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: MobileNetV2            #
     #-------------------------------------------------#
     def test_MobileNetV2(self):
-        arch = Architecture_MobileNetV2(channels=1, input_shape=(32, 32))
+        arch = Architecture_MobileNetV2(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_MobileNetV2(channels=3, input_shape=(32, 32))
+        arch = Architecture_MobileNetV2(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -503,11 +548,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: NASNetMobile            #
     #-------------------------------------------------#
     def test_NASNetMobile(self):
-        arch = Architecture_NASNetMobile(channels=1, input_shape=(32, 32))
+        arch = Architecture_NASNetMobile(Classifier(n_labels=4), channels=1,
+                                         input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_NASNetMobile(channels=3, input_shape=(32, 32))
+        arch = Architecture_NASNetMobile(Classifier(n_labels=4), channels=3,
+                                         input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -522,11 +569,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: NASNetLarge            #
     #-------------------------------------------------#
     def test_NASNetLarge(self):
-        arch = Architecture_NASNetLarge(channels=1, input_shape=(32, 32))
+        arch = Architecture_NASNetLarge(Classifier(n_labels=4), channels=1,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_NASNetLarge(channels=3, input_shape=(32, 32))
+        arch = Architecture_NASNetLarge(Classifier(n_labels=4), channels=3,
+                                        input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -543,11 +592,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     def test_InceptionResNetV2(self):
         self.datagen_GRAY.sf_resize = Resize(shape=(75, 75))
         self.datagen_RGB.sf_resize = Resize(shape=(75, 75))
-        arch = Architecture_InceptionResNetV2(channels=1, input_shape=(75, 75))
+        arch = Architecture_InceptionResNetV2(Classifier(n_labels=4), channels=1,
+                                              input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_InceptionResNetV2(channels=3, input_shape=(75, 75))
+        arch = Architecture_InceptionResNetV2(Classifier(n_labels=4), channels=3,
+                                              input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -566,11 +617,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     def test_InceptionV3(self):
         self.datagen_GRAY.sf_resize = Resize(shape=(75, 75))
         self.datagen_RGB.sf_resize = Resize(shape=(75, 75))
-        arch = Architecture_InceptionV3(channels=1, input_shape=(75, 75))
+        arch = Architecture_InceptionV3(Classifier(n_labels=4), channels=1,
+                                        input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_InceptionV3(channels=3, input_shape=(75, 75))
+        arch = Architecture_InceptionV3(Classifier(n_labels=4), channels=3,
+                                        input_shape=(75, 75))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -587,11 +640,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #               Architecture: VGG16               #
     #-------------------------------------------------#
     def test_VGG16(self):
-        arch = Architecture_VGG16(channels=1, input_shape=(32, 32))
+        arch = Architecture_VGG16(Classifier(n_labels=4), channels=1,
+                                  input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_VGG16(channels=3, input_shape=(32, 32))
+        arch = Architecture_VGG16(Classifier(n_labels=4), channels=3,
+                                  input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -606,11 +661,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #               Architecture: VGG19               #
     #-------------------------------------------------#
     def test_VGG19(self):
-        arch = Architecture_VGG19(channels=1, input_shape=(32, 32))
+        arch = Architecture_VGG19(Classifier(n_labels=4), channels=1,
+                                  input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_VGG19(channels=3, input_shape=(32, 32))
+        arch = Architecture_VGG19(Classifier(n_labels=4), channels=3,
+                                  input_shape=(32, 32))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)
@@ -627,11 +684,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
     def test_Xception(self):
         self.datagen_GRAY.sf_resize = Resize(shape=(71, 71))
         self.datagen_RGB.sf_resize = Resize(shape=(71, 71))
-        arch = Architecture_Xception(channels=1, input_shape=(71, 71))
+        arch = Architecture_Xception(Classifier(n_labels=4), channels=1,
+                                     input_shape=(71, 71))
         model = Neural_Network(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_GRAY)
-        arch = Architecture_Xception(channels=3, input_shape=(71, 71))
+        arch = Architecture_Xception(Classifier(n_labels=4), channels=3,
+                                     input_shape=(71, 71))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_RGB)

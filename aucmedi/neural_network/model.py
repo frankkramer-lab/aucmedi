@@ -24,7 +24,9 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 # Internal libraries/scripts
-from aucmedi.neural_network.architectures import architecture_dict, supported_standardize_mode
+from aucmedi.neural_network.architectures import architecture_dict, \
+                                                 supported_standardize_mode, \
+                                                 Classifier
 
 #-----------------------------------------------------#
 #            Neural Network (model) class             #
@@ -60,11 +62,12 @@ class Neural_Network:
         ```python
         # 2D architecture
         my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
-        # 3D architecture
-        my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50")
+        # 3D architecture for multi-label classification (sigmoid activation)
+        my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50",
+                                    activation_output="sigmoid")
         # 2D architecture with custom input_shape
-        my_model_c = Neural_Network(n_labels=8, channels=3,
-                                    architecture="2D.Xception", input_shape=(512,512))
+        my_model_c = Neural_Network(n_labels=8, channels=3, architecture="2D.Xception",
+                                    input_shape=(512,512))
         ```
 
     ??? note "List of implemented Architectures"
@@ -72,6 +75,16 @@ class Neural_Network:
 
         - 2D Architectures: [aucmedi.neural_network.architectures.image][]
         - 3D Architectures: [aucmedi.neural_network.architectures.volume][]
+
+    ??? note "Classification Types"
+        | Type                       | Activation Function                                             |
+        | -------------------------- | --------------------------------------------------------------- |
+        | Binary classification      | `activation_output="softmax"`: Only a single class is correct.  |
+        | Multi-class classification | `activation_output="softmax"`: Only a single class is correct.  |
+        | Multi-label classification | `activation_output="sigmoid"`: Multiple classes can be correct. |
+
+        Defined by the [Classifier][aucmedi.neural_network.architectures.classifier] of an
+        [Architecture][aucmedi.neural_network.architectures].
 
     ??? example "Example: How to obtain required parameters for the DataGenerator?"
         Be aware that the input_size and standardize_mode are just recommendations and
@@ -87,10 +100,16 @@ class Neural_Network:
         ```
 
         ```python title="Manual way"
-        from aucmedi.neural_network.architectures import architecture_dict
-        my_arch = architecture_dict["3D.DenseNet121"](channels=1,
+        from aucmedi.neural_network.architectures import Classifier, \
+                                                         architecture_dict, \
+                                                         supported_standardize_mode
+
+        classification_head = Classifier(n_labels=4, activation_output="softmax")
+        my_arch = architecture_dict["3D.DenseNet121"](classification_head,
+                                                      channels=1,
                                                       input_shape=(128,128,128))
-        my_model = Neural_Network(n_labels=4, channels=1, architecture=my_arch)
+
+        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
 
         from aucmedi.neural_network.architectures import supported_standardize_mode
         sf_norm = supported_standardize_mode["3D.DenseNet121"]
@@ -98,12 +117,29 @@ class Neural_Network:
                               resize=(128,128,128),                        # (128,128,128)
                               standardize_mode=sf_norm)                    # "torch"
         ```
+
+    ??? example "Example: How to integrate metadata in AUCMEDI?"
+        ```python
+        from aucmedi import *
+        import numpy as np
+
+        my_metadata = np.random.rand(len(samples), 10)
+
+        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121",
+                                  meta_variables=10)
+
+        my_dg = DataGenerator(samples, "images_dir/",
+                              labels=None, metadata=my_metadata,
+                              resize=my_model.meta_input,                  # (224,224)
+                              standardize_mode=my_model.meta_standardize)  # "torch"
+        ```
     """
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
-                 fcl_dropout=True, learning_rate=0.0001, batch_queue_size=10,
-                 workers=1, multiprocessing=False, verbose=1):
+                 fcl_dropout=True, meta_variables=None, learning_rate=0.0001,
+                 batch_queue_size=10, workers=1, multiprocessing=False,
+                 verbose=1):
         """ Initialization function for creating a Neural Network (model) object.
 
         Args:
@@ -115,16 +151,21 @@ class Neural_Network:
             architecture (str or Architecture):     Key (str) or instance of a neural network model Architecture class instance.
                                                     If a String is provided, the corresponding architecture is selected from the architecture dictionary.
                                                     By default, a 2D Vanilla Model is used as Architecture.
-            pretrained_weights (bool):              Option whether to utilize pretrained weights e.g. for ImageNet.
+            pretrained_weights (bool):              Option whether to utilize pretrained weights e.g. from ImageNet.
             loss (Metric Function):                 The metric function which is used as loss for training.
                                                     Any Metric Function defined in Keras, in aucmedi.neural_network.loss_functions or any custom
                                                     metric function, which follows the Keras metric guidelines, can be used.
             metrics (list of Metric Functions):     List of one or multiple Metric Functions, which will be shown during training.
                                                     Any Metric Function defined in Keras or any custom metric function, which follows the Keras
                                                     metric guidelines, can be used.
-            activation_output (str):                 Activation function which should be used in the last classification layer.
+            activation_output (str):                Activation function which should be used in the classification head
+                                                    ([Classifier][aucmedi.neural_network.architectures.classifier]).
                                                     Based on https://www.tensorflow.org/api_docs/python/tf/keras/activations.
-            fcl_dropout (bool):                     Option whether to utilize a Dense & Dropout layer in the last classification layer.
+            fcl_dropout (bool):                     Option whether to utilize an additonal Dense & Dropout layer in the classification head
+                                                    ([Classifier][aucmedi.neural_network.architectures.classifier]).
+            meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
+                                                    If `None`is provided, no metadata integration block will be added to the classification head
+                                                    ([Classifier][aucmedi.neural_network.architectures.classifier]).
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
             batch_queue_size (int):                 The batch queue size is the number of previously prepared batches in the cache during runtime.
             workers (int):                          Number of workers/threads which preprocess batches during runtime.
@@ -155,15 +196,24 @@ class Neural_Network:
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
+        self.meta_variables = meta_variables
         self.verbose = verbose
 
         # Assemble architecture parameters
-        arch_paras = {"channels":channels}
+        arch_paras = {"channels":channels,
+                      "pretrained_weights": pretrained_weights}
         if input_shape is not None : arch_paras["input_shape"] = input_shape
+        # Assemble classifier parameters
+        classifier_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
+                            "activation_output": activation_output}
+        if meta_variables is not None:
+            classifier_paras["meta_variables"] = meta_variables
+        # Initialize classifier for the classification head
+        arch_paras["classification_head"] = Classifier(**classifier_paras)
         # Initialize architecture if None provided
         if architecture is None:
             self.architecture = architecture_dict["2D.Vanilla"](**arch_paras)
-            self.meta_standardize = ""
+            self.meta_standardize = "z-score"
         # Initialize passed architecture from aucmedi library
         elif isinstance(architecture, str) and architecture in architecture_dict:
             self.architecture = architecture_dict[architecture](**arch_paras)
@@ -174,10 +224,7 @@ class Neural_Network:
             self.meta_standardize = None
 
         # Build model utilizing the selected architecture
-        model_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
-                       "activation_output": activation_output,
-                       "pretrained_weights": pretrained_weights}
-        self.model = self.architecture.create_model(**model_paras)
+        self.model = self.architecture.create_model()
 
         # Compile model
         self.model.compile(optimizer=Adam(learning_rate=learning_rate),

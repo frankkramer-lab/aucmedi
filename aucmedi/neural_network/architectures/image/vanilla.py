@@ -36,8 +36,8 @@ No intensive hardware requirements, which makes it ideal for debugging.
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Dropout, Dense, Activation
+from tensorflow.keras import Input
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
@@ -48,41 +48,40 @@ class Architecture_Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                   __init__                  #
     #---------------------------------------------#
-    def __init__(self, channels, input_shape=(224, 224)):
+    def __init__(self, classification_head, channels, input_shape=(224, 224),
+                 pretrained_weights=False):
+        self.classifier = classification_head
         self.input = input_shape + (channels,)
+        self.pretrained_weights = pretrained_weights
 
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
-                     pretrained_weights=False):
-        # Initialize model
-        model = Sequential()
+    def create_model(self):
+        # Initialize input
+        model_input = Input(shape=self.input)
 
         # Add 4x convolutional layers with increasing filters
-        model.add(Conv2D(filters=32, kernel_size=3, padding='same',
-                         activation='relu', input_shape=self.input))
-        model.add(MaxPooling2D(pool_size=2))
+        model_base = Conv2D(filters=32, kernel_size=3, padding='same',
+                            activation='relu')(model_input)
+        model_base = MaxPooling2D(pool_size=2)(model_base)
 
-        model.add(Conv2D(filters=64, kernel_size=3, padding='same',
-                         activation='relu'))
-        model.add(MaxPooling2D(pool_size=2))
+        model_base = Conv2D(filters=64, kernel_size=3, padding='same',
+                            activation='relu')(model_base)
+        model_base = MaxPooling2D(pool_size=2)(model_base)
 
-        model.add(Conv2D(filters=128, kernel_size=3, padding='same',
-                         activation='relu'))
-        model.add(MaxPooling2D(pool_size=2))
+        model_base = Conv2D(filters=128, kernel_size=3, padding='same',
+                            activation='relu')(model_base)
+        model_base = MaxPooling2D(pool_size=2)(model_base)
 
-        model.add(Conv2D(filters=256, kernel_size=3, padding='same',
-                         activation='relu'))
-        model.add(MaxPooling2D(pool_size=2))
+        model_base = Conv2D(filters=256, kernel_size=3, padding='same',
+                            activation='relu')(model_base)
+        model_base = MaxPooling2D(pool_size=2)(model_base)
 
         # Add classification head
-        model.add(GlobalAveragePooling2D())
-        if fcl_dropout:
-            model.add(Dense(units=512))
-            model.add(Dropout(rate=0.3))
-        model.add(Dense(n_labels, name="preds"))
-        model.add(Activation(activation_output, name="probs"))
+        model = self.classifier.build(model_input=model_input,
+                                      model_output=model_base,
+                                      two_dim=True)
 
         # Return created model
         return model

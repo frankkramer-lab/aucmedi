@@ -105,19 +105,29 @@ architecture_dict = {
 
     ???+ example "Example"
         ```python title="Recommended via Neural_Network class"
-        my_model = Neural_Network(n_labels=4, channels=3, architecture="2D.Xception")
+        my_model = Neural_Network(n_labels=4, channels=3, architecture="2D.Xception",
+                                  input_shape(512, 512), activation_output="softmax")
         ```
 
         ```python title="Manual via architecture_dict import"
-        from aucmedi.neural_network.architectures import architecture_dict
-        my_arch = architecture_dict["2D.Xception"](channels=3, input_shape=(512,512))
-        my_model = Neural_Network(n_labels=4, channels=3, architecture=my_arch)
+        from aucmedi.neural_network.architectures import Classifier, architecture_dict
+
+        classification_head = Classifier(n_labels=4, activation_output="softmax")
+        my_arch = architecture_dict["2D.Xception"](classification_head,
+                                                   channels=3, input_shape=(512,512))
+
+        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
         ```
 
         ```python title="Manual via module import"
+        from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.image import Architecture_Xception
-        my_arch = Architecture_Xception(channels=3, input_shape=(512,512))
-        my_model = Neural_Network(n_labels=4, channels=3, architecture=my_arch)
+
+        classification_head = Classifier(n_labels=4, activation_output="softmax")
+        my_arch = Architecture_Xception(classification_head,
+                                        channels=3, input_shape=(512,512))
+
+        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
         ```
 
     ???+ warning
@@ -190,6 +200,7 @@ supported_standardize_mode = {
         ```python title="Manual via supported_standardize_mode import"
         from aucmedi.neural_network.architectures import supported_standardize_mode
         sf_norm = supported_standardize_mode["2D.DenseNet121"]
+
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=(224, 224),                           # (224, 224)
                               standardize_mode=sf_norm)                    # "torch"

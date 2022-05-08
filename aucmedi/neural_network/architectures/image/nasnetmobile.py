@@ -40,8 +40,6 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import Model
-from tensorflow.keras import layers
 from tensorflow.keras.applications import NASNetMobile
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -53,16 +51,18 @@ class Architecture_NASNetMobile(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, channels, input_shape=(224, 224)):
+    def __init__(self, classification_head, channels, input_shape=(224, 224),
+                 pretrained_weights=False):
+        self.classifier = classification_head
         self.input = input_shape + (channels,)
+        self.pretrained_weights = pretrained_weights
 
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def create_model(self, n_labels, fcl_dropout=True, activation_output="softmax",
-                     pretrained_weights=False):
+    def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if pretrained_weights : model_weights = "imagenet"
+        if self.pretrained_weights : model_weights = "imagenet"
         else : model_weights = None
 
         # Obtain NASNetMobile as base model
@@ -71,16 +71,10 @@ class Architecture_NASNetMobile(Architecture_Base):
                                   pooling=None)
         top_model = base_model.output
 
-        # Add classification head as top model
-        top_model = layers.GlobalAveragePooling2D(name="avg_pool")(top_model)
-        if fcl_dropout:
-            top_model = layers.Dense(units=512)(top_model)
-            top_model = layers.Dropout(0.3)(top_model)
-        top_model = layers.Dense(n_labels, name="preds")(top_model)
-        top_model = layers.Activation(activation_output, name="probs")(top_model)
-
-        # Create model
-        model = Model(inputs=base_model.input, outputs=top_model)
+        # Add classification head
+        model = self.classifier.build(model_input=base_model.input,
+                                      model_output=top_model,
+                                      two_dim=True)
 
         # Return created model
         return model

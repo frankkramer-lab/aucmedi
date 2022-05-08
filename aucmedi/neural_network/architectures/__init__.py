@@ -34,11 +34,12 @@ Additionally, AUCMEDI offers architectures for 2D image and 3D volume classifica
     ```python
     # 2D architecture
     my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
-    # 3D architecture
-    my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50")
+    # 3D architecture for multi-label classification (sigmoid activation)
+    my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50",
+                                activation_output="sigmoid")
     # 2D architecture with custom input_shape
-    my_model_c = Neural_Network(n_labels=8, channels=3,
-                                architecture="2D.Xception", input_shape=(512,512))
+    my_model_c = Neural_Network(n_labels=8, channels=3, architecture="2D.Xception",
+                                input_shape=(512,512))
     ```
 
 ???+ note "List of implemented Architectures"
@@ -50,12 +51,18 @@ Additionally, AUCMEDI offers architectures for 2D image and 3D volume classifica
 Besides the flexibility in switching between already implemented architecture,
 the [abstract base class interface][aucmedi.neural_network.architectures.arch_base.Architecture_Base]
 for architectures offers the possibility for custom architecture integration into the AUCMEDI pipeline.
+
+Furthermore, AUCMEDI offers the powerful classification head interface [Classifier][aucmedi.neural_network.architectures.classifier],
+which can be used for all types of image classifications and will be automatically created in the
+[Neural_Network][aucmedi.neural_network.model.Neural_Network] class.
 """
 #-----------------------------------------------------#
 #               General library imports               #
 #-----------------------------------------------------#
 # Abstract Base Class for Architectures
 from aucmedi.neural_network.architectures.arch_base import Architecture_Base
+# Classification Head
+from aucmedi.neural_network.architectures.classifier import Classifier
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #

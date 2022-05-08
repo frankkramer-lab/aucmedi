@@ -82,6 +82,12 @@ class DataGeneratorTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
 
+        # Create metadata
+        self.metadata = np.zeros((25, 10), dtype=np.uint8)
+        for i in range(0, 25):
+            class_index = np.random.randint(0, 10)
+            self.metadata[i][class_index] = 1
+
     #-------------------------------------------------#
     #           Initialization Functionality          #
     #-------------------------------------------------#
@@ -157,6 +163,34 @@ class DataGeneratorTEST(unittest.TestCase):
             batch = next(data_gen)
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
+
+    #-------------------------------------------------#
+    #     Application Functionality with Metadata     #
+    #-------------------------------------------------#
+    # Usage: Metadata for inference
+    def test_RUN_Metadata_noLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
+                                 metadata=self.metadata, grayscale=False,
+                                 batch_size=5)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 1)
+            self.assertTrue(len(batch[0]) == 2)
+            self.assertTrue(np.array_equal(batch[0][0].shape, (5, 224, 224, 3)))
+            self.assertTrue(np.array_equal(batch[0][1].shape, (5, 10)))
+
+    # Usage: Metadata for training
+    def test_RUN_Metadata_withLabel(self):
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
+                             labels=self.labels_ohe, metadata=self.metadata,
+                             grayscale=False, batch_size=5)
+        for i in range(0, 10):
+            batch = next(data_gen)
+            self.assertTrue(len(batch), 2)
+            self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
+            self.assertTrue(len(batch[0]) == 2)
+            self.assertTrue(np.array_equal(batch[0][0].shape, (5, 224, 224, 3)))
+            self.assertTrue(np.array_equal(batch[0][1].shape, (5, 10)))
 
     #-------------------------------------------------#
     #                 Multi-Processing                #

@@ -59,12 +59,26 @@ class ClassifierTEST(unittest.TestCase):
             class_index = np.random.randint(0, 20)
             self.labels_ohe[i][class_index] = 1
 
+        # Create metadata
+        self.metadata = np.zeros((1, 10), dtype=np.uint8)
+        for i in range(0, 1):
+            class_index = np.random.randint(0, 10)
+            self.metadata[i][class_index] = 1
+
         # Create Data Generator
         self.datagen = DataGenerator(self.sampleList,
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
                                      resize=(32, 32),
                                      grayscale=False, batch_size=1)
+
+        # Create Data Generator with Metadata
+        self.datagen_meta = DataGenerator(self.sampleList,
+                                          self.tmp_data.name,
+                                          labels=self.labels_ohe,
+                                          metadata=self.metadata,
+                                          resize=(32, 32),
+                                          grayscale=False, batch_size=1)
 
     #-------------------------------------------------#
     #           Initialization Functionality          #
@@ -95,7 +109,12 @@ class ClassifierTEST(unittest.TestCase):
     #-------------------------------------------------#
     #              Application - Metadata             #
     #-------------------------------------------------#
-    # Coming soon
+    def test_application_multilabel(self):
+        model = Neural_Network(n_labels=20, channels=3, batch_queue_size=1,
+                               input_shape=(32, 32), activation_output="softmax",
+                               meta_variables=10)
+        preds = model.predict(self.datagen_meta)
+        self.assertTrue(np.sum(preds[0]) > 0.99 and np.sum(preds[0]) < 1.01)
 
     #-------------------------------------------------#
     #          Architecture Interoperability          #
@@ -112,9 +131,23 @@ class ClassifierTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                  Functionality                  #
     #-------------------------------------------------#
-    def test_functionality(self):
+    def test_functionality_base(self):
         classification_head = Classifier(n_labels=20, fcl_dropout=True,
                                          activation_output="softmax")
+        model_input = Input(shape=(32,32,3))
+        model = classification_head.build(model_input=model_input,
+                                          model_output=model_input,
+                                          two_dim=True)
+        try : model.summary()
+        except : raise Exception()
+
+    #-------------------------------------------------#
+    #             Functionality - Metadata            #
+    #-------------------------------------------------#
+    def test_functionality_metadata(self):
+        classification_head = Classifier(n_labels=20, fcl_dropout=True,
+                                         activation_output="softmax",
+                                         meta_variables=10)
         model_input = Input(shape=(32,32,3))
         model = classification_head.build(model_input=model_input,
                                           model_output=model_input,

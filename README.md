@@ -48,15 +48,15 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - [x] Full (and automatic) documentation of the complete API reference
 - [x] Started creating examples & applications for the community
 - [x] Available from PyPI for simple installation in various environments
+- [x] Interface for metadata / pandas or NumPy table inclusion in model architectures
+- [x] Unittesting -> CI/CD
+- [x] Clean up Website
 
 **Planed milestones and features are:**
-- [ ] Unittesting -> CI/CD
-- [ ] Interface for metadata / pandas table inclusion in model architectures
 - [ ] Integrate evaluation functions
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML
-- [ ] Clean up Website
 - [ ] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
 - [ ] Publication
 

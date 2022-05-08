@@ -117,6 +117,22 @@ class Neural_Network:
                               resize=(128,128,128),                        # (128,128,128)
                               standardize_mode=sf_norm)                    # "torch"
         ```
+
+    ??? example "Example: How to integrate metadata in AUCMEDI?"
+        ```python
+        from aucmedi import *
+        import numpy as np
+
+        my_metadata = np.random.rand(len(samples), 10)
+
+        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121",
+                                  meta_variables=10)
+
+        my_dg = DataGenerator(samples, "images_dir/",
+                              labels=None, metadata=my_metadata,
+                              resize=my_model.meta_input,                  # (224,224)
+                              standardize_mode=my_model.meta_standardize)  # "torch"
+        ```
     """
     def __init__(self, n_labels, channels, input_shape=None, architecture=None,
                  pretrained_weights=False, loss="categorical_crossentropy",

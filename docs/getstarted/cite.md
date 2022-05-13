@@ -9,8 +9,8 @@ https://doi.org/10.1186/s12880-020-00543-7
 ```
 
 ```
-Dominik Müller, Iñaki Soto-Rey, Frank Kramer. (2022).
-AUCMEDI: a framework for Automated Classification of Medical Images.
+Müller, D., Mayer, S., Hartmann, D., Meyer, P., Schneider, P., Soto-Rey, I., & Kramer, F. (2022).
+AUCMEDI: a framework for Automated Classification of Medical Images (Version 1.0.0) [Computer software].
 GitHub repository. https://github.com/frankkramer-lab/aucmedi
 ```
 

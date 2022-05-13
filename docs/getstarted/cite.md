@@ -1,4 +1,4 @@
-AUCMEDI is currently unpbulished.
+AUCMEDI is currently unpublished. But coming soon!
 
 Please cite our base framework MIScnn as well as the AUCMEDI GitHub repository:
 

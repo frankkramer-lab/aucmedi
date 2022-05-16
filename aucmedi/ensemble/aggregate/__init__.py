@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 """ Library of implemented Aggregate functions in AUCMEDI.
 
-An Aggregate function can be passed to an Ensembler and merges multiple class predictions
+An Aggregate function can be passed to an Ensemble and merges multiple class predictions
 into a single prediction.
 
 ```
@@ -38,23 +38,17 @@ Example: [[0.4, 0.3, 0.3]]
 
 ???+ example "Example"
     ```python
-    # Recommended: Apply an Ensembler like Augmenting (test-time augmentation) with Majority Vote
-    preds = predict_augmenting(model, samples, "dataset/images/",
-                               n_cycles=15, img_aug=test_aug, aggregate="majority_vote",
-                               image_format=image_format, batch_size=32,
-                               resize=model.meta_input, standardize_mode=model.meta_standardize)
+    # Recommended: Apply an Ensemble like Augmenting (test-time augmentation) with Majority Vote
+    preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate="majority_vote")
 
-    # Manual: Apply an Ensembler like Augmenting (test-time augmentation) with Majority Vote
+    # Manual: Apply an Ensemble like Augmenting (test-time augmentation) with Majority Vote
     from aucmedi.ensemble.aggregate import Majority_Vote
     my_agg = Majority_Vote()
-    preds = predict_augmenting(model, samples, "dataset/images/",
-                               n_cycles=15, img_aug=test_aug, aggregate=my_agg,
-                               image_format=image_format, batch_size=32,
-                               resize=model.meta_input, standardize_mode=model.meta_standardize)
+    preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate=my_agg)
     ```
 
 Aggregate functions are based on the abstract base class [Aggregate_Base][aucmedi.ensemble.aggregate.agg_base.Aggregate_Base],
-which allow simple integration of custom aggregate methods for Ensembler.
+which allow simple integration of custom aggregate methods for Ensemble.
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

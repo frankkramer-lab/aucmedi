@@ -30,7 +30,7 @@ from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 class Majority_Vote(Aggregate_Base):
     """ Aggregate function based on majority vote.
 
-    This class should be passed to a Ensembler function for combining predictions.
+    This class should be passed to a Ensemble function for combining predictions.
     """
     #---------------------------------------------#
     #                Initialization               #

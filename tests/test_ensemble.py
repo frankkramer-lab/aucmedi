@@ -26,14 +26,14 @@ import os
 from PIL import Image
 import numpy as np
 #Internal libraries
-from aucmedi import Neural_Network
+from aucmedi import DataGenerator, Neural_Network, Image_Augmentation, Volume_Augmentation
 from aucmedi.data_processing.io_loader import numpy_loader
 from aucmedi.ensemble import *
 
 #-----------------------------------------------------#
-#                 Unittest: Ensembler                 #
+#                  Unittest: Ensemble                 #
 #-----------------------------------------------------#
-class EnsemblerTEST(unittest.TestCase):
+class EnsembleTEST(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
@@ -50,7 +50,7 @@ class EnsemblerTEST(unittest.TestCase):
             path_sample = os.path.join(self.tmp_data.name, index)
             img_pillow.save(path_sample)
             self.sampleList2D.append(index)
-        # Create 3D data
+        # Create 3D data and DataGenerators
         self.sampleList3D = []
         for i in range(0, 3):
             img_gray = np.random.rand(16, 16, 16) * 255
@@ -71,38 +71,62 @@ class EnsemblerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #               Inference Augmenting              #
     #-------------------------------------------------#
-    def test_Augmenting_2D(self):
-        preds = predict_augmenting(model=self.model2D, samples=self.sampleList2D,
-                                   path_imagedir=self.tmp_data.name,
-                                   n_cycles=1, batch_size=10,
-                                   data_aug=None, image_format=None,
-                                   resize=None, grayscale=False,
-                                   subfunctions=[], standardize_mode="tf",
-                                   seed=None, workers=1)
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
-        preds = predict_augmenting(model=self.model2D, samples=self.sampleList2D,
-                                   path_imagedir=self.tmp_data.name,
-                                   n_cycles=5, batch_size=10,
-                                   data_aug=None, image_format=None,
-                                   resize=None, grayscale=False,
-                                   subfunctions=[], standardize_mode="tf",
-                                   seed=None, workers=1)
+    def test_Augmenting_2D_functionality(self):
+        # Test functionality with batch_size 10 and n_cycles = 1
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                batch_size=10, resize=None, data_aug=None,
+                                grayscale=False, two_dim=False, subfunctions=[],
+                                standardize_mode="tf")
+        preds = predict_augmenting(self.model2D, datagen,
+                                   n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
 
-    def test_Augmenting_3D(self):
-        preds = predict_augmenting(model=self.model3D, samples=self.sampleList3D,
-                                   path_imagedir=self.tmp_data.name,
-                                   n_cycles=1, batch_size=3,
-                                   data_aug=None, image_format=None,
-                                   resize=None, grayscale=True, two_dim=False,
-                                   subfunctions=[], standardize_mode="tf",
-                                   seed=None, workers=1, loader=numpy_loader)
+        # Test functionality with batch_size 10 and n_cycles = 5
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                batch_size=10, resize=None, data_aug=None,
+                                grayscale=False, two_dim=False, subfunctions=[],
+                                standardize_mode="tf")
+        preds = predict_augmenting(self.model2D, datagen,
+                                   n_cycles=5, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
-        preds = predict_augmenting(model=self.model3D, samples=self.sampleList3D,
-                                   path_imagedir=self.tmp_data.name,
-                                   n_cycles=5, batch_size=8,
-                                   data_aug=None, image_format=None,
-                                   resize=None, grayscale=True, two_dim=False,
-                                   subfunctions=[], standardize_mode="tf",
-                                   seed=None, workers=1, loader=numpy_loader)
+
+    def test_Augmenting_2D_customAug(self):
+        # Test functionality with batch_size 10 and n_cycles = 1
+        my_aug = Image_Augmentation()
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                batch_size=10, resize=None, data_aug=my_aug,
+                                grayscale=False, two_dim=False, subfunctions=[],
+                                standardize_mode="tf")
+        preds = predict_augmenting(self.model2D, datagen,
+                                   n_cycles=1, aggregate="mean")
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+
+    def test_Augmenting_3D_functionality(self):
+        # Test functionality with batch_size 3 and n_cycles = 1
+        datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
+                                batch_size=3, resize=None, data_aug=None,
+                                grayscale=True, two_dim=False, subfunctions=[],
+                                standardize_mode="tf", loader=numpy_loader)
+        preds = predict_augmenting(self.model3D, datagen,
+                                   n_cycles=1, aggregate="mean")
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+
+        # Test functionality with batch_size 8 and n_cycles = 5
+        datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
+                                batch_size=8, resize=None, data_aug=None,
+                                grayscale=True, two_dim=False, subfunctions=[],
+                                standardize_mode="tf", loader=numpy_loader)
+        preds = predict_augmenting(self.model3D, datagen,
+                                   n_cycles=5, aggregate="mean")
+        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+
+    def test_Augmenting_3D_customAug(self):
+        # Test functionality with self provided augmentation
+        my_aug = Volume_Augmentation()
+        datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
+                                batch_size=3, resize=None, data_aug=my_aug,
+                                grayscale=True, two_dim=False, subfunctions=[],
+                                standardize_mode="tf", loader=numpy_loader)
+        preds = predict_augmenting(self.model3D, datagen,
+                                   n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))

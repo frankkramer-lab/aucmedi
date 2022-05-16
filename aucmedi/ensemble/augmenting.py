@@ -29,25 +29,26 @@ from aucmedi.data_processing.io_loader import image_loader
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
 #-----------------------------------------------------#
-def predict_augmenting(model, data_generator, n_cycles=10, aggregate="mean"):
+def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean"):
     """ Inference Augmenting function for automatically augmenting unknown images for prediction.
 
     The predictions of the augmented images are aggregated together via the provided aggregate function.
 
     ???+ example
         ```python
-        # Initialize desired Data Augmentation
-        test_aug = Image_Augmentation(flip=True, rotate=True, brightness=False, contrast=False,
-                                      saturation=False, hue=False, scale=False, crop=False,
-                                      grid_distortion=False, compression=False, gamma=False,
-                                      gaussian_noise=False, gaussian_blur=False,
-                                      downscaling=False, elastic_transform=False)
+        # Import libraries
+        from aucmedi.ensemble import predict_augmenting
+        from aucmedi import Image_Augmentation, DataGenerator
 
-        # Compute predictions
-        preds = predict_augmenting(model, samples, "dataset/images/",
-                                   n_cycles=15, img_aug=test_aug, aggregate="majority_vote",
-                                   image_format=image_format, batch_size=32,
-                                   resize=model.meta_input, standardize_mode=model.meta_standardize)
+        # Initialize testing DataGenerator with desired Data Augmentation
+        test_aug = Image_Augmentation(flip=True, rotate=True, brightness=False, contrast=False))
+        test_gen = DataGenerator(samples_test, "images_dir/",
+                                 data_aug=test_aug,
+                                 resize=model.meta_input,
+                                 standardize_mode=model.meta_standardize)
+
+        # Compute predictions via Augmenting
+        preds = predict_augmenting(model, test_gen, n_cycles=15, aggregate="majority_vote")
         ```
 
     The aggregate function can be either self initialized with an AUCMEDI aggregate function
@@ -68,7 +69,7 @@ def predict_augmenting(model, data_generator, n_cycles=10, aggregate="mean"):
 
     Args:
         model (Neural_Network):                 Instance of a AUCMEDI neural network class.
-        data_generator (DataGenerator):         A data generator which will be used for inference.
+        prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
         aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI aggregate function.
     """
@@ -78,7 +79,7 @@ def predict_augmenting(model, data_generator, n_cycles=10, aggregate="mean"):
     else : agg_fun = aggregate
 
     # Initialize image augmentation if none provided (only flip, rotate)
-    if data_aug is None and len(model.input_shape) == 3:
+    if prediction_generator.data_aug is None and len(model.input_shape) == 3:
         data_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
                                      brightness=False, contrast=False,
                                      saturation=False, hue=False, crop=False,
@@ -86,7 +87,7 @@ def predict_augmenting(model, data_generator, n_cycles=10, aggregate="mean"):
                                      gamma=False, gaussian_noise=False,
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=False)
-    elif data_aug is None and len(model.input_shape) == 4:
+    elif prediction_generator.data_aug is None and len(model.input_shape) == 4:
         data_aug = Volume_Augmentation(flip=True, rotate=True, scale=False,
                                       brightness=False, contrast=False,
                                       saturation=False, hue=False, crop=False,
@@ -94,24 +95,35 @@ def predict_augmenting(model, data_generator, n_cycles=10, aggregate="mean"):
                                       gamma=False, gaussian_noise=False,
                                       gaussian_blur=False, downscaling=False,
                                       elastic_transform=False)
+    else : data_aug = prediction_generator.data_aug
     # Multiply sample list for prediction according to number of cycles
-    samples_aug = np.repeat(samples, n_cycles)
+    samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 
-    # Create DataGenerator for inference
-    aug_gen = DataGenerator(samples_aug, path_imagedir, labels=None,
-                            batch_size=batch_size, data_aug=data_aug, seed=seed,
-                            subfunctions=subfunctions, shuffle=False,
-                            standardize_mode=standardize_mode, resize=resize,
-                            grayscale=grayscale, prepare_images=False,
-                            sample_weights=None, image_format=image_format,
-                            loader=loader, workers=workers, **kwargs)
+    # Re-initialize DataGenerator for inference
+    aug_gen = DataGenerator(samples_aug,
+                            path_imagedir=prediction_generator.path_imagedir,
+                            labels=None,
+                            batch_size=prediction_generator.batch_size,
+                            data_aug=data_aug,
+                            seed=prediction_generator.seed,
+                            subfunctions=prediction_generator.subfunctions,
+                            shuffle=False,
+                            standardize_mode=prediction_generator.standardize_mode,
+                            resize=prediction_generator.resize,
+                            grayscale=prediction_generator.grayscale,
+                            prepare_images=prediction_generator.prepare_images,
+                            sample_weights=None,
+                            image_format=prediction_generator.image_format,
+                            loader=prediction_generator.sample_loader,
+                            workers=prediction_generator.workers,
+                            **prediction_generator.kwargs)
 
     # Compute predictions with provided model
     preds_all = model.predict(aug_gen)
 
     # Ensemble inferences via aggregate function
     preds_ensembled = []
-    for i in range(0, len(samples)):
+    for i in range(0, len(prediction_generator.samples)):
         # Identify subset for a single sample
         j = i*n_cycles
         subset = preds_all[j:j+n_cycles]

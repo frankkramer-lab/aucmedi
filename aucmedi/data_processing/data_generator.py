@@ -176,6 +176,8 @@ class DataGenerator(Iterator):
         self.grayscale = grayscale
         self.subfunctions = subfunctions
         self.data_aug = data_aug
+        self.standardize_mode = standardize_mode
+        self.resize = resize
 
         # Initialize Standardization Subfunction
         if standardize_mode is not None:

@@ -262,6 +262,18 @@ class Neural_Network:
         The first one with frozen base model layers and a high learning rate,
         whereas the second one with unfrozen layers and a small learning rate.
 
+        ??? info "Keras History Objects for Transfer Learning"
+            For the transfer learning training, two Keras history objects will be created.
+
+            However, in order to provide consistency with the single training without transfer learning,
+            only a single history dictionary will be returned.
+
+            For differentiation prefixes are added infront of the corresponding logging keys:
+            ```
+            - History Start ->  prefix : tl     for "tansfer learning"
+            - History End   ->  prefix : ft     for "fine tuning"
+            ```
+
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training.
             validation_generator (DataGenerator):   A data generator which will be used for validation.
@@ -273,7 +285,7 @@ class Neural_Network:
             transfer_learning (boolean):            Option whether a transfer learning training should be performed.
 
         Returns:
-            history (Keras History):                A Keras history object (dictionary) which contains several logs.
+            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
         """
         # Running a standard training process
         if not transfer_learning:
@@ -288,7 +300,7 @@ class Neural_Network:
                                      max_queue_size=self.batch_queue_size,
                                      verbose=self.verbose)
             # Return logged history object
-            return history
+            return history.history
 
         # Running a transfer learning training process
         else:
@@ -331,8 +343,12 @@ class Neural_Network:
                                          use_multiprocessing=self.multiprocessing,
                                          max_queue_size=self.batch_queue_size,
                                          verbose=self.verbose)
-            # Return logged history objects
-            return (history_start, history_end)
+            # Combine logged history objects
+            hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for tansfer learning
+            he = {"ft_" + k: v for k, v in history_end.history.items()}         # prefix : ft for fine tuning
+            history = {**hs, **he}
+            # Return combined history objects
+            return history
 
     #---------------------------------------------#
     #                 Prediction                  #

@@ -42,7 +42,7 @@ class Aggregate_Base(ABC):
 
     ???+ example "Create a custom Aggregation class"
         ```python
-        from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
+        from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 
         class My_custom_Aggregate(Aggregate_Base):
             def __init__(self):                 # you can pass class variables here

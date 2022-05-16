@@ -22,15 +22,15 @@
 # External libraries
 import numpy as np
 # Internal libraries/scripts
-from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
+from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 
 #-----------------------------------------------------#
-#            Aggregate: Averaging by Mean             #
+#                  Aggregate: Softmax                 #
 #-----------------------------------------------------#
-class Averaging_Mean(Aggregate_Base):
-    """ Aggregate function based on averaging via mean.
+class Softmax(Aggregate_Base):
+    """ Aggregate function based on softmax.
 
-    This class should be passed to a Ensembler function for combining predictions.
+    This class should be passed to an Ensembler function for combining predictions.
     """
     #---------------------------------------------#
     #                Initialization               #
@@ -43,7 +43,17 @@ class Averaging_Mean(Aggregate_Base):
     #                  Aggregate                  #
     #---------------------------------------------#
     def aggregate(self, preds):
-        # Merge predictions via mean
-        pred = np.mean(preds, axis=0)
-        # Return merged prediction
+        # Sum up predictions
+        preds_sum = np.sum(preds, axis=0)
+        # Calculate softmax
+        pred = compute_softmax(preds_sum)
+        # Return prediction
         return pred
+
+#-----------------------------------------------------#
+#             Subfunction: Softmax Formula            #
+#-----------------------------------------------------#
+def compute_softmax(x):
+    """Compute softmax values for each sets of scores in x."""
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()

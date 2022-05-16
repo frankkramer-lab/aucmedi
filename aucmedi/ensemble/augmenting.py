@@ -23,17 +23,13 @@
 import numpy as np
 # Internal libraries
 from aucmedi import Image_Augmentation, Volume_Augmentation, DataGenerator
-from aucmedi.ensembler.aggregate import aggregate_dict
+from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.data_processing.io_loader import image_loader
 
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
 #-----------------------------------------------------#
-def predict_augmenting(model, samples, path_imagedir, n_cycles=10, data_aug=None,
-                       aggregate="mean", image_format=None, batch_size=32,
-                       resize=(224, 224), grayscale=False, subfunctions=[],
-                       standardize_mode="z-score", loader=image_loader,
-                       seed=None, workers=1, **kwargs):
+def predict_augmenting(model, data_generator, n_cycles=10, aggregate="mean"):
     """ Inference Augmenting function for automatically augmenting unknown images for prediction.
 
     The predictions of the augmented images are aggregated together via the provided aggregate function.
@@ -60,31 +56,21 @@ def predict_augmenting(model, samples, path_imagedir, n_cycles=10, data_aug=None
     !!! info
         Possible aggregate function names: ["mean", "median", "majority_vote", "softmax"]
 
-        More about aggregate functions can be found here: [aggregate][aucmedi.ensembler.aggregate]
+        More about aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
 
-    The Data Augmentation class instance which will be used for inference augmenting,
-    can be either predefined or leaving `None`.
-    If the `data_aug` is `None`, a Data Augmentation class instance is automatically created
-    which applies rotation and flipping augmentations.
+    The Data Augmentation class instance from the DataGenerator will be used for inference augmenting,
+    can be either predefined or leaving `None`. If the `data_aug` is `None`, a Data Augmentation class
+    instance is automatically created which applies rotation and flipping augmentations.
+
+    ???+ warning
+        The passed DataGenerator will be re-initialized!
+        This can result into redundant image preparation if `prepare_images=True`.
 
     Args:
         model (Neural_Network):                 Instance of a AUCMEDI neural network class.
-        samples (list of str):                  List of sample/index encoded as Strings.
-        path_imagedir (str):                    Path to the directory containing the images.
+        data_generator (DataGenerator):         A data generator which will be used for inference.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
-        data_aug (Data Augmentation):           Data Augmentation class instance which performs diverse augmentation techniques.
         aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI aggregate function.
-        image_format (str):                     Image format to add at the end of the sample index for image loading.
-        batch_size (int):                       Number of samples inside a single batch.
-        resize (tuple of int):                  Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
-        grayscale (bool):                       Boolean, whether images are grayscale or RGB.
-        subfunctions (list of Subfunctions):    List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
-        standardize_mode (str):                 Standardization modus in which image intensity values are scaled.
-                                                Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
-        loader (io_loader function):            Function for loading samples/images from disk.
-        seed (int):                             Seed to ensure reproducibility for random function.
-        workers (int):                          Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
-        **kwargs (dict):                        Additional parameters for the sample loader.
     """
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:

@@ -22,13 +22,13 @@
 # External libraries
 import numpy as np
 # Internal libraries/scripts
-from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
+from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 
 #-----------------------------------------------------#
-#           Aggregate: Averaging by Median            #
+#            Aggregate: Averaging by Mean             #
 #-----------------------------------------------------#
-class Averaging_Median(Aggregate_Base):
-    """ Aggregate function based on averaging via median.
+class Averaging_Mean(Aggregate_Base):
+    """ Aggregate function based on averaging via mean.
 
     This class should be passed to a Ensembler function for combining predictions.
     """
@@ -43,7 +43,7 @@ class Averaging_Median(Aggregate_Base):
     #                  Aggregate                  #
     #---------------------------------------------#
     def aggregate(self, preds):
-        # Merge predictions via median
-        pred = np.median(preds, axis=0)
+        # Merge predictions via mean
+        pred = np.mean(preds, axis=0)
         # Return merged prediction
         return pred

@@ -45,7 +45,7 @@ Example: [[0.4, 0.3, 0.3]]
                                resize=model.meta_input, standardize_mode=model.meta_standardize)
 
     # Manual: Apply an Ensembler like Augmenting (test-time augmentation) with Majority Vote
-    from aucmedi.ensembler.aggregate import Majority_Vote
+    from aucmedi.ensemble.aggregate import Majority_Vote
     my_agg = Majority_Vote()
     preds = predict_augmenting(model, samples, "dataset/images/",
                                n_cycles=15, img_aug=test_aug, aggregate=my_agg,
@@ -53,17 +53,17 @@ Example: [[0.4, 0.3, 0.3]]
                                resize=model.meta_input, standardize_mode=model.meta_standardize)
     ```
 
-Aggregate functions are based on the abstract base class [Aggregate_Base][aucmedi.ensembler.aggregate.agg_base.Aggregate_Base],
+Aggregate functions are based on the abstract base class [Aggregate_Base][aucmedi.ensemble.aggregate.agg_base.Aggregate_Base],
 which allow simple integration of custom aggregate methods for Ensembler.
 """
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # Import aggregate functions
-from aucmedi.ensembler.aggregate.averaging_mean import Averaging_Mean
-from aucmedi.ensembler.aggregate.averaging_median import Averaging_Median
-from aucmedi.ensembler.aggregate.majority_vote import Majority_Vote
-from aucmedi.ensembler.aggregate.softmax import Softmax
+from aucmedi.ensemble.aggregate.averaging_mean import Averaging_Mean
+from aucmedi.ensemble.aggregate.averaging_median import Averaging_Median
+from aucmedi.ensemble.aggregate.majority_vote import Majority_Vote
+from aucmedi.ensemble.aggregate.softmax import Softmax
 
 #-----------------------------------------------------#
 #       Access Functions to Aggregate Functions       #

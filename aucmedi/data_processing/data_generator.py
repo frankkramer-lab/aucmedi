@@ -120,7 +120,7 @@ class DataGenerator(Iterator):
         ???+ warning
             Augmentation should only be applied to a **training** DataGenerator!
 
-            For test-time augmentation, [aucmedi.ensembler.augmenting][] should be used.
+            For test-time augmentation, [aucmedi.ensemble.augmenting][] should be used.
 
         Applying `None` to `resize` will result into no image resizing. Default (224, 224)
 

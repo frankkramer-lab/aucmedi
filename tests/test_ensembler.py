@@ -28,7 +28,7 @@ import numpy as np
 #Internal libraries
 from aucmedi import Neural_Network
 from aucmedi.data_processing.io_loader import numpy_loader
-from aucmedi.ensembler import *
+from aucmedi.ensemble import *
 
 #-----------------------------------------------------#
 #                 Unittest: Ensembler                 #

@@ -28,7 +28,7 @@ if provided to a [DataGenerator][aucmedi.data_processing.data_generator.DataGene
 ???+ warning
     Augmentation should only be applied to a **training** DataGenerator!
 
-    For test-time augmentation, [aucmedi.ensembler.augmenting][] should be used.
+    For test-time augmentation, [aucmedi.ensemble.augmenting][] should be used.
 
 Data augmentation is a technique that can be used to artificially expand the size
 of a training dataset by creating modified versions of images in the dataset.

@@ -17,38 +17,31 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" State-of-the-art and high-performance medical image classification pipelines
+    are heavily utilizing Ensemble Learning strategies.
+
+The idea of Ensemble Learning is to assemble diverse models or multiple predictions and, thus,
+boost prediction performance.
+
+AUCMEDI currently supports the following Ensemble Learning techniques:
+
+| Technique                                  | Description                                                                                          |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| [Augmenting][aucmedi.ensemble.augmenting] | Inference Augmenting (test-time augmentation) function for augmenting unknown images for prediction. |
+| Bagging                                    | Coming soon. |
+| Stacking                                   | Coming soon. |
+
+???+ info
+    More information on performance impact of Ensemble Learning in medical image classification can be found here: <br>
+
+    Dominik Müller, Iñaki Soto-Rey, Frank Kramer. (2022)
+    An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
+    arXiv e-print: https://arxiv.org/abs/2201.11440
+
+"""
+#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-import numpy as np
-# Internal libraries/scripts
-from aucmedi.ensembler.aggregate.agg_base import Aggregate_Base
-
-#-----------------------------------------------------#
-#               Aggregate: Majority Vote              #
-#-----------------------------------------------------#
-class Majority_Vote(Aggregate_Base):
-    """ Aggregate function based on majority vote.
-
-    This class should be passed to a Ensembler function for combining predictions.
-    """
-    #---------------------------------------------#
-    #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self):
-        # No hyperparameter adjustment required for this method, therefore skip
-        pass
-
-    #---------------------------------------------#
-    #                  Aggregate                  #
-    #---------------------------------------------#
-    def aggregate(self, preds):
-        # Count votes
-        votes = np.argmax(preds, axis=1)
-        # Identify majority
-        majority_vote = np.argmax(np.bincount(votes))
-        # Create prediction based on majority vote
-        pred = np.zeros((preds.shape[1]))
-        pred[majority_vote] = 1
-        # Return prediction
-        return pred
+from aucmedi.ensemble.augmenting import predict_augmenting

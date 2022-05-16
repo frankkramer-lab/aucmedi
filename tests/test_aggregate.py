@@ -23,7 +23,7 @@
 import unittest
 import numpy as np
 #Internal libraries
-from aucmedi.ensembler.aggregate import *
+from aucmedi.ensemble.aggregate import *
 
 #-----------------------------------------------------#
 #             Unittest: Aggregate Functions           #

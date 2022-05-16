@@ -7,12 +7,18 @@
 [![shield_pypi_downloads](https://img.shields.io/pypi/dm/aucmedi?style=flat-square)](https://pypistats.org/packages/aucmedi)
 [![shield_license](https://img.shields.io/github/license/frankkramer-lab/aucmedi?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
+The open-source software AUCMEDI allows fast setup of medical image classification pipelines with state-of-the-art methods via an intuitive, high-level Python API or via an AutoML deployment through Docker/CLI .
+
 ## Work in Progress!
 
-This framework is currently under active development.  
-The main reason this developed project is already publicly available is due to get things rolling and ensure the reproducibility of our challenge participations as well as publications based on AUCMEDI.
+This framework is currently under active development for publishing our first stable release.  
+
+The main reason this developed project is already publicly available is due to get things rolling and ensure the reproducibility of our challenge participations, ongoing clinical studies as well as publications based on AUCMEDI.
+
+**AUCMEDI is already fully functional by utilizing the Python API / framework.**
 
 Right now, it is possible to utilize the AUCMEDI framework as an high-level API for building state-of-the-art medical image classification pipelines.  
+
 But more things like CLI/Docker for AutoML and straightforward application are coming!  
 
 **Stay tuned and please have a look on AUCMEDI in the end of June, again! :)**  
@@ -118,14 +124,6 @@ preds = model.predict(test_gen)
 # -> 500 predictions with softmax probabilities for our 2 classes
 ```
 
-## Lead Author
-
-Dominik Müller\
-Email: dominik.mueller@uni-a.de\
-IT-Infrastructure for Translational Medical Research\
-University Augsburg\
-Bavaria, Germany
-
 ## How to cite / More information
 
 AUCMEDI is currently unpublished. But coming soon!
@@ -146,6 +144,14 @@ GitHub repository. https://github.com/frankkramer-lab/aucmedi
 ```
 
 Thank you for citing our work.
+
+### Lead Author
+
+Dominik Müller\
+Email: dominik.mueller@informatik.uni-augsburg.de\
+IT-Infrastructure for Translational Medical Research\
+University Augsburg\
+Bavaria, Germany
 
 ## License
 

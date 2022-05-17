@@ -22,7 +22,7 @@ jobs:
         pip install build --user
     - name: Build wheel and source tarball
       run: |
-        python -m build -sdist --wheel --outdir dist/ .
+        python -m build --sdist --wheel --outdir dist/ .
     - name: Publish distribution
       uses: pypa/gh-action-pypi-publish@master
       with:

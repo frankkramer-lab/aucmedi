@@ -1,7 +1,7 @@
 # AUCMEDI: a framework for Automated Classification of Medical Images
 
 [![shield_python](https://img.shields.io/pypi/pyversions/aucmedi?style=flat-square)](https://www.python.org/)
-[![shield_build](https://img.shields.io/github/workflow/status/frankkramer-lab/aucmedi/Python%20package?style=flat-square)](https://github.com/frankkramer-lab/aucmedi)
+[![shield_build](https://img.shields.io/github/workflow/status/frankkramer-lab/aucmedi/Python%20Package%20-%20Build?style=flat-square)](https://github.com/frankkramer-lab/aucmedi)
 [![shield_docs](https://img.shields.io/website?down_message=offline&label=docs&style=flat-square&up_message=online&url=https%3A%2F%2Ffrankkramer-lab.github.io%2Faucmedi%2Freference%2F)](https://frankkramer-lab.github.io/aucmedi/reference/)
 [![shield_pypi_version](https://img.shields.io/pypi/v/aucmedi?style=flat-square)](https://pypi.org/project/aucmedi/)
 [![shield_pypi_downloads](https://img.shields.io/pypi/dm/aucmedi?style=flat-square)](https://pypistats.org/packages/aucmedi)

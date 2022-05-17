@@ -33,7 +33,7 @@ from aucmedi.neural_network.architectures import architecture_dict, \
 #-----------------------------------------------------#
 # Class which represents the Neural Network
 class Neural_Network:
-    """ Neural Network class providing functionality for handling all model methods
+    """ Neural Network class providing functionality for handling all model methods.
 
     This class is the third of the three pillars of AUCMEDI.
 

@@ -29,8 +29,8 @@ AUCMEDI currently supports the following Ensemble Learning techniques:
 
 | Technique                                  | Description                                                                                          |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| [Augmenting][aucmedi.ensemble.augmenting] | Inference Augmenting (test-time augmentation) function for augmenting unknown images for prediction. |
-| Bagging                                    | Coming soon. |
+| [Augmenting][aucmedi.ensemble.augmenting]  | Inference Augmenting (test-time augmentation) function for augmenting unknown images for prediction. |
+| [Bagging][aucmedi.ensemble.bagging]        | Cross-Validation based Bagging for equal models trained with different sampling.                     |
 | Stacking                                   | Coming soon. |
 
 ???+ info
@@ -45,3 +45,4 @@ AUCMEDI currently supports the following Ensemble Learning techniques:
 #                   Library imports                   #
 #-----------------------------------------------------#
 from aucmedi.ensemble.augmenting import predict_augmenting
+from aucmedi.ensemble.bagging import Bagging

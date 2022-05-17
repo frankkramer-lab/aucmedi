@@ -58,6 +58,11 @@ class EnsembleTEST(unittest.TestCase):
             path_sampleGRAY = os.path.join(self.tmp_data.name, index)
             np.save(path_sampleGRAY, img_gray)
             self.sampleList3D.append(index)
+        # Create classification labels
+        self.labels_ohe = np.zeros((3, 4), dtype=np.uint8)
+        for i in range(0, 3):
+            class_index = np.random.randint(0, 4)
+            self.labels_ohe[i][class_index] = 1
         # Initialize model
         self.model2D = Neural_Network(n_labels=4, channels=3,
                                       architecture="2D.Vanilla",
@@ -75,8 +80,7 @@ class EnsembleTEST(unittest.TestCase):
         # Test functionality with batch_size 10 and n_cycles = 1
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
                                 batch_size=10, resize=None, data_aug=None,
-                                grayscale=False, two_dim=False, subfunctions=[],
-                                standardize_mode="tf")
+                                grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
@@ -84,8 +88,7 @@ class EnsembleTEST(unittest.TestCase):
         # Test functionality with batch_size 10 and n_cycles = 5
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
                                 batch_size=10, resize=None, data_aug=None,
-                                grayscale=False, two_dim=False, subfunctions=[],
-                                standardize_mode="tf")
+                                grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
                                    n_cycles=5, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
@@ -95,8 +98,7 @@ class EnsembleTEST(unittest.TestCase):
         my_aug = Image_Augmentation()
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
                                 batch_size=10, resize=None, data_aug=my_aug,
-                                grayscale=False, two_dim=False, subfunctions=[],
-                                standardize_mode="tf")
+                                grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
@@ -130,3 +132,28 @@ class EnsembleTEST(unittest.TestCase):
         preds = predict_augmenting(self.model3D, datagen,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+
+    #-------------------------------------------------#
+    #                     Bagging                     #
+    #-------------------------------------------------#
+    def test_Bagging_create(self):
+        # Initialize Bagging object
+        el = Bagging(model=self.model2D, k_fold=5)
+        self.assertIsInstance(el, Bagging)
+
+    # def test_Bagging_initialize(self):
+    #     # Initialize training DataGenerator
+    #     datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+    #                             labels=self.labels_ohe, batch_size=3, resize=None,
+    #                             data_aug=None, grayscale=False, subfunctions=[],
+    #                             standardize_mode="tf")
+    #     Bagging
+    #     pass
+        # # Test functionality with batch_size 10 and n_cycles = 1
+        # datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+        #                         batch_size=10, resize=None, data_aug=None,
+        #                         grayscale=False, two_dim=False, subfunctions=[],
+        #                         standardize_mode="tf")
+        # preds = predict_augmenting(self.model2D, datagen,
+        #                            n_cycles=1, aggregate="mean")
+        # self.assertTrue(np.array_equal(preds.shape, (3, 4)))

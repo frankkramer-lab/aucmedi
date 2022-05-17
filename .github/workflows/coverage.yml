@@ -32,7 +32,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         version: "v0.1.15"
-        files: ./coverage1.xml,./coverage2.xml
+        files: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true

@@ -2,13 +2,13 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-with open("README.md", "r") as fh:
+with open("docs/README.PyPI.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name='aucmedi',
     version='0.4.1',
-    description='AUCMEDI - Framework for Automated Classification of Medical Images',
+    description='AUCMEDI - a framework for Automated Classification of Medical Images',
     author='Dominik Müller',
     author_email='dominik.mueller@informatik.uni-augsburg.de',
     license='GPLv3',

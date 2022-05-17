@@ -42,16 +42,23 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
     Sum of percentage split ratios have to equal 1!
 
     ???+ example
-        ```python
+        ```python title="Example for common train/val/test split"
         split_ratio = [0.7, 0.25, 0.05]
         ds = sampling_split(samples, labels, sampling=split_ratio)
 
         # Returns a list with the following elements as tuples:
-        print(ds[0])  # -> (samples_a, labels_a) with 70% of complete dataset
-        print(ds[1])  # -> (samples_b, labels_b) with 25% of complete dataset
-        print(ds[2])  # -> (samples_c, labels_c) with  5% of complete dataset
+        print(ds[0])  # -> (samples_a, labels_a)                with 70% of complete dataset
+        print(ds[1])  # -> (samples_b, labels_b)                with 25% of complete dataset
+        print(ds[2])  # -> (samples_c, labels_c)                with  5% of complete dataset
         ```
 
+        ```python title="Example with metadata"
+        ds = sampling_split(samples, labels, metadata, sampling=[0.8, 0.2])
+
+        # Returns a list with the following elements as tuples:
+        print(ds[0])  # -> (samples_a, labels_a, metadata_a)    with 80% of complete dataset
+        print(ds[1])  # -> (samples_b, labels_b, metadata_b)    with 20% of complete dataset
+        ```
 
     Args:
         samples (List of Strings):      List of sample/index encoded as Strings.
@@ -64,7 +71,7 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
 
     Returns:
         results (list of tuple):        List with `len(sampling)` containing tuples with sampled data:
-                                        (samples_a, labels_a)
+                                        (samples_a, labels_a) and with metadata (samples_a, labels_a, metadata_a).
     """
     # Verify sampling percentages
     if not np.isclose(sum(sampling), 1.0):

@@ -54,6 +54,11 @@ class SamplingTEST(unittest.TestCase):
         subsets = sampling_split(self.x, self.y,
                                  sampling=[0.4, 0.3, 0.05, 0.25],
                                  iterative=False, stratified=False)
+        self.assertTrue(len(subsets) == 4)
+        self.assertTrue(len(subsets[0]) == 2)
+        self.assertTrue(len(subsets[1]) == 2)
+        self.assertTrue(len(subsets[2]) == 2)
+        self.assertTrue(len(subsets[3]) == 2)
         self.assertTrue(subsets[0][0].shape[0] > 395 and \
                         subsets[0][0].shape[0] < 405)
         self.assertTrue(subsets[0][1].shape[0] > 395 and \
@@ -70,6 +75,11 @@ class SamplingTEST(unittest.TestCase):
       subsets = sampling_split(self.x, self.y,
                                sampling=[0.4, 0.3, 0.05, 0.25],
                                iterative=False, stratified=True)
+      self.assertTrue(len(subsets) == 4)
+      self.assertTrue(len(subsets[0]) == 2)
+      self.assertTrue(len(subsets[1]) == 2)
+      self.assertTrue(len(subsets[2]) == 2)
+      self.assertTrue(len(subsets[3]) == 2)
       self.assertTrue(subsets[0][0].shape[0] > 395 and \
                       subsets[0][0].shape[0] < 405)
       self.assertTrue(subsets[0][1].shape[0] > 395 and \
@@ -86,6 +96,11 @@ class SamplingTEST(unittest.TestCase):
         subsets = sampling_split(self.x, self.y,
                                  sampling=[0.4, 0.3, 0.05, 0.25],
                                  iterative=True, stratified=True)
+        self.assertTrue(len(subsets) == 4)
+        self.assertTrue(len(subsets[0]) == 2)
+        self.assertTrue(len(subsets[1]) == 2)
+        self.assertTrue(len(subsets[2]) == 2)
+        self.assertTrue(len(subsets[3]) == 2)
         self.assertTrue(subsets[0][0].shape[0] > 395 and \
                         subsets[0][0].shape[0] < 405)
         self.assertTrue(subsets[0][1].shape[0] > 395 and \
@@ -96,6 +111,27 @@ class SamplingTEST(unittest.TestCase):
                         subsets[2][0].shape[0] < 55)
         self.assertTrue(subsets[3][0].shape[0] > 245 and \
                         subsets[3][0].shape[0] < 255)
+
+    # Check metadata sampling via percentage split
+    def test_PercentageSplit_metadata(self):
+        subsets = sampling_split(self.x, self.y, metadata=self.y,
+                               sampling=[0.4, 0.3, 0.05, 0.25],
+                               iterative=False, stratified=False)
+        self.assertTrue(len(subsets) == 4)
+        self.assertTrue(len(subsets[0]) == 3)
+        self.assertTrue(len(subsets[1]) == 3)
+        self.assertTrue(len(subsets[2]) == 3)
+        self.assertTrue(len(subsets[3]) == 3)
+        self.assertTrue(subsets[0][0].shape[0] > 395 and \
+                      subsets[0][0].shape[0] < 405)
+        self.assertTrue(subsets[0][2].shape[0] > 395 and \
+                      subsets[0][2].shape[0] < 405)
+        self.assertTrue(subsets[1][2].shape[0] > 295 and \
+                      subsets[1][2].shape[0] < 305)
+        self.assertTrue(subsets[2][2].shape[0] > 45 and \
+                      subsets[2][2].shape[0] < 55)
+        self.assertTrue(subsets[3][2].shape[0] > 245 and \
+                      subsets[3][2].shape[0] < 255)
 
     #-------------------------------------------------#
     #       Sampling via k-fold Cross-Validation      #
@@ -135,3 +171,14 @@ class SamplingTEST(unittest.TestCase):
             self.assertTrue(ty.shape[0] > 795 and ty.shape[0] < 805)
             self.assertTrue(vx.shape[0] > 195 and vx.shape[0] < 205)
             self.assertTrue(vy.shape[0] > 195 and vy.shape[0] < 205)
+
+    # Check metadata sampling via k-fold cross-validation
+    def test_CrossValidation_metadata(self):
+        subsets = sampling_kfold(self.x, self.y, metadata=self.y, n_splits=5)
+        self.assertEqual(len(subsets), 5)
+        for fold in subsets:
+            (tx, ty, tm, vx, vy, vm) = fold
+            self.assertTrue(tx.shape[0] > 795 and tx.shape[0] < 805)
+            self.assertTrue(tm.shape[0] > 795 and tm.shape[0] < 805)
+            self.assertTrue(vx.shape[0] > 195 and vx.shape[0] < 205)
+            self.assertTrue(vm.shape[0] > 195 and vm.shape[0] < 205)

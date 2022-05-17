@@ -28,8 +28,8 @@ from aucmedi.sampling.iterative import MultilabelStratifiedShuffleSplit
 #-----------------------------------------------------#
 #       Function: Sampling via Percentage Split       #
 #-----------------------------------------------------#
-def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
-                   iterative=False, seed=None):
+def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
+                   stratified=True, iterative=False, seed=None):
     """ Simple wrapper function for calling percentage split sampling functions.
 
     Allow usage of stratified and iterative sampling algorithm.
@@ -56,13 +56,14 @@ def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
     Args:
         samples (List of Strings):      List of sample/index encoded as Strings.
         labels (NumPy matrix):          NumPy matrix containing the ohe encoded classification.
+        metadata (numpy.ndarray):       NumPy matrix with additional metadata. Have to be shape (n_samples, meta_variables).
         sampling (List of Floats):      List of percentage values with split sizes.
         stratified (Boolean):           Option whether to use stratified sampling based on provided labels.
         iterative (Boolean):            Option whether to use iterative sampling algorithm.
         seed (Integer):                 Seed to ensure reproducibility for random functions.
 
     Returns:
-        results (list of tuple):        List with len(sampling) containing tuples with sampled data:
+        results (list of tuple):        List with `len(sampling)` containing tuples with sampled data:
                                         (samples_a, labels_a)
     """
     # Verify sampling percentages
@@ -72,6 +73,7 @@ def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
     # Initialize leftover with the complete dataset
     leftover_samples = np.asarray(samples)
     leftover_labels = np.asarray(labels)
+    if metadata is not None : leftover_meta = np.asarray(metadata)
     leftover_p = 0.0
     # Initialize result list
     results = []
@@ -80,7 +82,11 @@ def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
     for i in range(0, len(sampling)):
         # For last split, just take leftover data as subset
         if i == len(sampling)-1:
-            results.append((leftover_samples, leftover_labels))
+            # Generate split
+            if metadata is None : split = (leftover_samples, leftover_labels)
+            else : split = (leftover_samples, leftover_labels, leftover_meta)
+            # Append splitted data and stop
+            results.append(split)
             break
 
         # Identify split percentage for remaining data
@@ -101,13 +107,19 @@ def sampling_split(samples, labels, sampling=[0.8, 0.2], stratified=True,
         # Apply sampling
         subset_generator = sampler.split(X=leftover_samples, y=leftover_labels)
         subsets = next(subset_generator)
+        # Generate split
+        if metadata is None:
+            split = (leftover_samples[subsets[1]], leftover_labels[subsets[1]])
+        else : split = (leftover_samples[subsets[1]],
+                        leftover_labels[subsets[1]],
+                        leftover_meta[subsets[1]])
         # Append splitted data
-        results.append((leftover_samples[subsets[1]],
-                        leftover_labels[subsets[1]]))
+        results.append(split)
         # Update remaining data
         leftover_p += sampling[i]
         leftover_samples = leftover_samples[subsets[0]]
         leftover_labels = leftover_labels[subsets[0]]
+        if metadata is not None : leftover_meta = leftover_meta[subsets[0]]
 
     # Return result sampling
     return results

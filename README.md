@@ -8,7 +8,7 @@
 [![shield_pypi_downloads](https://img.shields.io/pypi/dm/aucmedi?style=flat-square)](https://pypistats.org/packages/aucmedi)
 [![shield_license](https://img.shields.io/github/license/frankkramer-lab/aucmedi?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-The open-source software AUCMEDI allows fast setup of medical image classification pipelines with state-of-the-art methods via an intuitive, high-level Python API or via an AutoML deployment through Docker/CLI .
+The open-source software AUCMEDI allows fast setup of medical image classification pipelines with state-of-the-art methods via an intuitive, high-level Python API or via an AutoML deployment through Docker/CLI.
 
 ## Work in Progress!
 

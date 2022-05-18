@@ -103,6 +103,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     aug_gen = DataGenerator(samples_aug,
                             path_imagedir=prediction_generator.path_imagedir,
                             labels=None,
+                            metadata=prediction_generator.metadata,
                             batch_size=prediction_generator.batch_size,
                             data_aug=data_aug,
                             seed=prediction_generator.seed,

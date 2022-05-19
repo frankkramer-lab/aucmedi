@@ -20,9 +20,13 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import numpy as np
+import os
+from copy import deepcopy
+import tempfile
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 # Internal libraries
 from aucmedi import DataGenerator
+from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 
 #-----------------------------------------------------#
@@ -39,20 +43,108 @@ class Bagging:
         self.model_template = model
         self.k_fold = k_fold
         self.model_list = []
+        self.cache_dir = None
 
         # Create k models based on template
         for i in range(k_fold):
+            model_clone = deepcopy(model)
+            self.model_list.append(model_clone)
 
+    def train(self, training_generator, epochs=20, iterations=None,
+              callbacks=[], class_weights=None, transfer_learning=False):
+        """ asd
 
+        """
+        temp_dg = training_generator    # Template DataGenerator variable for faster access
+        history_bagging = {}            # Final history dictionary
 
-    def train(self, training_generator, epochs=20,
-              iterations=None, callbacks=[], class_weights=None,
-              transfer_learning=False):
-        # apply cross-validaton
-        pass
-        # for loop
-            # model.training
-        # return combined history object
+        # Create temporary model directory
+        self.cache_dir = tempfile.TemporaryDirectory(prefix="aucmedi.tmp.",
+                                                     suffix=".bagging")
+
+        # Obtain training data
+        x = training_generator.samples
+        y = training_generator.labels
+        m = training_generator.metadata
+
+        # Apply cross-validaton sampling
+        cv_sampling = sampling_kfold(x, y, m, n_splits=self.k_fold,
+                                     stratified=True, iterative=True)
+
+        # Sequentially iterate over all folds
+        for i, fold in enumerate(cv_sampling):
+            # Access current fold data
+            if len(fold) == 4:
+                (train_x, train_y, test_x, test_y) = fold
+                train_m = None
+                test_m = None
+            else : (train_x, train_y, train_m, test_x, test_y, test_m) = fold
+
+            # Build training DataGenerator
+            cv_train_gen = DataGenerator(train_x,
+                                         path_imagedir=temp_dg.path_imagedir,
+                                         labels=train_y,
+                                         metadata=train_m,
+                                         batch_size=temp_dg.batch_size,
+                                         data_aug=temp_dg.data_aug,
+                                         seed=temp_dg.seed,
+                                         subfunctions=temp_dg.subfunctions,
+                                         shuffle=temp_dg.shuffle,
+                                         standardize_mode=temp_dg.standardize_mode,
+                                         resize=temp_dg.resize,
+                                         grayscale=temp_dg.grayscale,
+                                         prepare_images=temp_dg.prepare_images,
+                                         sample_weights=temp_dg.sample_weights,
+                                         image_format=temp_dg.image_format,
+                                         loader=temp_dg.sample_loader,
+                                         workers=temp_dg.workers,
+                                         **temp_dg.kwargs)
+            # Build validation DataGenerator
+            cv_val_gen = DataGenerator(test_x,
+                                       path_imagedir=temp_dg.path_imagedir,
+                                       labels=test_y,
+                                       metadata=test_m,
+                                       batch_size=temp_dg.batch_size,
+                                       data_aug=None,
+                                       seed=temp_dg.seed,
+                                       subfunctions=temp_dg.subfunctions,
+                                       shuffle=False,
+                                       standardize_mode=temp_dg.standardize_mode,
+                                       resize=temp_dg.resize,
+                                       grayscale=temp_dg.grayscale,
+                                       prepare_images=temp_dg.prepare_images,
+                                       sample_weights=temp_dg.sample_weights,
+                                       image_format=temp_dg.image_format,
+                                       loader=temp_dg.sample_loader,
+                                       workers=temp_dg.workers,
+                                       **temp_dg.kwargs)
+
+            # Extend Callback list
+            cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
+                                                 "cv_" + str(i) + \
+                                                 ".model.hdf5"),
+                                    monitor="val_loss", verbose=1,
+                                    save_best_only=True, mode="min")
+            cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
+                                                 "cv_" + str(i) + \
+                                                 ".logs.csv"),
+                              separator=',', append=True)
+            callbacks.extend([cb_mc, cb_cl])
+
+            # Perform training process
+            cv_history = self.model_list[i].train(cv_train_gen,
+                                                  cv_val_gen,
+                                                  epochs=epochs,
+                                                  iterations=iterations,
+                                                  callbacks=callbacks,
+                                                  class_weights=class_weights,
+                                                  transfer_learning=transfer_learning)
+            # Combine logged history objects
+            hcv = {"cv_" + str(i) + "." + k: v for k, v in cv_history.items()}
+            history_bagging = {**history_bagging, **hcv}
+
+        # Return Bagging history object
+        return history_bagging
 
 
     def predict(self, prediction_generator, aggregate=""):

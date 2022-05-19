@@ -48,7 +48,7 @@ class Bagging:
         self.cache_dir = None
 
         # Set multiprocessing method to spawn
-        mp.set_start_method("spawn")
+        mp.set_start_method("spawn", force=True)
 
 
     def train(self, training_generator, epochs=20, iterations=None,

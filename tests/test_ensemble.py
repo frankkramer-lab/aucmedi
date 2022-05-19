@@ -200,7 +200,6 @@ class EnsembleTEST(unittest.TestCase):
         # Run Inference with majority vote aggregation
         preds = el.predict(datagen, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3,4)))
-        print(preds)
 
     def test_Bagging_dump(self):
         # Initialize training DataGenerator
@@ -229,3 +228,29 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(len(os.listdir(target_dir_two))==4)
         self.assertTrue(len(os.listdir(target_dir))==4)
         self.assertTrue(os.path.exists(target_dir))
+
+    def test_Bagging_load(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Bagging object and train it
+        el = Bagging(model=self.model2D, k_fold=2)
+        el.train(datagen, epochs=1, iterations=None)
+
+        model_dir = el.cache_dir
+        el.cache_dir = None
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+        self.assertRaises(FileNotFoundError, el.load, "/not/existing/path")
+        self.assertRaises(FileNotFoundError, el.load, "/")
+        el.load(model_dir.name)
+        self.assertTrue(os.path.exists(el.cache_dir))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_1.model.hdf5")))

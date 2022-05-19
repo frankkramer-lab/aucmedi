@@ -25,6 +25,7 @@ from copy import deepcopy
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 import multiprocessing as mp
+import numpy as np
 # Internal libraries
 from aucmedi import DataGenerator
 from aucmedi.sampling import sampling_kfold
@@ -134,27 +135,81 @@ class Bagging:
         # Return Bagging history object
         return history_bagging
 
-
     def predict(self, prediction_generator, aggregate="mean"):
+        """ asd
+        """
         # Verify if there is a linked cache dictionary
         con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
                    os.path.exists(self.cache_dir.name))
-        con_var = (self.cache_dir is not None and os.path.exists(self.cache_dir))
-        if not con_tmp or not con_var:
+        con_var = (self.cache_dir is not None and \
+                   not isinstance(self.cache_dir, tempfile.TemporaryDirectory) \
+                   and os.path.exists(self.cache_dir))
+        if not con_tmp and not con_var:
             raise FileNotFoundError("Bagging does not have a valid model cache directory!")
 
-        # # Sequentially iterate over all fold models
-        # preds_ensemble = []
-        # for i in range(self.k_fold):
-        #     # Load model
-        #     self.model_list[i]
-        #
-        # pass
-        # for loop
-            # model.predict
-        # aggregate
-        # return
+        # Initialize aggregate function if required
+        if isinstance(aggregate, str) and aggregate in aggregate_dict:
+            agg_fun = aggregate_dict[aggregate]()
+        else : agg_fun = aggregate
 
+        # Initialize some variables
+        temp_dg = prediction_generator
+        preds_ensemble = []
+        preds_final = []
+
+        # Gather DataGenerator parameters
+        datagen_paras = {"samples": temp_dg.samples,
+                         "metadata": temp_dg.metadata,
+                         "path_imagedir": temp_dg.path_imagedir,
+                         "batch_size": temp_dg.batch_size,
+                         "data_aug": temp_dg.data_aug,
+                         "seed": temp_dg.seed,
+                         "subfunctions": temp_dg.subfunctions,
+                         "shuffle": temp_dg.shuffle,
+                         "standardize_mode": temp_dg.standardize_mode,
+                         "resize": temp_dg.resize,
+                         "grayscale": temp_dg.grayscale,
+                         "prepare_images": temp_dg.prepare_images,
+                         "sample_weights": temp_dg.sample_weights,
+                         "image_format": temp_dg.image_format,
+                         "loader": temp_dg.sample_loader,
+                         "workers": temp_dg.workers,
+                         "kwargs": temp_dg.kwargs
+        }
+
+        # Sequentially iterate over all fold models
+        for i in range(self.k_fold):
+            # Identify path to fitted model
+            if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
+                path_model_dir = self.cache_dir.name
+            else : path_model_dir = self.cache_dir
+            path_model = os.path.join(path_model_dir,
+                                      "cv_" + str(i) + ".model.hdf5")
+
+            # Start inference process for fold i
+            process_queue = mp.Queue()
+            process_pred = mp.Process(target=__prediction_process__,
+                                      args=(process_queue,
+                                            self.model_template,
+                                            path_model,
+                                            datagen_paras))
+            process_pred.start()
+            process_pred.join()
+            preds = process_queue.get()
+
+            # Append to prediction ensemble
+            preds_ensemble.append(preds)
+
+        # Aggregate predictions
+        preds_ensemble = np.array(preds_ensemble)
+        for i in range(0, len(temp_dg.samples)):
+            pred_sample = agg_fun.aggregate(preds_ensemble[:,i,:])
+            preds_final.append(pred_sample)
+
+        # Convert prediction list to NumPy
+        preds_final = np.asarray(preds_final)
+        # Return ensembled predictions
+        return preds_final
 
     # Dump model to file
     def dump(self, file_path):
@@ -233,5 +288,33 @@ def __training_process__(queue, model, data, datagen_paras, train_paras):
                                **datagen_paras["kwargs"])
     # Start Neural_Network training
     cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
-    # Store result in cache (which will be returned of the process)
+    # Store result in cache (which will be returned by the process queue)
     queue.put(cv_history)
+
+# Internal function for inference with a fitted Neural_Network model in a separate process
+def __prediction_process__(queue, model, path_model, datagen_paras):
+    # Create inference DataGenerator
+    cv_pred_gen = DataGenerator(datagen_paras["samples"],
+                                path_imagedir=datagen_paras["path_imagedir"],
+                                labels=None,
+                                metadata=datagen_paras["metadata"],
+                                batch_size=datagen_paras["batch_size"],
+                                data_aug=datagen_paras["metadata"],
+                                seed=datagen_paras["seed"],
+                                subfunctions=datagen_paras["subfunctions"],
+                                shuffle=False,
+                                standardize_mode=datagen_paras["standardize_mode"],
+                                resize=datagen_paras["resize"],
+                                grayscale=datagen_paras["grayscale"],
+                                prepare_images=datagen_paras["prepare_images"],
+                                sample_weights=datagen_paras["sample_weights"],
+                                image_format=datagen_paras["image_format"],
+                                loader=datagen_paras["loader"],
+                                workers=datagen_paras["workers"],
+                                **datagen_paras["kwargs"])
+    # Load model weights from disk
+    model.load(path_model)
+    # Make prediction
+    preds = model.predict(cv_pred_gen)
+    # Store prediction results in cache (which will be returned by the process queue)
+    queue.put(preds)

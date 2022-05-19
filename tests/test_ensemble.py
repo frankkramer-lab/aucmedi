@@ -90,7 +90,7 @@ class EnsembleTEST(unittest.TestCase):
                                 batch_size=10, resize=None, data_aug=None,
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
-                                   n_cycles=5, aggregate="mean")
+                                   n_cycles=5, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
 
     def test_Augmenting_2D_customAug(self):
@@ -119,7 +119,7 @@ class EnsembleTEST(unittest.TestCase):
                                 grayscale=True, two_dim=False, subfunctions=[],
                                 standardize_mode="tf", loader=numpy_loader)
         preds = predict_augmenting(self.model3D, datagen,
-                                   n_cycles=5, aggregate="mean")
+                                   n_cycles=5, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3, 4)))
 
     def test_Augmenting_3D_customAug(self):
@@ -139,21 +139,65 @@ class EnsembleTEST(unittest.TestCase):
     def test_Bagging_create(self):
         # Initialize Bagging object
         el = Bagging(model=self.model2D, k_fold=5)
+        # Some sanity checks
         self.assertIsInstance(el, Bagging)
+        self.assertTrue(len(el.model_list) == 5)
+        self.assertTrue(el.model_list[2] != self.model2D)
+        self.assertTrue(el.model_list[1].n_labels == self.model2D.n_labels)
+        self.assertTrue(el.model_list[0].meta_input == self.model2D.meta_input)
 
-    # def test_Bagging_initialize(self):
-    #     # Initialize training DataGenerator
-    #     datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-    #                             labels=self.labels_ohe, batch_size=3, resize=None,
-    #                             data_aug=None, grayscale=False, subfunctions=[],
-    #                             standardize_mode="tf")
-    #     Bagging
-    #     pass
-        # # Test functionality with batch_size 10 and n_cycles = 1
-        # datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-        #                         batch_size=10, resize=None, data_aug=None,
-        #                         grayscale=False, two_dim=False, subfunctions=[],
-        #                         standardize_mode="tf")
-        # preds = predict_augmenting(self.model2D, datagen,
-        #                            n_cycles=1, aggregate="mean")
-        # self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+    def test_Bagging_training(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Bagging object
+        el = Bagging(model=self.model2D, k_fold=3)
+        # Run Bagging based training process
+        hist = el.train(datagen, epochs=3, iterations=None)
+
+        self.assertIsInstance(hist, dict)
+        self.assertTrue("cv_0.loss" in hist and "cv_0.val_loss" in hist)
+        self.assertTrue("cv_1.loss" in hist and "cv_1.val_loss" in hist)
+        self.assertTrue("cv_2.loss" in hist and "cv_2.val_loss" in hist)
+
+        self.assertTrue(os.path.exists(el.cache_dir.name))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_1.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_2.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_2.model.hdf5")))
+
+        # Delete cached models
+        path_tmp_bagging = el.cache_dir.name
+        del el
+        self.assertFalse(os.path.exists(path_tmp_bagging))
+
+    def test_Bagging_predict(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Bagging object
+        el = Bagging(model=self.model2D, k_fold=2)
+        # Check cache model directory existence exception
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+
+        # Train model
+        el.train(datagen, epochs=1, iterations=None)
+        # Run Inference with mean aggregation
+        preds = el.predict(datagen, aggregate="mean")
+        self.assertTrue(np.array_equal(preds.shape, (3,4)))
+        # Run Inference with majority vote aggregation
+        preds = el.predict(datagen, aggregate="majority_vote")
+        self.assertTrue(np.array_equal(preds.shape, (3,4)))
+        print(preds)

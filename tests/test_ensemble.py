@@ -141,10 +141,8 @@ class EnsembleTEST(unittest.TestCase):
         el = Bagging(model=self.model2D, k_fold=5)
         # Some sanity checks
         self.assertIsInstance(el, Bagging)
-        self.assertTrue(len(el.model_list) == 5)
-        self.assertTrue(el.model_list[2] != self.model2D)
-        self.assertTrue(el.model_list[1].n_labels == self.model2D.n_labels)
-        self.assertTrue(el.model_list[0].meta_input == self.model2D.meta_input)
+        self.assertTrue(el.k_fold == 5)
+        self.assertTrue(el.model_template == self.model2D)
 
     def test_Bagging_training(self):
         # Initialize training DataGenerator

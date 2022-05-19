@@ -201,3 +201,31 @@ class EnsembleTEST(unittest.TestCase):
         preds = el.predict(datagen, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3,4)))
         print(preds)
+
+    def test_Bagging_dump(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
+                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Bagging object and train it
+        el = Bagging(model=self.model2D, k_fold=2)
+        el.train(datagen, epochs=1, iterations=None)
+        # Initialize temporary directory
+        target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                             suffix=".model")
+        self.assertTrue(len(os.listdir(target.name))==0)
+        self.assertTrue(len(os.listdir(el.cache_dir.name))==4)
+        origin = el.cache_dir.name
+        # Dump model
+        target_dir = os.path.join(target.name, "test")
+        el.dump(target_dir)
+        self.assertTrue(len(os.listdir(target_dir))==4)
+        self.assertFalse(os.path.exists(origin))
+        target_two = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".model")
+        target_dir_two = os.path.join(target_two.name, "test")
+        el.dump(target_dir_two)
+        self.assertTrue(len(os.listdir(target_dir_two))==4)
+        self.assertTrue(len(os.listdir(target_dir))==4)
+        self.assertTrue(os.path.exists(target_dir))

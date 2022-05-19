@@ -24,6 +24,7 @@ import os
 from copy import deepcopy
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
+import multiprocessing as mp
 # Internal libraries
 from aucmedi import DataGenerator
 from aucmedi.sampling import sampling_kfold
@@ -42,13 +43,11 @@ class Bagging:
         # Cache class variables
         self.model_template = model
         self.k_fold = k_fold
-        self.model_list = []
         self.cache_dir = None
 
-        # Create k models based on template
-        for i in range(k_fold):
-            model_clone = deepcopy(model)
-            self.model_list.append(model_clone)
+        # Set multiprocessing method to spawn
+        mp.set_start_method("spawn")
+
 
     def train(self, training_generator, epochs=20, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False):
@@ -73,51 +72,11 @@ class Bagging:
 
         # Sequentially iterate over all folds
         for i, fold in enumerate(cv_sampling):
-            # Access current fold data
+            # Pack data into a tuple
             if len(fold) == 4:
                 (train_x, train_y, test_x, test_y) = fold
-                train_m = None
-                test_m = None
-            else : (train_x, train_y, train_m, test_x, test_y, test_m) = fold
-
-            # Build training DataGenerator
-            cv_train_gen = DataGenerator(train_x,
-                                         path_imagedir=temp_dg.path_imagedir,
-                                         labels=train_y,
-                                         metadata=train_m,
-                                         batch_size=temp_dg.batch_size,
-                                         data_aug=temp_dg.data_aug,
-                                         seed=temp_dg.seed,
-                                         subfunctions=temp_dg.subfunctions,
-                                         shuffle=temp_dg.shuffle,
-                                         standardize_mode=temp_dg.standardize_mode,
-                                         resize=temp_dg.resize,
-                                         grayscale=temp_dg.grayscale,
-                                         prepare_images=temp_dg.prepare_images,
-                                         sample_weights=temp_dg.sample_weights,
-                                         image_format=temp_dg.image_format,
-                                         loader=temp_dg.sample_loader,
-                                         workers=temp_dg.workers,
-                                         **temp_dg.kwargs)
-            # Build validation DataGenerator
-            cv_val_gen = DataGenerator(test_x,
-                                       path_imagedir=temp_dg.path_imagedir,
-                                       labels=test_y,
-                                       metadata=test_m,
-                                       batch_size=temp_dg.batch_size,
-                                       data_aug=None,
-                                       seed=temp_dg.seed,
-                                       subfunctions=temp_dg.subfunctions,
-                                       shuffle=False,
-                                       standardize_mode=temp_dg.standardize_mode,
-                                       resize=temp_dg.resize,
-                                       grayscale=temp_dg.grayscale,
-                                       prepare_images=temp_dg.prepare_images,
-                                       sample_weights=temp_dg.sample_weights,
-                                       image_format=temp_dg.image_format,
-                                       loader=temp_dg.sample_loader,
-                                       workers=temp_dg.workers,
-                                       **temp_dg.kwargs)
+                data = (train_x, train_y, None, test_x, test_y, None)
+            else : data = fold
 
             # Extend Callback list
             cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
@@ -131,14 +90,43 @@ class Bagging:
                               separator=',', append=True)
             callbacks.extend([cb_mc, cb_cl])
 
-            # Perform training process
-            cv_history = self.model_list[i].train(cv_train_gen,
-                                                  cv_val_gen,
-                                                  epochs=epochs,
-                                                  iterations=iterations,
-                                                  callbacks=callbacks,
-                                                  class_weights=class_weights,
-                                                  transfer_learning=transfer_learning)
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": temp_dg.standardize_mode,
+                             "resize": temp_dg.resize,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
+            }
+
+            # Gather training parameters
+            parameters_training = {"epochs": epochs,
+                                   "iterations": iterations,
+                                   "callbacks": callbacks,
+                                   "class_weights": class_weights,
+                                   "transfer_learning": transfer_learning
+            }
+
+            # Start training process
+            process_queue = mp.Queue()
+            process_train = mp.Process(target=__training_process__,
+                                       args=(process_queue,
+                                             self.model_template,
+                                             data,
+                                             datagen_paras,
+                                             parameters_training))
+            process_train.start()
+            process_train.join()
+            cv_history = process_queue.get()
             # Combine logged history objects
             hcv = {"cv_" + str(i) + "." + k: v for k, v in cv_history.items()}
             history_bagging = {**history_bagging, **hcv}
@@ -147,8 +135,21 @@ class Bagging:
         return history_bagging
 
 
-    def predict(self, prediction_generator, aggregate=""):
-        pass
+    def predict(self, prediction_generator, aggregate="mean"):
+        # Verify if there is a linked cache dictionary
+        con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
+                   os.path.exists(self.cache_dir.name))
+        con_var = (self.cache_dir is not None and os.path.exists(self.cache_dir))
+        if not con_tmp or not con_var:
+            raise FileNotFoundError("Bagging does not have a valid model cache directory!")
+
+        # # Sequentially iterate over all fold models
+        # preds_ensemble = []
+        # for i in range(self.k_fold):
+        #     # Load model
+        #     self.model_list[i]
+        #
+        # pass
         # for loop
             # model.predict
         # aggregate
@@ -185,3 +186,52 @@ class Bagging:
         # Compile model
         self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
                            loss=self.loss, metrics=self.metrics)
+
+#-----------------------------------------------------#
+#                     Subroutines                     #
+#-----------------------------------------------------#
+# Internal function for training a Neural_Network model in a separate process
+def __training_process__(queue, model, data, datagen_paras, train_paras):
+    (train_x, train_y, train_m, test_x, test_y, test_m) = data
+    # Build training DataGenerator
+    cv_train_gen = DataGenerator(train_x,
+                                 path_imagedir=datagen_paras["path_imagedir"],
+                                 labels=train_y,
+                                 metadata=train_m,
+                                 batch_size=datagen_paras["batch_size"],
+                                 data_aug=datagen_paras["data_aug"],
+                                 seed=datagen_paras["seed"],
+                                 subfunctions=datagen_paras["subfunctions"],
+                                 shuffle=datagen_paras["shuffle"],
+                                 standardize_mode=datagen_paras["standardize_mode"],
+                                 resize=datagen_paras["resize"],
+                                 grayscale=datagen_paras["grayscale"],
+                                 prepare_images=datagen_paras["prepare_images"],
+                                 sample_weights=datagen_paras["sample_weights"],
+                                 image_format=datagen_paras["image_format"],
+                                 loader=datagen_paras["loader"],
+                                 workers=datagen_paras["workers"],
+                                 **datagen_paras["kwargs"])
+    # Build validation DataGenerator
+    cv_val_gen = DataGenerator(test_x,
+                               path_imagedir=datagen_paras["path_imagedir"],
+                               labels=test_y,
+                               metadata=test_m,
+                               batch_size=datagen_paras["batch_size"],
+                               data_aug=None,
+                               seed=datagen_paras["seed"],
+                               subfunctions=datagen_paras["subfunctions"],
+                               shuffle=False,
+                               standardize_mode=datagen_paras["standardize_mode"],
+                               resize=datagen_paras["resize"],
+                               grayscale=datagen_paras["grayscale"],
+                               prepare_images=datagen_paras["prepare_images"],
+                               sample_weights=datagen_paras["sample_weights"],
+                               image_format=datagen_paras["image_format"],
+                               loader=datagen_paras["loader"],
+                               workers=datagen_paras["workers"],
+                               **datagen_paras["kwargs"])
+    # Start Neural_Network training
+    cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
+    # Store result in cache (which will be returned of the process)
+    queue.put(cv_history)

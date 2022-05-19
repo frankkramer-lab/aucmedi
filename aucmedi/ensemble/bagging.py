@@ -26,6 +26,7 @@ import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 import multiprocessing as mp
 import numpy as np
+import shutil
 # Internal libraries
 from aucmedi import DataGenerator
 from aucmedi.sampling import sampling_kfold
@@ -212,16 +213,24 @@ class Bagging:
         return preds_final
 
     # Dump model to file
-    def dump(self, file_path):
-        """ Store model to disk.
+    def dump(self, directory_path):
+        """ Store temporary Bagging model directory permanently to disk at desired location.
 
-        Recommended to utilize the file format ".hdf5".
+        if model directory is a provided path already persistent on the disk,
+        the directory is copied in order to keep original data persistent.
 
         Args:
-            file_path (str):    Path to store the model on disk.
+            directory_path (str):       Path to store the model directory on disk.
         """
-        self.model.save(file_path)
-
+        if self.cache_dir is None:
+            raise FileNotFoundError("Bagging does not have a valid model cache directory!")
+        elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
+            shutil.copytree(self.cache_dir.name, directory_path)
+            self.cache_dir.cleanup()
+            self.cache_dir = directory_path
+        else:
+            shutil.copytree(self.cache_dir, directory_path)
+            self.cache_dir = directory_path
 
     # Load model from file
     def load(self, file_path, custom_objects={}):

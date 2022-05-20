@@ -29,7 +29,7 @@ class Aggregate_Base(ABC):
     """ An abstract base class for a Aggregation class.
 
     ```
-    Augmented predictions encoded in a NumPy Matrix with shape (N_cycles, N_classes).
+    Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
     Example: [[0.5, 0.4, 0.1],
               [0.4, 0.3, 0.3],
               [0.5, 0.2, 0.3]]
@@ -81,7 +81,7 @@ class Aggregate_Base(ABC):
         It is possible to pass configurations through the initialization function for this class.
 
         Args:
-            preds (numpy.ndarray):      Augmented predictions encoded in a NumPy Matrix with shape (N_cycles, N_classes).
+            preds (numpy.ndarray):      Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
         Returns:
             pred (numpy.ndarray):       Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
         """

@@ -25,7 +25,7 @@ An Aggregate function can be passed to an Ensemble and merges multiple class pre
 into a single prediction.
 
 ```
-Augmented predictions encoded in a NumPy Matrix with shape (N_cycles, N_classes).
+Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
 Example: [[0.5, 0.4, 0.1],
           [0.4, 0.3, 0.3],
           [0.5, 0.2, 0.3]]

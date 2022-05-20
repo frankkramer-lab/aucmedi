@@ -38,9 +38,67 @@ from aucmedi.ensemble.aggregate import aggregate_dict
 class Bagging:
     """ A Bagging class providing functionality for cross-validation based ensemble learning.
 
+    Homogeneous model ensembles can be defined as multiple models consisting of the same algorithm, hyperparameters,
+    or architecture. The Bagging technique is based on improved training dataset sampling and a popular homogeneous
+    ensemble learning technique. In contrast to a standard single training/validation split, which results in a single
+    model, Bagging consists of training multiple models on randomly drawn subsets from the dataset.
+
+    In AUCMEDI, a k-fold cross-validation is applied on the dataset resulting in k models.
+
+    ???+ example
+        ```python
+        # Initialize Neural_Network model
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet50")
+
+        # Initialize Bagging object for 3-fold cross-validation
+        el = Bagging(model, k_fold=3)
+
+
+        # Initialize training DataGenerator for complete training data
+        datagen = DataGenerator(samples_train, "images_dir/",
+                                labels=train_labels_ohe, batch_size=3,
+                                resize=model.meta_input,
+                                standardize_mode=model.meta_standardize)
+        # Train models
+        el.train(datagen, epochs=100)
+
+
+        # Initialize testing DataGenerator for testing data
+        test_gen = DataGenerator(samples_test, "images_dir/",
+                                 resize=model.meta_input,
+                                 standardize_mode=model.meta_standardize)
+        # Run Inference with majority vote aggregation
+        preds = el.predict(test_gen, aggregate="majority_vote")
+        ```
+
+    !!! warning "Training Time Increase"
+        Bagging sequentially performs fitting processes for multiple models (commonly `k_fold=3` up to `k_fold=10`),
+        which will drastically increase training time.
+
+    ??? warning "DataGenerator re-initialization"
+        The passed DataGenerator for the train() and predict() function of the Bagging class will be re-initialized!
+
+        This can result into redundant image preparation if `prepare_images=True`.
+
+    ??? info "Technical Details"
+        For the training and inference process, each model will create a individual process via the Python multiprocessing package.
+
+        This is crucial as TensorFlow does not fully (and functionally) support the VRAM memory garbage collection in GPUs,
+        which is why more and more redundant data pile up with an increasing number of k-fold.
+
+        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next fold model.
+
+    ??? reference "Reference for Ensemble Learning Techniques"
+        Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).
+        An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
+        arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
     def __init__(self, model, k_fold=3):
         """ Initialization function for creating a Bagging object.
+
+        Args:
+            model (Neural_Network):         Instance of a AUCMEDI neural network class.
+            k_fold (int):                   Number of folds (k) for the Cross-Validation. Must be at least 2.
         """
         # Cache class variables
         self.model_template = model
@@ -50,11 +108,31 @@ class Bagging:
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
-
     def train(self, training_generator, epochs=20, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False):
-        """ asd
+        """ Training function for the Bagging models which perform a k-fold cross-validation model fitting.
 
+        The training data will be sampled according to a k-fold cross-validaton in which a validation
+        [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] will be automatically created.
+
+        It is also possible to pass custom Callback classes in order to obtain more information.
+
+        If an optional validation [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
+        is provided, a validation set is analyzed regularly during the training process (after each epoch).
+
+        For more information on the fitting process, check out [Neural_Network.train()][aucmedi.neural_network.model.Neural_Network.train].
+
+        Args:
+            training_generator (DataGenerator):     A data generator which will be used for training (will be splitted according to k-fold sampling).
+            epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
+                                                    the complete data set.
+            iterations (int):                       Number of iterations (batches) in a single epoch.
+            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
+            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+            transfer_learning (boolean):            Option whether a transfer learning training should be performed.
+
+        Returns:
+            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_bagging = {}            # Final history dictionary
@@ -137,7 +215,24 @@ class Bagging:
         return history_bagging
 
     def predict(self, prediction_generator, aggregate="mean"):
-        """ asd
+        """ Prediction function for the Bagging models.
+
+        The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+
+        The aggregate function for ensemble the predictions of the cross-validation models, can be either self
+        initialized with an AUCMEDI aggregate function or a custom made aggregate function, or by calling an
+        AUCMEDI aggregate function by name.
+
+        !!! info
+            Possible aggregate function names: ["mean", "median", "majority_vote", "softmax"]
+
+            More about aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
+
+        Args:
+            prediction_generator (DataGenerator):   A data generator which will be used for inference.
+
+        Returns:
+            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
         """
         # Verify if there is a linked cache dictionary
         con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
@@ -216,7 +311,7 @@ class Bagging:
     def dump(self, directory_path):
         """ Store temporary Bagging model directory permanently to disk at desired location.
 
-        if model directory is a provided path already persistent on the disk,
+        If the model directory is a provided path which is already persistent on the disk,
         the directory is copied in order to keep original data persistent.
 
         Args:

@@ -277,9 +277,9 @@ class Neural_Network:
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training.
             validation_generator (DataGenerator):   A data generator which will be used for validation.
-            epochs (integer):                       Number of epochs. A single epoch is defined as one iteration through
+            epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
-            iterations (integer):                   Number of iterations (batches) in a single epoch.
+            iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
             transfer_learning (boolean):            Option whether a transfer learning training should be performed.

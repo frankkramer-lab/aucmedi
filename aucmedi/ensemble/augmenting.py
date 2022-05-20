@@ -67,6 +67,11 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         The passed DataGenerator will be re-initialized!
         This can result into redundant image preparation if `prepare_images=True`.
 
+    ??? reference "Reference for Ensemble Learning Techniques"
+        Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).
+        An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
+        arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
+
     Args:
         model (Neural_Network):                 Instance of a AUCMEDI neural network class.
         prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.

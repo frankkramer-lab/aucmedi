@@ -33,7 +33,9 @@ AUCMEDI currently supports the following Ensemble Learning techniques:
 | [Bagging][aucmedi.ensemble.bagging]        | Cross-Validation based Bagging for equal models trained with different sampling.                     |
 | Stacking                                   | Coming soon. |
 
-???+ info
+!!! info
+    ![EnsembleLearning_overview](../../images/ensemble.theory.png)
+
     More information on performance impact of Ensemble Learning in medical image classification can be found here: <br>
 
     Dominik Müller, Iñaki Soto-Rey, Frank Kramer. (2022)

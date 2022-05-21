@@ -116,9 +116,6 @@ class Bagging:
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
-        If an optional validation [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
-        is provided, a validation set is analyzed regularly during the training process (after each epoch).
-
         For more information on the fitting process, check out [Neural_Network.train()][aucmedi.neural_network.model.Neural_Network.train].
 
         Args:

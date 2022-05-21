@@ -21,7 +21,6 @@
 #-----------------------------------------------------#
 # External libraries
 import os
-from copy import deepcopy
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 import multiprocessing as mp

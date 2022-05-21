@@ -77,7 +77,7 @@ class Metalearner_Base(ABC):
         """ Training function to fit the Metalearner model.
 
         Args:
-            x (numpy.ndarray):          Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+            x (numpy.ndarray):          Ensembled prediction dataset encoded in a NumPy Matrix with shape (N_samples, N_classes*N_models).
             y (numpy.ndarray):          Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         """
@@ -88,7 +88,7 @@ class Metalearner_Base(ABC):
     #---------------------------------------------#
     @abstractmethod
     def prediction(self, data):
-        """ Merge multiple predictions into a single one.
+        """ Merge multiple predictions for a sample into a single prediction.
 
         It is required to return the merged predictions (as NumPy matrix).
         It is possible to pass configurations through the initialization function for this class.

@@ -262,3 +262,34 @@ class MetelearnerTEST(unittest.TestCase):
         preds = ml.predict(data=self.pred_data)
         # Check
         self.assertTrue(np.array_equal(preds.shape, (25,4)))
+
+    #-------------------------------------------------#
+    #                  Random Forest                  #
+    #-------------------------------------------------#
+    def test_Random_Forest_create(self):
+        # Initializations
+        ml = Random_Forest()
+        self.assertTrue("random_forest" in metalearner_dict)
+        ml = metalearner_dict["random_forest"]()
+        # Storage
+        model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
+        self.assertFalse(os.path.exists(model_path))
+        ml.dump(model_path)
+        self.assertTrue(os.path.exists(model_path))
+        # Loading
+        ml.model = None
+        self.assertTrue(ml.model is None)
+        ml.load(model_path)
+        self.assertFalse(ml.model is None)
+        # Cleanup
+        os.remove(model_path)
+
+    def test_Random_Forest_usage(self):
+        # Initializations
+        ml = Random_Forest()
+        # Training
+        ml.train(x=self.pred_data, y=self.labels_ohe)
+        # Inference
+        preds = ml.predict(data=self.pred_data)
+        # Check
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))

@@ -58,13 +58,13 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - [x] Interface for metadata / pandas or NumPy table inclusion in model architectures
 - [x] Unittesting -> CI/CD
 - [x] Clean up Website
+- [x] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
 
 **Planed milestones and features are:**
 - [ ] Integrate evaluation functions
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML
-- [ ] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
 - [ ] Publication
 
 ## Getting started: 60 seconds to automated medical image classification

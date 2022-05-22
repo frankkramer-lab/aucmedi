@@ -24,6 +24,9 @@
 A Metalearner can be passed to an ensemble like Stacking and merges multiple class
 predictions into a single prediction.
 
+Metalearner are similar to [aggregate()][aucmedi.ensemble.aggregate] functions,
+however Metalearners are models which require fitting before usage.
+
 ```
 Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
 Example: [[0.5, 0.4, 0.1],

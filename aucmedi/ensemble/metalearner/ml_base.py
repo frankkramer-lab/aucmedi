@@ -29,12 +29,12 @@ class Metalearner_Base(ABC):
     """ An abstract base class for a Metalearner class.
 
     Metalearner are similar to [aggregate functions][aucmedi.ensemble.aggregate],
-    however Metalearners are models which are trained before usage.
+    however Metalearners are models which require fitting before usage.
 
     Metalearners are utilized in [Stacking][aucmedi.ensemble.stacking] pipelines.
 
     A Metalearner act as combiner algorithm which is trained to make a final prediction
-    using predictions of the other algorithms (Neural_Networks) as inputs.
+    using predictions of other algorithms (`Neural_Network`) as inputs.
 
     ```
     Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).

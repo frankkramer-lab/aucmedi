@@ -59,16 +59,16 @@ class EnsembleTEST(unittest.TestCase):
             np.save(path_sampleGRAY, img_gray)
             self.sampleList3D.append(index)
         # Create classification labels
-        self.labels_ohe = np.zeros((3, 4), dtype=np.uint8)
+        self.labels_ohe = np.zeros((3, 2), dtype=np.uint8)
         for i in range(0, 3):
-            class_index = np.random.randint(0, 4)
+            class_index = np.random.randint(0, 2)
             self.labels_ohe[i][class_index] = 1
         # Initialize model
-        self.model2D = Neural_Network(n_labels=4, channels=3,
+        self.model2D = Neural_Network(n_labels=2, channels=3,
                                       architecture="2D.Vanilla",
                                       batch_queue_size=1,
                                       input_shape=(16, 16))
-        self.model3D = Neural_Network(n_labels=4, channels=1,
+        self.model3D = Neural_Network(n_labels=2, channels=1,
                                       architecture="3D.Vanilla",
                                       batch_queue_size=1,
                                       input_shape=(16, 16, 16))
@@ -83,7 +83,7 @@ class EnsembleTEST(unittest.TestCase):
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
                                    n_cycles=1, aggregate="mean")
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
         # Test functionality with batch_size 10 and n_cycles = 5
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
@@ -91,7 +91,7 @@ class EnsembleTEST(unittest.TestCase):
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
                                    n_cycles=5, aggregate="majority_vote")
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
     def test_Augmenting_2D_customAug(self):
         # Test functionality with batch_size 10 and n_cycles = 1
@@ -101,7 +101,7 @@ class EnsembleTEST(unittest.TestCase):
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
         preds = predict_augmenting(self.model2D, datagen,
                                    n_cycles=1, aggregate="mean")
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
     def test_Augmenting_3D_functionality(self):
         # Test functionality with batch_size 3 and n_cycles = 1
@@ -111,7 +111,7 @@ class EnsembleTEST(unittest.TestCase):
                                 standardize_mode="tf", loader=numpy_loader)
         preds = predict_augmenting(self.model3D, datagen,
                                    n_cycles=1, aggregate="mean")
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
         # Test functionality with batch_size 8 and n_cycles = 5
         datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
@@ -120,7 +120,7 @@ class EnsembleTEST(unittest.TestCase):
                                 standardize_mode="tf", loader=numpy_loader)
         preds = predict_augmenting(self.model3D, datagen,
                                    n_cycles=5, aggregate="majority_vote")
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
     def test_Augmenting_3D_customAug(self):
         # Test functionality with self provided augmentation
@@ -131,7 +131,7 @@ class EnsembleTEST(unittest.TestCase):
                                 standardize_mode="tf", loader=numpy_loader)
         preds = predict_augmenting(self.model3D, datagen,
                                    n_cycles=1, aggregate="mean")
-        self.assertTrue(np.array_equal(preds.shape, (3, 4)))
+        self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
     #-------------------------------------------------#
     #                     Bagging                     #
@@ -194,10 +194,10 @@ class EnsembleTEST(unittest.TestCase):
         el.train(datagen, epochs=1, iterations=None)
         # Run Inference with mean aggregation
         preds = el.predict(datagen, aggregate="mean")
-        self.assertTrue(np.array_equal(preds.shape, (3,4)))
+        self.assertTrue(np.array_equal(preds.shape, (3,2)))
         # Run Inference with majority vote aggregation
         preds = el.predict(datagen, aggregate="majority_vote")
-        self.assertTrue(np.array_equal(preds.shape, (3,4)))
+        self.assertTrue(np.array_equal(preds.shape, (3,2)))
 
     def test_Bagging_dump(self):
         # Initialize training DataGenerator
@@ -252,3 +252,214 @@ class EnsembleTEST(unittest.TestCase):
                                                     "cv_1.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
                                                     "cv_1.model.hdf5")))
+
+    #-------------------------------------------------#
+    #                    Stacking                     #
+    #-------------------------------------------------#
+    def test_Stacking_create_metalearner(self):
+        # Initialize Stacking object with implemented dictionary
+        el = Stacking(model_list=[self.model2D],
+                      metalearner="logistic_regression")
+        # Some sanity checks
+        self.assertIsInstance(el, Stacking)
+        from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+        self.assertIsInstance(el.ml_model, Metalearner_Base)
+        # Initialize Stacking object with direct ensembler call
+        from aucmedi.ensemble.metalearner import Logistic_Regression
+        ensembler = Logistic_Regression()
+        el = Stacking(model_list=[self.model2D],
+                      metalearner=ensembler)
+        # Some sanity checks
+        self.assertIsInstance(el, Stacking)
+        from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+        self.assertIsInstance(el.ml_model, Metalearner_Base)
+
+    def test_Stacking_create_aggregate(self):
+        # Initialize Stacking object with implemented dictionary
+        el = Stacking(model_list=[self.model2D],
+                      metalearner="majority_vote")
+        # Some sanity checks
+        self.assertIsInstance(el, Stacking)
+        from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+        self.assertIsInstance(el.ml_model, Aggregate_Base)
+        # Initialize Stacking object with direct ensembler call
+        from aucmedi.ensemble.aggregate import Majority_Vote
+        ensembler = Majority_Vote()
+        el = Stacking(model_list=[self.model2D],
+                      metalearner=ensembler)
+        # Some sanity checks
+        self.assertIsInstance(el, Stacking)
+        from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+        self.assertIsInstance(el.ml_model, Aggregate_Base)
+
+    def test_Stacking_create_checks(self):
+        el = Stacking(model_list=[self.model2D, self.model2D, self.model2D])
+        self.assertTrue(len(el.model_list) == 3)
+        self.assertTrue(self.model2D in el.model_list)
+
+    def test_Stacking_training_metalearner(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 4, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Stacking object
+        el = Stacking(model_list=[self.model2D, self.model2D])
+        # Run Stacking based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        self.assertIsInstance(hist, dict)
+        self.assertTrue("nn_0.loss" in hist and "nn_0.val_loss" in hist)
+        self.assertTrue("nn_1.loss" in hist and "nn_1.val_loss" in hist)
+
+        self.assertTrue(os.path.exists(el.cache_dir.name))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_1.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "metalearner.model.pickle")))
+        # Delete cached models
+        path_tmp_bagging = el.cache_dir.name
+        del el
+        self.assertFalse(os.path.exists(path_tmp_bagging))
+
+    def test_Stacking_training_aggregate(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 4, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Stacking object
+        el = Stacking(model_list=[self.model2D, self.model2D],
+                      metalearner="mean")
+        # Run Stacking based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        self.assertIsInstance(hist, dict)
+        self.assertTrue("nn_0.loss" in hist and "nn_0.val_loss" in hist)
+        self.assertTrue("nn_1.loss" in hist and "nn_1.val_loss" in hist)
+
+        self.assertTrue(os.path.exists(el.cache_dir.name))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "nn_1.model.hdf5")))
+        # Delete cached models
+        path_tmp_bagging = el.cache_dir.name
+        del el
+        self.assertFalse(os.path.exists(path_tmp_bagging))
+
+    def test_Stacking_predict_metalearner(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 4, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Stacking object
+        el = Stacking(model_list=[self.model2D, self.model2D])
+        # Check cache model directory existence exception
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+
+        # Run Stacking based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        # Run Inference
+        preds = el.predict(datagen)
+        self.assertTrue(np.array_equal(preds.shape, (12,2)))
+
+    def test_Stacking_predict_aggregate(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 4, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Stacking object
+        el = Stacking(model_list=[self.model2D, self.model2D],
+                      metalearner="mean")
+        # Check cache model directory existence exception
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+
+        # Run Stacking based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        # Run Inference
+        preds = el.predict(datagen)
+        self.assertTrue(np.array_equal(preds.shape, (12,2)))
+
+    def test_Stacking_dump(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 4, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Bagging object and train it
+        el = Stacking(model_list=[self.model2D])
+        el.train(datagen, epochs=1, iterations=1)
+        # Initialize temporary directory
+        target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                             suffix=".model")
+        self.assertTrue(len(os.listdir(target.name))==0)
+        self.assertTrue(len(os.listdir(el.cache_dir.name))==3)
+        origin = el.cache_dir.name
+        # Dump model
+        target_dir = os.path.join(target.name, "test")
+        el.dump(target_dir)
+        self.assertTrue(len(os.listdir(target_dir))==3)
+        self.assertFalse(os.path.exists(origin))
+        target_two = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".model")
+        target_dir_two = os.path.join(target_two.name, "test")
+        el.dump(target_dir_two)
+        self.assertTrue(len(os.listdir(target_dir_two))==3)
+        self.assertTrue(len(os.listdir(target_dir))==3)
+        self.assertTrue(os.path.exists(target_dir))
+
+    def test_Stacking_load(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 4, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Bagging object and train it
+        el = Stacking(model_list=[self.model2D, self.model2D])
+        el.train(datagen, epochs=1, iterations=1)
+
+        model_dir = el.cache_dir
+        el.cache_dir = None
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+        self.assertRaises(FileNotFoundError, el.load, "/not/existing/path")
+        self.assertRaises(FileNotFoundError, el.load, "/")
+        el.load(model_dir.name)
+        self.assertTrue(os.path.exists(el.cache_dir))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "nn_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "nn_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "nn_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "nn_1.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "metalearner.model.pickle")))
+        preds = el.predict(datagen)

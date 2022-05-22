@@ -213,8 +213,10 @@ class DataGenerator(Iterator):
         # If prepare_image modus activated
         # -> Preprocess images beforehand and store them to disk for fast usage later
         if self.prepare_images:
-            tmp_dir = tempfile.mkdtemp(prefix="aucmedi.tmp.", suffix=".data")
-            self.prepare_dir = tmp_dir
+            self.prepare_dir_object = tempfile.TemporaryDirectory(
+                                               prefix="aucmedi.tmp.",
+                                               suffix=".data")
+            self.prepare_dir = self.prepare_dir_object.name
 
             # Preprocess image for each index - Sequential
             if self.workers == 0 or self.workers == 1:
@@ -229,7 +231,8 @@ class DataGenerator(Iterator):
                     mp_params = zip(index_array, repeat(False), repeat(False),
                                     repeat(False), repeat(True))
                     pool.starmap(self.preprocess_image, mp_params)
-            print("A directory for image preparation was created:", tmp_dir)
+            print("A directory for image preparation was created:",
+                  self.prepare_dir)
 
         # Pass initialization parameters to parent Iterator class
         size = len(samples)

@@ -55,6 +55,7 @@ from aucmedi.ensemble.metalearner.best_model import Best_Model
 from aucmedi.ensemble.metalearner.averaging_mean_weighted import Averaging_WeightedMean
 from aucmedi.ensemble.metalearner.random_forest import Random_Forest
 from aucmedi.ensemble.metalearner.k_neighbors import KNearestNeighbors
+from aucmedi.ensemble.metalearner.mlp_neural_network import MLP_NeuralNetwork
 
 #-----------------------------------------------------#
 #           Access Functions to Metalearners          #
@@ -68,5 +69,6 @@ metalearner_dict = {"logistic_regression": Logistic_Regression,
                     "weighted_mean": Averaging_WeightedMean,
                     "random_forest": Random_Forest,
                     "k_neighbors": KNearestNeighbors,
+                    "mlp_neural_network": MLP_NeuralNetwork,
 }
 """ Dictionary of implemented Metalearners. """

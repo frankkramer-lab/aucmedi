@@ -324,3 +324,34 @@ class MetelearnerTEST(unittest.TestCase):
         preds = ml.predict(data=self.pred_data)
         # Check
         self.assertTrue(np.array_equal(preds.shape, (25,4)))
+
+    #-------------------------------------------------#
+    #                MLP Neural Network               #
+    #-------------------------------------------------#
+    def test_MLP_NeuralNetwork_create(self):
+        # Initializations
+        ml = MLP_NeuralNetwork()
+        self.assertTrue("mlp_neural_network" in metalearner_dict)
+        ml = metalearner_dict["mlp_neural_network"]()
+        # Storage
+        model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
+        self.assertFalse(os.path.exists(model_path))
+        ml.dump(model_path)
+        self.assertTrue(os.path.exists(model_path))
+        # Loading
+        ml.model = None
+        self.assertTrue(ml.model is None)
+        ml.load(model_path)
+        self.assertFalse(ml.model is None)
+        # Cleanup
+        os.remove(model_path)
+
+    def test_MLP_NeuralNetwork_usage(self):
+        # Initializations
+        ml = MLP_NeuralNetwork()
+        # Training
+        ml.train(x=self.pred_data, y=self.labels_ohe)
+        # Inference
+        preds = ml.predict(data=self.pred_data)
+        # Check
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))

@@ -231,3 +231,34 @@ class MetelearnerTEST(unittest.TestCase):
         preds = ml.predict(data=self.pred_data)
         # Check
         self.assertTrue(np.array_equal(preds.shape, (25,4)))
+
+    #-------------------------------------------------#
+    #                  Weighted Mean                  #
+    #-------------------------------------------------#
+    def test_Averaging_WeightedMean_create(self):
+        # Initializations
+        ml = Averaging_WeightedMean()
+        self.assertTrue("weighted_mean" in metalearner_dict)
+        ml = metalearner_dict["weighted_mean"]()
+        # Storage
+        model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
+        self.assertFalse(os.path.exists(model_path))
+        ml.dump(model_path)
+        self.assertTrue(os.path.exists(model_path))
+        # Loading
+        ml.model = None
+        self.assertTrue(ml.model is None)
+        ml.load(model_path)
+        self.assertFalse(ml.model is None)
+        # Cleanup
+        os.remove(model_path)
+
+    def test_Averaging_WeightedMean_usage(self):
+        # Initializations
+        ml = Averaging_WeightedMean()
+        # Training
+        ml.train(x=self.pred_data, y=self.labels_ohe)
+        # Inference
+        preds = ml.predict(data=self.pred_data)
+        # Check
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))

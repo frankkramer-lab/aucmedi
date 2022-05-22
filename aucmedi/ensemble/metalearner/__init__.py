@@ -52,6 +52,7 @@ from aucmedi.ensemble.metalearner.support_vector_machine import SupportVectorMac
 from aucmedi.ensemble.metalearner.gaussian_process import Gaussian_Process
 from aucmedi.ensemble.metalearner.decision_tree import Decision_Tree
 from aucmedi.ensemble.metalearner.best_model import Best_Model
+from aucmedi.ensemble.metalearner.averaging_mean_weighted import Averaging_WeightedMean
 
 #-----------------------------------------------------#
 #           Access Functions to Metalearners          #
@@ -62,5 +63,6 @@ metalearner_dict = {"logistic_regression": Logistic_Regression,
                     "gaussian_process": Gaussian_Process,
                     "decision_tree": Decision_Tree,
                     "best_model": Best_Model,
+                    "weighted_mean": Averaging_WeightedMean,
 }
 """ Dictionary of implemented Metalearners. """

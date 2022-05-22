@@ -28,7 +28,7 @@ from abc import ABC, abstractmethod
 class Metalearner_Base(ABC):
     """ An abstract base class for a Metalearner class.
 
-    Metalearner are similar to [aggregate functions][aucmedi.ensemble.aggregate],
+    Metalearner are similar to [Aggregate functions][aucmedi.ensemble.aggregate],
     however Metalearners are models which require fitting before usage.
 
     Metalearners are utilized in [Stacking][aucmedi.ensemble.stacking] pipelines.

@@ -32,7 +32,7 @@ from aucmedi.data_processing.io_loader import image_loader
 def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean"):
     """ Inference Augmenting function for automatically augmenting unknown images for prediction.
 
-    The predictions of the augmented images are aggregated together via the provided aggregate function.
+    The predictions of the augmented images are aggregated together via the provided Aggregate function.
 
     ???+ example
         ```python
@@ -51,13 +51,12 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         preds = predict_augmenting(model, test_gen, n_cycles=15, aggregate="majority_vote")
         ```
 
-    The aggregate function can be either self initialized with an AUCMEDI aggregate function
-    or a custom made aggregate function, or by calling an AUCMEDI aggregate function by name.
+    The Aggregate function can be either self initialized with an AUCMEDI Aggregate function
+    or a custom made Aggregate function, or by calling an AUCMEDI Aggregate function by name.
 
     !!! info
-        Possible aggregate function names: ["mean", "median", "majority_vote", "softmax"]
-
-        More about aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
+        Description and list of implemented Aggregate functions can be found here:
+        [Aggregate][aucmedi.ensemble.aggregate]
 
     The Data Augmentation class instance from the DataGenerator will be used for inference augmenting,
     can be either predefined or leaving `None`. If the `data_aug` is `None`, a Data Augmentation class
@@ -76,7 +75,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         model (Neural_Network):                 Instance of a AUCMEDI neural network class.
         prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
-        aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI aggregate function.
+        aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
     """
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:

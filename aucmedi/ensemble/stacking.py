@@ -109,7 +109,7 @@ class Stacking:
                                                         or Aggregate function / a string for an AUCMEDI Aggregate function.
             sampling (list of float):                   List of percentage values with split sizes. Should be 3x percentage values
                                                         for heterogenous metalearner and 2x percentage values for homogeneous
-                                                        aggregate functions (must sum up to 1.0).
+                                                        Aggregate functions (must sum up to 1.0).
         """
         # Cache class variables
         self.model_list = model_list

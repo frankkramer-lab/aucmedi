@@ -215,14 +215,13 @@ class Bagging:
 
         The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
-        The aggregate function for ensemble the predictions of the cross-validation models, can be either self
-        initialized with an AUCMEDI aggregate function or a custom made aggregate function, or by calling an
-        AUCMEDI aggregate function by name.
+        The Aggregate function for ensemble the predictions of the cross-validation models, can be either self
+        initialized with an AUCMEDI Aggregate function or a custom made Aggregate function, or by calling an
+        AUCMEDI Aggregate function by name.
 
         !!! info
-            Possible aggregate function names: ["mean", "median", "majority_vote", "softmax"]
-
-            More about aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
+            Description and list of implemented Aggregate functions can be found here:
+            [Aggregate][aucmedi.ensemble.aggregate]
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.

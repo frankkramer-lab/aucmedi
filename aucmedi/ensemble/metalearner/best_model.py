@@ -32,7 +32,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 class Best_Model(Metalearner_Base):
     """ A Best Model based Metalearner.
 
-    This class should be passed to a Ensemble function like Stacking for combining predictions.
+    This class should be passed to a ensemble function/class like Stacking for combining predictions.
 
     This Metalearner computes the Area Under the Receiver Operating Characteristic Curve (ROC AUC)
     for each model, and simply utilizes only the predictions of the best scoring model.

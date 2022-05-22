@@ -30,7 +30,7 @@ from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 class Softmax(Aggregate_Base):
     """ Aggregate function based on softmax.
 
-    This class should be passed to an Ensemble function for combining predictions.
+    This class should be passed to an ensemble function/class for combining predictions.
     """
     #---------------------------------------------#
     #                Initialization               #

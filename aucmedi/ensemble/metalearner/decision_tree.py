@@ -36,6 +36,12 @@ class Decision_Tree(Metalearner_Base):
 
     !!! info
         Can be utilized for binary, multi-class and multi-label tasks.
+
+    ???+ abstract "Reference - Implementation"
+        https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
+
+        Scikit-learn: Machine Learning in Python, Pedregosa et al., JMLR 12, pp. 2825-2830, 2011.
+        https://jmlr.csail.mit.edu/papers/v12/pedregosa11a.html
     """
     #---------------------------------------------#
     #                Initialization               #

@@ -334,7 +334,7 @@ class Stacking:
         # Start training of stacked metalearner
         if isinstance(self.ml_model, Metalearner_Base):
             (_, y_stack, _) = data_ensemble
-            self.ml_model.training(x_stack, y_stack)
+            self.ml_model.train(x_stack, y_stack)
             # Store metalearner model to disk
             path_metalearner = os.path.join(path_model_dir,
                                             "metalearner.model.pickle")
@@ -425,7 +425,7 @@ class Stacking:
         if isinstance(self.ml_model, Metalearner_Base):
             s, m, c = preds_ensemble.shape
             x_stack = np.reshape(preds_ensemble, (s, m*c))
-            preds_final = self.ml_model.prediction(data=x_stack)
+            preds_final = self.ml_model.predict(data=x_stack)
         # Apply homogeneous aggregate function
         elif isinstance(self.ml_model, Aggregate_Base):
             for i in range(preds_ensemble.shape[0]):

@@ -50,7 +50,7 @@ class Logistic_Regression(Metalearner_Base):
     #---------------------------------------------#
     #                  Training                   #
     #---------------------------------------------#
-    def training(self, x, y):
+    def train(self, x, y):
         # Preprocess to sparse encoding
         y = np.argmax(y, axis=-1)
         # Train model
@@ -59,7 +59,7 @@ class Logistic_Regression(Metalearner_Base):
     #---------------------------------------------#
     #                  Prediction                 #
     #---------------------------------------------#
-    def prediction(self, data):
+    def predict(self, data):
         # Compute prediction probabilities via fitted model
         pred = self.model.predict_proba(data)
         # Return results as NumPy array

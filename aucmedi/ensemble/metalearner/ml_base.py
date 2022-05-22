@@ -73,7 +73,7 @@ class Metalearner_Base(ABC):
     #                  Training                   #
     #---------------------------------------------#
     @abstractmethod
-    def training(self, x, y):
+    def train(self, x, y):
         """ Training function to fit the Metalearner model.
 
         Args:
@@ -87,7 +87,7 @@ class Metalearner_Base(ABC):
     #                  Prediction                 #
     #---------------------------------------------#
     @abstractmethod
-    def prediction(self, data):
+    def predict(self, data):
         """ Merge multiple predictions for a sample into a single prediction.
 
         It is required to return the merged predictions (as NumPy matrix).

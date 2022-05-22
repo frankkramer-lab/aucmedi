@@ -282,7 +282,7 @@ class Neural_Network:
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
-            transfer_learning (boolean):            Option whether a transfer learning training should be performed.
+            transfer_learning (bool):               Option whether a transfer learning training should be performed.
 
         Returns:
             history (dictionary):                   A history dictionary from a Keras history object which contains several logs.

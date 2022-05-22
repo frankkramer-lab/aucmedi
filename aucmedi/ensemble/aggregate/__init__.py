@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 """ Library of implemented Aggregate functions in AUCMEDI.
 
-An Aggregate function can be passed to an Ensemble and merges multiple class predictions
+An Aggregate function can be passed to an ensemble and merges multiple class predictions
 into a single prediction.
 
 ```

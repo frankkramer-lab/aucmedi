@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 """ Library of implemented Metalearners in AUCMEDI.
 
-A Metalearner can be passed to an Ensemble like Stacking and merges multiple class
+A Metalearner can be passed to an ensemble like Stacking and merges multiple class
 predictions into a single prediction.
 
 ```

@@ -75,28 +75,35 @@ class MetelearnerTEST(unittest.TestCase):
         # Inference
         preds = ml.predict(data=self.pred_data)
         # Check
-        self.assertTrue(np.array_equal(pred.shape, (25,4)))
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))
 
-    # #-------------------------------------------------#
-    # #          Aggregate: Averaging by Median         #
-    # #-------------------------------------------------#
-    # def test_Aggregate_Median(self):
-    #     agg_func = Averaging_Median()
-    #     pred = agg_func.aggregate(self.pred_data.copy())
-    #     self.assertTrue(np.array_equal(pred.shape, (10,)))
-    #
-    # #-------------------------------------------------#
-    # #         Aggregate: Majority Vote (Hard)         #
-    # #-------------------------------------------------#
-    # def test_Aggregate_MajorityVote(self):
-    #     agg_func = Majority_Vote()
-    #     pred = agg_func.aggregate(self.pred_data.copy())
-    #     self.assertTrue(np.array_equal(pred.shape, (10,)))
-    #
-    # #-------------------------------------------------#
-    # #                Aggregate: Softmax               #
-    # #-------------------------------------------------#
-    # def test_Aggregate_Softmax(self):
-    #     agg_func = Softmax()
-    #     pred = agg_func.aggregate(self.pred_data.copy())
-    #     self.assertTrue(np.array_equal(pred.shape, (10,)))
+    #-------------------------------------------------#
+    #                   Naive Bayes                   #
+    #-------------------------------------------------#
+    def test_Naive_Bayes_create(self):
+        # Initializations
+        ml = Naive_Bayes()
+        self.assertTrue("naive_bayes" in metalearner_dict)
+        ml = metalearner_dict["naive_bayes"]()
+        # Storage
+        model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
+        self.assertFalse(os.path.exists(model_path))
+        ml.dump(model_path)
+        self.assertTrue(os.path.exists(model_path))
+        # Loading
+        ml.model = None
+        self.assertTrue(ml.model is None)
+        ml.load(model_path)
+        self.assertFalse(ml.model is None)
+        # Cleanup
+        os.remove(model_path)
+
+    def test_Naive_Bayes_usage(self):
+        # Initializations
+        ml = Naive_Bayes()
+        # Training
+        ml.train(x=self.pred_data, y=self.labels_ohe)
+        # Inference
+        preds = ml.predict(data=self.pred_data)
+        # Check
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))

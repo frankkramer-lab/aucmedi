@@ -47,10 +47,12 @@ which allow simple integration of custom Metalearners for Ensemble.
 #-----------------------------------------------------#
 # Import metalearners
 from aucmedi.ensemble.metalearner.logistic_regression import Logistic_Regression
+from aucmedi.ensemble.metalearner.naive_bayes import Naive_Bayes
 
 #-----------------------------------------------------#
 #           Access Functions to Metalearners          #
 #-----------------------------------------------------#
 metalearner_dict = {"logistic_regression": Logistic_Regression,
+                    "naive_bayes": Naive_Bayes,
 }
 """ Dictionary of implemented Metalearners. """

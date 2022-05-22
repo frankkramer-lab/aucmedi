@@ -53,6 +53,29 @@ class Stacking:
 
     ???+ example
         ```python
+        # Initialize some Neural_Network models
+        model_a = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet50")
+        model_b = Neural_Network(n_labels=4, channels=3, architecture="2D.MobileNetV2")
+        model_c = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB1")
+
+        # Initialize Stacking object
+        el = Stacking(model_list=[model_a, model_b, model_c],
+                      metalearner="logistic_regression")
+
+        # Initialize training DataGenerator for complete training data
+        datagen = DataGenerator(samples_train, "images_dir/",
+                                labels=train_labels_ohe, batch_size=3,
+                                resize=model_a.meta_input,
+                                standardize_mode=model_a.meta_standardize)
+        # Train neural network and metalearner models
+        el.train(datagen, epochs=100)
+
+        # Initialize testing DataGenerator for testing data
+        test_gen = DataGenerator(samples_test, "images_dir/",
+                                 resize=model_a.meta_input,
+                                 standardize_mode=model_a.meta_standardize)
+        # Run Inference
+        preds = el.predict(test_gen)
         ```
 
     !!! warning "Training Time Increase"

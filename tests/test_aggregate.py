@@ -34,36 +34,54 @@ class AggregateTEST(unittest.TestCase):
     def setUpClass(self):
         np.random.seed(1234)
         # Create data
-        self.pred_data = np.random.rand(50, 10)
+        self.pred_data = np.random.rand(10, 8)
 
     #-------------------------------------------------#
     #           Aggregate: Averaging by Mean          #
     #-------------------------------------------------#
     def test_Aggregate_Mean(self):
         agg_func = Averaging_Mean()
+        self.assertTrue("mean" in aggregate_dict)
+        agg_func = aggregate_dict["mean"]()
         pred = agg_func.aggregate(self.pred_data.copy())
-        self.assertTrue(np.array_equal(pred.shape, (10,)))
+        self.assertTrue(np.array_equal(pred.shape, (8,)))
 
     #-------------------------------------------------#
     #          Aggregate: Averaging by Median         #
     #-------------------------------------------------#
     def test_Aggregate_Median(self):
         agg_func = Averaging_Median()
+        self.assertTrue("median" in aggregate_dict)
+        agg_func = aggregate_dict["median"]()
         pred = agg_func.aggregate(self.pred_data.copy())
-        self.assertTrue(np.array_equal(pred.shape, (10,)))
+        self.assertTrue(np.array_equal(pred.shape, (8,)))
 
     #-------------------------------------------------#
     #         Aggregate: Majority Vote (Hard)         #
     #-------------------------------------------------#
     def test_Aggregate_MajorityVote(self):
         agg_func = Majority_Vote()
+        self.assertTrue("majority_vote" in aggregate_dict)
+        agg_func = aggregate_dict["majority_vote"]()
         pred = agg_func.aggregate(self.pred_data.copy())
-        self.assertTrue(np.array_equal(pred.shape, (10,)))
+        self.assertTrue(np.array_equal(pred.shape, (8,)))
 
     #-------------------------------------------------#
     #                Aggregate: Softmax               #
     #-------------------------------------------------#
     def test_Aggregate_Softmax(self):
         agg_func = Softmax()
+        self.assertTrue("softmax" in aggregate_dict)
+        agg_func = aggregate_dict["softmax"]()
         pred = agg_func.aggregate(self.pred_data.copy())
-        self.assertTrue(np.array_equal(pred.shape, (10,)))
+        self.assertTrue(np.array_equal(pred.shape, (8,)))
+
+    #-------------------------------------------------#
+    #             Aggregate: Global Argmax            #
+    #-------------------------------------------------#
+    def test_Aggregate_GlobalArgmax(self):
+        agg_func = Global_Argmax()
+        self.assertTrue("global_argmax" in aggregate_dict)
+        agg_func = aggregate_dict["global_argmax"]()
+        pred = agg_func.aggregate(self.pred_data.copy())
+        self.assertTrue(np.array_equal(pred.shape, (8,)))

@@ -58,6 +58,7 @@ from aucmedi.ensemble.aggregate.averaging_mean import Averaging_Mean
 from aucmedi.ensemble.aggregate.averaging_median import Averaging_Median
 from aucmedi.ensemble.aggregate.majority_vote import Majority_Vote
 from aucmedi.ensemble.aggregate.softmax import Softmax
+from aucmedi.ensemble.aggregate.global_argmax import Global_Argmax
 
 #-----------------------------------------------------#
 #       Access Functions to Aggregate Functions       #
@@ -65,5 +66,7 @@ from aucmedi.ensemble.aggregate.softmax import Softmax
 aggregate_dict = {"mean": Averaging_Mean,
                   "median": Averaging_Median,
                   "majority_vote": Majority_Vote,
-                  "softmax": Softmax}
+                  "softmax": Softmax,
+                  "global_argmax": Global_Argmax,
+}
 """ Dictionary of implemented Aggregate functions. """

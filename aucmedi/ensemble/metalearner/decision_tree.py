@@ -62,6 +62,9 @@ class Decision_Tree(Metalearner_Base):
     def predict(self, data):
         # Compute prediction probabilities via fitted model
         pred = self.model.predict_proba(data)
+        # Postprocess decision tree predictions
+        pred = np.asarray(pred)
+        pred = np.swapaxes(pred[:,:,1], 0, 1)
         # Return results as NumPy array
         return pred
 

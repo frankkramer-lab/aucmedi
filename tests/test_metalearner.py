@@ -293,3 +293,34 @@ class MetelearnerTEST(unittest.TestCase):
         preds = ml.predict(data=self.pred_data)
         # Check
         self.assertTrue(np.array_equal(preds.shape, (25,4)))
+
+    #-------------------------------------------------#
+    #               k-Nearest Neighbors               #
+    #-------------------------------------------------#
+    def test_KNearestNeighbors_create(self):
+        # Initializations
+        ml = KNearestNeighbors()
+        self.assertTrue("k_neighbors" in metalearner_dict)
+        ml = metalearner_dict["k_neighbors"]()
+        # Storage
+        model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
+        self.assertFalse(os.path.exists(model_path))
+        ml.dump(model_path)
+        self.assertTrue(os.path.exists(model_path))
+        # Loading
+        ml.model = None
+        self.assertTrue(ml.model is None)
+        ml.load(model_path)
+        self.assertFalse(ml.model is None)
+        # Cleanup
+        os.remove(model_path)
+
+    def test_KNearestNeighbors_usage(self):
+        # Initializations
+        ml = KNearestNeighbors()
+        # Training
+        ml.train(x=self.pred_data, y=self.labels_ohe)
+        # Inference
+        preds = ml.predict(data=self.pred_data)
+        # Check
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))

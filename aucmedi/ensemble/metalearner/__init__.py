@@ -49,6 +49,7 @@ which allow simple integration of custom Metalearners for Ensemble.
 from aucmedi.ensemble.metalearner.logistic_regression import Logistic_Regression
 from aucmedi.ensemble.metalearner.naive_bayes import Naive_Bayes
 from aucmedi.ensemble.metalearner.support_vector_machine import SupportVectorMachine
+from aucmedi.ensemble.metalearner.gaussian_process import Gaussian_Process
 
 #-----------------------------------------------------#
 #           Access Functions to Metalearners          #
@@ -56,5 +57,6 @@ from aucmedi.ensemble.metalearner.support_vector_machine import SupportVectorMac
 metalearner_dict = {"logistic_regression": Logistic_Regression,
                     "naive_bayes": Naive_Bayes,
                     "support_vector_machine": SupportVectorMachine,
+                    "gaussian_process": Gaussian_Process,
 }
 """ Dictionary of implemented Metalearners. """

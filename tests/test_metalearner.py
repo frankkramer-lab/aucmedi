@@ -138,3 +138,34 @@ class MetelearnerTEST(unittest.TestCase):
         preds = ml.predict(data=self.pred_data)
         # Check
         self.assertTrue(np.array_equal(preds.shape, (25,4)))
+
+    #-------------------------------------------------#
+    #                 Gaussian Process                #
+    #-------------------------------------------------#
+    def test_Gaussian_Process_create(self):
+        # Initializations
+        ml = Gaussian_Process()
+        self.assertTrue("gaussian_process" in metalearner_dict)
+        ml = metalearner_dict["gaussian_process"]()
+        # Storage
+        model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
+        self.assertFalse(os.path.exists(model_path))
+        ml.dump(model_path)
+        self.assertTrue(os.path.exists(model_path))
+        # Loading
+        ml.model = None
+        self.assertTrue(ml.model is None)
+        ml.load(model_path)
+        self.assertFalse(ml.model is None)
+        # Cleanup
+        os.remove(model_path)
+
+    def test_Gaussian_Process_usage(self):
+        # Initializations
+        ml = Gaussian_Process()
+        # Training
+        ml.train(x=self.pred_data, y=self.labels_ohe)
+        # Inference
+        preds = ml.predict(data=self.pred_data)
+        # Check
+        self.assertTrue(np.array_equal(preds.shape, (25,4)))

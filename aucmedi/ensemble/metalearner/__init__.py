@@ -51,6 +51,7 @@ from aucmedi.ensemble.metalearner.naive_bayes import Naive_Bayes
 from aucmedi.ensemble.metalearner.support_vector_machine import SupportVectorMachine
 from aucmedi.ensemble.metalearner.gaussian_process import Gaussian_Process
 from aucmedi.ensemble.metalearner.decision_tree import Decision_Tree
+from aucmedi.ensemble.metalearner.best_model import Best_Model
 
 #-----------------------------------------------------#
 #           Access Functions to Metalearners          #
@@ -60,5 +61,6 @@ metalearner_dict = {"logistic_regression": Logistic_Regression,
                     "support_vector_machine": SupportVectorMachine,
                     "gaussian_process": Gaussian_Process,
                     "decision_tree": Decision_Tree,
+                    "best_model": Best_Model,
 }
 """ Dictionary of implemented Metalearners. """

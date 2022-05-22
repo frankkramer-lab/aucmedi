@@ -5,12 +5,12 @@ Even so these implementations are more complex than standard examples, they repr
 
 ## Overview
 
-| Application | Type | Link  |
-|-------------|:--------------------:|:------:|
-| [Multi-Disease Detection in Retinal Imaging](#RIADD) | Challenge (rank #7) | [RIADD - Grand Challenge](https://github.com/frankkramer-lab/riadd.aucmedi) |
-| [Ensemble Learning Analysis](#ENSMIC) | Research | [ENSMIC](https://github.com/frankkramer-lab/ensmic) |
-| COVID-19 Severity Detection | Challenge (rank #4 - ongoing) | [COVID-19 Algorithm - Grand Challenge](https://grand-challenge.org/algorithms/stoic2021-covid-19-lung-ct-scans-team-augsburg) |
-| Pathology - Gleason Score Estimation | Clinical Study | Ongoing |
+| Application | Type   | AUCMEDI  | Link   |
+|-------------|:------:|:--------:|:------:|
+| [Multi-Disease Detection in Retinal Imaging](#RIADD) | Challenge (rank #7) | v0.1.0 | [RIADD - Grand Challenge](https://github.com/frankkramer-lab/riadd.aucmedi) |
+| [Ensemble Learning Analysis](#ENSMIC) | Research | v0.3.0 | [ENSMIC](https://github.com/frankkramer-lab/ensmic) |
+| COVID-19 Severity Detection | Challenge (rank #4 - ongoing) | v0.4.0 | [COVID-19 Algorithm - Grand Challenge](https://grand-challenge.org/algorithms/stoic2021-covid-19-lung-ct-scans-team-augsburg) |
+| Pathology - Gleason Score Estimation | Clinical Study | Latest | Ongoing |
 
 
 ## <a name="RIADD"></a>Multi-Disease Detection in Retinal Imaging

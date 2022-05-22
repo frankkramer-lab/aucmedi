@@ -19,10 +19,10 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" Library of implemented Aggregate functions in AUCMEDI.
+""" Library of implemented Metalearners in AUCMEDI.
 
-An Aggregate function can be passed to an Ensemble and merges multiple class predictions
-into a single prediction.
+A Metalearner can be passed to an Ensemble like Stacking and merges multiple class
+predictions into a single prediction.
 
 ```
 Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
@@ -36,34 +36,18 @@ Example: [[0.4, 0.3, 0.3]]
 -> shape (1, 3)
 ```
 
-???+ example "Example"
-    ```python
-    # Recommended: Apply an Ensemble like Augmenting (test-time augmentation) with Majority Vote
-    preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate="majority_vote")
-
-    # Manual: Apply an Ensemble like Augmenting (test-time augmentation) with Majority Vote
-    from aucmedi.ensemble.aggregate import Majority_Vote
-    my_agg = Majority_Vote()
-    preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate=my_agg)
-    ```
-
-Aggregate functions are based on the abstract base class [Aggregate_Base][aucmedi.ensemble.aggregate.agg_base.Aggregate_Base],
-which allow simple integration of custom aggregate methods for Ensemble.
+Metalearners are based on the abstract base class [Metalearner_Base][aucmedi.ensemble.metalearner.ml_base],
+which allow simple integration of custom Metalearners for Ensemble.
 """
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# Import aggregate functions
-from aucmedi.ensemble.aggregate.averaging_mean import Averaging_Mean
-from aucmedi.ensemble.aggregate.averaging_median import Averaging_Median
-from aucmedi.ensemble.aggregate.majority_vote import Majority_Vote
-from aucmedi.ensemble.aggregate.softmax import Softmax
+# Import metalearners
+from aucmedi.ensemble.metalearner.logistic_regression import Logistic_Regression
 
 #-----------------------------------------------------#
-#       Access Functions to Aggregate Functions       #
+#           Access Functions to Metalearners          #
 #-----------------------------------------------------#
-aggregate_dict = {"mean": Averaging_Mean,
-                  "median": Averaging_Median,
-                  "majority_vote": Majority_Vote,
-                  "softmax": Softmax}
-""" Dictionary of implemented Aggregate functions. """
+metalearner_dict = {"logistic_regression": Logistic_Regression,
+}
+""" Dictionary of implemented Metalearners. """

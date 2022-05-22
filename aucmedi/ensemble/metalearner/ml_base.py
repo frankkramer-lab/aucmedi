@@ -94,7 +94,7 @@ class Metalearner_Base(ABC):
         It is possible to pass configurations through the initialization function for this class.
 
         Args:
-            preds (numpy.ndarray):      Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+            data (numpy.ndarray):       Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
         Returns:
             pred (numpy.ndarray):       Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
         """
@@ -108,7 +108,7 @@ class Metalearner_Base(ABC):
         """ Store metalearner model to disk.
 
         Args:
-            file_path (str):    Path to store the model on disk.
+            path (str):                 Path to store the model on disk.
         """
         pass
 
@@ -120,6 +120,6 @@ class Metalearner_Base(ABC):
         """ Load metalearner model and its weights from a file.
 
         Args:
-            file_path (str):            Input path, from which the model will be loaded.
+            path (str):                 Input path, from which the model will be loaded.
         """
         pass

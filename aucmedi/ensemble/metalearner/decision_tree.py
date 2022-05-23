@@ -32,7 +32,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 class Decision_Tree(Metalearner_Base):
     """ A Decision Tree based Metalearner.
 
-    This class should be passed to a ensemble function/class like Stacking for combining predictions.
+    This class should be passed to an ensemble function/class like Stacking for combining predictions.
 
     !!! info
         Can be utilized for binary, multi-class and multi-label tasks.

@@ -32,7 +32,7 @@ from aucmedi.data_processing.io_loader import image_loader
 def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean"):
     """ Inference Augmenting function for automatically augmenting unknown images for prediction.
 
-    The predictions of the augmented images are aggregated together via the provided Aggregate function.
+    The predictions of the augmented images are aggregated via the provided Aggregate function.
 
     ???+ example
         ```python
@@ -51,20 +51,23 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         preds = predict_augmenting(model, test_gen, n_cycles=15, aggregate="majority_vote")
         ```
 
-    The Aggregate function can be either self initialized with an AUCMEDI Aggregate function
-    or a custom made Aggregate function, or by calling an AUCMEDI Aggregate function by name.
+    Including the Aggregate function can be achieved multiple ways:
+
+    - self-initialization with an AUCMEDI Aggregate function,
+    - use a string key to call an AUCMEDI Aggregate function by name, or
+    - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base.py]
 
     !!! info
         Description and list of implemented Aggregate functions can be found here:
         [Aggregate][aucmedi.ensemble.aggregate]
 
-    The Data Augmentation class instance from the DataGenerator will be used for inference augmenting,
-    can be either predefined or leaving `None`. If the `data_aug` is `None`, a Data Augmentation class
+    The Data Augmentation class instance from the DataGenerator will be used for inference augmenting.
+    It can either be predefined or remain `None`. If the `data_aug` is `None`, a Data Augmentation class
     instance is automatically created which applies rotation and flipping augmentations.
 
     ???+ warning
         The passed DataGenerator will be re-initialized!
-        This can result into redundant image preparation if `prepare_images=True`.
+        This can result in redundant image preparation if `prepare_images=True`.
 
     ??? reference "Reference for Ensemble Learning Techniques"
         Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).

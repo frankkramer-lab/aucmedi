@@ -25,13 +25,13 @@ An Aggregate function can be passed to an ensemble and merges multiple class pre
 into a single prediction.
 
 ```
-Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
 Example: [[0.5, 0.4, 0.1],
           [0.4, 0.3, 0.3],
           [0.5, 0.2, 0.3]]
 -> shape (3, 3)
 
-Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
 Example: [[0.4, 0.3, 0.3]]
 -> shape (1, 3)
 ```
@@ -48,7 +48,7 @@ Example: [[0.4, 0.3, 0.3]]
     ```
 
 Aggregate functions are based on the abstract base class [Aggregate_Base][aucmedi.ensemble.aggregate.agg_base.Aggregate_Base],
-which allow simple integration of custom aggregate methods for Ensemble.
+which allows simple integration of custom aggregate methods for Ensemble.
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

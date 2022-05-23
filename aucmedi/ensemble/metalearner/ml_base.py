@@ -33,17 +33,17 @@ class Metalearner_Base(ABC):
 
     Metalearners are utilized in [Stacking][aucmedi.ensemble.stacking] pipelines.
 
-    A Metalearner act as combiner algorithm which is trained to make a final prediction
+    A Metalearner act as a combiner algorithm which is trained to make a final prediction
     using predictions of other algorithms (`Neural_Network`) as inputs.
 
     ```
-    Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+    Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
     Example: [[0.5, 0.4, 0.1],
               [0.4, 0.3, 0.3],
               [0.5, 0.2, 0.3]]
     -> shape (3, 3)
 
-    Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+    Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
     Example: [[0.4, 0.3, 0.3]]
     -> shape (1, 3)
     ```
@@ -65,7 +65,7 @@ class Metalearner_Base(ABC):
         """ Initialization function which will be called during the Metalearner object creation.
 
         This function can be used to pass variables and options in the Metalearner instance.
-        The are no mandatory required parameters for the initialization.
+        There are no mandatory parameters for the initialization.
         """
         pass
 
@@ -77,7 +77,7 @@ class Metalearner_Base(ABC):
         """ Training function to fit the Metalearner model.
 
         Args:
-            x (numpy.ndarray):          Ensembled prediction dataset encoded in a NumPy Matrix with shape (N_samples, N_classes*N_models).
+            x (numpy.ndarray):          Assembled prediction dataset encoded in a NumPy matrix with shape (N_samples, N_classes*N_models).
             y (numpy.ndarray):          Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         """
@@ -94,9 +94,9 @@ class Metalearner_Base(ABC):
         It is possible to pass configurations through the initialization function for this class.
 
         Args:
-            data (numpy.ndarray):       Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+            data (numpy.ndarray):       Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
         Returns:
-            pred (numpy.ndarray):       Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+            pred (numpy.ndarray):       Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
         """
         pass
 
@@ -105,7 +105,7 @@ class Metalearner_Base(ABC):
     #---------------------------------------------#
     @abstractmethod
     def dump(self, path):
-        """ Store metalearner model to disk.
+        """ Store Metalearner model to disk.
 
         Args:
             path (str):                 Path to store the model on disk.
@@ -117,9 +117,9 @@ class Metalearner_Base(ABC):
     #---------------------------------------------#
     @abstractmethod
     def load(self, path):
-        """ Load metalearner model and its weights from a file.
+        """ Load Metalearner model and its weights from a file.
 
         Args:
-            path (str):                 Input path, from which the model will be loaded.
+            path (str):                 Input path from which the model will be loaded.
         """
         pass

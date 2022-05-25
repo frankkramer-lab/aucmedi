@@ -51,7 +51,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         preds = predict_augmenting(model, test_gen, n_cycles=15, aggregate="majority_vote")
         ```
 
-    Including the Aggregate function can be achieved multiple ways:
+    The inclusion of the Aggregate function can be achieved in multiple ways:
 
     - self-initialization with an AUCMEDI Aggregate function,
     - use a string key to call an AUCMEDI Aggregate function by name, or

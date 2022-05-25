@@ -85,4 +85,4 @@ class Aggregate_Base(ABC):
         Returns:
             pred (numpy.ndarray):       Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
         """
-        return preds
+        return pred

@@ -215,7 +215,7 @@ class Bagging:
 
         The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
-        Including the Aggregate function can be achieved multiple ways:
+        The inclusion of the Aggregate function can be achieved in multiple ways:
 
         - self-initialization with an AUCMEDI Aggregate function,
         - use a string key to call an AUCMEDI Aggregate function by name, or

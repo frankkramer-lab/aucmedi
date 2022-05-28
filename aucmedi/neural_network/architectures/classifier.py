@@ -131,7 +131,7 @@ class Classifier:
     #---------------------------------------------#
     #                Create Model                 #
     #---------------------------------------------#
-    def build(self, model_input, model_output, two_dim=True):
+    def build(self, model_input, model_output):
         """ Internal function which appends the classification head.
 
         This function will be called inside of an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
@@ -141,16 +141,17 @@ class Classifier:
         Args:
             model_input (tf.keras layer):       Input layer of the model.
             model_output (tf.keras layer):      Output layer of the model.
-            two_dim (bool):                     Boolean, whether architecture is 2D or 3D.
 
         Returns:
             model (tf.keras model):             A functional Keras model.
         """
         # Apply GlobalAveragePooling to obtain a single spatial dimensions
-        if two_dim:
+        if len(model_output.shape) == 4:            # for 2D architectures
             model_head = layers.GlobalAveragePooling2D(name="avg_pool")(model_output)
-        else:
+        elif len(model_output.shape) == 5:          # for 3D architectures
             model_head = layers.GlobalAveragePooling3D(name="avg_pool")(model_output)
+        # if not model output shape 4 or 5 -> it is already GlobalAveragePooled to 2 dim
+        else : model_head = model_output
 
         # Apply optional dense & dropout layer
         if self.fcl_dropout:

@@ -64,6 +64,9 @@ from aucmedi.neural_network.architectures.image.vgg19 import Architecture_VGG19
 # Xception
 from aucmedi.neural_network.architectures.image.xception import Architecture_Xception
 # Vision Transformer (ViT)
+from aucmedi.neural_network.architectures.image.vit_b16 import Architecture_ViT_B16
+from aucmedi.neural_network.architectures.image.vit_b32 import Architecture_ViT_B32
+from aucmedi.neural_network.architectures.image.vit_l16 import Architecture_ViT_L16
 from aucmedi.neural_network.architectures.image.vit_l32 import Architecture_ViT_L32
 
 #-----------------------------------------------------#
@@ -100,6 +103,9 @@ architecture_dict = {
     "VGG16": Architecture_VGG16,
     "VGG19": Architecture_VGG19,
     "Xception": Architecture_Xception,
+    "ViT_B16": Architecture_ViT_B16,
+    "ViT_B32": Architecture_ViT_B32,
+    "ViT_L16": Architecture_ViT_L16,
     "ViT_L32": Architecture_ViT_L32,
 }
 """ Dictionary of implemented 2D Architectures Methods in AUCMEDI.
@@ -182,6 +188,9 @@ supported_standardize_mode = {
     "VGG16": "caffe",
     "VGG19": "caffe",
     "Xception": "tf",
+    "ViT_B16": "tf",
+    "ViT_B32": "tf",
+    "ViT_L16": "tf",
     "ViT_L32": "tf",
 }
 """ Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 2D Architectures Methods in AUCMEDI.

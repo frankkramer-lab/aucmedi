@@ -80,8 +80,7 @@ class Architecture_Vanilla(Architecture_Base):
 
         # Add classification head
         model = self.classifier.build(model_input=model_input,
-                                      model_output=model_base,
-                                      two_dim=False)
+                                      model_output=model_base)
 
         # Return created model
         return model

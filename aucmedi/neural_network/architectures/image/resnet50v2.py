@@ -73,8 +73,7 @@ class Architecture_ResNet50V2(Architecture_Base):
 
         # Add classification head
         model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model,
-                                      two_dim=True)
+                                      model_output=top_model)
 
         # Return created model
         return model

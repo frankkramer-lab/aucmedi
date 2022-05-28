@@ -55,8 +55,7 @@ class Architecture_Base(ABC):
 
                 # Add classification head via Classifier
                 my_keras_model = self.classifier.build(model_input=model_input,
-                                                      model_output=model_base,
-                                                      two_dim=True)
+                                                      model_output=model_base)
                 # Return created model
                 return my_keras_model
         ```

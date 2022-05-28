@@ -63,6 +63,8 @@ from aucmedi.neural_network.architectures.image.vgg16 import Architecture_VGG16
 from aucmedi.neural_network.architectures.image.vgg19 import Architecture_VGG19
 # Xception
 from aucmedi.neural_network.architectures.image.xception import Architecture_Xception
+# Vision Transformer (ViT)
+from aucmedi.neural_network.architectures.image.vit_l32 import Architecture_ViT_L32
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -97,7 +99,8 @@ architecture_dict = {
     "NASNetLarge": Architecture_NASNetLarge,
     "VGG16": Architecture_VGG16,
     "VGG19": Architecture_VGG19,
-    "Xception": Architecture_Xception
+    "Xception": Architecture_Xception,
+    "ViT_L32": Architecture_ViT_L32,
 }
 """ Dictionary of implemented 2D Architectures Methods in AUCMEDI.
 
@@ -178,7 +181,8 @@ supported_standardize_mode = {
     "NASNetLarge": "tf",
     "VGG16": "caffe",
     "VGG19": "caffe",
-    "Xception": "tf"
+    "Xception": "tf",
+    "ViT_L32": "tf",
 }
 """ Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 2D Architectures Methods in AUCMEDI.
 

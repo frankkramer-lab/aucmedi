@@ -704,16 +704,64 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
 
     #-------------------------------------------------#
+    #              Architecture: ViT B16              #
+    #-------------------------------------------------#
+    def test_ViT_B16(self):
+        self.datagen_RGB.sf_resize = Resize(shape=(224, 224))
+        arch = Architecture_ViT_B16(Classifier(n_labels=4), channels=3,
+                                    input_shape=(224, 224))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ViT_B16",
+                               batch_queue_size=1, input_shape=(224, 224))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ViT_B16"] == "tf")
+        self.assertTrue(sdm_global["2D.ViT_B16"] == "tf")
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
+
+    #-------------------------------------------------#
+    #              Architecture: ViT B32              #
+    #-------------------------------------------------#
+    def test_ViT_B32(self):
+        self.datagen_RGB.sf_resize = Resize(shape=(224, 224))
+        arch = Architecture_ViT_B32(Classifier(n_labels=4), channels=3,
+                                    input_shape=(224, 224))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ViT_B32",
+                               batch_queue_size=1, input_shape=(224, 224))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ViT_B32"] == "tf")
+        self.assertTrue(sdm_global["2D.ViT_B32"] == "tf")
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
+
+    #-------------------------------------------------#
+    #              Architecture: ViT L16              #
+    #-------------------------------------------------#
+    def test_ViT_L16(self):
+        self.datagen_RGB.sf_resize = Resize(shape=(384, 384))
+        arch = Architecture_ViT_L16(Classifier(n_labels=4), channels=3,
+                                    input_shape=(384, 384))
+        model = Neural_Network(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ViT_L16",
+                               batch_queue_size=1, input_shape=(384, 384))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ViT_L16"] == "tf")
+        self.assertTrue(sdm_global["2D.ViT_L16"] == "tf")
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
+
+    #-------------------------------------------------#
     #              Architecture: ViT L32              #
     #-------------------------------------------------#
     def test_ViT_L32(self):
-        self.datagen_GRAY.sf_resize = Resize(shape=(384, 384))
         self.datagen_RGB.sf_resize = Resize(shape=(384, 384))
-        arch = Architecture_ViT_L32(Classifier(n_labels=4), channels=1,
-                                    input_shape=(384, 384))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
-        model.predict(self.datagen_GRAY)
         arch = Architecture_ViT_L32(Classifier(n_labels=4), channels=3,
                                     input_shape=(384, 384))
         model = Neural_Network(n_labels=4, channels=3, architecture=arch,
@@ -725,5 +773,4 @@ class ArchitecturesImageTEST(unittest.TestCase):
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ViT_L32"] == "tf")
         self.assertTrue(sdm_global["2D.ViT_L32"] == "tf")
-        self.datagen_GRAY.sf_resize = Resize(shape=(384, 384))
-        self.datagen_RGB.sf_resize = Resize(shape=(384, 384))
+        self.datagen_RGB.sf_resize = Resize(shape=(32, 32))

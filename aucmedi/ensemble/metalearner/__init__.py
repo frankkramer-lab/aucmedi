@@ -28,19 +28,19 @@ Metalearner are similar to [aggregate()][aucmedi.ensemble.aggregate] functions,
 however Metalearners are models which require fitting before usage.
 
 ```
-Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
 Example: [[0.5, 0.4, 0.1],
           [0.4, 0.3, 0.3],
           [0.5, 0.2, 0.3]]
 -> shape (3, 3)
 
-Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
 Example: [[0.4, 0.3, 0.3]]
 -> shape (1, 3)
 ```
 
 Metalearners are based on the abstract base class [Metalearner_Base][aucmedi.ensemble.metalearner.ml_base],
-which allow simple integration of custom Metalearners for Ensemble.
+which allows simple integration of custom Metalearners for Ensemble.
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

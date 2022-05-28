@@ -41,14 +41,14 @@ class Stacking:
     """ A Stacking class providing functionality for metalearner based ensemble learning.
 
     In contrast to single algorithm approaches, the ensemble of different deep convolutional neural network architectures
-    (also called inhomogeneous ensemble learning) showed strong benefits for overall performance in several studies.
+    (also called heterogeneous ensemble learning) showed strong benefits for overall performance in several studies.
     The idea of the Stacking technique is to utilize diverse and independent models by stacking another machine learning
     algorithm on top of these predictions.
 
-    In AUCMEDI, a percentage split is applied on the dataset into the subsets: train, val and ensemble.
+    In AUCMEDI, a percentage split is applied on the dataset into the subsets: train, validation and ensemble.
 
-    On the train & val subset, one or multiple predefined [Neural_Network][aucmedi.neural_network.model]
-    models are trained, whereas on the ensemble subset a metalearner is fitted for combining
+    On the train and validation subsets, one or multiple predefined [Neural_Network][aucmedi.neural_network.model]
+    models are trained, whereas on the ensemble subset a metalearner is fitted to merge
     [Neural_Network][aucmedi.neural_network.model] model predictions into a single one.
 
     ???+ example
@@ -84,12 +84,12 @@ class Stacking:
     ??? warning "DataGenerator re-initialization"
         The passed DataGenerator for the train() and predict() function of the Stacking class will be re-initialized!
 
-        This can result into redundant image preparation if `prepare_images=True`.
+        This can result in redundant image preparation if `prepare_images=True`.
 
     ??? info "Technical Details"
-        For the training and inference process, each model will create a individual process via the Python multiprocessing package.
+        For the training and inference process, each model will create an individual process via the Python multiprocessing package.
 
-        This is crucial as TensorFlow does not fully (and functionally) support the VRAM memory garbage collection in GPUs,
+        This is crucial as TensorFlow does not fully support the VRAM memory garbage collection in GPUs,
         which is why more and more redundant data pile up with an increasing number of models.
 
         Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next model.
@@ -146,7 +146,7 @@ class Stacking:
         For more information on the fitting process, check out [Neural_Network.train()][aucmedi.neural_network.model.Neural_Network.train].
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be splitted according
+            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
                                                     to percentage split sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
@@ -258,7 +258,7 @@ class Stacking:
         re-training of the [Neural_Network][aucmedi.neural_network.model] models.
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be splitted according
+            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
                                                     to percentage split sampling).
         """
         # Skipping metalearner training if aggregate function

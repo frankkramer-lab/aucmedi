@@ -22,7 +22,7 @@
 """ State-of-the-art and high-performance medical image classification pipelines
     are heavily utilizing Ensemble Learning strategies.
 
-The idea of Ensemble Learning is to assemble diverse models or multiple predictions and, thus,
+The idea of Ensemble Learning is to assemble diverse models or multiple predictions and thus
 boost prediction performance.
 
 AUCMEDI currently supports the following Ensemble Learning techniques:

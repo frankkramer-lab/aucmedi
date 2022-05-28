@@ -32,7 +32,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 class Averaging_WeightedMean(Metalearner_Base):
     """ A Weighted Mean based Metalearner.
 
-    This class should be passed to a ensemble function/class like Stacking for combining predictions.
+    This class should be passed to an ensemble function/class like Stacking for combining predictions.
 
     This Metalearner computes the Area Under the Receiver Operating Characteristic Curve (ROC AUC)
     for each model, and utilizes these scores for a weighted Mean to average predictions.

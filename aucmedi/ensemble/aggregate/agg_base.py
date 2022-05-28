@@ -26,16 +26,16 @@ from abc import ABC, abstractmethod
 #         Abstract Base Class for Aggregation         #
 #-----------------------------------------------------#
 class Aggregate_Base(ABC):
-    """ An abstract base class for a Aggregation class.
+    """ An abstract base class for an Aggregation class.
 
     ```
-    Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+    Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
     Example: [[0.5, 0.4, 0.1],
               [0.4, 0.3, 0.3],
               [0.5, 0.2, 0.3]]
     -> shape (3, 3)
 
-    Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+    Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
     Example: [[0.4, 0.3, 0.3]]
     -> shape (1, 3)
     ```
@@ -67,7 +67,7 @@ class Aggregate_Base(ABC):
         """ Initialization function which will be called during the Aggregation object creation.
 
         This function can be used to pass variables and options in the Aggregation instance.
-        The are no mandatory required parameters for the initialization.
+        There are no mandatory parameters for the initialization.
         """
         pass
     #---------------------------------------------#
@@ -81,8 +81,8 @@ class Aggregate_Base(ABC):
         It is possible to pass configurations through the initialization function for this class.
 
         Args:
-            preds (numpy.ndarray):      Ensembled predictions encoded in a NumPy Matrix with shape (N_models, N_classes).
+            preds (numpy.ndarray):      Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
         Returns:
-            pred (numpy.ndarray):       Merged prediction encoded in a NumPy Matrix with shape (1, N_classes).
+            pred (numpy.ndarray):       Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
         """
         return pred

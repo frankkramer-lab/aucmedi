@@ -77,12 +77,12 @@ class Bagging:
     ??? warning "DataGenerator re-initialization"
         The passed DataGenerator for the train() and predict() function of the Bagging class will be re-initialized!
 
-        This can result into redundant image preparation if `prepare_images=True`.
+        This can result in redundant image preparation if `prepare_images=True`.
 
     ??? info "Technical Details"
-        For the training and inference process, each model will create a individual process via the Python multiprocessing package.
+        For the training and inference process, each model will create an individual process via the Python multiprocessing package.
 
-        This is crucial as TensorFlow does not fully (and functionally) support the VRAM memory garbage collection in GPUs,
+        This is crucial as TensorFlow does not fully support the VRAM memory garbage collection in GPUs,
         which is why more and more redundant data pile up with an increasing number of k-fold.
 
         Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next fold model.
@@ -96,7 +96,7 @@ class Bagging:
         """ Initialization function for creating a Bagging object.
 
         Args:
-            model (Neural_Network):         Instance of a AUCMEDI neural network class.
+            model (Neural_Network):         Instance of an AUCMEDI neural network class.
             k_fold (int):                   Number of folds (k) for the Cross-Validation. Must be at least 2.
         """
         # Cache class variables
@@ -109,9 +109,9 @@ class Bagging:
 
     def train(self, training_generator, epochs=20, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False):
-        """ Training function for the Bagging models which perform a k-fold cross-validation model fitting.
+        """ Training function for the Bagging models which performs a k-fold cross-validation model fitting.
 
-        The training data will be sampled according to a k-fold cross-validaton in which a validation
+        The training data will be sampled according to a k-fold cross-validation in which a validation
         [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] will be automatically created.
 
         It is also possible to pass custom Callback classes in order to obtain more information.
@@ -119,12 +119,12 @@ class Bagging:
         For more information on the fitting process, check out [Neural_Network.train()][aucmedi.neural_network.model.Neural_Network.train].
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be splitted according to k-fold sampling).
+            training_generator (DataGenerator):     A data generator which will be used for training (will be split according to k-fold sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+            class_weights (dictionary or list):     A list or dictionary of float values to handle class imbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
 
         Returns:
@@ -215,9 +215,11 @@ class Bagging:
 
         The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
-        The Aggregate function for ensemble the predictions of the cross-validation models, can be either self
-        initialized with an AUCMEDI Aggregate function or a custom made Aggregate function, or by calling an
-        AUCMEDI Aggregate function by name.
+        The inclusion of the Aggregate function can be achieved in multiple ways:
+
+        - self-initialization with an AUCMEDI Aggregate function,
+        - use a string key to call an AUCMEDI Aggregate function by name, or
+        - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base.py]
 
         !!! info
             Description and list of implemented Aggregate functions can be found here:

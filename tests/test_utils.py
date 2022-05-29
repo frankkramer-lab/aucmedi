@@ -31,9 +31,9 @@ from aucmedi.utils.callbacks import *
 from aucmedi import *
 
 #-----------------------------------------------------#
-#               Unittest: Subfunctions                #
+#                  Unittest: Utility                  #
 #-----------------------------------------------------#
-class SubfunctionsTEST(unittest.TestCase):
+class UtilityTEST(unittest.TestCase):
     # Create random imaging data
     @classmethod
     def setUpClass(self):
@@ -66,7 +66,7 @@ class SubfunctionsTEST(unittest.TestCase):
                                      grayscale=False, batch_size=1)
 
     #-------------------------------------------------#
-    #              Subfunction: Padding               #
+    #             Callbacks: CSV2history              #
     #-------------------------------------------------#
     def test_Callbacks_csv2history(self):
         self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",

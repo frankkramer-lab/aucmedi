@@ -128,7 +128,7 @@ class Bagging:
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
 
         Returns:
-            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_bagging = {}            # Final history dictionary

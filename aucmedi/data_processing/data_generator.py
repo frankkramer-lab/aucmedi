@@ -160,7 +160,7 @@ class DataGenerator(Iterator):
                                                 Recommended for large images or volumes to reduce CPU computing time.
             loader (io_loader function):        Function for loading samples/images from disk.
             seed (int):                         Seed to ensure reproducibility for random function.
-            **kwargs (dictionary):              Additional parameters for the sample loader.
+            **kwargs (dict):              Additional parameters for the sample loader.
         """
         # Cache class variables
         self.labels = labels

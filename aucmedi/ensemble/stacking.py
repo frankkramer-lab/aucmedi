@@ -158,7 +158,7 @@ class Stacking:
                                                     Stacking training process. The `train_metalearner()` function can also be
                                                     run manually (or repeatedly).
         Returns:
-            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_stacking = {}           # Final history dictionary

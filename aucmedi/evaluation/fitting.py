@@ -33,7 +33,7 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
     """ Function for automatic plot generation providing a training history dictionary.
 
     !!! info "Preview"
-        todo: Add figure image here!!!!!!!!!!!
+        ![Evaluation_Fitting](../../images/evaluation.plot.fitting_course.png)
 
     Created filename in directory of `out_path`:
 
@@ -109,7 +109,10 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
     else : fig += facet_wrap("metric", scales="free_y")
 
     # Store figure to disk
-    fig.save(filename="plot.fitting_course." + str(suffix) + ".png",
+    filename = "plot.fitting_course"
+    if suffix is not None : filename += "." + str(suffix)
+    filename += ".png"
+    fig.save(filename=filename,
              path=out_path, dpi=200, limitsize=False)
 
 #-----------------------------------------------------#

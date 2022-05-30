@@ -28,21 +28,43 @@ from plotnine import *
 #-----------------------------------------------------#
 #              Evaluation - Plot Fitting              #
 #-----------------------------------------------------#
-def evaluate_fitting(keras_history, out_path, monitor=["loss"],
+def evaluate_fitting(train_history, out_path, monitor=["loss"],
                      prefix_split=".", suffix=None):
-    """ blabla
+    """ Function for automatic plot generation providing a training history dictionary.
+
+    !!! info "Preview"
+        todo: Add figure image here!!!!!!!!!!!
+
+    Created filename in directory of `out_path`:
+
+    - without suffix "plot.fitting_course.png"
+    - with suffix "plot.fitting_course.SUFFIX.png"
+
+    ???+ example
+        ```python
+        # Initialize and train a model
+        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        history = model.train(datagen_train, datagen_validation, epochs=100)
+
+        # Pass history dict to evaluation function
+        evaluate_fitting(history, out_path="./")
+
+        # Figure will be created at: "./plot.fitting_course.png"
+        ```
 
     Args:
+        train_history (dict):       A history dictionary from a Keras history object which contains several logs.
+        out_path (str):             Path to directory in which plotted figure is stored.
         monitor (list of str):      List of metrics which should be visualized in the fitting plot.
+        prefix_split (str):         Split prefix for keys in the history dictionary. Used for Bagging and Stacking.
         suffix (str):               Special suffix to add in the created figure filename.
-
     """
     # Convert to pandas dataframe
-    dt = pd.DataFrame.from_dict(keras_history, orient="columns")
+    dt = pd.DataFrame.from_dict(train_history, orient="columns")
 
     # Identify all selected colums
     selected_cols = []
-    for key in keras_history:
+    for key in train_history:
         for m in monitor:
             if m in key:
                 selected_cols.append(key)
@@ -63,7 +85,6 @@ def evaluate_fitting(keras_history, out_path, monitor=["loss"],
             if prefix_split not in c:
                 valid_split = False
                 break
-
         if valid_split:
             dt_melted[["prefix", "metric"]] = dt_melted["metric"].str.split(".",
                                                         expand=True)
@@ -81,7 +102,7 @@ def evaluate_fitting(keras_history, out_path, monitor=["loss"],
                + ylab("Score")
                + scale_colour_discrete(name="Subset")
                + theme_bw()
-               + theme(subplots_adjust={'wspace':0.15}))
+               + theme(subplots_adjust={'wspace':0.2}))
 
     if prefix_split is not None and valid_split:
         fig += facet_grid("prefix ~ metric")

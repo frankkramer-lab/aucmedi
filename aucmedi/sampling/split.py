@@ -64,7 +64,7 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
         samples (list of str):          List of sample/index encoded as Strings.
         labels (numpy.ndarray):         NumPy matrix containing the ohe encoded classification.
         metadata (numpy.ndarray):       NumPy matrix with additional metadata. Have to be shape (n_samples, meta_variables).
-        sampling (lost of float):       List of percentage values with split sizes.
+        sampling (list of float):       List of percentage values with split sizes.
         stratified (bool):              Option whether to use stratified sampling based on provided labels.
         iterative (bool):               Option whether to use iterative sampling algorithm.
         seed (int):                     Seed to ensure reproducibility for random functions.

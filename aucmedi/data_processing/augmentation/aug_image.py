@@ -139,7 +139,7 @@ class Image_Augmentation():
 
         !!! warning
             If class variables (attributes) are modified, the internal augmentation operator
-            has to be rebuild via the following call:
+            has to be rebuilt via the following call:
 
             ```python
             # initialize

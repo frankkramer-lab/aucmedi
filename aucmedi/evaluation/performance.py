@@ -35,11 +35,63 @@ def evaluate_performance(preds,
                          out_path,
                          class_names=None,
                          multi_label=False,
-                         metrics_threshold = 0.5,
+                         metrics_threshold=0.5,
                          suffix=None,
+                         store_csv=True,
+                         plot_barplot=True,
                          plot_confusion_matrix=True,
                          plot_roc_curve=True):
-    """ Function for automatic performance evaluation plots generation based on model predictions.
+    """ Function for automatic performance evaluation based on model predictions.
+
+    ???+ example
+        ```python
+        # Import libraries
+        from aucmedi import *
+        from aucmedi.evaluation import *
+
+        # Load data
+        ds = input_interface(interface="csv",                       # Interface type
+                             path_imagedir="dataset/images/",
+                             path_data="dataset/annotations.csv",
+                             ohe=False, col_sample="ID", col_class="diagnosis")
+        (samples, class_ohe, nclasses, class_names, image_format) = ds
+
+        # Initialize model
+        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+
+        # Do some predictions
+        datagen_test = DataGenerator(samples, "dataset/images/", labels=None,
+                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        preds = model.predict(datagen_test)
+
+        # Pass history dict to evaluation function
+        evaluate_performance(preds, class_ohe, out_path="./", class_names=class_names)
+        ```
+
+    Created files in directory of `out_path`:
+
+    - with `store_csv`: "metrics.performance.csv"
+    - with `plot_barplot`: "plot.performance.barplot.png"
+    - with `plot_confusion_matrix`: "plot.performance.confusion_matrix.png"
+    - with `plot_roc_curve`: "plot.performance.roc.png"
+
+    ??? info "Preview for Bar Plot"
+        ![Evaluation_Performance_Barplot](../../images/evaluation.plot.performance.barplot.png)
+
+        Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/)
+        utilizing a DenseNet121.
+
+    ??? info "Preview for Confusion Matrix"
+        ![Evaluation_Performance_ConfusionMatrix](../../images/evaluation.plot.performance.confusion_matrix.png)
+
+        Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/)
+        utilizing a DenseNet121.
+
+    ??? info "Preview for ROC Curve"
+        ![Evaluation_Performance_ROCcurve](../../images/evaluation.plot.performance.roc.png)
+
+        Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/)
+        utilizing a DenseNet121.
 
     Args:
         preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
@@ -54,9 +106,13 @@ def evaluate_performance(preds,
         metrics_threshold (float):      Only required if 'multi_label==True`. Threshold value if prediction is positive.
                                         Used in metric computation for CSV and bar plot.
         suffix (str):                   Special suffix to add in the created figure filename.
+        store_csv (bool):               Option, whether to generate a CSV file containing various metrics.
         plot_barplot (bool):            Option, whether to generate a bar plot of various metrics.
         plot_confusion_matrix (bool):   Option, whether to generate a confusion matrix plot.
         plot_roc_curve (bool):          Option, whether to generate a ROC curve plot.
+
+    Returns:
+        metrics (pandas.DataFrame):     Dataframe containing all computed metrics (except ROC).
     """
     # Identify number of labels
     n_labels = labels.shape[-1]
@@ -69,15 +125,32 @@ def evaluate_performance(preds,
     cm = compute_confusion_matrix(preds, labels, n_labels)
     fpr_list, tpr_list = compute_roc(preds, labels, n_labels)
 
+    # Rename columns in metrics dataframe
+    class_mapping = {}
+    if class_names is not None:
+        for c in range(len(class_names)):
+            class_mapping[c] = class_names[c]
+        metrics["class"].replace(class_mapping, inplace=True)
+    if class_names is None : metrics["class"] = pd.Categorical(metrics["class"])
+
+    # Store metrics to CSV
+    if store_csv:
+        evalby_csv(metrics, out_path, class_names, suffix)
+
     # Generate bar plot
-    evalby_barplot(metrics, out_path, class_names, suffix)
+    if plot_barplot:
+        evalby_barplot(metrics, out_path, class_names, suffix)
 
     # Generate confusion matrix plot
-    if not multi_label : evalby_confusion_matrix(cm, out_path, class_names,
-                                                 suffix)
-    # Generate ROC curve
-    evalby_rocplot(fpr_list, tpr_list, out_path, class_names, suffix)
+    if plot_confusion_matrix and not multi_label:
+        evalby_confusion_matrix(cm, out_path, class_names, suffix)
 
+    # Generate ROC curve
+    if plot_roc_curve:
+        evalby_rocplot(fpr_list, tpr_list, out_path, class_names, suffix)
+
+    # Return metrics
+    return metrics
 
 #-----------------------------------------------------#
 #      Evaluation Performance - Confusion Matrix      #
@@ -102,14 +175,13 @@ def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
     # Plot confusion matrix
     fig = (ggplot(dt, aes("pd", "gt", fill="score"))
                   + geom_tile()
-                  + geom_text(aes("pd", "gt", label="score"), color="black",
-                              size=28)
+                  + geom_text(aes("pd", "gt", label="score"), color="black")
                   + ggtitle("Performance Evaluation: Confusion Matrix")
                   + xlab("Prediction")
                   + ylab("Ground Truth")
                   + scale_fill_gradient(low="white", high="royalblue",
                                         limits=[0, 100])
-                  + theme_bw(base_size=28)
+                  + theme_bw()
                   + theme(axis_text_x = element_text(angle = 45, vjust = 1,
                                                      hjust = 1)))
 
@@ -123,13 +195,6 @@ def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
 #          Evaluation Performance - Barplots          #
 #-----------------------------------------------------#
 def evalby_barplot(metrics, out_path, class_names, suffix=None):
-    # Rename columns
-    class_mapping = {}
-    if class_names is not None:
-        for c in range(len(class_names)):
-            class_mapping[c] = class_names[c]
-        metrics["class"].replace(class_mapping, inplace=True)
-    if class_names is None : metrics["class"] = pd.Categorical(metrics["class"])
     # Remove confusion matrix from metric dataframe
     df_metrics = metrics[~metrics["metric"].isin(["TN", "FN", "FP", "TP"])]
 
@@ -176,7 +241,7 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, suffix=None):
 
     # Plot roc results
     fig = (ggplot(df_roc, aes("FPR", "TPR", color="class"))
-               + geom_line(size=1.5)
+               + geom_line(size=1.0)
                + geom_abline(intercept=0, slope=1, color="black",
                              linetype="dashed")
                + ggtitle("Performance Evaluation: ROC Curves")
@@ -196,5 +261,12 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, suffix=None):
 #-----------------------------------------------------#
 #          Evaluation Performance - CSV file          #
 #-----------------------------------------------------#
-def evalby_csv():
-    pass
+def evalby_csv(metrics, out_path, class_names, suffix=None):
+    # Obtain filename to
+    filename = "metrics.performance"
+    if suffix is not None : filename += "." + str(suffix)
+    filename += ".csv"
+    path_csv = os.path.join(out_path, filename)
+
+    # Store file to disk
+    metrics.to_csv(path_csv, index=False)

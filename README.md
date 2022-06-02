@@ -22,7 +22,7 @@ Right now, it is possible to utilize the AUCMEDI framework as an high-level API 
 
 But more things like CLI/Docker for AutoML and straightforward application are coming!  
 
-**Stay tuned and please have a look on AUCMEDI in the end of June, again! :)**  
+**Stay tuned and please have a look on AUCMEDI in the end of July, again! :)**  
 
 ## Resources
 - Website: [AUCMEDI Website - Home](https://frankkramer-lab.github.io/aucmedi/)

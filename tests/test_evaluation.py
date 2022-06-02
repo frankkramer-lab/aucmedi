@@ -22,6 +22,7 @@
 #External libraries
 import unittest
 import numpy as np
+import pandas as pd
 import random
 import tempfile
 import os
@@ -42,11 +43,13 @@ class EvaluationTEST(unittest.TestCase):
                                                     suffix=".plot")
 
         # Create classification labels
-        self.labels_ohe = np.zeros((1, 4), dtype=np.uint8)
-        for i in range(0, 1):
+        self.labels_ohe = np.zeros((50, 4), dtype=np.uint8)
+        for i in range(0, 50):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
-
+        # Create predictions
+        for i in range(0, 50):
+            self.preds = np.random.rand(50, 4)
         # Create artificial history data - basic
         self.hist_basic = {"loss": []}
         for i in range(0, 150):
@@ -115,3 +118,123 @@ class EvaluationTEST(unittest.TestCase):
                          monitor=["loss"], suffix="stacking")
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                        "plot.fitting_course.stacking.png")))
+
+    #-------------------------------------------------#
+    #          Evaluation - Plot Performance          #
+    #-------------------------------------------------#
+    def test_evaluate_performance_minimal(self):
+        metrics = evaluate_performance(self.preds, self.labels_ohe,
+                                       out_path=self.tmp_plot.name,
+                                       multi_label=False, class_names=None,
+                                       store_csv=False,
+                                       plot_barplot=False,
+                                       plot_confusion_matrix=False,
+                                       plot_roc_curve=False)
+        self.assertTrue(isinstance(metrics, pd.DataFrame))
+        self.assertTrue(np.array_equal(metrics.shape, (52, 3)))
+        self.assertTrue(np.array_equal(metrics.columns.values,
+                                      ["metric", "score", "class"]))
+
+    def test_evaluate_performance_classnames(self):
+        metrics = evaluate_performance(self.preds, self.labels_ohe,
+                                       out_path=self.tmp_plot.name,
+                                       multi_label=False,
+                                       class_names=["A", "B", "C", "D"],
+                                       store_csv=False,
+                                       plot_barplot=False,
+                                       plot_confusion_matrix=False,
+                                       plot_roc_curve=False)
+        classes_unique = np.unique(metrics["class"].to_numpy())
+        self.assertTrue(np.array_equal(classes_unique, ["A", "B", "C", "D"]))
+
+    def test_evaluate_performance_barplot(self):
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=True,
+                             plot_confusion_matrix=False,
+                             plot_roc_curve=False)
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.performance.barplot.png")
+        self.assertTrue(os.path.exists(path_plot))
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=True,
+                             plot_confusion_matrix=False,
+                             plot_roc_curve=False,
+                             suffix="test")
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.performance.barplot.test.png")
+        self.assertTrue(os.path.exists(path_plot))
+
+    def test_evaluate_performance_confusionmatrix(self):
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=False,
+                             plot_confusion_matrix=True,
+                             plot_roc_curve=False)
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.performance.confusion_matrix.png")
+        self.assertTrue(os.path.exists(path_plot))
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=False,
+                             plot_confusion_matrix=True,
+                             plot_roc_curve=False,
+                             suffix="test")
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.performance.confusion_matrix.test.png")
+        self.assertTrue(os.path.exists(path_plot))
+
+    def test_evaluate_performance_roc(self):
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=False,
+                             plot_confusion_matrix=False,
+                             plot_roc_curve=True)
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.performance.roc.png")
+        self.assertTrue(os.path.exists(path_plot))
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=False,
+                             plot_confusion_matrix=False,
+                             plot_roc_curve=True,
+                             suffix="test")
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.performance.roc.test.png")
+        self.assertTrue(os.path.exists(path_plot))
+
+    def test_evaluate_performance_csv(self):
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=True,
+                             plot_barplot=False,
+                             plot_confusion_matrix=False,
+                             plot_roc_curve=False)
+        path_csv = os.path.join(self.tmp_plot.name,
+                                "metrics.performance.csv")
+        self.assertTrue(os.path.exists(path_csv))
+        evaluate_performance(self.preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=True,
+                             plot_barplot=False,
+                             plot_confusion_matrix=False,
+                             plot_roc_curve=False,
+                             suffix="test")
+        path_csv = os.path.join(self.tmp_plot.name,
+                                "metrics.performance.test.csv")
+        self.assertTrue(os.path.exists(path_csv))

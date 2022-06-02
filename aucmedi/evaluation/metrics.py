@@ -1,8 +1,50 @@
+#==============================================================================#
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#                University of Augsburg                                        #
+#                                                                              #
+#  This program is free software: you can redistribute it and/or modify        #
+#  it under the terms of the GNU General Public License as published by        #
+#  the Free Software Foundation, either version 3 of the License, or           #
+#  (at your option) any later version.                                         #
+#                                                                              #
+#  This program is distributed in the hope that it will be useful,             #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+#  GNU General Public License for more details.                                #
+#                                                                              #
+#  You should have received a copy of the GNU General Public License           #
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+#==============================================================================#
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
+# External Libraries
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_curve, roc_auc_score
 
+#-----------------------------------------------------#
+#         Computation: Classification Metrics         #
+#-----------------------------------------------------#
 def compute_metrics(preds, labels, n_labels, threshold=None):
+    """ Function for computing various classification metrics.
+
+    !!! info "Computed Metrics"
+        F1, Accuracy, Sensitivity, Specificity, AUROC (AUC), Precision, FPR, FNR,
+        FDR, TruePositves, TrueNegatives, FalsePositives, FalseNegatives
+
+    Args:
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
+                                        [Neural_Network][aucmedi.neural_network.model].
+        labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
+                                        [input_interface][aucmedi.data_processing.io_data.input_interface].
+        n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+        threshold (float):              Only required for multi_label data. Threshold value if prediction is positive.
+
+    Returns:
+        metrics (pandas.DataFrame):     Dataframe containing all computed metrics (except ROC).
+    """
     df_list = []
     for c in range(0, n_labels):
         # Initialize variables
@@ -53,7 +95,22 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
     # Return final dataframe
     return df_final
 
+#-----------------------------------------------------#
+#            Computation: Confusion Matrix            #
+#-----------------------------------------------------#
 def compute_confusion_matrix(preds, labels, n_labels):
+    """ Function for computing a confusion matrix.
+
+    Args:
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
+                                        [Neural_Network][aucmedi.neural_network.model].
+        labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
+                                        [input_interface][aucmedi.data_processing.io_data.input_interface].
+        n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+
+    Returns:
+        rawcm (numpy.ndarray):          NumPy matrix with shape (n_labels, n_labels).
+    """
     preds_argmax = np.argmax(preds, axis=-1)
     labels_argmax = np.argmax(labels, axis=-1)
     rawcm = np.zeros((n_labels, n_labels))
@@ -61,8 +118,22 @@ def compute_confusion_matrix(preds, labels, n_labels):
         rawcm[labels_argmax[i]][preds_argmax[i]] += 1
     return rawcm
 
-
+#-----------------------------------------------------#
+#             Computation: ROC Coordinates            #
+#-----------------------------------------------------#
 def compute_roc(preds, labels, n_labels):
+    """ Function for computing the data data of a ROC curve (FPR and TPR).
+
+    Args:
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
+                                        [Neural_Network][aucmedi.neural_network.model].
+        labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
+                                        [input_interface][aucmedi.data_processing.io_data.input_interface].
+        n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+    Returns:
+        fpr_list (list of list):        List containing a list of false positive rate points for each class. Shape: (n_labels, tpr_coords).
+        tpr_list (list of list):        List containing a list of true positive rate points for each class. Shape: (n_labels, fpr_coords).
+    """
     fpr_list = []
     tpr_list = []
     for i in range(0, n_labels):
@@ -73,8 +144,9 @@ def compute_roc(preds, labels, n_labels):
         tpr_list.append(tpr)
     return fpr_list, tpr_list
 
-
-
+#-----------------------------------------------------#
+#                     Subroutines                     #
+#-----------------------------------------------------#
 # Compute confusion matrix
 def compute_CM(gt, pd):
     tp = 0

@@ -20,6 +20,8 @@
 #                    Documentation                    #
 #-----------------------------------------------------#
 """ Work in Progress.
+
+todo
 """
 
 #-----------------------------------------------------#
@@ -27,3 +29,4 @@
 #-----------------------------------------------------#
 from aucmedi.evaluation.fitting import evaluate_fitting
 from aucmedi.evaluation.performance import evaluate_performance
+from aucmedi.evaluation.comparison import evaluate_comparison

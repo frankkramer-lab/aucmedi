@@ -119,7 +119,8 @@ def evaluate_comparison(pred_list,
         suffix (str):                       Special suffix to add in the created figure filename.
 
     Returns:
-        metrics (pandas.DataFrame):     Dataframe containing all computed metrics (except ROC).
+        df_merged (pandas.DataFrame):       Dataframe containing the merged metrics of all models.
+        df_gain (pandas.DataFrame):         Dataframe containing performance gain compared to first model.
     """
     # Identify number of labels
     n_labels = labels.shape[-1]
@@ -159,7 +160,10 @@ def evaluate_comparison(pred_list,
     evalby_beside(df_merged, out_path, suffix)
 
     # Generate comparison gain plot
-    evalby_gain(df_merged, out_path, suffix)
+    df_gain = evalby_gain(df_merged, out_path, suffix)
+
+    # Return combined and gain dataframe
+    return df_merged, df_gain
 
 #-----------------------------------------------------#
 #           Evaluation Comparison - Beside            #
@@ -259,3 +263,6 @@ def evalby_gain(df, out_path, suffix=None):
     if suffix is not None : filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
+
+    # Return gain dataframe
+    return df

@@ -64,7 +64,7 @@ def evaluate_performance(preds,
                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
         preds = model.predict(datagen_test)
 
-        # Pass history dict to evaluation function
+        # Pass predictions to evaluation function
         evaluate_performance(preds, class_ohe, out_path="./", class_names=class_names)
         ```
 

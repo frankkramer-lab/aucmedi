@@ -38,11 +38,88 @@ def evaluate_comparison(pred_list,
                         multi_label=False,
                         metrics_threshold=0.5,
                         macro_average_classes=False,
-                        suffix=None,
-                        store_csv=True,
-                        plot_barplot=True):
+                        suffix=None):
     """ Function for performance comparison evaluation based on predictions from multiple models.
 
+    ???+ example
+        ```python
+        # Import libraries
+        from aucmedi import *
+        from aucmedi.evaluation import *
+        from aucmedi.ensemble import *
+
+        # Load data
+        ds = input_interface(interface="csv",                       # Interface type
+                             path_imagedir="dataset/images/",
+                             path_data="dataset/annotations.csv",
+                             ohe=False, col_sample="ID", col_class="diagnosis")
+        (samples, class_ohe, nclasses, class_names, image_format) = ds
+
+        # Initialize model
+        model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+
+        # Initialize Bagging object for 3-fold cross-validation
+        el = Bagging(model_a, k_fold=3)
+
+        # Do some predictions via Bagging
+        datagen_test = DataGenerator(samples, "dataset/images/", labels=None,
+                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        pred_merged, pred_ensemble = model.predict(datagen_test,
+                                                   return_ensemble=True)
+
+        # Pass prediction ensemble to evaluation function
+        evaluate_comparison(pred_ensemble, class_ohe, out_path="./", class_names=class_names)
+
+
+        # Do some predictions with manually initialized models
+        model_b = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        model_c = Neural_Network(n_labels=8, channels=3, architecture="2D.MobileNetV2")
+
+        pred_a = model_a.predict(datagen_test)
+        pred_b = model_b.predict(datagen_test)
+        pred_c = model_c.predict(datagen_test)
+
+        pred_ensemble = [pred_a, pred_b, pred_c]
+
+        # Pass prediction ensemble to evaluation function
+        evaluate_comparison(pred_ensemble, class_ohe, out_path="./", class_names=class_names)
+        ```
+
+    Created files in directory of `out_path`:
+
+    - "plot.comparison.beside.png"
+    - "plot.comparison.gain.png"
+
+    ???+ info "Preview for Bar Plot"
+        ![Evaluation_Comparison_Beside](../../images/evaluation.plot.comparison.beside.png)
+
+        Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/) with
+        macro-averaged class-wise metrics.
+
+    ???+ info "Preview for Confusion Matrix"
+        ![Evaluation_Comparison_Gain](../../images/evaluation.plot.comparison.gain.png)
+
+        Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/).
+
+    Args:
+        pred_list (list of numpy.ndarray):  A list of NumPy arrays containing predictions from multiple models formatted with shape
+                                            (n_models, n_samples, n_labels). Provided by [Neural_Network][aucmedi.neural_network.model].
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
+                                            [input_interface][aucmedi.data_processing.io_data.input_interface].
+        out_path (str):                     Path to directory in which plotted figures are stored.
+        model_names (list of str):          List of names for corresponding models which are for visualization. If not provided (`None`
+                                            provided), model index of `pred_list` will be used.
+        class_names (list of str):          List of names for corresponding classes. Used for evaluation. Provided by
+                                            [input_interface][aucmedi.data_processing.io_data.input_interface].
+                                            If not provided (`None` provided), class indices will be used.
+        multi_label (bool):                 Option, whether task is multi-label based (has impact on evaluation).
+        metrics_threshold (float):          Only required if 'multi_label==True`. Threshold value if prediction is positive.
+                                            Used in metric computation for CSV and bar plot.
+        macro_average_classes (bool):       Option, whether classes should be macro-averaged in order to increase visualization overview.
+        suffix (str):                       Special suffix to add in the created figure filename.
+
+    Returns:
+        metrics (pandas.DataFrame):     Dataframe containing all computed metrics (except ROC).
     """
     # Identify number of labels
     n_labels = labels.shape[-1]

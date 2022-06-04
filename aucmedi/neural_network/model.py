@@ -345,7 +345,7 @@ class Neural_Network:
                                          max_queue_size=self.batch_queue_size,
                                          verbose=self.verbose)
             # Combine logged history objects
-            hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for tansfer learning
+            hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for transfer learning
             he = {"ft_" + k: v for k, v in history_end.history.items()}         # prefix : ft for fine tuning
             history = {**hs, **he}
             # Return combined history objects

@@ -75,19 +75,19 @@ def evaluate_performance(preds,
     - with `plot_confusion_matrix`: "plot.performance.confusion_matrix.png"
     - with `plot_roc_curve`: "plot.performance.roc.png"
 
-    ??? info "Preview for Bar Plot"
+    ???+ info "Preview for Bar Plot"
         ![Evaluation_Performance_Barplot](../../images/evaluation.plot.performance.barplot.png)
 
         Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/)
         utilizing a DenseNet121.
 
-    ??? info "Preview for Confusion Matrix"
+    ???+ info "Preview for Confusion Matrix"
         ![Evaluation_Performance_ConfusionMatrix](../../images/evaluation.plot.performance.confusion_matrix.png)
 
         Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/)
         utilizing a DenseNet121.
 
-    ??? info "Preview for ROC Curve"
+    ???+ info "Preview for ROC Curve"
         ![Evaluation_Performance_ROCcurve](../../images/evaluation.plot.performance.roc.png)
 
         Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/)

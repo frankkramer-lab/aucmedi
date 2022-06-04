@@ -77,7 +77,7 @@ class Architecture_Base(ABC):
 
         This function can be used to pass variables and options in the Architecture instance.
 
-        The are some mandatory required parameters for the initialization: The classification head as
+        There are some mandatory required parameters for the initialization: The classification head as
         [Classifier][aucmedi.neural_network.architectures.classifier], the number of channels, and the
         input shape (x, y) for an image architecture or (x, y, z) for a volume architecture.
 

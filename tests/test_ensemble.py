@@ -198,6 +198,10 @@ class EnsembleTEST(unittest.TestCase):
         # Run Inference with majority vote aggregation
         preds = el.predict(datagen, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3,2)))
+        # Run Inference with returned ensemble
+        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        self.assertTrue(np.array_equal(preds.shape, (3,2)))
+        self.assertTrue(np.array_equal(ensemble.shape, (2,3,2)))
 
     def test_Bagging_dump(self):
         # Initialize training DataGenerator
@@ -382,6 +386,11 @@ class EnsembleTEST(unittest.TestCase):
         preds = el.predict(datagen)
         self.assertTrue(np.array_equal(preds.shape, (12,2)))
 
+        # Run Inference with returned ensemble
+        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        self.assertTrue(np.array_equal(preds.shape, (12,2)))
+        self.assertTrue(np.array_equal(ensemble.shape, (2,12,2)))
+
     def test_Stacking_predict_aggregate(self):
         # Initialize training DataGenerator
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
@@ -402,6 +411,11 @@ class EnsembleTEST(unittest.TestCase):
         # Run Inference
         preds = el.predict(datagen)
         self.assertTrue(np.array_equal(preds.shape, (12,2)))
+
+        # Run Inference with returned ensemble
+        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        self.assertTrue(np.array_equal(preds.shape, (12,2)))
+        self.assertTrue(np.array_equal(ensemble.shape, (2,12,2)))
 
     def test_Stacking_dump(self):
         # Initialize training DataGenerator

@@ -238,3 +238,65 @@ class EvaluationTEST(unittest.TestCase):
         path_csv = os.path.join(self.tmp_plot.name,
                                 "metrics.performance.test.csv")
         self.assertTrue(os.path.exists(path_csv))
+
+    #-------------------------------------------------#
+    #          Evaluation - Plot Comparison           #
+    #-------------------------------------------------#
+    def test_evaluate_comparison_minimal(self):
+        pred_list = [self.preds,
+                     np.flip(self.preds, axis=0),
+                     np.flip(self.preds, axis=1)]
+
+        df_merged, df_gain = evaluate_comparison(pred_list, self.labels_ohe,
+                                                 out_path=self.tmp_plot.name)
+
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.comparison.beside.png")
+        self.assertTrue(os.path.exists(path_plot))
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.comparison.gain.png")
+        self.assertTrue(os.path.exists(path_plot))
+
+        self.assertTrue(np.array_equal(df_merged.shape, (156, 4)))
+        self.assertTrue(np.array_equal(df_gain.shape, (108, 4)))
+
+    def test_evaluate_comparison_naming(self):
+        pred_list = [self.preds,
+                     np.flip(self.preds, axis=0),
+                     np.flip(self.preds, axis=1)]
+
+        df_merged, df_gain = evaluate_comparison(pred_list, self.labels_ohe,
+                                                 out_path=self.tmp_plot.name,
+                                                 class_names=["A", "B", "C", "D"],
+                                                 model_names=["x", "y", "z"],)
+
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.comparison.beside.png")
+        self.assertTrue(os.path.exists(path_plot))
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.comparison.gain.png")
+        self.assertTrue(os.path.exists(path_plot))
+
+        classes_unique = np.unique(df_merged["class"].to_numpy())
+        self.assertTrue(np.array_equal(classes_unique, ["A", "B", "C", "D"]))
+        models_unique = np.unique(df_merged["model"].to_numpy())
+        self.assertTrue(np.array_equal(models_unique, ["x", "y", "z"]))
+
+    def test_evaluate_comparison_macroaveraged(self):
+        pred_list = [self.preds,
+                     np.flip(self.preds, axis=0),
+                     np.flip(self.preds, axis=1)]
+
+        df_merged, df_gain = evaluate_comparison(pred_list, self.labels_ohe,
+                                                 out_path=self.tmp_plot.name,
+                                                 macro_average_classes=True)
+
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.comparison.beside.png")
+        self.assertTrue(os.path.exists(path_plot))
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.comparison.gain.png")
+        self.assertTrue(os.path.exists(path_plot))
+
+        self.assertTrue(np.array_equal(df_merged.shape, (39, 3)))
+        self.assertTrue(np.array_equal(df_gain.shape, (27, 3)))

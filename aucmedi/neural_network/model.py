@@ -149,8 +149,9 @@ class Neural_Network:
                                                     If None is provided, the default input_shape for the architecture is selected
                                                     from the architecture dictionary.
             architecture (str or Architecture):     Key (str) or instance of a neural network model Architecture class instance.
-                                                    If a String is provided, the corresponding architecture is selected from the architecture dictionary.
-                                                    By default, a 2D Vanilla Model is used as Architecture.
+                                                    If a string is provided, the corresponding architecture is selected from the architecture dictionary.
+                                                    A string has to begin with either '3D.' or '2D' depending on the classification task.
+                                                    By default, a 2D Vanilla Model is used as architecture.
             pretrained_weights (bool):              Option whether to utilize pretrained weights e.g. from ImageNet.
             loss (Metric Function):                 The metric function which is used as loss for training.
                                                     Any Metric Function defined in Keras, in aucmedi.neural_network.loss_functions or any custom
@@ -161,7 +162,7 @@ class Neural_Network:
             activation_output (str):                Activation function which should be used in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
                                                     Based on https://www.tensorflow.org/api_docs/python/tf/keras/activations.
-            fcl_dropout (bool):                     Option whether to utilize an additonal Dense & Dropout layer in the classification head
+            fcl_dropout (bool):                     Option whether to utilize an additional Dense & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
                                                     If `None`is provided, no metadata integration block will be added to the classification head
@@ -268,9 +269,9 @@ class Neural_Network:
             However, in order to provide consistency with the single training without transfer learning,
             only a single history dictionary will be returned.
 
-            For differentiation prefixes are added infront of the corresponding logging keys:
+            For differentiation prefixes are added in front of the corresponding logging keys:
             ```
-            - History Start ->  prefix : tl     for "tansfer learning"
+            - History Start ->  prefix : tl     for "transfer learning"
             - History End   ->  prefix : ft     for "fine tuning"
             ```
 
@@ -282,7 +283,7 @@ class Neural_Network:
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
-            transfer_learning (bool):               Option whether a transfer learning training should be performed.
+            transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 5 epochs will be trained.
 
         Returns:
             history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
@@ -344,7 +345,7 @@ class Neural_Network:
                                          max_queue_size=self.batch_queue_size,
                                          verbose=self.verbose)
             # Combine logged history objects
-            hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for tansfer learning
+            hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for transfer learning
             he = {"ft_" + k: v for k, v in history_end.history.items()}         # prefix : ft for fine tuning
             history = {**hs, **he}
             # Return combined history objects

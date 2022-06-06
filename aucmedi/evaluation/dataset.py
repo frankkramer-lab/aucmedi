@@ -33,15 +33,66 @@ def evaluate_dataset(samples,
                      labels,
                      out_path,
                      class_names=None,
+                     plot_barplot=False,
+                     plot_heatmap=False,
                      suffix=None):
     """ Function for dataset evaluation (descriptive statistics).
+
+    ???+ example
+        ```python
+        # Import libraries
+        from aucmedi import *
+        from aucmedi.evaluation import *
+
+        # Peak data information via the first pillar of AUCMEDI
+        ds = input_interface(interface="csv",                       # Interface type
+                             path_imagedir="dataset/images/",
+                             path_data="dataset/annotations.csv",
+                             ohe=False, col_sample="ID", col_class="diagnosis")
+        (samples, class_ohe, nclasses, class_names, image_format) = ds
+
+        # Pass information to the evaluation function
+        evaluate_dataset(samples, class_ohe, out_path="./", class_names=class_names)
+        ```
+
+    Created files in directory of `out_path`:
+
+    - "plot.dataset.barplot.png"
+    - "plot.dataset.heatmap.png"
+
+    ???+ info "Preview for Bar Plot"
+        ![Evaluation_Dataset_Barplot](../../images/evaluation.plot.dataset.barplot.png)
+
+        Based on dataset: [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/).
+
+    ???+ info "Preview for Heatmap"
+        ![Evaluation_Dataset_Heatmap](../../images/evaluation.plot.dataset.heatmap.png)
+
+        Based on first 50 samples from dataset: [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/).
+
+    Args:
+        samples (list of str):              List of sample/index encoded as Strings. Provided by
+                                            [input_interface][aucmedi.data_processing.io_data.input_interface].
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
+                                            [input_interface][aucmedi.data_processing.io_data.input_interface].
+        out_path (str):                     Path to directory in which plotted figures are stored.
+        class_names (list of str):          List of names for corresponding classes. Used for evaluation. Provided by
+                                            [input_interface][aucmedi.data_processing.io_data.input_interface].
+                                            If not provided (`None` provided), class indices will be used.
+        plot_barplot (bool):                Option, whether to generate a bar plot of class distribution.
+        plot_heatmap (bool):                Option, whether to generate a heatmap of class overview. Only recommended for subsets of ~50 samples.
+        suffix (str):                       Special suffix to add in the created figure filename.
+
+    Returns:
+        df_cf (pandas.DataFrame):           Dataframe containing the class distribution of the dataset.
     """
 
     # Generate barplot
-    df_cf = evalby_barplot(labels, out_path, class_names, suffix)
+    df_cf = evalby_barplot(labels, out_path, class_names, plot_barplot, suffix)
 
     # Generate heatmap
-    evalby_heatmap(samples, labels, out_path, class_names, suffix)
+    if plot_heatmap:
+        evalby_heatmap(samples, labels, out_path, class_names, suffix)
 
     # Return table with class distribution
     return df_cf
@@ -49,7 +100,7 @@ def evaluate_dataset(samples,
 #-----------------------------------------------------#
 #             Dataset Analysis - Barplot              #
 #-----------------------------------------------------#
-def evalby_barplot(labels, out_path, class_names, suffix=None):
+def evalby_barplot(labels, out_path, class_names, plot_barplot, suffix=None):
     # compute class frequency
     cf_list = []
     for c in range(0, labels.shape[1]):
@@ -65,29 +116,28 @@ def evalby_barplot(labels, out_path, class_names, suffix=None):
                          columns=["class", "class_freq", "class_perc"])
     df_cf["class_perc"] = pd.to_numeric(df_cf["class_perc"])
 
-    # Plot class frequency results
-    fig = (ggplot(df_cf, aes("class", "class_perc", fill="class",
-                             label=class_freq))
-               + geom_bar(stat="identity", color="black")
-               + geom_text(nudge_y=3)
-               + coord_flip()
-               + ggtitle("Dataset Analysis: Class Distribution")
-               + xlab("Classes")
-               + ylab("Class Frequency (in %)")
-               + scale_y_continuous(limits=[0, 100],
-                                    breaks=np.arange(0,110,10))
-               + theme_bw()
-               + theme(legend_position="none"))
+    if plot_barplot:
+        # Plot class frequency results
+        fig = (ggplot(df_cf, aes("class", "class_perc", fill="class"))
+                   + geom_bar(stat="identity", color="black")
+                   + geom_text(aes(label="class_freq"), nudge_y=5)
+                   + coord_flip()
+                   + ggtitle("Dataset Analysis: Class Distribution")
+                   + xlab("Classes")
+                   + ylab("Class Frequency (in %)")
+                   + scale_y_continuous(limits=[0, 100],
+                                        breaks=np.arange(0,110,10))
+                   + theme_bw()
+                   + theme(legend_position="none"))
 
-    # Store figure to disk
-    filename = "plot.dataset.barplot"
-    if suffix is not None : filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
+        # Store figure to disk
+        filename = "plot.dataset.barplot"
+        if suffix is not None : filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Return class table
     return df_cf
-
 
 #-----------------------------------------------------#
 #             Dataset Analysis - Heatmap              #

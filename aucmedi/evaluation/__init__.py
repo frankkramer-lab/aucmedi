@@ -30,3 +30,4 @@ todo
 from aucmedi.evaluation.fitting import evaluate_fitting
 from aucmedi.evaluation.performance import evaluate_performance
 from aucmedi.evaluation.comparison import evaluate_comparison
+from aucmedi.evaluation.dataset import evaluate_dataset

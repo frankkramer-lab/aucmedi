@@ -317,9 +317,39 @@ class EvaluationTEST(unittest.TestCase):
                                class_names=["A", "B", "C", "D"])
         path_plot = os.path.join(self.tmp_plot.name,
                                  "plot.dataset.heatmap.png")
-        self.assertTrue(os.path.exists(path_plot))
+        self.assertFalse(os.path.exists(path_plot))
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.dataset.barplot.png")
+        self.assertFalse(os.path.exists(path_plot))
+        self.assertTrue(isinstance(res, pd.DataFrame))
+        self.assertTrue(self.labels_ohe.shape[1] == res.shape[0])
+
+    def test_evaluate_dataset_barplot(self):
+        res = evaluate_dataset(self.sample_list, self.labels_ohe,
+                               out_path=self.tmp_plot.name,
+                               class_names=["A", "B", "C", "D"],
+                               plot_barplot=True)
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.dataset.heatmap.png")
+        self.assertFalse(os.path.exists(path_plot))
         path_plot = os.path.join(self.tmp_plot.name,
                                  "plot.dataset.barplot.png")
         self.assertTrue(os.path.exists(path_plot))
+        os.remove(path_plot)
+        self.assertTrue(isinstance(res, pd.DataFrame))
+        self.assertTrue(self.labels_ohe.shape[1] == res.shape[0])
+
+    def test_evaluate_dataset_heatmap(self):
+        res = evaluate_dataset(self.sample_list, self.labels_ohe,
+                               out_path=self.tmp_plot.name,
+                               class_names=["A", "B", "C", "D"],
+                               plot_heatmap=True)
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.dataset.heatmap.png")
+        self.assertTrue(os.path.exists(path_plot))
+        os.remove(path_plot)
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.dataset.barplot.png")
+        self.assertFalse(os.path.exists(path_plot))
         self.assertTrue(isinstance(res, pd.DataFrame))
         self.assertTrue(self.labels_ohe.shape[1] == res.shape[0])

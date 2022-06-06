@@ -158,7 +158,7 @@ class Stacking:
                                                     Stacking training process. The `train_metalearner()` function can also be
                                                     run manually (or repeatedly).
         Returns:
-            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_stacking = {}           # Final history dictionary
@@ -340,7 +340,7 @@ class Stacking:
                                             "metalearner.model.pickle")
             self.ml_model.dump(path_metalearner)
 
-    def predict(self, prediction_generator):
+    def predict(self, prediction_generator, return_ensemble=False):
         """ Prediction function for Stacking.
 
         The fitted models and selected Metalearner will predict classifications for the provided
@@ -353,9 +353,12 @@ class Stacking:
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
             preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
+            ensemble (numpy.ndarray):               Optional ensemble of predictions: Will be only passed if `return_ensemble=True`.
+                                                    Shape (n_models, n_samples, n_labels).
         """
         # Verify if there is a linked cache dictionary
         con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
@@ -436,7 +439,8 @@ class Stacking:
         preds_final = np.asarray(preds_final)
 
         # Return ensembled predictions
-        return preds_final
+        if return_ensemble : return preds_final, np.swapaxes(preds_ensemble,1,0)
+        else : return preds_final
 
     # Dump model to file
     def dump(self, directory_path):

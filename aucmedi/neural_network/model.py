@@ -286,7 +286,7 @@ class Neural_Network:
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 5 epochs will be trained.
 
         Returns:
-            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
         # Running a standard training process
         if not transfer_learning:

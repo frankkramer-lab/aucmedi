@@ -55,7 +55,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
 
     - self-initialization with an AUCMEDI Aggregate function,
     - use a string key to call an AUCMEDI Aggregate function by name, or
-    - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base.py]
+    - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base]
 
     !!! info
         Description and list of implemented Aggregate functions can be found here:

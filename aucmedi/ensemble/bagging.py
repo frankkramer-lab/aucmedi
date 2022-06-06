@@ -128,7 +128,7 @@ class Bagging:
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
 
         Returns:
-            history (dictionary):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_bagging = {}            # Final history dictionary
@@ -210,7 +210,8 @@ class Bagging:
         # Return Bagging history object
         return history_bagging
 
-    def predict(self, prediction_generator, aggregate="mean"):
+    def predict(self, prediction_generator, aggregate="mean",
+                return_ensemble=False):
         """ Prediction function for the Bagging models.
 
         The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
@@ -219,7 +220,7 @@ class Bagging:
 
         - self-initialization with an AUCMEDI Aggregate function,
         - use a string key to call an AUCMEDI Aggregate function by name, or
-        - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base.py]
+        - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base]
 
         !!! info
             Description and list of implemented Aggregate functions can be found here:
@@ -227,9 +228,13 @@ class Bagging:
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
+            return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
             preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
+            ensemble (numpy.ndarray):               Optional ensemble of predictions: Will be only passed if `return_ensemble=True`.
+                                                    Shape (n_models, n_samples, n_labels).
         """
         # Verify if there is a linked cache dictionary
         con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
@@ -301,8 +306,10 @@ class Bagging:
 
         # Convert prediction list to NumPy
         preds_final = np.asarray(preds_final)
+        
         # Return ensembled predictions
-        return preds_final
+        if return_ensemble : return preds_final, preds_ensemble
+        else : return preds_final
 
     # Dump model to file
     def dump(self, directory_path):

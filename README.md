@@ -59,9 +59,9 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - [x] Unittesting -> CI/CD
 - [x] Clean up Website
 - [x] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
+- [x] Integrate evaluation functions
 
 **Planed milestones and features are:**
-- [ ] Integrate evaluation functions
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML

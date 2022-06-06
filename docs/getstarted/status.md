@@ -8,7 +8,7 @@ AUCMEDI is still under active development, which is why the official status is:
 
 **Current Progress:**  
 
-[=80% "20 of 25 (80%)"]
+[=84% "21 of 25 (84%)"]
 
 **Features that are already supported by AUCMEDI:**
 
@@ -32,10 +32,10 @@ AUCMEDI is still under active development, which is why the official status is:
 - [x] Unittesting -> CI/CD
 - [x] Clean up Website
 - [x] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
+- [x] Integrate evaluation functions
 
 **Planed milestones and features are:**  
 
-- [ ] Integrate evaluation functions
 - [ ] Support for AutoML via CLI and Docker
 - [ ] Examples for AutoML
 - [ ] Documentation for AutoML

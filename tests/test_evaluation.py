@@ -25,6 +25,7 @@ import numpy as np
 import pandas as pd
 import random
 import tempfile
+from PIL import Image
 import os
 #Internal libraries
 from aucmedi import *
@@ -85,6 +86,12 @@ class EvaluationTEST(unittest.TestCase):
                 for i in range(0, 150):
                     self.hist_stacking["nn_" + str(nn) + "." + m].append(
                          random.uniform(0, 1))
+
+        # Create imaging data indices
+        self.sample_list = []
+        for i in range(0, 50):
+            index = "image.sample_" + str(i) + ".RGB.png"
+            self.sample_list.append(index)
 
     #-------------------------------------------------#
     #            Evaluation - Plot Fitting            #
@@ -300,3 +307,19 @@ class EvaluationTEST(unittest.TestCase):
 
         self.assertTrue(np.array_equal(df_merged.shape, (39, 3)))
         self.assertTrue(np.array_equal(df_gain.shape, (27, 3)))
+
+    #-------------------------------------------------#
+    #          Evaluation - Dataset Analysis          #
+    #-------------------------------------------------#
+    def test_evaluate_dataset(self):
+        res = evaluate_dataset(self.sample_list, self.labels_ohe,
+                               out_path=self.tmp_plot.name,
+                               class_names=["A", "B", "C", "D"])
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.dataset.heatmap.png")
+        self.assertTrue(os.path.exists(path_plot))
+        path_plot = os.path.join(self.tmp_plot.name,
+                                 "plot.dataset.barplot.png")
+        self.assertTrue(os.path.exists(path_plot))
+        self.assertTrue(isinstance(res, pd.DataFrame))
+        self.assertTrue(self.labels_ohe.shape[1] == res.shape[0])

@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 """ A pillar of any AUCMEDI pipeline: [aucmedi.neural_network.model.Neural_Network][]
 
-The Neural Network class is an powerful interface to the deep neural network world in AUCMEDI.
+The Neural Network class is a powerful interface to the deep neural network world in AUCMEDI.
 
 ???+ info "Pillars of AUCMEDI"
     - [aucmedi.data_processing.io_data.input_interface][]

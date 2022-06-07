@@ -62,7 +62,7 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
     # Convert to pandas dataframe
     dt = pd.DataFrame.from_dict(train_history, orient="columns")
 
-    # Identify all selected colums
+    # Identify all selected columns
     selected_cols = []
     for key in train_history:
         for m in monitor:

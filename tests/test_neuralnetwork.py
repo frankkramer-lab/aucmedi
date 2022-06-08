@@ -87,3 +87,12 @@ class NeuralNetworkTEST(unittest.TestCase):
                            epochs=3, transfer_learning=True)
         self.assertTrue("tl_loss" in hist and "tl_val_loss" in hist)
         self.assertTrue("ft_loss" in hist and "ft_val_loss" in hist)
+
+    #-------------------------------------------------#
+    #                 Model Inference                 #
+    #-------------------------------------------------#
+    def test_predict(self):
+        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1)
+        preds = model.predict(self.datagen)
+        self.assertTrue(preds.shape == (1, 4))
+        self.assertTrue(np.sum(preds) >= 0.99 and np.sum(preds) <= 1.01)

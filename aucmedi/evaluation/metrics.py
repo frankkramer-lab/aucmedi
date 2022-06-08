@@ -32,7 +32,7 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
 
     !!! info "Computed Metrics"
         F1, Accuracy, Sensitivity, Specificity, AUROC (AUC), Precision, FPR, FNR,
-        FDR, TruePositves, TrueNegatives, FalsePositives, FalseNegatives
+        FDR, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 
     Args:
         preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by

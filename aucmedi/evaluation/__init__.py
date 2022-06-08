@@ -28,7 +28,7 @@ AUCMEDI currently supports the following evaluation techniques:
 
 | Evaluation Technique                                     | Description                                                                           |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| [Dataset Analysis][aucmedi.evaluation.dataset]           | Peak and analyse the loaded medical imaging dataset.                                  |
+| [Dataset Analysis][aucmedi.evaluation.dataset]           | Peak into the loaded medical imaging dataset.                                         |
 | [Fitting Evaluation][aucmedi.evaluation.fitting]         | Evaluate the fitting curve of a model training process.                               |
 | [Performance Evaluation][aucmedi.evaluation.performance] | Evaluate the performance of a single model / prediction list through various metrics. |
 | [Performance Comparison][aucmedi.evaluation.comparison]  | Compare the performance of predictions from multiple models.                          |

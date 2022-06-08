@@ -136,8 +136,7 @@ class ClassifierTEST(unittest.TestCase):
                                          activation_output="softmax")
         model_input = Input(shape=(32,32,3))
         model = classification_head.build(model_input=model_input,
-                                          model_output=model_input,
-                                          two_dim=True)
+                                          model_output=model_input)
         try : model.summary()
         except : raise Exception()
 
@@ -150,7 +149,6 @@ class ClassifierTEST(unittest.TestCase):
                                          meta_variables=10)
         model_input = Input(shape=(32,32,3))
         model = classification_head.build(model_input=model_input,
-                                          model_output=model_input,
-                                          two_dim=True)
+                                          model_output=model_input)
         try : model.summary()
         except : raise Exception()

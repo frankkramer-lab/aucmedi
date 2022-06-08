@@ -33,6 +33,7 @@ setup(
                       'lime>=0.2.0.1',
                       'pooch>=1.6.0',
                       'classification-models-3D>=1.0.4',
+                      'tensorflow-addons>=0.17.0',
                       'vit-keras>=0.1.0',
                       'SimpleITK>=2.1.1',
                       'batchgenerators>=0.23',

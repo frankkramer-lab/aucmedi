@@ -22,7 +22,7 @@
 # External libraries
 import numpy as np
 # Internal libraries
-from aucmedi import Image_Augmentation, Volume_Augmentation, DataGenerator
+from aucmedi import ImageAugmentation, VolumeAugmentation, DataGenerator
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.data_processing.io_loader import image_loader
 
@@ -38,10 +38,10 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         ```python
         # Import libraries
         from aucmedi.ensemble import predict_augmenting
-        from aucmedi import Image_Augmentation, DataGenerator
+        from aucmedi import ImageAugmentation, DataGenerator
 
         # Initialize testing DataGenerator with desired Data Augmentation
-        test_aug = Image_Augmentation(flip=True, rotate=True, brightness=False, contrast=False))
+        test_aug = ImageAugmentation(flip=True, rotate=True, brightness=False, contrast=False))
         test_gen = DataGenerator(samples_test, "images_dir/",
                                  data_aug=test_aug,
                                  resize=model.meta_input,
@@ -75,7 +75,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
 
     Args:
-        model (Neural_Network):                 Instance of a AUCMEDI neural network class.
+        model (NeuralNetwork):                 Instance of a AUCMEDI neural network class.
         prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
         aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
@@ -87,7 +87,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
 
     # Initialize image augmentation if none provided (only flip, rotate)
     if prediction_generator.data_aug is None and len(model.input_shape) == 3:
-        data_aug = Image_Augmentation(flip=True, rotate=True, scale=False,
+        data_aug = ImageAugmentation(flip=True, rotate=True, scale=False,
                                      brightness=False, contrast=False,
                                      saturation=False, hue=False, crop=False,
                                      grid_distortion=False, compression=False,
@@ -95,7 +95,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=False)
     elif prediction_generator.data_aug is None and len(model.input_shape) == 4:
-        data_aug = Volume_Augmentation(flip=True, rotate=True, scale=False,
+        data_aug = VolumeAugmentation(flip=True, rotate=True, scale=False,
                                       brightness=False, contrast=False,
                                       saturation=False, hue=False, crop=False,
                                       grid_distortion=False, compression=False,

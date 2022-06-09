@@ -40,14 +40,14 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications.vgg19 import VGG19
+from tensorflow.keras.applications.vgg19 import VGG19 as BaseModel
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
 #              Architecture class: VGG19              #
 #-----------------------------------------------------#
-class Architecture_VGG19(Architecture_Base):
+class VGG19(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -66,9 +66,9 @@ class Architecture_VGG19(Architecture_Base):
         else : model_weights = None
 
         # Obtain VGG19 as base model
-        base_model = VGG19(include_top=False, weights=model_weights,
-                           input_tensor=None, input_shape=self.input,
-                           pooling=None)
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

@@ -41,14 +41,14 @@
 #-----------------------------------------------------#
 # External libraries
 from tensorflow import keras
-from keras_applications.resnext import ResNeXt50
+from keras_applications.resnext import ResNeXt50 as BaseModel
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
 #            Architecture class: ResNeXt50            #
 #-----------------------------------------------------#
-class Architecture_ResNeXt50(Architecture_Base):
+class ResNeXt50(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -67,7 +67,7 @@ class Architecture_ResNeXt50(Architecture_Base):
         else : model_weights = None
 
         # Obtain ResNeXt50 as base model
-        base_model = ResNeXt50(include_top=False, weights=model_weights,
+        base_model = BaseModel(include_top=False, weights=model_weights,
                                input_tensor=None, input_shape=self.input,
                                pooling=None, backend=keras.backend,
                                layers=keras.layers, models=keras.models,

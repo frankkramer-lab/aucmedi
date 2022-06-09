@@ -27,7 +27,7 @@ from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 #-----------------------------------------------------#
 #               Aggregate: Global Argmax              #
 #-----------------------------------------------------#
-class Global_Argmax(Aggregate_Base):
+class GlobalArgmax(Aggregate_Base):
     """ Aggregate function based on Global Argmax.
 
     This class should be passed to an ensemble function/class for combining predictions.

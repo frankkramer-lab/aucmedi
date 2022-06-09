@@ -27,7 +27,7 @@ from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 #-----------------------------------------------------#
 #            Aggregate: Averaging by Mean             #
 #-----------------------------------------------------#
-class Averaging_Mean(Aggregate_Base):
+class AveragingMean(Aggregate_Base):
     """ Aggregate function based on averaging via mean.
 
     This class should be passed to an ensemble function/class for combining predictions.

@@ -70,12 +70,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #              Architecture: Vanilla              #
     #-------------------------------------------------#
     def test_Vanilla(self):
-        arch = Architecture_Vanilla(Classifier(n_labels=4), channels=1,
+        arch = Vanilla(Classifier(n_labels=4), channels=1,
                                     input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.Vanilla",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.Vanilla",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -86,12 +86,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: DenseNet121            #
     #-------------------------------------------------#
     def test_DenseNet121(self):
-        arch = Architecture_DenseNet121(Classifier(n_labels=4), channels=1,
+        arch = DenseNet121(Classifier(n_labels=4), channels=1,
                                         input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet121",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.DenseNet121",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -102,12 +102,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: DenseNet169            #
     #-------------------------------------------------#
     def test_DenseNet169(self):
-        arch = Architecture_DenseNet169(Classifier(n_labels=4), channels=1,
+        arch = DenseNet169(Classifier(n_labels=4), channels=1,
                                         input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet169",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.DenseNet169",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -118,12 +118,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: DenseNet201            #
     #-------------------------------------------------#
     def test_DenseNet201(self):
-        arch = Architecture_DenseNet201(Classifier(n_labels=4), channels=1,
+        arch = DenseNet201(Classifier(n_labels=4), channels=1,
                                         input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.DenseNet201",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.DenseNet201",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -134,12 +134,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #              Architecture: ResNet18             #
     #-------------------------------------------------#
     def test_ResNet18(self):
-        arch = Architecture_ResNet18(Classifier(n_labels=4), channels=1,
+        arch = ResNet18(Classifier(n_labels=4), channels=1,
                                      input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet18",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet18",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -150,12 +150,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #              Architecture: ResNet34             #
     #-------------------------------------------------#
     def test_ResNet34(self):
-        arch = Architecture_ResNet34(Classifier(n_labels=4), channels=1,
+        arch = ResNet34(Classifier(n_labels=4), channels=1,
                                      input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet34",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet34",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -166,12 +166,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #              Architecture: ResNet50             #
     #-------------------------------------------------#
     def test_ResNet50(self):
-        arch = Architecture_ResNet50(Classifier(n_labels=4), channels=1,
+        arch = ResNet50(Classifier(n_labels=4), channels=1,
                                      input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet50",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet50",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -182,12 +182,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #             Architecture: ResNet101             #
     #-------------------------------------------------#
     def test_ResNet101(self):
-        arch = Architecture_ResNet101(Classifier(n_labels=4), channels=1,
+        arch = ResNet101(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet101",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet101",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -198,12 +198,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #             Architecture: ResNet152             #
     #-------------------------------------------------#
     def test_ResNet152(self):
-        arch = Architecture_ResNet152(Classifier(n_labels=4), channels=1,
+        arch = ResNet152(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNet152",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet152",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -214,12 +214,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #             Architecture: ResNeXt50             #
     #-------------------------------------------------#
     def test_ResNeXt50(self):
-        arch = Architecture_ResNeXt50(Classifier(n_labels=4), channels=1,
+        arch = ResNeXt50(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNeXt50",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNeXt50",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -230,12 +230,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: ResNeXt101             #
     #-------------------------------------------------#
     def test_ResNeXt101(self):
-        arch = Architecture_ResNeXt101(Classifier(n_labels=4), channels=1,
+        arch = ResNeXt101(Classifier(n_labels=4), channels=1,
                                        input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.ResNeXt101",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNeXt101",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -246,12 +246,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #               Architecture: VGG16               #
     #-------------------------------------------------#
     def test_VGG16(self):
-        arch = Architecture_VGG16(Classifier(n_labels=4), channels=1,
+        arch = VGG16(Classifier(n_labels=4), channels=1,
                                   input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.VGG16",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.VGG16",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -262,12 +262,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #               Architecture: VGG19               #
     #-------------------------------------------------#
     def test_VGG19(self):
-        arch = Architecture_VGG19(Classifier(n_labels=4), channels=1,
+        arch = VGG19(Classifier(n_labels=4), channels=1,
                                   input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.VGG19",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.VGG19",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -278,12 +278,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #             Architecture: MobileNet             #
     #-------------------------------------------------#
     def test_MobileNet(self):
-        arch = Architecture_MobileNet(Classifier(n_labels=4), channels=1,
+        arch = MobileNet(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.MobileNet",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.MobileNet",
                                batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
@@ -294,12 +294,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: MobileNetV2            #
     #-------------------------------------------------#
     def test_MobileNetV2(self):
-        arch = Architecture_MobileNetV2(Classifier(n_labels=4), channels=1,
+        arch = MobileNetV2(Classifier(n_labels=4), channels=1,
                                         input_shape=(64, 64, 64))
-        model = Neural_Network(n_labels=4, channels=1, architecture=arch,
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
-        model = Neural_Network(n_labels=4, channels=3, architecture="3D.MobileNetV2",
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.MobileNetV2",
                                batch_queue_size=1, input_shape=(64, 64, 64))
         try : model.model.summary()
         except : raise Exception()

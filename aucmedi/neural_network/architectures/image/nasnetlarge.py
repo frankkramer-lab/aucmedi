@@ -40,14 +40,14 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import NASNetLarge
+from tensorflow.keras.applications import NASNetLarge as BaseModel
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
 #           Architecture class: NASNetLarge           #
 #-----------------------------------------------------#
-class Architecture_NASNetLarge(Architecture_Base):
+class NASNetLarge(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -66,9 +66,9 @@ class Architecture_NASNetLarge(Architecture_Base):
         else : model_weights = None
 
         # Obtain NASNetLarge as base model
-        base_model = NASNetLarge(include_top=False, weights=model_weights,
-                                 input_tensor=None, input_shape=self.input,
-                                 pooling=None)
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

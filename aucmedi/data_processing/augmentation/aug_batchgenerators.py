@@ -30,7 +30,7 @@ import numpy as np
 #-----------------------------------------------------#
 #        AUCMEDI Batchgenerators Augmentation         #
 #-----------------------------------------------------#
-class Batchgenerators_Augmentation():
+class BatchgeneratorsAugmentation():
     """ The Batchgenerators Augmentation class performs diverse augmentation methods on given
         numpy array. The class acts as an easy to use function/interface for applying
         all types of augmentations with just one function call.
@@ -127,7 +127,7 @@ class Batchgenerators_Augmentation():
 
             ```python
             # initialize
-            aug = Batchgenerators_Augmentation(model.meta_input, mirror=True)
+            aug = BatchgeneratorsAugmentation(model.meta_input, mirror=True)
 
             # set probability to 100% = always
             aug.aug_mirror_p = 1.0

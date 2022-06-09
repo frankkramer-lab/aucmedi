@@ -34,7 +34,7 @@ class Metalearner_Base(ABC):
     Metalearners are utilized in [Stacking][aucmedi.ensemble.stacking] pipelines.
 
     A Metalearner act as a combiner algorithm which is trained to make a final prediction
-    using predictions of other algorithms (`Neural_Network`) as inputs.
+    using predictions of other algorithms (`NeuralNetwork`) as inputs.
 
     ```
     Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).

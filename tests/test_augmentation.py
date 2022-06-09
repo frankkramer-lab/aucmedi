@@ -24,7 +24,7 @@ import unittest
 import numpy as np
 import random
 #Internal libraries
-from aucmedi import Image_Augmentation, Volume_Augmentation, Batchgenerators_Augmentation
+from aucmedi import ImageAugmentation, VolumeAugmentation, BatchgeneratorsAugmentation
 
 #-----------------------------------------------------#
 #             Unittest: Image Augmentation            #
@@ -51,12 +51,12 @@ class AugmentationTEST(unittest.TestCase):
     #-------------------------------------------------#
     # Class Creation
     def test_IMAGE_create(self):
-        data_aug = Image_Augmentation()
-        self.assertIsInstance(data_aug, Image_Augmentation)
+        data_aug = ImageAugmentation()
+        self.assertIsInstance(data_aug, ImageAugmentation)
 
     # Application
     def test_IMAGE_application(self):
-        data_aug = Image_Augmentation(flip=True, rotate=True,
+        data_aug = ImageAugmentation(flip=True, rotate=True,
                      brightness=True, contrast=True, saturation=True,
                      hue=True, scale=True, crop=True, grid_distortion=True,
                      compression=True, gaussian_noise=True,
@@ -86,7 +86,7 @@ class AugmentationTEST(unittest.TestCase):
 
     # Rebuild Augmentation Operator
     def test_IMAGE_rebuild(self):
-        data_aug = Image_Augmentation(flip=False, rotate=False,
+        data_aug = ImageAugmentation(flip=False, rotate=False,
                      brightness=False, contrast=False, saturation=False,
                      hue=False, scale=False, crop=False, grid_distortion=False,
                      compression=False, gaussian_noise=False,
@@ -105,12 +105,12 @@ class AugmentationTEST(unittest.TestCase):
     #-------------------------------------------------#
     # Class Creation
     def test_VOLUME_create(self):
-        data_aug = Volume_Augmentation()
-        self.assertIsInstance(data_aug, Volume_Augmentation)
+        data_aug = VolumeAugmentation()
+        self.assertIsInstance(data_aug, VolumeAugmentation)
 
     # Application
     def test_VOLUME_application(self):
-        data_aug = Volume_Augmentation(flip=True, rotate=True,
+        data_aug = VolumeAugmentation(flip=True, rotate=True,
                      brightness=True, contrast=True, saturation=True,
                      hue=True, scale=True, crop=True, grid_distortion=True,
                      compression=True, gaussian_noise=True,
@@ -140,7 +140,7 @@ class AugmentationTEST(unittest.TestCase):
 
     # Rebuild Augmentation Operator
     def test_VOLUME_rebuild(self):
-        data_aug = Volume_Augmentation(flip=False, rotate=False,
+        data_aug = VolumeAugmentation(flip=False, rotate=False,
                      brightness=False, contrast=False, saturation=False,
                      hue=False, scale=False, crop=False, grid_distortion=False,
                      compression=False, gaussian_noise=False,
@@ -159,12 +159,12 @@ class AugmentationTEST(unittest.TestCase):
     #-------------------------------------------------#
     # Class Creation
     def test_BATCHGENERATORS_create(self):
-        data_aug = Batchgenerators_Augmentation(image_shape=(16,16,16))
-        self.assertIsInstance(data_aug, Batchgenerators_Augmentation)
+        data_aug = BatchgeneratorsAugmentation(image_shape=(16,16,16))
+        self.assertIsInstance(data_aug, BatchgeneratorsAugmentation)
 
     # Application
     def test_BATCHGENERATORS_application(self):
-        data_aug = Batchgenerators_Augmentation(image_shape=(16,16,16),
+        data_aug = BatchgeneratorsAugmentation(image_shape=(16,16,16),
                         mirror=True, rotate=True, scale=True,
                         elastic_transform=True, gaussian_noise=True,
                         brightness=True, contrast=True, gamma=True)
@@ -184,7 +184,7 @@ class AugmentationTEST(unittest.TestCase):
 
     # Rebuild Augmentation Operator
     def test_BATCHGENERATORS_rebuild(self):
-        data_aug = Batchgenerators_Augmentation(image_shape=(16,16,16),
+        data_aug = BatchgeneratorsAugmentation(image_shape=(16,16,16),
                         mirror=False, rotate=False, scale=False,
                         elastic_transform=False, gaussian_noise=False,
                         brightness=False, contrast=False, gamma=False)

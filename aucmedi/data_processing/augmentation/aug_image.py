@@ -29,7 +29,7 @@ import random
 #-----------------------------------------------------#
 #              AUCMEDI Image Augmentation             #
 #-----------------------------------------------------#
-class Image_Augmentation():
+class ImageAugmentation():
     """ The Image Augmentation class performs diverse augmentation methods on given
         numpy array. The class acts as an easy to use function/interface for applying
         all types of augmentations with just one function call.
@@ -143,7 +143,7 @@ class Image_Augmentation():
 
             ```python
             # initialize
-            aug = Image_Augmentation(flip=True)
+            aug = ImageAugmentation(flip=True)
 
             # set probability to 100% = always
             aug.aug_flip_p = 1.0

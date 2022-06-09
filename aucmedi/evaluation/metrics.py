@@ -36,7 +36,7 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
 
     Args:
         preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [Neural_Network][aucmedi.neural_network.model].
+                                        [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
@@ -103,7 +103,7 @@ def compute_confusion_matrix(preds, labels, n_labels):
 
     Args:
         preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [Neural_Network][aucmedi.neural_network.model].
+                                        [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
@@ -126,7 +126,7 @@ def compute_roc(preds, labels, n_labels):
 
     Args:
         preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [Neural_Network][aucmedi.neural_network.model].
+                                        [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].

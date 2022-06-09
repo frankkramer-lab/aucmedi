@@ -29,7 +29,7 @@ import random
 #-----------------------------------------------------#
 #             AUCMEDI Volume Augmentation             #
 #-----------------------------------------------------#
-class Volume_Augmentation():
+class VolumeAugmentation():
     """ The Volume Augmentation class performs diverse augmentation methods on given
         numpy array. The class acts as an easy to use function/interface for applying
         all types of augmentations with just one function call.
@@ -157,7 +157,7 @@ class Volume_Augmentation():
 
             ```python
             # initialize
-            aug = Volume_Augmentation(flip=True)
+            aug = VolumeAugmentation(flip=True)
 
             # set probability to 100% = always
             aug.aug_flip_p = 1.0

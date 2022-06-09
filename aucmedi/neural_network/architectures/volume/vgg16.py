@@ -49,7 +49,7 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #              Architecture class: VGG16              #
 #-----------------------------------------------------#
-class Architecture_VGG16(Architecture_Base):
+class VGG16(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -68,10 +68,10 @@ class Architecture_VGG16(Architecture_Base):
         else : model_weights = None
 
         # Obtain VGG16 as base model
-        VGG16, preprocess_input = Classifiers.get("vgg16")
-        base_model = VGG16(include_top=False, weights=model_weights,
-                           input_tensor=None, input_shape=self.input,
-                           pooling=None)
+        BaseModel, preprocess_input = Classifiers.get("vgg16")
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

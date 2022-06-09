@@ -39,20 +39,20 @@ instead of meaningless characteristics due to a small data set size.
 ???+ info "Data Augmentation Interfaces"
     | Interface                                                                                | Description                                                           |
     | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-    | [Image_Augmentation][aucmedi.data_processing.augmentation.aug_image]                     | Interface to package: Albumentations. Handles only images (2D data).  |
-    | [Volume_Augmentation][aucmedi.data_processing.augmentation.aug_volume]                   | Interface to package: Volumentations. Handles only volumes (3D data). |
-    | [Batchgenerators_Augmentation][aucmedi.data_processing.augmentation.aug_batchgenerators] | Interface to package: batchgenerators (DKFZ). Handles images and volumes (2D+3D data). |
+    | [ImageAugmentation][aucmedi.data_processing.augmentation.aug_image]                     | Interface to package: Albumentations. Handles only images (2D data).  |
+    | [VolumeAugmentation][aucmedi.data_processing.augmentation.aug_volume]                   | Interface to package: Volumentations. Handles only volumes (3D data). |
+    | [BatchgeneratorsAugmentation][aucmedi.data_processing.augmentation.aug_batchgenerators] | Interface to package: batchgenerators (DKFZ). Handles images and volumes (2D+3D data). |
 
 **Recommendation:** <br>
-- For images (2D data): Image_Augmentation() <br>
-- For volumes (3D data): Batchgenerators_Augmentation() <br>
+- For images (2D data): ImageAugmentation() <br>
+- For volumes (3D data): BatchgeneratorsAugmentation() <br>
 
 ???+ example
     **For 2D data:**
     ```python
     from aucmedi import *
 
-    aug = Image_Augmentation(flip=True, rotate=True, brightness=True, contrast=True,
+    aug = ImageAugmentation(flip=True, rotate=True, brightness=True, contrast=True,
                  saturation=True, hue=True, scale=True, crop=False,
                  grid_distortion=False, compression=False, gaussian_noise=False,
                  gaussian_blur=False, downscaling=False, gamma=False,
@@ -70,7 +70,7 @@ instead of meaningless characteristics due to a small data set size.
     ```python
     from aucmedi import *
 
-    aug = Batchgenerators_Augmentation(model.meta_input, mirror=False, rotate=True,
+    aug = BatchgeneratorsAugmentation(model.meta_input, mirror=False, rotate=True,
                  scale=True, elastic_transform=False, gaussian_noise=True,
                  brightness=True, contrast=True, gamma=True)
 
@@ -85,6 +85,6 @@ instead of meaningless characteristics due to a small data set size.
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-from aucmedi.data_processing.augmentation.aug_image import Image_Augmentation
-from aucmedi.data_processing.augmentation.aug_volume import Volume_Augmentation
-from aucmedi.data_processing.augmentation.aug_batchgenerators import Batchgenerators_Augmentation
+from aucmedi.data_processing.augmentation.aug_image import ImageAugmentation
+from aucmedi.data_processing.augmentation.aug_volume import VolumeAugmentation
+from aucmedi.data_processing.augmentation.aug_batchgenerators import BatchgeneratorsAugmentation

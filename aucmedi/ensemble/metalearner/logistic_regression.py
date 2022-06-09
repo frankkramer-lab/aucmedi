@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 # External libraries
 import pickle
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression as LRscikit
 import numpy as np
 # Internal libraries/scripts
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
@@ -29,7 +29,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 #-----------------------------------------------------#
 #           Metalearner: Logistic Regression          #
 #-----------------------------------------------------#
-class Logistic_Regression(Metalearner_Base):
+class LogisticRegression(Metalearner_Base):
     """ A Logistic Regression based Metalearner.
 
     This class should be passed to an ensemble function/class like Stacking for combining predictions.
@@ -49,9 +49,8 @@ class Logistic_Regression(Metalearner_Base):
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self):
-        self.model = LogisticRegression(random_state=0,
-                                        solver="newton-cg",
-                                        multi_class="multinomial")
+        self.model = LRscikit(random_state=0, solver="newton-cg",
+                              multi_class="multinomial")
 
     #---------------------------------------------#
     #                  Training                   #

@@ -29,7 +29,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 #-----------------------------------------------------#
 #            Metalearner: Gaussian Process            #
 #-----------------------------------------------------#
-class Gaussian_Process(Metalearner_Base):
+class GaussianProcess(Metalearner_Base):
     """ A Gaussian Process based Metalearner.
 
     This class should be passed to an ensemble function/class like Stacking for combining predictions.

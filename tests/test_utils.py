@@ -74,7 +74,7 @@ class UtilityTEST(unittest.TestCase):
         path_csv = os.path.join(self.tmp_data.name, "testing.csv")
         csvlog = CSVLogger(path_csv)
 
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         hist_returned = model.train(training_generator=self.datagen,
                                     validation_generator=self.datagen,
                                     epochs=3, callbacks=[csvlog])

@@ -27,7 +27,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     | Pillar                                                                       | Description                                                    |
     | ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
     | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Obtaining general information from the dataset.                   |
-    | #2: [Neural_Network][aucmedi.neural_network.model.Neural_Network]         | Building the deep learning model.                                 |
+    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]         | Building the deep learning model.                                 |
     | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Powerful interface for loading any images/volumes into the model. |
 
 
@@ -44,7 +44,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     (index_list, class_ohe, nclasses, class_names, image_format) = ds
 
     # Pillar #2: Initialize a DenseNet121 model with ImageNet weights
-    model = Neural_Network(n_labels=nclasses, channels=3,
+    model = NeuralNetwork(n_labels=nclasses, channels=3,
                            architecture="2D.DenseNet121",
                            pretrained_weights=True)
 
@@ -70,7 +70,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
 #-----------------------------------------------------#
 from aucmedi.data_processing.io_data import input_interface
 from aucmedi.data_processing.data_generator import DataGenerator
-from aucmedi.data_processing.augmentation import Image_Augmentation, \
-                                                 Volume_Augmentation, \
-                                                 Batchgenerators_Augmentation
-from aucmedi.neural_network.model import Neural_Network
+from aucmedi.data_processing.augmentation import ImageAugmentation, \
+                                                 VolumeAugmentation, \
+                                                 BatchgeneratorsAugmentation
+from aucmedi.neural_network.model import NeuralNetwork

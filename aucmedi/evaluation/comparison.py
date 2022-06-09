@@ -56,7 +56,7 @@ def evaluate_comparison(pred_list,
         (samples, class_ohe, nclasses, class_names, image_format) = ds
 
         # Initialize model
-        model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model_a = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
 
         # Initialize Bagging object for 3-fold cross-validation
         el = Bagging(model_a, k_fold=3)
@@ -72,8 +72,8 @@ def evaluate_comparison(pred_list,
 
 
         # Do some predictions with manually initialized models
-        model_b = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
-        model_c = Neural_Network(n_labels=8, channels=3, architecture="2D.MobileNetV2")
+        model_b = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        model_c = NeuralNetwork(n_labels=8, channels=3, architecture="2D.MobileNetV2")
 
         pred_a = model_a.predict(datagen_test)
         pred_b = model_b.predict(datagen_test)
@@ -103,7 +103,7 @@ def evaluate_comparison(pred_list,
 
     Args:
         pred_list (list of numpy.ndarray):  A list of NumPy arrays containing predictions from multiple models formatted with shape
-                                            (n_models, n_samples, n_labels). Provided by [Neural_Network][aucmedi.neural_network.model].
+                                            (n_models, n_samples, n_labels). Provided by [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
                                             [input_interface][aucmedi.data_processing.io_data.input_interface].
         out_path (str):                     Path to directory in which plotted figures are stored.

@@ -49,9 +49,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #               Logistic Regression               #
     #-------------------------------------------------#
-    def test_Logistic_Regression_create(self):
+    def test_LogisticRegression_create(self):
         # Initializations
-        ml = Logistic_Regression()
+        ml = LogisticRegression()
         self.assertTrue("logistic_regression" in metalearner_dict)
         ml = metalearner_dict["logistic_regression"]()
         # Storage
@@ -67,9 +67,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Logistic_Regression_usage(self):
+    def test_LogisticRegression_usage(self):
         # Initializations
-        ml = Logistic_Regression()
+        ml = LogisticRegression()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -80,9 +80,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                   Naive Bayes                   #
     #-------------------------------------------------#
-    def test_Naive_Bayes_create(self):
+    def test_NaiveBayes_create(self):
         # Initializations
-        ml = Naive_Bayes()
+        ml = NaiveBayes()
         self.assertTrue("naive_bayes" in metalearner_dict)
         ml = metalearner_dict["naive_bayes"]()
         # Storage
@@ -98,9 +98,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Naive_Bayes_usage(self):
+    def test_NaiveBayes_usage(self):
         # Initializations
-        ml = Naive_Bayes()
+        ml = NaiveBayes()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -142,9 +142,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                 Gaussian Process                #
     #-------------------------------------------------#
-    def test_Gaussian_Process_create(self):
+    def test_GaussianProcess_create(self):
         # Initializations
-        ml = Gaussian_Process()
+        ml = GaussianProcess()
         self.assertTrue("gaussian_process" in metalearner_dict)
         ml = metalearner_dict["gaussian_process"]()
         # Storage
@@ -160,9 +160,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Gaussian_Process_usage(self):
+    def test_GaussianProcess_usage(self):
         # Initializations
-        ml = Gaussian_Process()
+        ml = GaussianProcess()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -173,9 +173,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                  Decision Tree                  #
     #-------------------------------------------------#
-    def test_Decision_Tree_create(self):
+    def test_DecisionTree_create(self):
         # Initializations
-        ml = Decision_Tree()
+        ml = DecisionTree()
         self.assertTrue("decision_tree" in metalearner_dict)
         ml = metalearner_dict["decision_tree"]()
         # Storage
@@ -191,9 +191,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Decision_Tree_usage(self):
+    def test_DecisionTree_usage(self):
         # Initializations
-        ml = Decision_Tree()
+        ml = DecisionTree()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -204,9 +204,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                    Best Model                   #
     #-------------------------------------------------#
-    def test_Best_Model_create(self):
+    def test_BestModel_create(self):
         # Initializations
-        ml = Best_Model()
+        ml = BestModel()
         self.assertTrue("best_model" in metalearner_dict)
         ml = metalearner_dict["best_model"]()
         # Storage
@@ -222,9 +222,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Best_Model_usage(self):
+    def test_BestModel_usage(self):
         # Initializations
-        ml = Best_Model()
+        ml = BestModel()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -235,9 +235,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                  Weighted Mean                  #
     #-------------------------------------------------#
-    def test_Averaging_WeightedMean_create(self):
+    def test_AveragingWeightedMean_create(self):
         # Initializations
-        ml = Averaging_WeightedMean()
+        ml = AveragingWeightedMean()
         self.assertTrue("weighted_mean" in metalearner_dict)
         ml = metalearner_dict["weighted_mean"]()
         # Storage
@@ -253,9 +253,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Averaging_WeightedMean_usage(self):
+    def test_AveragingWeightedMean_usage(self):
         # Initializations
-        ml = Averaging_WeightedMean()
+        ml = AveragingWeightedMean()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -266,9 +266,9 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                  Random Forest                  #
     #-------------------------------------------------#
-    def test_Random_Forest_create(self):
+    def test_RandomForest_create(self):
         # Initializations
-        ml = Random_Forest()
+        ml = RandomForest()
         self.assertTrue("random_forest" in metalearner_dict)
         ml = metalearner_dict["random_forest"]()
         # Storage
@@ -284,9 +284,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_Random_Forest_usage(self):
+    def test_RandomForest_usage(self):
         # Initializations
-        ml = Random_Forest()
+        ml = RandomForest()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference
@@ -328,11 +328,11 @@ class MetelearnerTEST(unittest.TestCase):
     #-------------------------------------------------#
     #                MLP Neural Network               #
     #-------------------------------------------------#
-    def test_MLP_NeuralNetwork_create(self):
+    def test_MLP_create(self):
         # Initializations
-        ml = MLP_NeuralNetwork()
-        self.assertTrue("mlp_neural_network" in metalearner_dict)
-        ml = metalearner_dict["mlp_neural_network"]()
+        ml = MLP()
+        self.assertTrue("mlp" in metalearner_dict)
+        ml = metalearner_dict["mlp"]()
         # Storage
         model_path = os.path.join(self.tmp_data.name, "ml_model.pickle")
         self.assertFalse(os.path.exists(model_path))
@@ -346,9 +346,9 @@ class MetelearnerTEST(unittest.TestCase):
         # Cleanup
         os.remove(model_path)
 
-    def test_MLP_NeuralNetwork_usage(self):
+    def test_MLP_usage(self):
         # Initializations
-        ml = MLP_NeuralNetwork()
+        ml = MLP()
         # Training
         ml.train(x=self.pred_data, y=self.labels_ohe)
         # Inference

@@ -23,98 +23,98 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #                    Architectures                    #
 #-----------------------------------------------------#
 # Vanilla Classifier
-from aucmedi.neural_network.architectures.image.vanilla import Architecture_Vanilla
+from aucmedi.neural_network.architectures.image.vanilla import Vanilla
 # DenseNet
-from aucmedi.neural_network.architectures.image.densenet121 import Architecture_DenseNet121
-from aucmedi.neural_network.architectures.image.densenet169 import Architecture_DenseNet169
-from aucmedi.neural_network.architectures.image.densenet201 import Architecture_DenseNet201
+from aucmedi.neural_network.architectures.image.densenet121 import DenseNet121
+from aucmedi.neural_network.architectures.image.densenet169 import DenseNet169
+from aucmedi.neural_network.architectures.image.densenet201 import DenseNet201
 # EfficientNet
-from aucmedi.neural_network.architectures.image.efficientnetb0 import Architecture_EfficientNetB0
-from aucmedi.neural_network.architectures.image.efficientnetb1 import Architecture_EfficientNetB1
-from aucmedi.neural_network.architectures.image.efficientnetb2 import Architecture_EfficientNetB2
-from aucmedi.neural_network.architectures.image.efficientnetb3 import Architecture_EfficientNetB3
-from aucmedi.neural_network.architectures.image.efficientnetb4 import Architecture_EfficientNetB4
-from aucmedi.neural_network.architectures.image.efficientnetb5 import Architecture_EfficientNetB5
-from aucmedi.neural_network.architectures.image.efficientnetb6 import Architecture_EfficientNetB6
-from aucmedi.neural_network.architectures.image.efficientnetb7 import Architecture_EfficientNetB7
+from aucmedi.neural_network.architectures.image.efficientnetb0 import EfficientNetB0
+from aucmedi.neural_network.architectures.image.efficientnetb1 import EfficientNetB1
+from aucmedi.neural_network.architectures.image.efficientnetb2 import EfficientNetB2
+from aucmedi.neural_network.architectures.image.efficientnetb3 import EfficientNetB3
+from aucmedi.neural_network.architectures.image.efficientnetb4 import EfficientNetB4
+from aucmedi.neural_network.architectures.image.efficientnetb5 import EfficientNetB5
+from aucmedi.neural_network.architectures.image.efficientnetb6 import EfficientNetB6
+from aucmedi.neural_network.architectures.image.efficientnetb7 import EfficientNetB7
 # InceptionResNet
-from aucmedi.neural_network.architectures.image.inceptionresnetv2 import Architecture_InceptionResNetV2
+from aucmedi.neural_network.architectures.image.inceptionresnetv2 import InceptionResNetV2
 # InceptionV3
-from aucmedi.neural_network.architectures.image.inceptionv3 import Architecture_InceptionV3
+from aucmedi.neural_network.architectures.image.inceptionv3 import InceptionV3
 # ResNet
-from aucmedi.neural_network.architectures.image.resnet50 import Architecture_ResNet50
-from aucmedi.neural_network.architectures.image.resnet101 import Architecture_ResNet101
-from aucmedi.neural_network.architectures.image.resnet152 import Architecture_ResNet152
+from aucmedi.neural_network.architectures.image.resnet50 import ResNet50
+from aucmedi.neural_network.architectures.image.resnet101 import ResNet101
+from aucmedi.neural_network.architectures.image.resnet152 import ResNet152
 # ResNetv2
-from aucmedi.neural_network.architectures.image.resnet50v2 import Architecture_ResNet50V2
-from aucmedi.neural_network.architectures.image.resnet101v2 import Architecture_ResNet101V2
-from aucmedi.neural_network.architectures.image.resnet152v2 import Architecture_ResNet152V2
+from aucmedi.neural_network.architectures.image.resnet50v2 import ResNet50V2
+from aucmedi.neural_network.architectures.image.resnet101v2 import ResNet101V2
+from aucmedi.neural_network.architectures.image.resnet152v2 import ResNet152V2
 # ResNeXt
-from aucmedi.neural_network.architectures.image.resnext50 import Architecture_ResNeXt50
-from aucmedi.neural_network.architectures.image.resnext101 import Architecture_ResNeXt101
+from aucmedi.neural_network.architectures.image.resnext50 import ResNeXt50
+from aucmedi.neural_network.architectures.image.resnext101 import ResNeXt101
 # MobileNet
-from aucmedi.neural_network.architectures.image.mobilenet import Architecture_MobileNet
-from aucmedi.neural_network.architectures.image.mobilenetv2 import Architecture_MobileNetV2
+from aucmedi.neural_network.architectures.image.mobilenet import MobileNet
+from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
 # NasNet
-from aucmedi.neural_network.architectures.image.nasnetlarge import Architecture_NASNetLarge
-from aucmedi.neural_network.architectures.image.nasnetmobile import Architecture_NASNetMobile
+from aucmedi.neural_network.architectures.image.nasnetlarge import NASNetLarge
+from aucmedi.neural_network.architectures.image.nasnetmobile import NASNetMobile
 # VGG
-from aucmedi.neural_network.architectures.image.vgg16 import Architecture_VGG16
-from aucmedi.neural_network.architectures.image.vgg19 import Architecture_VGG19
+from aucmedi.neural_network.architectures.image.vgg16 import VGG16
+from aucmedi.neural_network.architectures.image.vgg19 import VGG19
 # Xception
-from aucmedi.neural_network.architectures.image.xception import Architecture_Xception
+from aucmedi.neural_network.architectures.image.xception import Xception
 # Vision Transformer (ViT)
-from aucmedi.neural_network.architectures.image.vit_b16 import Architecture_ViT_B16
-from aucmedi.neural_network.architectures.image.vit_b32 import Architecture_ViT_B32
-from aucmedi.neural_network.architectures.image.vit_l16 import Architecture_ViT_L16
-from aucmedi.neural_network.architectures.image.vit_l32 import Architecture_ViT_L32
+from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
+from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
+from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
+from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
 #-----------------------------------------------------#
 # Architecture Dictionary
 architecture_dict = {
-    "Vanilla": Architecture_Vanilla,
-    "ResNet50": Architecture_ResNet50,
-    "ResNet101": Architecture_ResNet101,
-    "ResNet152": Architecture_ResNet152,
-    "ResNet50V2": Architecture_ResNet50V2,
-    "ResNet101V2": Architecture_ResNet101V2,
-    "ResNet152V2": Architecture_ResNet152V2,
-    "ResNeXt50": Architecture_ResNeXt50,
-    "ResNeXt101": Architecture_ResNeXt101,
-    "DenseNet121": Architecture_DenseNet121,
-    "DenseNet169": Architecture_DenseNet169,
-    "DenseNet201": Architecture_DenseNet201,
-    "EfficientNetB0": Architecture_EfficientNetB0,
-    "EfficientNetB1": Architecture_EfficientNetB1,
-    "EfficientNetB2": Architecture_EfficientNetB2,
-    "EfficientNetB3": Architecture_EfficientNetB3,
-    "EfficientNetB4": Architecture_EfficientNetB4,
-    "EfficientNetB5": Architecture_EfficientNetB5,
-    "EfficientNetB6": Architecture_EfficientNetB6,
-    "EfficientNetB7": Architecture_EfficientNetB7,
-    "InceptionResNetV2": Architecture_InceptionResNetV2,
-    "InceptionV3": Architecture_InceptionV3,
-    "MobileNet": Architecture_MobileNet,
-    "MobileNetV2": Architecture_MobileNetV2,
-    "NASNetMobile": Architecture_NASNetMobile,
-    "NASNetLarge": Architecture_NASNetLarge,
-    "VGG16": Architecture_VGG16,
-    "VGG19": Architecture_VGG19,
-    "Xception": Architecture_Xception,
-    "ViT_B16": Architecture_ViT_B16,
-    "ViT_B32": Architecture_ViT_B32,
-    "ViT_L16": Architecture_ViT_L16,
-    "ViT_L32": Architecture_ViT_L32,
+    "Vanilla": Vanilla,
+    "ResNet50": ResNet50,
+    "ResNet101": ResNet101,
+    "ResNet152": ResNet152,
+    "ResNet50V2": ResNet50V2,
+    "ResNet101V2": ResNet101V2,
+    "ResNet152V2": ResNet152V2,
+    "ResNeXt50": ResNeXt50,
+    "ResNeXt101": ResNeXt101,
+    "DenseNet121": DenseNet121,
+    "DenseNet169": DenseNet169,
+    "DenseNet201": DenseNet201,
+    "EfficientNetB0": EfficientNetB0,
+    "EfficientNetB1": EfficientNetB1,
+    "EfficientNetB2": EfficientNetB2,
+    "EfficientNetB3": EfficientNetB3,
+    "EfficientNetB4": EfficientNetB4,
+    "EfficientNetB5": EfficientNetB5,
+    "EfficientNetB6": EfficientNetB6,
+    "EfficientNetB7": EfficientNetB7,
+    "InceptionResNetV2": InceptionResNetV2,
+    "InceptionV3": InceptionV3,
+    "MobileNet": MobileNet,
+    "MobileNetV2": MobileNetV2,
+    "NASNetMobile": NASNetMobile,
+    "NASNetLarge": NASNetLarge,
+    "VGG16": VGG16,
+    "VGG19": VGG19,
+    "Xception": Xception,
+    "ViT_B16": ViT_B16,
+    "ViT_B32": ViT_B32,
+    "ViT_L16": ViT_L16,
+    "ViT_L32": ViT_L32,
 }
 """ Dictionary of implemented 2D Architectures Methods in AUCMEDI.
 
-    The base key (str) or an initialized Architecture can be passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class as `architecture` parameter.
+    The base key (str) or an initialized Architecture can be passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class as `architecture` parameter.
 
     ???+ example "Example"
-        ```python title="Recommended via Neural_Network class"
-        my_model = Neural_Network(n_labels=4, channels=3, architecture="2D.Xception",
+        ```python title="Recommended via NeuralNetwork class"
+        my_model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.Xception",
                                   input_shape(512, 512), activation_output="softmax")
         ```
 
@@ -125,22 +125,22 @@ architecture_dict = {
         my_arch = architecture_dict["2D.Xception"](classification_head,
                                                    channels=3, input_shape=(512,512))
 
-        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
         ```
 
         ```python title="Manual via module import"
         from aucmedi.neural_network.architectures import Classifier
-        from aucmedi.neural_network.architectures.image import Architecture_Xception
+        from aucmedi.neural_network.architectures.image import Xception
 
         classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = Architecture_Xception(classification_head,
+        my_arch = Xception(classification_head,
                                         channels=3, input_shape=(512,512))
 
-        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
         ```
 
     ???+ warning
-        If passing an architecture key to the Neural_Network class, be aware that you have to add "2D." in front of it.
+        If passing an architecture key to the NeuralNetwork class, be aware that you have to add "2D." in front of it.
 
         For example:
         ```python
@@ -202,8 +202,8 @@ supported_standardize_mode = {
         However, if training via transfer learning, it is required to use the recommended Standardize technique!
 
     ???+ example "Example"
-        ```python title="Recommended via the Neural_Network class"
-        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        ```python title="Recommended via the NeuralNetwork class"
+        my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.meta_input,                  # (224, 224)

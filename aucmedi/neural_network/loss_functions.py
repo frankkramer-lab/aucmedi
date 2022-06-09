@@ -38,7 +38,7 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
         from aucmedi.neural_network.loss_functions import *
         my_loss = binary_focal_loss(alpha=0.75)
 
-        model = Neural_Network(n_labels=1, channels=3, loss=my_loss)
+        model = NeuralNetwork(n_labels=1, channels=3, loss=my_loss)
         ```
 
     ??? abstract "Reference - Implementation"
@@ -57,7 +57,7 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
 
     Returns:
         loss (Loss Function):               A TensorFlow compatible loss function. This object can be
-                                            passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] `loss` parameter.
+                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
     """
     def binary_focal_loss_fixed(y_true, y_pred):
         y_true = tf.cast(y_true, tf.float32)
@@ -112,7 +112,7 @@ def categorical_focal_loss(alpha, gamma=2.0):
         from aucmedi.neural_network.loss_functions import *
         my_loss = categorical_focal_loss(alpha=cw_loss)
 
-        model = Neural_Network(n_labels=6, channels=3, loss=my_loss)
+        model = NeuralNetwork(n_labels=6, channels=3, loss=my_loss)
         ```
 
     ??? abstract "Reference - Implementation"
@@ -133,7 +133,7 @@ def categorical_focal_loss(alpha, gamma=2.0):
 
     Returns:
         loss (Loss Function):               A TensorFlow compatible loss function. This object can be
-                                            passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] `loss` parameter.
+                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
     """
     alpha = np.array(alpha, dtype=np.float32)
 
@@ -170,7 +170,7 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
         from aucmedi.neural_network.loss_functions import *
         my_loss = multilabel_focal_loss(alpha=class_weights)
 
-        model = Neural_Network(n_labels=6, channels=3, loss=my_loss,
+        model = NeuralNetwork(n_labels=6, channels=3, loss=my_loss,
                                activation_output="sigmoid")
         ```
 
@@ -192,7 +192,7 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
                                             if True labels are sparse. Default value (1.0).
     Returns:
         loss (Loss Function):               A TensorFlow compatible loss function. This object can be
-                                            passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] `loss` parameter.
+                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
     """
     class_weights = K.constant(class_weights, tf.float32)
     gamma = K.constant(gamma, tf.float32)

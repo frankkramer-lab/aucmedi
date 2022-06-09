@@ -40,7 +40,7 @@ def compute_class_weights(ohe_array, method="balanced"):
         cw_loss, cw_fit = compute_class_weights(class_ohe)
 
         # Provide class weights to loss function
-        model = Neural_Network(nclasses, channels=3, loss=categorical_focal_loss(cw_loss))
+        model = NeuralNetwork(nclasses, channels=3, loss=categorical_focal_loss(cw_loss))
 
         # Provide class weights to keras fit()
         model.train(index_list, epochs=50, class_weights=cw_fit)
@@ -57,7 +57,7 @@ def compute_class_weights(ohe_array, method="balanced"):
     Returns:
         class_weights_list (numpy.ndarray):     Class weight list which can be feeded to a loss function.
         class_weights_dict (dict):              Class weight dictionary which can be feeded to
-                                                [train()][aucmedi.neural_network.model.Neural_Network.train]
+                                                [train()][aucmedi.neural_network.model.NeuralNetwork.train]
                                                 or keras.model.fit().
     """
     # Obtain sparse categorical array and number of classes

@@ -29,16 +29,16 @@ Additionally, AUCMEDI offers architectures for 2D image and 3D volume classifica
 
 ???+ example "Example: How to select an Architecture"
     For architecture selection, just create a key (str) by adding "2D." or "3D." to the architecture name,
-    and pass the key to the `architecture` parameter of the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class.
+    and pass the key to the `architecture` parameter of the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
 
     ```python
     # 2D architecture
-    my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+    my_model_a = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
     # 3D architecture for multi-label classification (sigmoid activation)
-    my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50",
+    my_model_b = NeuralNetwork(n_labels=8, channels=3, architecture="3D.ResNet50",
                                 activation_output="sigmoid")
     # 2D architecture with custom input_shape
-    my_model_c = Neural_Network(n_labels=8, channels=3, architecture="2D.Xception",
+    my_model_c = NeuralNetwork(n_labels=8, channels=3, architecture="2D.Xception",
                                 input_shape=(512,512))
     ```
 
@@ -54,7 +54,7 @@ for architectures offers the possibility for custom architecture integration int
 
 Furthermore, AUCMEDI offers the powerful classification head interface [Classifier][aucmedi.neural_network.architectures.classifier],
 which can be used for all types of image classifications and will be automatically created in the
-[Neural_Network][aucmedi.neural_network.model.Neural_Network] class.
+[NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
 """
 #-----------------------------------------------------#
 #               General library imports               #

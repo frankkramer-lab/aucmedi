@@ -57,7 +57,7 @@ def evaluate_performance(preds,
         (samples, class_ohe, nclasses, class_names, image_format) = ds
 
         # Initialize model
-        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
 
         # Do some predictions
         datagen_test = DataGenerator(samples, "dataset/images/", labels=None,
@@ -95,7 +95,7 @@ def evaluate_performance(preds,
 
     Args:
         preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [Neural_Network][aucmedi.neural_network.model].
+                                        [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         out_path (str):                 Path to directory in which plotted figures are stored.

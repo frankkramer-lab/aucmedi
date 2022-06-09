@@ -49,7 +49,7 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #           Architecture class: ResNet152             #
 #-----------------------------------------------------#
-class Architecture_ResNet152(Architecture_Base):
+class ResNet152(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -68,8 +68,8 @@ class Architecture_ResNet152(Architecture_Base):
         else : model_weights = None
 
         # Obtain ResNet152 as base model
-        ResNet152, preprocess_input = Classifiers.get("resnet152")
-        base_model = ResNet152(include_top=False, weights=model_weights,
+        BaseModel, preprocess_input = Classifiers.get("resnet152")
+        base_model = BaseModel(include_top=False, weights=model_weights,
                                input_tensor=None, input_shape=self.input,
                                pooling=None)
         top_model = base_model.output

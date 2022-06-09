@@ -29,7 +29,7 @@ import numpy as np
 from aucmedi import *
 
 #-----------------------------------------------------#
-#              Unittest: Neural_Network               #
+#              Unittest: NeuralNetwork               #
 #-----------------------------------------------------#
 class NeuralNetworkTEST(unittest.TestCase):
     # Create random imaging and classification data
@@ -67,20 +67,20 @@ class NeuralNetworkTEST(unittest.TestCase):
     #                  Model Training                 #
     #-------------------------------------------------#
     def test_training_pure(self):
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         hist = model.train(training_generator=self.datagen,
                            epochs=3)
         self.assertTrue("loss" in hist)
 
     def test_training_validation(self):
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         hist = model.train(training_generator=self.datagen,
                            validation_generator=self.datagen,
                            epochs=4)
         self.assertTrue("loss" in hist and "val_loss" in hist)
 
     def test_training_transferlearning(self):
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         model.tf_epochs = 2
         hist = model.train(training_generator=self.datagen,
                            validation_generator=self.datagen,
@@ -92,7 +92,7 @@ class NeuralNetworkTEST(unittest.TestCase):
     #                 Model Inference                 #
     #-------------------------------------------------#
     def test_predict(self):
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         preds = model.predict(self.datagen)
         self.assertTrue(preds.shape == (1, 4))
         self.assertTrue(np.sum(preds) >= 0.99 and np.sum(preds) <= 1.01)

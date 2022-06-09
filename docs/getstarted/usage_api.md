@@ -6,7 +6,7 @@ AUCMEDI is based on 3 pillars which allow building any state-of-the-art medical 
     | Pillar                                                                    | Type     | Description                                                       |
     | ------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
     | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Function | Obtaining general information from the dataset.                   |
-    | #2: [Neural_Network][aucmedi.neural_network.model.Neural_Network]         | Class    | Building the deep learning model.                                 | 
+    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]         | Class    | Building the deep learning model.                                 | 
     | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Class    | Powerful interface for loading any images/volumes into the model. |
 
 The different pillars are represented in Python as function and classes.
@@ -15,7 +15,7 @@ The pillar interface of AUCMEDI combines intuitive and straightforward setup wit
 of detailed custom specification.
 
 ![Figure: AUCMEDI Pillars](../images/aucmedi.pillars.png)
-*Flowchart diagram of the AUCMEDI pipeline showing the three pillars acting as access points: input_interface() for extracting relevant dataset information, Neural_Network for building the deep learning model and DataGenerator for data loading as well as preprocessing.*
+*Flowchart diagram of the AUCMEDI pipeline showing the three pillars acting as access points: input_interface() for extracting relevant dataset information, NeuralNetwork for building the deep learning model and DataGenerator for data loading as well as preprocessing.*
 
 ## Basic Usage
 
@@ -42,7 +42,7 @@ ds = input_interface(interface="csv",
 (index_list, class_ohe, nclasses, class_names, image_format) = ds
 
 # Pillar #2: Initialize a DenseNet121 model with ImageNet weights
-model = Neural_Network(n_labels=nclasses, channels=3,
+model = NeuralNetwork(n_labels=nclasses, channels=3,
                        architecture="2D.DenseNet121",
                        pretrained_weights=True)
 ```

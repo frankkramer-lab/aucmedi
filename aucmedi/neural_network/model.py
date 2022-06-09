@@ -32,7 +32,7 @@ from aucmedi.neural_network.architectures import architecture_dict, \
 #            Neural Network (model) class             #
 #-----------------------------------------------------#
 # Class which represents the Neural Network
-class Neural_Network:
+class NeuralNetwork:
     """ Neural Network class providing functionality for handling all model methods.
 
     This class is the third of the three pillars of AUCMEDI.
@@ -40,14 +40,14 @@ class Neural_Network:
     ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
         - [aucmedi.data_processing.data_generator.DataGenerator][]
-        - [aucmedi.neural_network.model.Neural_Network][]
+        - [aucmedi.neural_network.model.NeuralNetwork][]
 
     With an initialized Neural Network model instance, it is possible to run training and predictions.
 
     ??? example "Example: How to use"
         ```python
         # Initialize model
-        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
         # Do some training
         datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
                                       resize=model.meta_input, standardize_mode=model.meta_standardize)
@@ -61,12 +61,12 @@ class Neural_Network:
     ??? example "Example: How to select an Architecture"
         ```python
         # 2D architecture
-        my_model_a = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        my_model_a = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
         # 3D architecture for multi-label classification (sigmoid activation)
-        my_model_b = Neural_Network(n_labels=8, channels=3, architecture="3D.ResNet50",
+        my_model_b = NeuralNetwork(n_labels=8, channels=3, architecture="3D.ResNet50",
                                     activation_output="sigmoid")
         # 2D architecture with custom input_shape
-        my_model_c = Neural_Network(n_labels=8, channels=3, architecture="2D.Xception",
+        my_model_c = NeuralNetwork(n_labels=8, channels=3, architecture="2D.Xception",
                                     input_shape=(512,512))
         ```
 
@@ -92,7 +92,7 @@ class Neural_Network:
         However, the recommended parameter are required for transfer learning.
 
         ```python title="Recommended way"
-        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121")
+        my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.meta_input,                  # (224,224)
@@ -109,7 +109,7 @@ class Neural_Network:
                                                       channels=1,
                                                       input_shape=(128,128,128))
 
-        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
 
         from aucmedi.neural_network.architectures import supported_standardize_mode
         sf_norm = supported_standardize_mode["3D.DenseNet121"]
@@ -125,7 +125,7 @@ class Neural_Network:
 
         my_metadata = np.random.rand(len(samples), 10)
 
-        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121",
+        my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
         my_dg = DataGenerator(samples, "images_dir/",
@@ -380,7 +380,7 @@ class Neural_Network:
     def reset_weights(self):
         """ Re-initialize weights of the neural network model.
 
-        Useful for training multiple models with the same Neural_Network object.
+        Useful for training multiple models with the same NeuralNetwork object.
         """
         self.model.set_weights(self.initialization_weights)
 

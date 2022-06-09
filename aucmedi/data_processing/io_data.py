@@ -41,14 +41,14 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     Different image file structures and annotation information are processed by
     corresponding format interfaces. These extracted information can be parsed to the
     [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] and the
-    [Neural_Network][aucmedi.neural_network.model.Neural_Network].
+    [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork].
 
     The input_interface() function is the first of the three pillars of AUCMEDI.
 
     ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
         - [aucmedi.data_processing.data_generator.DataGenerator][]
-        - [aucmedi.neural_network.model.Neural_Network][]
+        - [aucmedi.neural_network.model.NeuralNetwork][]
 
     Basically a wrapper function for calling the correct format interface,
     which loads a dataset from disk via the associated format parser.
@@ -93,7 +93,7 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     Returns:
         index_list (list of str):       List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
         class_ohe (numpy.ndarray):      Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
-        class_n (int):                  Number of classes. Required in Neural_Network for Architecture design as `n_labels`.
+        class_n (int):                  Number of classes. Required in NeuralNetwork for Architecture design as `n_labels`.
         class_names (list of str):      List of names for corresponding classes. Used for later prediction storage or evaluation.
         image_format (str):             Image format to add at the end of the sample index for image loading. Required in DataGenerator.
     """

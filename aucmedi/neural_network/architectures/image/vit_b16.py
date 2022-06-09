@@ -89,7 +89,7 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #     Architecture class: Vision Transformer (ViT)    #
 #-----------------------------------------------------#
-class Architecture_ViT_B16(Architecture_Base):
+class ViT_B16(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#

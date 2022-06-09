@@ -49,7 +49,7 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #           Architecture class: DenseNet201           #
 #-----------------------------------------------------#
-class Architecture_DenseNet201(Architecture_Base):
+class DenseNet201(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -68,10 +68,10 @@ class Architecture_DenseNet201(Architecture_Base):
         else : model_weights = None
 
         # Obtain DenseNet201 as base model
-        DenseNet201, preprocess_input = Classifiers.get("densenet201")
-        base_model = DenseNet201(include_top=False, weights=model_weights,
-                                 input_tensor=None, input_shape=self.input,
-                                 pooling=None)
+        BaseModel, preprocess_input = Classifiers.get("densenet201")
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

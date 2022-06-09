@@ -29,7 +29,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 #-----------------------------------------------------#
 #           Metalearner: MLP Neural Network           #
 #-----------------------------------------------------#
-class MLP_NeuralNetwork(Metalearner_Base):
+class MLP(Metalearner_Base):
     """ An MLP Neural Network (scikit-learn) based Metalearner.
 
     This class should be passed to an ensemble function/class like Stacking for combining predictions.

@@ -19,14 +19,14 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" A pillar of any AUCMEDI pipeline: [aucmedi.neural_network.model.Neural_Network][]
+""" A pillar of any AUCMEDI pipeline: [aucmedi.neural_network.model.NeuralNetwork][]
 
 The Neural Network class is a powerful interface to the deep neural network world in AUCMEDI.
 
 ???+ info "Pillars of AUCMEDI"
     - [aucmedi.data_processing.io_data.input_interface][]
     - [aucmedi.data_processing.data_generator.DataGenerator][]
-    - [aucmedi.neural_network.model.Neural_Network][]
+    - [aucmedi.neural_network.model.NeuralNetwork][]
 
 With an initialized Neural Network instance, it is possible to run training and predictions.
 
@@ -36,7 +36,7 @@ With an initialized Neural Network instance, it is possible to run training and 
     from aucmedi import *
 
     # Initialize model
-    model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+    model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
 
     # Do some training
     datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],

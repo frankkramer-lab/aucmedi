@@ -42,8 +42,8 @@ Example: [[0.4, 0.3, 0.3]]
     preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate="majority_vote")
 
     # Manual: Apply an Ensemble like Augmenting (test-time augmentation) with Majority Vote
-    from aucmedi.ensemble.aggregate import Majority_Vote
-    my_agg = Majority_Vote()
+    from aucmedi.ensemble.aggregate import MajorityVote
+    my_agg = MajorityVote()
     preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate=my_agg)
     ```
 
@@ -54,19 +54,19 @@ which allows simple integration of custom aggregate methods for Ensemble.
 #                   Library imports                   #
 #-----------------------------------------------------#
 # Import aggregate functions
-from aucmedi.ensemble.aggregate.averaging_mean import Averaging_Mean
-from aucmedi.ensemble.aggregate.averaging_median import Averaging_Median
-from aucmedi.ensemble.aggregate.majority_vote import Majority_Vote
+from aucmedi.ensemble.aggregate.averaging_mean import AveragingMean
+from aucmedi.ensemble.aggregate.averaging_median import AveragingMedian
+from aucmedi.ensemble.aggregate.majority_vote import MajorityVote
 from aucmedi.ensemble.aggregate.softmax import Softmax
-from aucmedi.ensemble.aggregate.global_argmax import Global_Argmax
+from aucmedi.ensemble.aggregate.global_argmax import GlobalArgmax
 
 #-----------------------------------------------------#
 #       Access Functions to Aggregate Functions       #
 #-----------------------------------------------------#
-aggregate_dict = {"mean": Averaging_Mean,
-                  "median": Averaging_Median,
-                  "majority_vote": Majority_Vote,
+aggregate_dict = {"mean": AveragingMean,
+                  "median": AveragingMedian,
+                  "majority_vote": MajorityVote,
                   "softmax": Softmax,
-                  "global_argmax": Global_Argmax,
+                  "global_argmax": GlobalArgmax,
 }
 """ Dictionary of implemented Aggregate functions. """

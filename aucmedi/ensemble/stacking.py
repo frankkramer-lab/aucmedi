@@ -47,16 +47,16 @@ class Stacking:
 
     In AUCMEDI, a percentage split is applied on the dataset into the subsets: train, validation and ensemble.
 
-    On the train and validation subsets, one or multiple predefined [Neural_Network][aucmedi.neural_network.model]
+    On the train and validation subsets, one or multiple predefined [NeuralNetwork][aucmedi.neural_network.model]
     models are trained, whereas on the ensemble subset a metalearner is fitted to merge
-    [Neural_Network][aucmedi.neural_network.model] model predictions into a single one.
+    [NeuralNetwork][aucmedi.neural_network.model] model predictions into a single one.
 
     ???+ example
         ```python
-        # Initialize some Neural_Network models
-        model_a = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet50")
-        model_b = Neural_Network(n_labels=4, channels=3, architecture="2D.MobileNetV2")
-        model_c = Neural_Network(n_labels=4, channels=3, architecture="2D.EfficientNetB1")
+        # Initialize some NeuralNetwork models
+        model_a = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50")
+        model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
+        model_c = NeuralNetwork(n_labels=4, channels=3, architecture="2D.EfficientNetB1")
 
         # Initialize Stacking object
         el = Stacking(model_list=[model_a, model_b, model_c],
@@ -104,7 +104,7 @@ class Stacking:
         """ Initialization function for creating a Stacking object.
 
         Args:
-            model_list (list of Neural_Network):        List of instances of AUCMEDI neural network class.
+            model_list (list of NeuralNetwork):        List of instances of AUCMEDI neural network class.
             metalearner (str, Metalearner or Aggregate):Metalearner class instance / a string for an AUCMEDI Metalearner,
                                                         or Aggregate function / a string for an AUCMEDI Aggregate function.
             sampling (list of float):                   List of percentage values with split sizes. Should be 3x percentage values
@@ -143,7 +143,7 @@ class Stacking:
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
-        For more information on the fitting process, check out [Neural_Network.train()][aucmedi.neural_network.model.Neural_Network.train].
+        For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according
@@ -255,7 +255,7 @@ class Stacking:
 
         However, this function can also be called multiple times for training
         different Metalearner types without the need of time-extensive
-        re-training of the [Neural_Network][aucmedi.neural_network.model] models.
+        re-training of the [NeuralNetwork][aucmedi.neural_network.model] models.
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according
@@ -495,7 +495,7 @@ class Stacking:
 #-----------------------------------------------------#
 #                     Subroutines                     #
 #-----------------------------------------------------#
-# Internal function for training a Neural_Network model in a separate process
+# Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, model, data_train, data_val, datagen_paras,
                          train_paras):
     # Extract data
@@ -539,12 +539,12 @@ def __training_process__(queue, model, data_train, data_val, datagen_paras,
                                loader=datagen_paras["loader"],
                                workers=datagen_paras["workers"],
                                **datagen_paras["kwargs"])
-    # Start Neural_Network training
+    # Start NeuralNetwork training
     nn_history = model.train(nn_train_gen, nn_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(nn_history)
 
-# Internal function for inference with a fitted Neural_Network model in a separate process
+# Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model, path_model, data_test, datagen_paras):
     # Extract data
     (test_x, test_y, test_m) = data_test

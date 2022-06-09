@@ -56,7 +56,7 @@ Methods:
     __init__                Object creation function
     create_model:           Creating the MobileNet model for classification
 """
-class Architecture_MobileNet(Architecture_Base):
+class MobileNet(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -75,10 +75,10 @@ class Architecture_MobileNet(Architecture_Base):
         else : model_weights = None
 
         # Obtain MobileNet as base model
-        MobileNet, preprocess_input = Classifiers.get("mobilenet")
-        base_model = MobileNet(include_top=False, weights=model_weights,
-                              input_tensor=None, input_shape=self.input,
-                              pooling=None)
+        BaseModel, preprocess_input = Classifiers.get("mobilenet")
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

@@ -40,14 +40,14 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import EfficientNetB3
+from tensorflow.keras.applications import EfficientNetB3 as BaseModel
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
 #          Architecture class: EfficientNetB3         #
 #-----------------------------------------------------#
-class Architecture_EfficientNetB3(Architecture_Base):
+class EfficientNetB3(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -66,9 +66,9 @@ class Architecture_EfficientNetB3(Architecture_Base):
         else : model_weights = None
 
         # Obtain EfficientNet as base model
-        base_model = EfficientNetB3(include_top=False, weights=model_weights,
-                                    input_tensor=None, input_shape=self.input,
-                                    pooling=None)
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

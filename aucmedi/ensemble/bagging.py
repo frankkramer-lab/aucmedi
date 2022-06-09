@@ -46,8 +46,8 @@ class Bagging:
 
     ???+ example
         ```python
-        # Initialize Neural_Network model
-        model = Neural_Network(n_labels=4, channels=3, architecture="2D.ResNet50")
+        # Initialize NeuralNetwork model
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50")
 
         # Initialize Bagging object for 3-fold cross-validation
         el = Bagging(model, k_fold=3)
@@ -96,7 +96,7 @@ class Bagging:
         """ Initialization function for creating a Bagging object.
 
         Args:
-            model (Neural_Network):         Instance of an AUCMEDI neural network class.
+            model (NeuralNetwork):         Instance of an AUCMEDI neural network class.
             k_fold (int):                   Number of folds (k) for the Cross-Validation. Must be at least 2.
         """
         # Cache class variables
@@ -116,7 +116,7 @@ class Bagging:
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
-        For more information on the fitting process, check out [Neural_Network.train()][aucmedi.neural_network.model.Neural_Network.train].
+        For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according to k-fold sampling).
@@ -355,7 +355,7 @@ class Bagging:
 #-----------------------------------------------------#
 #                     Subroutines                     #
 #-----------------------------------------------------#
-# Internal function for training a Neural_Network model in a separate process
+# Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, model, data, datagen_paras, train_paras):
     (train_x, train_y, train_m, test_x, test_y, test_m) = data
     # Build training DataGenerator
@@ -396,12 +396,12 @@ def __training_process__(queue, model, data, datagen_paras, train_paras):
                                loader=datagen_paras["loader"],
                                workers=datagen_paras["workers"],
                                **datagen_paras["kwargs"])
-    # Start Neural_Network training
+    # Start NeuralNetwork training
     cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(cv_history)
 
-# Internal function for inference with a fitted Neural_Network model in a separate process
+# Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model, path_model, datagen_paras):
     # Create inference DataGenerator
     cv_pred_gen = DataGenerator(datagen_paras["samples"],

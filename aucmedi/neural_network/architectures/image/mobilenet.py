@@ -41,14 +41,14 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import MobileNet
+from tensorflow.keras.applications import MobileNet as BaseModel
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
 #            Architecture class: MobileNet            #
 #-----------------------------------------------------#
-class Architecture_MobileNet(Architecture_Base):
+class MobileNet(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -67,7 +67,7 @@ class Architecture_MobileNet(Architecture_Base):
         else : model_weights = None
 
         # Obtain MobileNet as base model
-        base_model = MobileNet(include_top=False, weights=model_weights,
+        base_model = BaseModel(include_top=False, weights=model_weights,
                               input_tensor=None, input_shape=self.input,
                               pooling=None)
         top_model = base_model.output

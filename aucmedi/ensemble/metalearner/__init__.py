@@ -46,29 +46,29 @@ which allows simple integration of custom Metalearners for Ensemble.
 #                   Library imports                   #
 #-----------------------------------------------------#
 # Import metalearners
-from aucmedi.ensemble.metalearner.logistic_regression import Logistic_Regression
-from aucmedi.ensemble.metalearner.naive_bayes import Naive_Bayes
+from aucmedi.ensemble.metalearner.logistic_regression import LogisticRegression
+from aucmedi.ensemble.metalearner.naive_bayes import NaiveBayes
 from aucmedi.ensemble.metalearner.support_vector_machine import SupportVectorMachine
-from aucmedi.ensemble.metalearner.gaussian_process import Gaussian_Process
-from aucmedi.ensemble.metalearner.decision_tree import Decision_Tree
-from aucmedi.ensemble.metalearner.best_model import Best_Model
-from aucmedi.ensemble.metalearner.averaging_mean_weighted import Averaging_WeightedMean
-from aucmedi.ensemble.metalearner.random_forest import Random_Forest
+from aucmedi.ensemble.metalearner.gaussian_process import GaussianProcess
+from aucmedi.ensemble.metalearner.decision_tree import DecisionTree
+from aucmedi.ensemble.metalearner.best_model import BestModel
+from aucmedi.ensemble.metalearner.averaging_mean_weighted import AveragingWeightedMean
+from aucmedi.ensemble.metalearner.random_forest import RandomForest
 from aucmedi.ensemble.metalearner.k_neighbors import KNearestNeighbors
-from aucmedi.ensemble.metalearner.mlp_neural_network import MLP_NeuralNetwork
+from aucmedi.ensemble.metalearner.mlp import MLP
 
 #-----------------------------------------------------#
 #           Access Functions to Metalearners          #
 #-----------------------------------------------------#
-metalearner_dict = {"logistic_regression": Logistic_Regression,
-                    "naive_bayes": Naive_Bayes,
+metalearner_dict = {"logistic_regression": LogisticRegression,
+                    "naive_bayes": NaiveBayes,
                     "support_vector_machine": SupportVectorMachine,
-                    "gaussian_process": Gaussian_Process,
-                    "decision_tree": Decision_Tree,
-                    "best_model": Best_Model,
-                    "weighted_mean": Averaging_WeightedMean,
-                    "random_forest": Random_Forest,
+                    "gaussian_process": GaussianProcess,
+                    "decision_tree": DecisionTree,
+                    "best_model": BestModel,
+                    "weighted_mean": AveragingWeightedMean,
+                    "random_forest": RandomForest,
                     "k_neighbors": KNearestNeighbors,
-                    "mlp_neural_network": MLP_NeuralNetwork,
+                    "mlp": MLP,
 }
 """ Dictionary of implemented Metalearners. """

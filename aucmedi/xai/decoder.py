@@ -53,7 +53,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         datagen = DataGenerator(samples[:3], "images_xray/", labels=None, resize=(299, 299))
 
         # Get a model
-        model = Neural_Network(n_labels=3, channels=3, architecture="Xception",
+        model = NeuralNetwork(n_labels=3, channels=3, architecture="Xception",
                                input_shape=(299,299))
         model.load("model.xray.hdf5")
 
@@ -66,7 +66,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 
     Args:
         data_gen (DataGenerator):           A data generator which will be used for inference.
-        model (Neural_Network):             Instance of a AUCMEDI neural network class.
+        model (NeuralNetwork):             Instance of a AUCMEDI neural network class.
         preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
         method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI method.
         layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`, the last conv layer is used.

@@ -40,14 +40,14 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import InceptionResNetV2
+from tensorflow.keras.applications import InceptionResNetV2 as BaseModel
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
 #-----------------------------------------------------#
 #        Architecture class: InceptionResNetV2        #
 #-----------------------------------------------------#
-class Architecture_InceptionResNetV2(Architecture_Base):
+class InceptionResNetV2(Architecture_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -66,9 +66,9 @@ class Architecture_InceptionResNetV2(Architecture_Base):
         else : model_weights = None
 
         # Obtain InceptionResNetV2 as base model
-        base_model = InceptionResNetV2(include_top=False, weights=model_weights,
-                                       input_tensor=None, input_shape=self.input,
-                                       pooling=None)
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
         top_model = base_model.output
 
         # Add classification head

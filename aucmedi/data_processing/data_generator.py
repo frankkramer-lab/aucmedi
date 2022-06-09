@@ -38,7 +38,7 @@ class DataGenerator(Iterator):
     """ Infinite Data Generator which automatically creates batches from a list of samples.
 
     The created batches are model ready. This generator can be supplied directly
-    to a [Neural_Network][aucmedi.neural_network.model.Neural_Network] train() & predict()
+    to a [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] train() & predict()
     function (also compatible to tensorflow.keras.model fit() & predict() function).
 
     The DataGenerator is the second of the three pillars of AUCMEDI.
@@ -46,7 +46,7 @@ class DataGenerator(Iterator):
     ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
         - [aucmedi.data_processing.data_generator.DataGenerator][]
-        - [aucmedi.neural_network.model.Neural_Network][]
+        - [aucmedi.neural_network.model.NeuralNetwork][]
 
     The DataGenerator can be used for training, validation as well as for prediction.
 
@@ -56,7 +56,7 @@ class DataGenerator(Iterator):
         from aucmedi import *
 
         # Initialize model
-        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
 
         # Do some training
         datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
@@ -91,7 +91,7 @@ class DataGenerator(Iterator):
 
         my_metadata = np.random.rand(len(samples), 10)
 
-        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121",
+        my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
         my_dg = DataGenerator(samples, "images_dir/",

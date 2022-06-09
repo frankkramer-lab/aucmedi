@@ -23,55 +23,55 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 #                    Architectures                    #
 #-----------------------------------------------------#
 # Vanilla Classifier
-from aucmedi.neural_network.architectures.volume.vanilla import Architecture_Vanilla
+from aucmedi.neural_network.architectures.volume.vanilla import Vanilla
 # DenseNet
-from aucmedi.neural_network.architectures.volume.densenet121 import Architecture_DenseNet121
-from aucmedi.neural_network.architectures.volume.densenet169 import Architecture_DenseNet169
-from aucmedi.neural_network.architectures.volume.densenet201 import Architecture_DenseNet201
+from aucmedi.neural_network.architectures.volume.densenet121 import DenseNet121
+from aucmedi.neural_network.architectures.volume.densenet169 import DenseNet169
+from aucmedi.neural_network.architectures.volume.densenet201 import DenseNet201
 # ResNet
-from aucmedi.neural_network.architectures.volume.resnet18 import Architecture_ResNet18
-from aucmedi.neural_network.architectures.volume.resnet34 import Architecture_ResNet34
-from aucmedi.neural_network.architectures.volume.resnet50 import Architecture_ResNet50
-from aucmedi.neural_network.architectures.volume.resnet101 import Architecture_ResNet101
-from aucmedi.neural_network.architectures.volume.resnet152 import Architecture_ResNet152
+from aucmedi.neural_network.architectures.volume.resnet18 import ResNet18
+from aucmedi.neural_network.architectures.volume.resnet34 import ResNet34
+from aucmedi.neural_network.architectures.volume.resnet50 import ResNet50
+from aucmedi.neural_network.architectures.volume.resnet101 import ResNet101
+from aucmedi.neural_network.architectures.volume.resnet152 import ResNet152
 # ResNeXt
-from aucmedi.neural_network.architectures.volume.resnext50 import Architecture_ResNeXt50
-from aucmedi.neural_network.architectures.volume.resnext101 import Architecture_ResNeXt101
+from aucmedi.neural_network.architectures.volume.resnext50 import ResNeXt50
+from aucmedi.neural_network.architectures.volume.resnext101 import ResNeXt101
 # MobileNet
-from aucmedi.neural_network.architectures.volume.mobilenet import Architecture_MobileNet
-from aucmedi.neural_network.architectures.volume.mobilenetv2 import Architecture_MobileNetV2
+from aucmedi.neural_network.architectures.volume.mobilenet import MobileNet
+from aucmedi.neural_network.architectures.volume.mobilenetv2 import MobileNetV2
 # VGG
-from aucmedi.neural_network.architectures.volume.vgg16 import Architecture_VGG16
-from aucmedi.neural_network.architectures.volume.vgg19 import Architecture_VGG19
+from aucmedi.neural_network.architectures.volume.vgg16 import VGG16
+from aucmedi.neural_network.architectures.volume.vgg19 import VGG19
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
 #-----------------------------------------------------#
 # Architecture Dictionary
 architecture_dict = {
-    "Vanilla": Architecture_Vanilla,
-    "DenseNet121": Architecture_DenseNet121,
-    "DenseNet169": Architecture_DenseNet169,
-    "DenseNet201": Architecture_DenseNet201,
-    "ResNet18": Architecture_ResNet18,
-    "ResNet34": Architecture_ResNet34,
-    "ResNet50": Architecture_ResNet50,
-    "ResNet101": Architecture_ResNet101,
-    "ResNet152": Architecture_ResNet152,
-    "ResNeXt50": Architecture_ResNeXt50,
-    "ResNeXt101": Architecture_ResNeXt101,
-    "MobileNet": Architecture_MobileNet,
-    "MobileNetV2": Architecture_MobileNetV2,
-    "VGG16": Architecture_VGG16,
-    "VGG19": Architecture_VGG19,
+    "Vanilla": Vanilla,
+    "DenseNet121": DenseNet121,
+    "DenseNet169": DenseNet169,
+    "DenseNet201": DenseNet201,
+    "ResNet18": ResNet18,
+    "ResNet34": ResNet34,
+    "ResNet50": ResNet50,
+    "ResNet101": ResNet101,
+    "ResNet152": ResNet152,
+    "ResNeXt50": ResNeXt50,
+    "ResNeXt101": ResNeXt101,
+    "MobileNet": MobileNet,
+    "MobileNetV2": MobileNetV2,
+    "VGG16": VGG16,
+    "VGG19": VGG19,
 }
 """ Dictionary of implemented 3D Architectures Methods in AUCMEDI.
 
-    The base key (str) or an initialized Architecture can be passed to the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class as `architecture` parameter.
+    The base key (str) or an initialized Architecture can be passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class as `architecture` parameter.
 
     ???+ example "Example"
-        ```python title="Recommended via Neural_Network class"
-        my_model = Neural_Network(n_labels=4, channels=1, architecture="3D.ResNet50",
+        ```python title="Recommended via NeuralNetwork class"
+        my_model = NeuralNetwork(n_labels=4, channels=1, architecture="3D.ResNet50",
                                   input_shape(128,128,128), activation_output="softmax")
         ```
 
@@ -81,22 +81,22 @@ architecture_dict = {
         classification_head = Classifier(n_labels=4, activation_output="softmax")
         my_arch = architecture_dict["3D.ResNet50"](classification_head,
                                                    channels=1, input_shape=(128,128,128))
-        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
         ```
 
         ```python title="Manual via module import"
         from aucmedi.neural_network.architectures import Classifier
-        from aucmedi.neural_network.architectures.volume import Architecture_ResNet50
+        from aucmedi.neural_network.architectures.volume import ResNet50
 
         classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = Architecture_ResNet50(classification_head,
+        my_arch = ResNet50(classification_head,
                                         channels=1, input_shape=(128,128,128))
 
-        my_model = Neural_Network(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
         ```
 
     ???+ warning
-        If passing an architecture key to the Neural_Network class, be aware that you have to add "3D." in front of it.
+        If passing an architecture key to the NeuralNetwork class, be aware that you have to add "3D." in front of it.
 
         For example:
         ```python
@@ -140,8 +140,8 @@ supported_standardize_mode = {
         However, if training via transfer learning, it is required to use the recommended Standardize technique!
 
     ???+ example "Example"
-        ```python title="Recommended via the Neural_Network class"
-        my_model = Neural_Network(n_labels=8, channels=3, architecture="3D.DenseNet121")
+        ```python title="Recommended via the NeuralNetwork class"
+        my_model = NeuralNetwork(n_labels=8, channels=3, architecture="3D.DenseNet121")
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.meta_input,                  # (64, 64, 64)

@@ -63,7 +63,7 @@ class xaiTEST(unittest.TestCase):
                                      labels=self.labels_ohe, resize=None,
                                      grayscale=False, batch_size=3)
         # Create Neural Network model
-        self.model = Neural_Network(n_labels=4, channels=3, input_shape=(32,32),
+        self.model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
                                     architecture="2D.Vanilla", batch_queue_size=1)
         # Compute predictions
         self.preds = self.model.predict(self.datagen)

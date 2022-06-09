@@ -29,7 +29,7 @@ from tensorflow.keras import Input, layers
 class Classifier:
     """ A powerful interface for all types of image classifications.
 
-    This class will be created automatically inside the [Neural_Network][aucmedi.neural_network.model.Neural_Network] class.
+    This class will be created automatically inside the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
 
     !!! info "Supported Features"
         - Binary classification
@@ -69,23 +69,23 @@ class Classifier:
         For more information on multi-class vs multi-label, check out this blog post from Rachel Draelos: <br>
         https://glassboxmedicine.com/2019/05/26/classification-sigmoid-vs-softmax/
 
-    The recommended way is to pass all required variables to the [Neural_Network][aucmedi.neural_network.model.Neural_Network]
+    The recommended way is to pass all required variables to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
     which automatically creates the Classifier and passes it to the Architecture.
 
     ???+ example
         ```python
-        # Recommended way (automatic creation in Neural_Network)
-        model = Neural_Network(n_labels=20, channels=3, batch_queue_size=1,
+        # Recommended way (automatic creation in NeuralNetwork)
+        model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
                                input_shape=(32, 32), activation_output="sigmoid",
                                fcl_dropout=False)
 
         # Manual way
         from aucmedi.neural_network.architectures import Classifier
-        from aucmedi.neural_network.architectures.image import Architecture_Vanilla
+        from aucmedi.neural_network.architectures.image import Vanilla
 
         classification_head = Classifier(n_labels=20, fcl_dropout=True,
                                          activation_output="sigmoid")
-        arch = Architecture_Vanilla(classification_head, channels=3,
+        arch = Vanilla(classification_head, channels=3,
                                     input_shape=(32, 32))
         ```
 
@@ -96,7 +96,7 @@ class Classifier:
 
         my_metadata = np.random.rand(len(samples), 10)
 
-        my_model = Neural_Network(n_labels=8, channels=3, architecture="2D.DenseNet121",
+        my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
         my_dg = DataGenerator(samples, "images_dir/",

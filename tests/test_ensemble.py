@@ -26,7 +26,7 @@ import os
 from PIL import Image
 import numpy as np
 #Internal libraries
-from aucmedi import DataGenerator, Neural_Network, Image_Augmentation, Volume_Augmentation
+from aucmedi import DataGenerator, NeuralNetwork, ImageAugmentation, VolumeAugmentation
 from aucmedi.data_processing.io_loader import numpy_loader
 from aucmedi.ensemble import *
 
@@ -64,11 +64,11 @@ class EnsembleTEST(unittest.TestCase):
             class_index = np.random.randint(0, 2)
             self.labels_ohe[i][class_index] = 1
         # Initialize model
-        self.model2D = Neural_Network(n_labels=2, channels=3,
+        self.model2D = NeuralNetwork(n_labels=2, channels=3,
                                       architecture="2D.Vanilla",
                                       batch_queue_size=1,
                                       input_shape=(16, 16))
-        self.model3D = Neural_Network(n_labels=2, channels=1,
+        self.model3D = NeuralNetwork(n_labels=2, channels=1,
                                       architecture="3D.Vanilla",
                                       batch_queue_size=1,
                                       input_shape=(16, 16, 16))
@@ -95,7 +95,7 @@ class EnsembleTEST(unittest.TestCase):
 
     def test_Augmenting_2D_customAug(self):
         # Test functionality with batch_size 10 and n_cycles = 1
-        my_aug = Image_Augmentation()
+        my_aug = ImageAugmentation()
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
                                 batch_size=10, resize=None, data_aug=my_aug,
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
@@ -124,7 +124,7 @@ class EnsembleTEST(unittest.TestCase):
 
     def test_Augmenting_3D_customAug(self):
         # Test functionality with self provided augmentation
-        my_aug = Volume_Augmentation()
+        my_aug = VolumeAugmentation()
         datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
                                 batch_size=3, resize=None, data_aug=my_aug,
                                 grayscale=True, two_dim=False, subfunctions=[],
@@ -269,8 +269,8 @@ class EnsembleTEST(unittest.TestCase):
         from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
         self.assertIsInstance(el.ml_model, Metalearner_Base)
         # Initialize Stacking object with direct ensembler call
-        from aucmedi.ensemble.metalearner import Logistic_Regression
-        ensembler = Logistic_Regression()
+        from aucmedi.ensemble.metalearner import LogisticRegression
+        ensembler = LogisticRegression()
         el = Stacking(model_list=[self.model2D],
                       metalearner=ensembler)
         # Some sanity checks
@@ -287,8 +287,8 @@ class EnsembleTEST(unittest.TestCase):
         from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
         self.assertIsInstance(el.ml_model, Aggregate_Base)
         # Initialize Stacking object with direct ensembler call
-        from aucmedi.ensemble.aggregate import Majority_Vote
-        ensembler = Majority_Vote()
+        from aucmedi.ensemble.aggregate import MajorityVote
+        ensembler = MajorityVote()
         el = Stacking(model_list=[self.model2D],
                       metalearner=ensembler)
         # Some sanity checks

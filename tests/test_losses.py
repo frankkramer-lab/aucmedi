@@ -64,7 +64,7 @@ class LossfunctionsTEST(unittest.TestCase):
     #          Keras Categorical Crossentropy         #
     #-------------------------------------------------#
     def test_Keras(self):
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
                                loss="categorical_crossentropy")
         model.train(self.datagen, epochs=1)
 
@@ -73,7 +73,7 @@ class LossfunctionsTEST(unittest.TestCase):
     #-------------------------------------------------#
     def test_FocalLoss_binary(self):
         lf = binary_focal_loss(alpha=0.25, gamma=2)
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
                                loss=lf)
         model.train(self.datagen, epochs=1)
 
@@ -82,7 +82,7 @@ class LossfunctionsTEST(unittest.TestCase):
     #-------------------------------------------------#
     def test_FocalLoss_categorical(self):
         lf = categorical_focal_loss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
                                loss=lf)
         model.train(self.datagen, epochs=1)
 
@@ -91,6 +91,6 @@ class LossfunctionsTEST(unittest.TestCase):
     #-------------------------------------------------#
     def test_FocalLoss_multilabel(self):
         lf = multilabel_focal_loss(class_weights=[0.25, 0.25, 0.5, 4.0], gamma=2)
-        model = Neural_Network(n_labels=4, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
                                loss=lf)
         model.train(self.datagen, epochs=1)

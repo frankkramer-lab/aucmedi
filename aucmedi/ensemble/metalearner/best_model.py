@@ -29,7 +29,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 #-----------------------------------------------------#
 #              Metalearner: Best Model                #
 #-----------------------------------------------------#
-class Best_Model(Metalearner_Base):
+class BestModel(Metalearner_Base):
     """ A Best Model based Metalearner.
 
     This class should be passed to an ensemble function/class like Stacking for combining predictions.

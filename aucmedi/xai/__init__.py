@@ -33,7 +33,7 @@
     datagen = DataGenerator(samples[:3], "images_xray/", labels=None, resize=(299, 299))
 
     # Get a model
-    model = Neural_Network(n_labels=3, channels=3, architecture="Xception",
+    model = NeuralNetwork(n_labels=3, channels=3, architecture="Xception",
                            input_shape=(299,299))
     model.load("model.xray.hdf5")
 

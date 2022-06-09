@@ -29,7 +29,7 @@ from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 #-----------------------------------------------------#
 #              Metalearner: Naive Bayes               #
 #-----------------------------------------------------#
-class Naive_Bayes(Metalearner_Base):
+class NaiveBayes(Metalearner_Base):
     """ A Naive Bayes based Metalearner.
 
     This class should be passed to an ensemble function/class like Stacking for combining predictions.

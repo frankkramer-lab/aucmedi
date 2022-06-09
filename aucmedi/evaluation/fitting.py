@@ -43,7 +43,7 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
     ???+ example
         ```python
         # Initialize and train a model
-        model = Neural_Network(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
         history = model.train(datagen_train, datagen_validation, epochs=100)
 
         # Pass history dict to evaluation function

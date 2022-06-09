@@ -44,7 +44,7 @@ from aucmedi.neural_network.architectures import Architecture_Base
 #-----------------------------------------------------#
 #                 Vanilla Architecture                #
 #-----------------------------------------------------#
-class Architecture_Vanilla(Architecture_Base):
+class Vanilla(Architecture_Base):
     #---------------------------------------------#
     #                   __init__                  #
     #---------------------------------------------#

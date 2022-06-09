@@ -36,7 +36,7 @@ AUCMEDI is still under active development, which is why the official status is:
 
 **Planed milestones and features are:**  
 
+- [ ] Tutorials
 - [ ] Support for AutoML via CLI and Docker
-- [ ] Examples for AutoML
 - [ ] Documentation for AutoML
 - [ ] Publication

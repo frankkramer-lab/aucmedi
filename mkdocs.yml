@@ -65,6 +65,7 @@ extra:
 #-----------------------------------------------------#
 nav:
 - Home: index.md
+- Workflow: workflow.md
 - Getting Started:
     - Introduction: getstarted/intro.md
     - Current Status: getstarted/status.md

@@ -10,8 +10,7 @@ Every little bit helps, and credit will always be given.
     src="https://contrib.rocks/image?repo=frankkramer-lab/aucmedi"
     alt="Currently unavailable"
     draggable="false"
-    align="center"
->
+    align="center">
 </a>
 
 ## Issue

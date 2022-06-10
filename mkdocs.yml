@@ -57,7 +57,7 @@ extra:
     - icon: fontawesome/brands/docker
       link: Xplaceholder_for_dockerhubX
     - icon: fontawesome/solid/book
-      link: Xplaceholder_for_zenodoX
+      link: https://zenodo.org/record/6633540
 
 #-----------------------------------------------------#
 #                       Content                       #

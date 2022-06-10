@@ -20,5 +20,6 @@ authors:
   orcid: "https://orcid.org/0000-0002-2857-7122"
 title: "AUCMEDI: a framework for Automated Classification of Medical Images"
 version: 1.0.0
+doi: 10.5281/zenodo.6633540
 date-released: 2022-06-01
 url: "https://github.com/frankkramer-lab/aucmedi"

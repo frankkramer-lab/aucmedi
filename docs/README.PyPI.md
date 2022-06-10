@@ -20,7 +20,7 @@ The open-source software AUCMEDI allows fast setup of medical image classificati
 - Applications: [AUCMEDI Wiki - Applications](https://frankkramer-lab.github.io/aucmedi/examples/applications/)
 - PyPI Package: [PyPI - aucmedi](https://pypi.org/project/aucmedi/)
 - Docker Hub: Coming soon.
-- Zenodo Repository: [Zenodo - AUCMEDI](https://pypi.org/project/aucmedi/)
+- Zenodo Repository: [Zenodo - AUCMEDI](https://zenodo.org/record/6633540)
 
 ## How to cite
 

@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies and run tests for computing code coverage
 # Results will be uploaded to codecov
 
-name: Code Coverage
+name: Code Quality
 
 on:
   push:
@@ -10,7 +10,8 @@ on:
     branches: [ development ]
 
 jobs:
-  run:
+  coverage:
+    name: Coverage (codecov)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

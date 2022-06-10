@@ -28,7 +28,7 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - Website: [AUCMEDI Website - Home](https://frankkramer-lab.github.io/aucmedi/)
 - Git Repository: [GitHub - frankkramer-lab/aucmedi](https://github.com/frankkramer-lab/aucmedi)
 - Documentation: [AUCMEDI Wiki - API Reference](https://frankkramer-lab.github.io/aucmedi/reference/)
-- Getting Started: [AUCMEDI Website - Getting Started](https://frankkramer-lab.github.io/aucmedi/intro/)
+- Getting Started: [AUCMEDI Website - Getting Started](https://frankkramer-lab.github.io/aucmedi/getstarted/intro/)
 - Examples: [AUCMEDI Wiki - Examples](https://frankkramer-lab.github.io/aucmedi/examples/framework/)
 - Tutorials: Coming soon.
 - Applications: [AUCMEDI Wiki - Applications](https://frankkramer-lab.github.io/aucmedi/examples/applications/)

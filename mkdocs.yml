@@ -22,6 +22,7 @@
 site_name: AUCMEDI
 site_description: a framework for Automated Classification of Medical Images
 site_author: University Augsburg
+site_url: https://frankkramer-lab.github.io/aucmedi/
 copyright: Copyright &copy; 2021 - 2022 University of Augsburg
 
 #-----------------------------------------------------#

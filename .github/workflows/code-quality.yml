@@ -38,11 +38,11 @@ jobs:
         fail_ci_if_error: true
         verbose: true
 
-  commitlint:
-    name: Commit Convention
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v4
+  # commitlint:
+  #   name: Commit Convention
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - uses: wagoid/commitlint-github-action@v4

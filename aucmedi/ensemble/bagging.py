@@ -306,7 +306,7 @@ class Bagging:
 
         # Convert prediction list to NumPy
         preds_final = np.asarray(preds_final)
-        
+
         # Return ensembled predictions
         if return_ensemble : return preds_final, preds_ensemble
         else : return preds_final

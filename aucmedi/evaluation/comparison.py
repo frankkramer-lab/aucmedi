@@ -61,11 +61,10 @@ def evaluate_comparison(pred_list,
         # Initialize Bagging object for 3-fold cross-validation
         el = Bagging(model_a, k_fold=3)
 
-        # Do some predictions via Bagging
+        # Do some predictions via Bagging (return also all prediction ensembles)
         datagen_test = DataGenerator(samples, "dataset/images/", labels=None,
                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
-        pred_merged, pred_ensemble = model.predict(datagen_test,
-                                                   return_ensemble=True)
+        pred_merged, pred_ensemble = el.predict(datagen_test, return_ensemble=True)
 
         # Pass prediction ensemble to evaluation function
         evaluate_comparison(pred_ensemble, class_ohe, out_path="./", class_names=class_names)

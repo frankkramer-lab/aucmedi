@@ -20,9 +20,236 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-
+import os
+from tensorflow.keras.metrics import AUC
+from tensorflow_addons.metrics import F1Score
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
+                                       ReduceLROnPlateau, EarlyStopping
 # Internal libraries
+from aucmedi import *
+from aucmedi.data_processing.io_loader import image_loader, sitk_loader
+from aucmedi.sampling import sampling_split
+from aucmedi.utils.class_weights import *
+from aucmedi.data_processing.subfunctions import *
+from aucmedi.neural_network.loss_functions import *
+from aucmedi.ensemble import *
 
 #-----------------------------------------------------#
 #            Building Blocks for Training             #
 #-----------------------------------------------------#
+def block_train(config):
+    """
+
+    Attributes:
+        interface
+        path_imagedir
+        path_data
+        output
+        analysis (str):                 bla.
+        multi_label
+        data_aug
+        two_dim
+        shape_3D (tuple of int):        bla.
+        epochs
+        batch_size
+        workers
+        metalearner
+        architecture
+    """
+    # Peak into the dataset via the input interface
+    ds = input_interface(config["interface"],
+                         config["path_imagedir"],
+                         path_data=config["path_data"],
+                         training=True,
+                         ohe=False,
+                         image_format=None)
+    (index_list, class_ohe, class_n, class_names, image_format) = ds
+
+    # Create output directory
+    if not os.path.exists(config["output"]) : os.mkdir(config["output"])
+
+    # Define Callbacks
+    callbacks = []
+    if config["analysis"] == "standard":
+        cb_loss = ModelCheckpoint(os.path.join(config["output"],
+                                               "model.best_loss.hdf5"),
+                                  monitor="val_loss", verbose=1,
+                                  save_best_only=True)
+        callbacks.append(cb_loss)
+    if config["analysis"] in ["minimal", "standard"]:
+        cb_cl = CSVLogger(os.path.join(config["output"], "logs.training.csv"),
+                          separator=',', append=False)
+        callbacks.append(cb_cl)
+    if config["analysis"] != "minimal":
+        cb_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=8,
+                              verbose=1, mode='min', min_lr=1e-7)
+        cb_es = EarlyStopping(monitor='val_loss', patience=36, verbose=1)
+        callbacks.extend([cb_lr, cb_es])
+
+    # Initialize loss function for multi-class
+    if not config["multi_label"]:
+        # Compute class weights
+        class_weights, _ = compute_class_weights(ohe_array=class_ohe)
+        # Initialize focal loss
+        loss = categorical_focal_loss(class_weights)
+    # Initialize loss function for multi-label
+    else:
+        # Compute class weights
+        class_weights = compute_multilabel_weights(ohe_array=class_ohe)
+        # Initialize focal loss
+        loss = multilabel_focal_loss(class_weights)
+
+    # Define neural network parameters
+    nn_paras = {"n_labels": class_n,
+                "workers": config["workers"],
+                "batch_queue_size": 4,
+                "loss": loss,
+                "metrics": [AUC(100), F1Score(num_classes=class_n,
+                                              average="macro")],
+                "pretrained_weights": True,
+                "multiprocessing": False,
+    }
+    # Select number of channels
+    if config["two_dim"] : nn_paras["channels"] = 3
+    else:
+        nn_paras["channels"] = 3
+        nn_paras["input_shape"] = config["shape_3D"]
+    # Select task type
+    if config["multi_label"] : nn_paras["activation_output"] = "sigmoid"
+    else : nn_paras["activation_output"] = "softmax"
+
+    # Initialize Augmentation for 2D image data
+    if config["two_dim"] and config["data_aug"]:
+        data_aug = ImageAugmentation(flip=True, rotate=True, scale=False,
+                                     brightness=True, contrast=True,
+                                     saturation=False, hue=False, crop=False,
+                                     grid_distortion=False, compression=False,
+                                     gamma=True, gaussian_noise=False,
+                                     gaussian_blur=False, downscaling=False,
+                                     elastic_transform=True)
+    # Initialize Augmentation for 3D volume data
+    elif not config["two_dim"] and config["data_aug"]:
+        data_aug = BatchgeneratorsAugmentation(image_shape=config["shape_3D"],
+                        mirror=True, rotate=True, scale=True,
+                        elastic_transform=True, gaussian_noise=False,
+                        brightness=False, contrast=False, gamma=True)
+    else : data_aug = None
+
+    # Subfunctions
+    sf_list = []
+    if not config["two_dim"]:
+        sf_norm = Standardize(mode="grayscale")
+        sf_pad = Padding(mode="constant", shape=config["shape_3D"])
+        sf_crop = Crop(shape=config["shape_3D"], mode="random")
+        sf_chromer = Chromer(target="rgb")
+        sf_list.extend([sf_norm, sf_pad, sf_crop, sf_chromer])
+
+    # Define parameters for DataGenerator
+    paras_datagen = {
+        "path_imagedir": config["path_imagedir"],
+        "batch_size": config["batch_size"],
+        "img_aug": data_aug,
+        "subfunctions": sf_list,
+        "prepare_images": False,
+        "sample_weights": None,
+        "seed": None,
+        "image_format": image_format,
+        "workers": config["workers"],
+    }
+    if config["two_dim"]:
+        paras_datagen["loader"] = image_loader
+        paras_datagen["grayscale"] = False
+    else:
+        paras_datagen["loader"] = sitk_loader
+        paras_datagen["grayscale"] = True
+
+    # Gather training parameters
+    paras_train = {
+        "epochs": config["epochs"],
+        "iterations": None,
+        "callbacks": callbacks,
+        "class_weights": None,
+        "transfer_learning": True,
+    }
+
+    # Apply MIC pipelines
+    if config["analysis"] == "minimal":
+        # Setup neural network
+        if config["two_dim"] : arch_dim = "2D." + "MobileNetV2"
+        else : arch_dim = "3D." + "MobileNet"
+        model = NeuralNetwork(architecture=arch_dim, **nn_paras)
+
+        print(model.meta_input)
+
+        # Build DataGenerator
+        train_gen = DataGenerator(samples=index_list,
+                                  labels=class_ohe,
+                                  shuffle=True,
+                                  resize=model.meta_input,
+                                  standardize_mode=model.meta_standardize,
+                                  **paras_datagen)
+
+        # Start model training
+        model.train(training_generator=train_gen, **paras_train)
+        # Store model
+        path_model = os.path.join(config["output"], "model.last.hdf5")
+        model.dump(path_model)
+    elif config["analysis"] == "standard":
+        # Setup neural network
+        if config["two_dim"] : arch_dim = "2D." + config["architecture"]
+        else : arch_dim = "3D." + config["architecture"]
+        model = NeuralNetwork(architecture=arch_dim, **nn_paras)
+
+        # Apply percentage split sampling
+        ps_sampling = sampling_split(index_list, class_ohe,
+                                     sampling=[0.85, 0.15],
+                                     stratified=True, iterative=True,
+                                     seed=0)
+
+        # Build DataGenerator
+        train_gen = DataGenerator(samples=ps_sampling[0][0],
+                                  labels=ps_sampling[0][1],
+                                  shuffle=True,
+                                  resize=model.meta_input,
+                                  standardize_mode=model.meta_standardize,
+                                  **paras_datagen)
+        val_gen = DataGenerator(samples=ps_sampling[1][0],
+                                labels=ps_sampling[1][1],
+                                shuffle=False,
+                                resize=model.meta_input,
+                                standardize_mode=model.meta_standardize,
+                                **paras_datagen)
+
+        # Start model training
+        model.train(training_generator=train_gen,
+                    validation_generator=val_gen,
+                    **paras_train)
+        # Store model
+        path_model = os.path.join(config["output"], "model.last.hdf5")
+        model.dump(path_model)
+    else:
+        # Sanity check of architecutre config
+        if not isistance(config["architecture"], list):
+            raise ValueError("key 'architecture' in config has to be a list " \
+                             + "if 'advanced' was selected as analysis.")
+        # Build multi-model list
+        model_list = []
+        for arch in config["architecture"]:
+            if config["two_dim"] : arch_dim = "2D." + arch
+            else : arch_dim = "3D." + arch
+            model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
+            model_list.append(model_part)
+        el = Composite(model_list, metalearner=config["metalearner"],
+                       k_fold=len(config["architecture"]))
+
+        # Build DataGenerator
+        train_gen = DataGenerator(samples=index_list,
+                                  labels=class_ohe,
+                                  shuffle=True,
+                                  resize=None,
+                                  standardize_mode=None,
+                                  **paras_datagen)
+        # Start model training
+        el.train(training_generator=train_gen, **paras_train)
+        # Store model directory
+        el.dump(config["output"])

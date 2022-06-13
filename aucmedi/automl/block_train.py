@@ -21,6 +21,7 @@
 #-----------------------------------------------------#
 # External libraries
 import os
+import numpy as np
 import json
 from tensorflow.keras.metrics import AUC
 from tensorflow_addons.metrics import F1Score
@@ -39,24 +40,31 @@ from aucmedi.ensemble import *
 #            Building Blocks for Training             #
 #-----------------------------------------------------#
 def block_train(config):
-    """
+    """ Internal code block for AutoML training.
+
+    This function is called by the Command-Line-Interface (CLI) of AUCMEDI.
+
+    Args:
+        config (dict):                      Configuration dictionary containing all required
+                                            parameters for performing an AutoML training.
+
+    The following attributes are stored in the `config` dictionary:
 
     Attributes:
-        interface
-        path_imagedir
-        path_data
-        output
-        analysis (str):                 bla.
-        ohe (bool):                     bla
-        multi_label
-        data_aug
-        two_dim
-        shape_3D (tuple of int):        bla.
-        epochs
-        batch_size
-        workers
-        metalearner
-        architecture
+        interface (str):                    String defining format interface for loading/storing data (`csv` or `dictionary`).
+        path_imagedir (str):                Path to the directory containing the images.
+        path_data (str):                    Path to the index/class annotation file if required. (csv/json).
+        output (str):                       Path to the output directory in which fitted models and metadata are stored.
+        analysis (str):                     Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`.
+        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        data_aug (bool):                    asd.
+        two_dim (bool):                     asd.
+        shape_3D (tuple of int):            bla.
+        epochs (int):                       asd.
+        batch_size (int):                   asd.
+        workers (int):                      asd.
+        metalearner (str):                  asd.
+        architecture (str or list of str):  asd.
     """
     # Peak into the dataset via the input interface
     ds = input_interface(config["interface"],
@@ -69,6 +77,20 @@ def block_train(config):
 
     # Create output directory
     if not os.path.exists(config["output"]) : os.mkdir(config["output"])
+
+    # Identify task (multi-class vs multi-label)
+    if np.sum(class_ohe) > class_ohe.shape[0] : config["multi_label"] = True
+    else : config["multi_label"] = False
+
+    # Sanity check on multi-label metalearner
+    multilabel_metalearner_supported = ["mlp", "k_neighbors", "random_forest",
+                                        "weighted_mean", "best_model",
+                                        "decision_tree", "mean", "median"]
+    if config["multi_label"] and config["analysis"] == "advanced" and \
+       config["metalearner"] not in multilabel_metalearner_supported:
+        raise ValueError("Non-compatible metalearner selected for multi-label"\
+                         + " classification. Supported metalearner:",
+                          multilabel_metalearner_supported)
 
     # Store meta information
     config["class_names"] = class_names

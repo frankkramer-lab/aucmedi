@@ -80,6 +80,8 @@ class AutoML_block_predict(unittest.TestCase):
             labels_ohe = [0, 0, 0, 0]
             class_index = np.random.randint(0, 4)
             labels_ohe[class_index] = 1
+            class_index = np.random.randint(0, 4)
+            labels_ohe[class_index] = 1
             data["sample_" + str(i)] = labels_ohe
         self.tmp_csv_ohe = tempfile.NamedTemporaryFile(mode="w",
                                                        prefix="tmp.aucmedi.",
@@ -104,7 +106,6 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "minimal",
             "ohe": False,
-            "multi_label": False,
             "data_aug": True,
             "two_dim": True,
             "shape_3D": (128,128,128),
@@ -153,14 +154,12 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "minimal",
             "ohe": True,
-            "multi_label": True,
             "data_aug": True,
             "two_dim": True,
             "shape_3D": (128,128,128),
             "epochs": 8,
             "batch_size": 4,
             "workers": 1,
-            "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
         # Run AutoML training block
@@ -198,7 +197,6 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "minimal",
             "ohe": False,
-            "multi_label": False,
             "data_aug": True,
             "two_dim": False,
             "shape_3D": (16, 16, 16),
@@ -246,7 +244,6 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "standard",
             "ohe": False,
-            "multi_label": False,
             "data_aug": True,
             "two_dim": True,
             "epochs": 8,
@@ -290,13 +287,11 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "standard",
             "ohe": True,
-            "multi_label": True,
             "data_aug": True,
             "two_dim": True,
             "epochs": 8,
             "batch_size": 4,
             "workers": 1,
-            "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
         # Run AutoML training block
@@ -334,7 +329,6 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "standard",
             "ohe": False,
-            "multi_label": False,
             "data_aug": True,
             "two_dim": False,
             "shape_3D": (16, 16, 16),
@@ -382,7 +376,6 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "advanced",
             "ohe": False,
-            "multi_label": False,
             "data_aug": True,
             "two_dim": True,
             "epochs": 8,
@@ -426,13 +419,12 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "advanced",
             "ohe": True,
-            "multi_label": True,
             "data_aug": True,
             "two_dim": True,
             "epochs": 8,
             "batch_size": 1,
             "workers": 1,
-            "metalearner": "logistic_regression",
+            "metalearner": "mean",
             "architecture": ["Vanilla", "Vanilla"]
         }
         # Run AutoML training block
@@ -470,7 +462,6 @@ class AutoML_block_predict(unittest.TestCase):
             "output": input_dir.name,
             "analysis": "advanced",
             "ohe": False,
-            "multi_label": False,
             "data_aug": True,
             "two_dim": False,
             "shape_3D": (16, 16, 16),

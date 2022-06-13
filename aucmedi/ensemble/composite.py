@@ -23,7 +23,7 @@
 import os
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-import multiprocessing as mp
+from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
 # Internal libraries

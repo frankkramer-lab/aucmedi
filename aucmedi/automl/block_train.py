@@ -57,7 +57,6 @@ def block_train(config):
         output (str):                       Path to the output directory in which fitted models and metadata are stored.
         analysis (str):                     Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`.
         ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
-        data_aug (bool):                    asd.
         two_dim (bool):                     asd.
         shape_3D (tuple of int):            bla.
         epochs (int):                       asd.
@@ -147,7 +146,7 @@ def block_train(config):
     else : nn_paras["activation_output"] = "softmax"
 
     # Initialize Augmentation for 2D image data
-    if config["two_dim"] and config["data_aug"]:
+    if config["two_dim"]:
         data_aug = ImageAugmentation(flip=True, rotate=True, scale=False,
                                      brightness=True, contrast=True,
                                      saturation=False, hue=False, crop=False,
@@ -156,7 +155,7 @@ def block_train(config):
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=True)
     # Initialize Augmentation for 3D volume data
-    elif not config["two_dim"] and config["data_aug"]:
+    elif not config["two_dim"]:
         data_aug = BatchgeneratorsAugmentation(image_shape=config["shape_3D"],
                         mirror=True, rotate=True, scale=True,
                         elastic_transform=True, gaussian_noise=False,

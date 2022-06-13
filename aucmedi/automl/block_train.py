@@ -118,7 +118,7 @@ def block_train(config):
                 "pretrained_weights": True,
                 "multiprocessing": False,
     }
-    # Select number of channels
+    # Select input shape for 3D
     if not config["two_dim"] : nn_paras["input_shape"] = config["shape_3D"]
     # Select task type
     if config["multi_label"] : nn_paras["activation_output"] = "sigmoid"

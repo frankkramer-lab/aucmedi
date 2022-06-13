@@ -127,6 +127,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -173,6 +175,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -216,6 +220,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -225,6 +231,59 @@ class AutoML_block_predict(unittest.TestCase):
         self.assertTrue(isinstance(preds, pd.DataFrame))
         self.assertTrue(preds.shape[0] == 25)
         self.assertTrue(preds.shape[1] == 5)
+
+    def test_minimal_xai(self):
+        # Initialize temporary directory
+        input_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".output")
+        # Define config
+        config = {
+            "interface": "csv",
+            "path_imagedir": self.tmp_data2D.name,
+            "path_data": self.tmp_csv.name,
+            "output": input_dir.name,
+            "analysis": "minimal",
+            "ohe": False,
+            "two_dim": True,
+            "shape_3D": (128,128,128),
+            "epochs": 8,
+            "batch_size": 4,
+            "workers": 1,
+            "metalearner": "logistic_regression",
+            "architecture": "Vanilla"
+        }
+        # Run AutoML training block
+        block_train(config)
+
+        # Define config
+        tmp_output = tempfile.NamedTemporaryFile(mode="w",
+                                                 prefix="tmp.aucmedi.",
+                                                 suffix=".pred.csv")
+        xai_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                              suffix=".xai")
+        config = {
+            "path_imagedir": self.tmp_data2D.name,
+            "input": input_dir.name,
+            "output": tmp_output.name,
+            "batch_size": 4,
+            "workers": 1,
+            "xai_method": "gradcam",
+            "xai_directory": xai_dir.name,
+        }
+        # Run AutoML inference block
+        block_predict(config)
+
+        self.assertTrue(os.path.exists(tmp_output.name))
+        preds = pd.read_csv(tmp_output.name)
+        self.assertTrue(isinstance(preds, pd.DataFrame))
+
+        self.assertTrue(os.path.exists(tmp_output.name))
+        preds = pd.read_csv(tmp_output.name)
+        self.assertTrue(isinstance(preds, pd.DataFrame))
+        self.assertTrue(preds.shape[0] == 25)
+        self.assertTrue(preds.shape[1] == 5)
+
+        self.assertTrue(os.listdir(xai_dir.name)==25)
 
     #-------------------------------------------------#
     #                Analysis: Standard               #
@@ -261,6 +320,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -270,6 +331,52 @@ class AutoML_block_predict(unittest.TestCase):
         self.assertTrue(isinstance(preds, pd.DataFrame))
         self.assertTrue(preds.shape[0] == 25)
         self.assertTrue(preds.shape[1] == 5)
+
+    def test_standard_xai(self):
+        # Initialize temporary directory
+        input_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".output")
+        # Define config
+        config = {
+            "interface": "csv",
+            "path_imagedir": self.tmp_data2D.name,
+            "path_data": self.tmp_csv.name,
+            "output": input_dir.name,
+            "analysis": "standard",
+            "ohe": False,
+            "two_dim": True,
+            "epochs": 8,
+            "batch_size": 4,
+            "workers": 1,
+            "metalearner": "logistic_regression",
+            "architecture": "Vanilla"
+        }
+        # Run AutoML training block
+        block_train(config)
+
+        # Define config
+        tmp_output = tempfile.NamedTemporaryFile(mode="w",
+                                                 prefix="tmp.aucmedi.",
+                                                 suffix=".pred.csv")
+        config = {
+            "path_imagedir": self.tmp_data2D.name,
+            "input": input_dir.name,
+            "output": tmp_output.name,
+            "batch_size": 4,
+            "workers": 1,
+            "xai_method": "gradcam",
+            "xai_directory": xai_dir.name,
+        }
+        # Run AutoML inference block
+        block_predict(config)
+
+        self.assertTrue(os.path.exists(tmp_output.name))
+        preds = pd.read_csv(tmp_output.name)
+        self.assertTrue(isinstance(preds, pd.DataFrame))
+        self.assertTrue(preds.shape[0] == 25)
+        self.assertTrue(preds.shape[1] == 5)
+
+        self.assertTrue(os.listdir(xai_dir.name)==25)
 
     def test_standard_multilabel(self):
         # Initialize temporary directory
@@ -302,6 +409,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -345,6 +454,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -390,6 +501,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -432,6 +545,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)
@@ -475,6 +590,8 @@ class AutoML_block_predict(unittest.TestCase):
             "output": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
+            "xai_method": None,
+            "xai_directory": None,
         }
         # Run AutoML inference block
         block_predict(config)

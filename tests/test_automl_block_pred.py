@@ -283,7 +283,7 @@ class AutoML_block_predict(unittest.TestCase):
         self.assertTrue(preds.shape[0] == 25)
         self.assertTrue(preds.shape[1] == 5)
 
-        self.assertTrue(os.listdir(xai_dir.name)==25)
+        self.assertTrue(len(os.listdir(xai_dir.name))==25)
 
     #-------------------------------------------------#
     #                Analysis: Standard               #
@@ -358,6 +358,8 @@ class AutoML_block_predict(unittest.TestCase):
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
                                                  suffix=".pred.csv")
+        xai_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                              suffix=".xai")
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "input": input_dir.name,
@@ -376,7 +378,7 @@ class AutoML_block_predict(unittest.TestCase):
         self.assertTrue(preds.shape[0] == 25)
         self.assertTrue(preds.shape[1] == 5)
 
-        self.assertTrue(os.listdir(xai_dir.name)==25)
+        self.assertTrue(len(os.listdir(xai_dir.name))==25)
 
     def test_standard_multilabel(self):
         # Initialize temporary directory

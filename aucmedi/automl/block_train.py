@@ -101,6 +101,7 @@ def block_train(config):
 
     # Define neural network parameters
     nn_paras = {"n_labels": class_n,
+                "channels": 3,
                 "workers": config["workers"],
                 "batch_queue_size": 4,
                 "loss": loss,
@@ -110,10 +111,7 @@ def block_train(config):
                 "multiprocessing": False,
     }
     # Select number of channels
-    if config["two_dim"] : nn_paras["channels"] = 3
-    else:
-        nn_paras["channels"] = 3
-        nn_paras["input_shape"] = config["shape_3D"]
+    if not config["two_dim"] : nn_paras["input_shape"] = config["shape_3D"]
     # Select task type
     if config["multi_label"] : nn_paras["activation_output"] = "sigmoid"
     else : nn_paras["activation_output"] = "softmax"
@@ -175,11 +173,9 @@ def block_train(config):
     # Apply MIC pipelines
     if config["analysis"] == "minimal":
         # Setup neural network
-        if config["two_dim"] : arch_dim = "2D." + "MobileNetV2"
-        else : arch_dim = "3D." + "MobileNet"
+        if config["two_dim"] : arch_dim = "2D." + config["architecture"]
+        else : arch_dim = "3D." + config["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
-
-        print(model.meta_input)
 
         # Build DataGenerator
         train_gen = DataGenerator(samples=index_list,
@@ -229,7 +225,7 @@ def block_train(config):
         model.dump(path_model)
     else:
         # Sanity check of architecutre config
-        if not isistance(config["architecture"], list):
+        if not isinstance(config["architecture"], list):
             raise ValueError("key 'architecture' in config has to be a list " \
                              + "if 'advanced' was selected as analysis.")
         # Build multi-model list

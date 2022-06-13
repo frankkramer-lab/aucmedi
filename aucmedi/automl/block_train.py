@@ -162,12 +162,8 @@ def block_train(config):
         "image_format": image_format,
         "workers": config["workers"],
     }
-    if config["two_dim"]:
-        paras_datagen["loader"] = image_loader
-        paras_datagen["grayscale"] = False
-    else:
-        paras_datagen["loader"] = sitk_loader
-        paras_datagen["grayscale"] = True
+    if config["two_dim"] : paras_datagen["loader"] = image_loader
+    else : paras_datagen["loader"] = sitk_loader
 
     # Gather training parameters
     paras_train = {

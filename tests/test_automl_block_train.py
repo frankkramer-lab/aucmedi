@@ -32,9 +32,9 @@ import pandas as pd
 from aucmedi.automl.block_train import block_train
 
 #-----------------------------------------------------#
-#               Unittest: Architectures               #
+#           Unittest: AutoML Training Block           #
 #-----------------------------------------------------#
-class ArchitecturesImageTEST(unittest.TestCase):
+class AutoML_block_train(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):

@@ -655,7 +655,6 @@ class EnsembleTEST(unittest.TestCase):
         target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                              suffix=".model")
         self.assertTrue(len(os.listdir(target.name))==0)
-        print(os.listdir(el.cache_dir.name))
         self.assertTrue(len(os.listdir(el.cache_dir.name))==5)
         origin = el.cache_dir.name
         # Dump model

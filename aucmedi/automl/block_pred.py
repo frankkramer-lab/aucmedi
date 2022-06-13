@@ -33,14 +33,22 @@ from aucmedi.ensemble import *
 #            Building Blocks for Inference            #
 #-----------------------------------------------------#
 def block_predict(config):
-    """
+    """ Internal code block for AutoML inference.
+
+    This function is called by the Command-Line-Interface (CLI) of AUCMEDI.
+
+    Args:
+        config (dict):                      Configuration dictionary containing all required
+                                            parameters for performing an AutoML inference.
+
+    The following attributes are stored in the `config` dictionary:
 
     Attributes:
-        path_imagedir
-        input
-        output
-        batch_size
-        workers
+        path_imagedir (str):                Path to the directory containing the images.
+        input (str):                        Path to the input directory in which fitted models and metadata are stored.
+        output (str):                       Path to the output file in which predicted csv file is stored.
+        batch_size (int):                   Number of samples inside a single batch.
+        workers (int):                      Number of workers/threads which preprocess batches during runtime.
     """
     # Peak into the dataset via the input interface
     ds = input_interface("directory",

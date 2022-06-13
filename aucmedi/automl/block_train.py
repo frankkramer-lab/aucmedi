@@ -57,13 +57,14 @@ def block_train(config):
         output (str):                       Path to the output directory in which fitted models and metadata are stored.
         analysis (str):                     Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`.
         ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
-        two_dim (bool):                     asd.
-        shape_3D (tuple of int):            bla.
-        epochs (int):                       asd.
-        batch_size (int):                   asd.
-        workers (int):                      asd.
-        metalearner (str):                  asd.
-        architecture (str or list of str):  asd.
+        two_dim (bool):                     Boolean, whether data is 2D or 3D.
+        shape_3D (tuple of int):            Desired input shape of 3D volume for architecture (will be cropped).
+        epochs (int):                       Number of epochs. A single epoch is defined as one iteration through
+                                            the complete data set.
+        batch_size (int):                   Number of samples inside a single batch.
+        workers (int):                      Number of workers/threads which preprocess batches during runtime.
+        metalearner (str):                  Key for Metalearner or Aggregate function.
+        architecture (str or list of str):  Key (str) of a neural network model Architecture class instance.
     """
     # Peak into the dataset via the input interface
     ds = input_interface(config["interface"],

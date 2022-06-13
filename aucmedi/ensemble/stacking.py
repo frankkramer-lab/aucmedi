@@ -514,11 +514,12 @@ class Stacking:
         if self.cache_dir is None:
             raise FileNotFoundError("Stacking does not have a valid model cache directory!")
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
-            shutil.copytree(self.cache_dir.name, directory_path)
+            shutil.copytree(self.cache_dir.name, directory_path,
+                            dirs_exist_ok=True)
             self.cache_dir.cleanup()
             self.cache_dir = directory_path
         else:
-            shutil.copytree(self.cache_dir, directory_path)
+            shutil.copytree(self.cache_dir, directory_path, dirs_exist_ok=True)
             self.cache_dir = directory_path
 
     # Load model from file

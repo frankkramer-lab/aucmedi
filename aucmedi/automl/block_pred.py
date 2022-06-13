@@ -28,6 +28,7 @@ from aucmedi import *
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
 from aucmedi.data_processing.subfunctions import *
 from aucmedi.ensemble import *
+from aucmedi.xai import xai_decoder
 
 #-----------------------------------------------------#
 #            Building Blocks for Inference            #
@@ -46,7 +47,9 @@ def block_predict(config):
     Attributes:
         path_imagedir (str):                Path to the directory containing the images.
         input (str):                        Path to the input directory in which fitted models and metadata are stored.
-        output (str):                       Path to the output file in which predicted csv file is stored.
+        output (str):                       Path to the output file in which predicted csv file should be stored.
+        xai_method (str or None):           Key for XAI method.
+        xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be stored.
         batch_size (int):                   Number of samples inside a single batch.
         workers (int):                      Number of workers/threads which preprocess batches during runtime.
     """
@@ -174,3 +177,14 @@ def block_predict(config):
     df_merged.sort_values(by=["SAMPLE"], inplace=True)
     # Store predictions to disk
     df_merged.to_csv(config["output"], index=False)
+
+    # Create XAI heatmaps
+    if config["xai_method"] is not None and config["xai_directory"] is not None:
+        if meta_training["analysis"] == "advanced":
+            raise ValueError("XAI is only supported for single model pipelines!")
+        # Create xai output directory
+        if not os.path.exists(config["xai_directory"]):
+            os.mkdir(config["xai_directory"])
+        # Run XAI decoder
+        xai_decoder(pred_gen, model, preds=preds, method=config["xai_method"],
+                    layerName=None, alpha=0.4, out_path=config["xai_directory"])

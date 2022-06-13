@@ -27,7 +27,7 @@ from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
 # Internal libraries
-from aucmedi import DataGenerator
+from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.sampling import sampling_split, sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
@@ -83,6 +83,11 @@ class Composite:
         The passed DataGenerator for the train() and predict() function of the Composite class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
+
+    ??? warning "NeuralNetwork re-initialization"
+        The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!
+
+        Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
         For the training and inference process, each model will create an individual process via the Python multiprocessing package.
@@ -217,6 +222,24 @@ class Composite:
                               separator=',', append=True)
             callbacks.extend([cb_mc, cb_cl])
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_list[i].n_labels,
+                "channels": self.model_list[i].channels,
+                "input_shape": self.model_list[i].input_shape,
+                "architecture": self.model_list[i].architecture,
+                "pretrained_weights": self.model_list[i].pretrained_weights,
+                "loss": self.model_list[i].loss,
+                "metrics": None,
+                "activation_output": self.model_list[i].activation_output,
+                "fcl_dropout": self.model_list[i].fcl_dropout,
+                "meta_variables": self.model_list[i].meta_variables,
+                "learning_rate": self.model_list[i].learning_rate,
+                "batch_queue_size": self.model_list[i].batch_queue_size,
+                "workers": self.model_list[i].workers,
+                "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
                              "batch_size": temp_dg.batch_size,
@@ -239,8 +262,8 @@ class Composite:
             process_queue = mp.Queue()
             process_train = mp.Process(target=__training_process__,
                                        args=(process_queue,
-                                             self.model_list[i],
                                              data,
+                                             model_paras,
                                              datagen_paras,
                                              parameters_training))
             process_train.start()
@@ -302,6 +325,24 @@ class Composite:
             path_model = os.path.join(path_model_dir,
                                       "cv_" + str(i) + ".model.hdf5")
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_list[i].n_labels,
+                "channels": self.model_list[i].channels,
+                "input_shape": self.model_list[i].input_shape,
+                "architecture": self.model_list[i].architecture,
+                "pretrained_weights": self.model_list[i].pretrained_weights,
+                "loss": self.model_list[i].loss,
+                "metrics": None,
+                "activation_output": self.model_list[i].activation_output,
+                "fcl_dropout": self.model_list[i].fcl_dropout,
+                "meta_variables": self.model_list[i].meta_variables,
+                "learning_rate": self.model_list[i].learning_rate,
+                "batch_queue_size": self.model_list[i].batch_queue_size,
+                "workers": self.model_list[i].workers,
+                "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
                              "batch_size": temp_dg.batch_size,
@@ -324,7 +365,7 @@ class Composite:
             process_queue = mp.Queue()
             process_pred = mp.Process(target=__prediction_process__,
                                       args=(process_queue,
-                                            self.model_list[i],
+                                            model_paras,
                                             path_model,
                                             data_ensemble,
                                             datagen_paras))
@@ -398,6 +439,24 @@ class Composite:
             path_model = os.path.join(path_model_dir,
                                       "cv_" + str(i) + ".model.hdf5")
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_list[i].n_labels,
+                "channels": self.model_list[i].channels,
+                "input_shape": self.model_list[i].input_shape,
+                "architecture": self.model_list[i].architecture,
+                "pretrained_weights": self.model_list[i].pretrained_weights,
+                "loss": self.model_list[i].loss,
+                "metrics": None,
+                "activation_output": self.model_list[i].activation_output,
+                "fcl_dropout": self.model_list[i].fcl_dropout,
+                "meta_variables": self.model_list[i].meta_variables,
+                "learning_rate": self.model_list[i].learning_rate,
+                "batch_queue_size": self.model_list[i].batch_queue_size,
+                "workers": self.model_list[i].workers,
+                "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
                              "batch_size": temp_dg.batch_size,
@@ -420,7 +479,7 @@ class Composite:
             process_queue = mp.Queue()
             process_pred = mp.Process(target=__prediction_process__,
                                       args=(process_queue,
-                                            self.model_list[i],
+                                            model_paras,
                                             path_model,
                                             data_test,
                                             datagen_paras))
@@ -507,7 +566,7 @@ class Composite:
 #                     Subroutines                     #
 #-----------------------------------------------------#
 # Internal function for training a NeuralNetwork model in a separate process
-def __training_process__(queue, model, data, datagen_paras, train_paras):
+def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
     # Extract data
     (train_x, train_y, train_m, test_x, test_y, test_m) = data
     # Build training DataGenerator
@@ -548,13 +607,16 @@ def __training_process__(queue, model, data, datagen_paras, train_paras):
                                loader=datagen_paras["loader"],
                                workers=datagen_paras["workers"],
                                **datagen_paras["kwargs"])
+    # Create NeuralNetwork
+    model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
     cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(cv_history)
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
-def __prediction_process__(queue, model, path_model, data_test, datagen_paras):
+def __prediction_process__(queue, model_paras, path_model, data_test,
+                           datagen_paras):
     # Extract data
     (test_x, test_y, test_m) = data_test
     # Create inference DataGenerator
@@ -576,6 +638,8 @@ def __prediction_process__(queue, model, path_model, data_test, datagen_paras):
                                 loader=datagen_paras["loader"],
                                 workers=datagen_paras["workers"],
                                 **datagen_paras["kwargs"])
+    # Create NeuralNetwork
+    model = NeuralNetwork(**model_paras)
     # Load model weights from disk
     model.load(path_model)
     # Make prediction

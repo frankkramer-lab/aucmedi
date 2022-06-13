@@ -16,3 +16,4 @@ batchgenerators==0.24
 volumentations-aucmedi==1.0.1
 plotnine==0.8.0
 protobuf==3.20.1
+pathos==0.2.9

@@ -62,7 +62,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             image_sitk.SetSpacing([1.75,1.25,0.75])
             sitk.WriteImage(image_sitk, path_sample)
 
-        # Create classification labels
+        # Create multi-class classification labels
         data = {}
         for i in range(0, 25):
             data["sample_" + str(i)] = np.random.randint(4)
@@ -72,6 +72,21 @@ class ArchitecturesImageTEST(unittest.TestCase):
         df = pd.DataFrame.from_dict(data, orient="index", columns=["CLASS"])
         df.index.name = "SAMPLE"
         df.to_csv(self.tmp_csv.name, index=True, header=True)
+
+        # Create multi-label classification labels
+        data = {}
+        for i in range(0, 25):
+            labels_ohe = [0, 0, 0, 0]
+            class_index = np.random.randint(0, 4)
+            labels_ohe[class_index] = 1
+            data["sample_" + str(i)] = labels_ohe
+        self.tmp_csv_ohe = tempfile.NamedTemporaryFile(mode="w",
+                                                       prefix="tmp.aucmedi.",
+                                                       suffix=".csv")
+        df = pd.DataFrame.from_dict(data, orient="index",
+                                    columns=["a", "b", "c", "d"])
+        df.index.name = "SAMPLE"
+        df.to_csv(self.tmp_csv_ohe.name, index=True, header=True)
 
     #-------------------------------------------------#
     #                Analysis: Minimal                #
@@ -87,6 +102,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             "path_data": self.tmp_csv.name,
             "output": output_dir.name,
             "analysis": "minimal",
+            "ohe": False,
             "multi_label": False,
             "data_aug": True,
             "two_dim": True,
@@ -111,9 +127,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
+            "path_data": self.tmp_csv_ohe.name,
             "output": output_dir.name,
             "analysis": "minimal",
+            "ohe": True,
             "multi_label": True,
             "data_aug": True,
             "two_dim": True,
@@ -141,7 +158,8 @@ class ArchitecturesImageTEST(unittest.TestCase):
             "path_data": self.tmp_csv.name,
             "output": output_dir.name,
             "analysis": "minimal",
-            "multi_label": True,
+            "ohe": False,
+            "multi_label": False,
             "data_aug": True,
             "two_dim": False,
             "shape_3D": (16, 16, 16),
@@ -171,6 +189,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             "path_data": self.tmp_csv.name,
             "output": output_dir.name,
             "analysis": "standard",
+            "ohe": False,
             "multi_label": False,
             "data_aug": True,
             "two_dim": True,
@@ -195,9 +214,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
+            "path_data": self.tmp_csv_ohe.name,
             "output": output_dir.name,
             "analysis": "standard",
+            "ohe": True,
             "multi_label": True,
             "data_aug": True,
             "two_dim": True,
@@ -225,7 +245,8 @@ class ArchitecturesImageTEST(unittest.TestCase):
             "path_data": self.tmp_csv.name,
             "output": output_dir.name,
             "analysis": "standard",
-            "multi_label": True,
+            "ohe": False,
+            "multi_label": False,
             "data_aug": True,
             "two_dim": False,
             "shape_3D": (16, 16, 16),
@@ -256,6 +277,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             "path_data": self.tmp_csv.name,
             "output": output_dir.name,
             "analysis": "composite",
+            "ohe": False,
             "multi_label": False,
             "data_aug": True,
             "two_dim": True,
@@ -278,9 +300,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
+            "path_data": self.tmp_csv_ohe.name,
             "output": output_dir.name,
             "analysis": "composite",
+            "ohe": True,
             "multi_label": True,
             "data_aug": True,
             "two_dim": True,
@@ -306,7 +329,8 @@ class ArchitecturesImageTEST(unittest.TestCase):
             "path_data": self.tmp_csv.name,
             "output": output_dir.name,
             "analysis": "composite",
-            "multi_label": True,
+            "ohe": False,
+            "multi_label": False,
             "data_aug": True,
             "two_dim": False,
             "shape_3D": (16, 16, 16),

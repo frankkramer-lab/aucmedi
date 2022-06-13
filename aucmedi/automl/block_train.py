@@ -46,6 +46,7 @@ def block_train(config):
         path_data
         output
         analysis (str):                 bla.
+        ohe (bool):                     bla
         multi_label
         data_aug
         two_dim
@@ -61,7 +62,7 @@ def block_train(config):
                          config["path_imagedir"],
                          path_data=config["path_data"],
                          training=True,
-                         ohe=False,
+                         ohe=config["ohe"],
                          image_format=None)
     (index_list, class_ohe, class_n, class_names, image_format) = ds
 

@@ -27,7 +27,7 @@ from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
 # Internal libraries
-from aucmedi import DataGenerator
+from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 

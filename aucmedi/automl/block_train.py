@@ -21,6 +21,7 @@
 #-----------------------------------------------------#
 # External libraries
 import os
+import json
 from tensorflow.keras.metrics import AUC
 from tensorflow_addons.metrics import F1Score
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
@@ -68,6 +69,12 @@ def block_train(config):
 
     # Create output directory
     if not os.path.exists(config["output"]) : os.mkdir(config["output"])
+
+    # Store meta information
+    config["class_names"] = class_names
+    path_meta = os.path.join(config["output"], "meta.training.json")
+    with open(path_meta, "w") as json_io:
+        json.dump(config, json_io)
 
     # Define Callbacks
     callbacks = []

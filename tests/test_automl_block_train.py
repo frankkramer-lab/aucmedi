@@ -119,6 +119,7 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
     def test_minimal_multilabel(self):
         # Initialize temporary directory
@@ -146,6 +147,7 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
     def test_minimal_3D(self):
         # Initialize temporary directory
@@ -173,6 +175,7 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
     #-------------------------------------------------#
     #                Analysis: Standard               #
@@ -203,6 +206,7 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
     def test_standard_multilabel(self):
         # Initialize temporary directory
@@ -230,6 +234,7 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
     def test_standard_3D(self):
         # Initialize temporary directory
@@ -258,6 +263,7 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
     #-------------------------------------------------#
     #               Analysis: Composite               #
@@ -284,7 +290,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(len(os.listdir(output_dir.name))==6)
+        self.assertTrue(len(os.listdir(output_dir.name))==7)
 
     def test_composite_multilabel(self):
         # Initialize temporary directory
@@ -333,4 +339,4 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(len(os.listdir(output_dir.name))==6)
+        self.assertTrue(len(os.listdir(output_dir.name))==7)

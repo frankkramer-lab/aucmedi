@@ -35,6 +35,7 @@ from aucmedi.utils.class_weights import *
 from aucmedi.data_processing.subfunctions import *
 from aucmedi.neural_network.loss_functions import *
 from aucmedi.ensemble import *
+from aucmedi.evaluation import evaluate_fitting
 
 #-----------------------------------------------------#
 #            Building Blocks for Training             #
@@ -212,7 +213,7 @@ def block_train(config):
                                   **paras_datagen)
 
         # Start model training
-        model.train(training_generator=train_gen, **paras_train)
+        hist = model.train(training_generator=train_gen, **paras_train)
         # Store model
         path_model = os.path.join(config["output"], "model.last.hdf5")
         model.dump(path_model)
@@ -243,9 +244,9 @@ def block_train(config):
                                 **paras_datagen)
 
         # Start model training
-        model.train(training_generator=train_gen,
-                    validation_generator=val_gen,
-                    **paras_train)
+        hist = model.train(training_generator=train_gen,
+                           validation_generator=val_gen,
+                           **paras_train)
         # Store model
         path_model = os.path.join(config["output"], "model.last.hdf5")
         model.dump(path_model)
@@ -272,6 +273,9 @@ def block_train(config):
                                   standardize_mode=None,
                                   **paras_datagen)
         # Start model training
-        el.train(training_generator=train_gen, **paras_train)
+        hist = el.train(training_generator=train_gen, **paras_train)
         # Store model directory
         el.dump(config["output"])
+
+    # Plot fitting history
+    evaluate_fitting(train_history=hist, out_path=config["output"])

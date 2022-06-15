@@ -197,6 +197,7 @@ def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
 def evalby_barplot(metrics, out_path, class_names, suffix=None):
     # Remove confusion matrix from metric dataframe
     df_metrics = metrics[~metrics["metric"].isin(["TN", "FN", "FP", "TP"])]
+    df_metrics["class"] = pd.Categorical(df_metrics["class"])
 
     # Plot metric results
     fig = (ggplot(df_metrics, aes("class", "score", fill="class"))
@@ -234,7 +235,7 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, suffix=None):
         df_roc.rename(index=class_mapping, inplace=True)
     df_roc = df_roc.reset_index()
     df_roc.rename(columns={"index": "class", 0: "FPR", 1: "TPR"}, inplace=True)
-    if class_names is None : df_roc["class"] = pd.Categorical(df_roc["class"])
+    df_roc["class"] = pd.Categorical(df_roc["class"])
     # Convert from object to float
     df_roc["FPR"] = df_roc["FPR"].astype(float)
     df_roc["TPR"] = df_roc["TPR"].astype(float)

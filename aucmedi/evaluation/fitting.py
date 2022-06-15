@@ -59,6 +59,28 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
         prefix_split (str):         Split prefix for keys in the history dictionary. Used for Bagging and Stacking.
         suffix (str):               Special suffix to add in the created figure filename.
     """
+    # Combine transfer learning logs if present
+    if ("cv_0.tl_loss" in train_history and "cv_0.ft_loss" in train_history) or\
+       ("tl_loss" in train_history and "ft_loss" in train_history):
+        train_history_tmp = train_history.copy()
+        for key in train_history_tmp:
+            if "tl_" in key:
+               sec_key = key.replace("tl_", "ft_")
+               if key in train_history and sec_key in train_history:
+                   new_key = key.replace("tl_", "")
+                   train_history[new_key] = train_history[key] + \
+                                            train_history[sec_key]
+                   del train_history[key]
+                   del train_history[sec_key]
+            elif "ft_" in key:
+                sec_key = key.replace("ft_", "tl_")
+                if key in train_history and sec_key in train_history:
+                    new_key = key.replace("ft_", "")
+                    train_history[new_key] = train_history[sec_key] + \
+                                             train_history[key]
+                    del train_history[key]
+                    del train_history[sec_key]
+                    
     # Convert to pandas dataframe
     dt = pd.DataFrame.from_dict(train_history, orient="columns")
 

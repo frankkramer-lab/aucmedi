@@ -128,14 +128,55 @@ def cli_training(subparsers):
                     help="Boolean, whether imaging data is 2D or 3D " + \
                          "(default: '%(default)s')",
                     )
-
-    # shape_3D (tuple of int):            Desired input shape of 3D volume for architecture (will be cropped).
-    # epochs (int):                       Number of epochs. A single epoch is defined as one iteration through
-    #                                     the complete data set.
-    # batch_size (int):                   Number of samples inside a single batch.
-    # workers (int):                      Number of workers/threads which preprocess batches during runtime.
-    # metalearner (str):                  Key for Metalearner or Aggregate function.
-    # architecture (str or list of str):  Key (str) of a neural network model Architecture class instance.
+    oa.add_argument("--shape_3D",
+                    type=str,
+                    required=False,
+                    default="128x128x128",
+                    help="Desired input shape of 3D volume for architecture "+ \
+                         "(will be cropped into, " + \
+                         "format: '1x2x3', " + \
+                         "default: '%(default)s')",
+                    )
+    oa.add_argument("--epochs",
+                    type=int,
+                    required=False,
+                    default=500,
+                    help="Number of epochs. A single epoch is defined as " + \
+                         "one iteration through the complete data set " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--batch_size",
+                    type=int,
+                    required=False,
+                    default=12,
+                    help="Number of samples inside a single batch " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--worker",
+                    type=int,
+                    required=False,
+                    default=1,
+                    help="Number of workers/threads which preprocess " + \
+                         "batches during runtime " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--metalearner",
+                    type=str,
+                    required=False,
+                    default="mean",
+                    help="Key for Metalearner or Aggregate function "+ \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--architecture",
+                    type=str,
+                    required=False,
+                    default="DenseNet121",
+                    help="Key of single or multiple Architectures " + \
+                         "(multiple Architectures are only supported for " + \
+                         "'analysis=composite', " + \
+                         "format: 'KEY' or 'KEY,KEY,KEY', " + \
+                         "default: '%(default)s')",
+                    )
 
 #-----------------------------------------------------#
 #                   CLI - Prediction                  #

@@ -21,3 +21,10 @@
 #-----------------------------------------------------#
 """ Work in Progress.
 """
+
+#-----------------------------------------------------#
+#                   Library imports                   #
+#-----------------------------------------------------#
+from aucmedi.automl.block_train import block_train
+from aucmedi.automl.block_pred import block_predict
+from aucmedi.automl.block_eval import block_evaluate

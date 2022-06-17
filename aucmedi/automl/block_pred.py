@@ -82,12 +82,12 @@ def block_predict(config):
                 "multiprocessing": False,
     }
     # Select input shape for 3D
-    if not meta_training["two_dim"]:
+    if meta_training["three_dim"]:
         nn_paras["input_shape"] = tuple(meta_training["shape_3D"])
 
     # Subfunctions
     sf_list = []
-    if not meta_training["two_dim"]:
+    if meta_training["three_dim"]:
         sf_norm = Standardize(mode="grayscale")
         sf_pad = Padding(mode="constant", shape=meta_training["shape_3D"])
         sf_crop = Crop(shape=meta_training["shape_3D"], mode="random")
@@ -108,13 +108,13 @@ def block_predict(config):
         "shuffle": False,
         "grayscale": False,
     }
-    if meta_training["two_dim"] : paras_datagen["loader"] = image_loader
+    if not meta_training["three_dim"] : paras_datagen["loader"] = image_loader
     else : paras_datagen["loader"] = sitk_loader
 
     # Apply MIC pipelines
     if meta_training["analysis"] == "minimal":
         # Setup neural network
-        if meta_training["two_dim"]:
+        if not meta_training["three_dim"]:
             arch_dim = "2D." + meta_training["architecture"]
         else : arch_dim = "3D." + meta_training["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
@@ -132,7 +132,7 @@ def block_predict(config):
         preds = model.predict(prediction_generator=pred_gen)
     elif meta_training["analysis"] == "standard":
         # Setup neural network
-        if meta_training["two_dim"]:
+        if not meta_training["three_dim"]:
             arch_dim = "2D." + meta_training["architecture"]
         else : arch_dim = "3D." + meta_training["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
@@ -152,7 +152,7 @@ def block_predict(config):
         # Build multi-model list
         model_list = []
         for arch in meta_training["architecture"]:
-            if meta_training["two_dim"] : arch_dim = "2D." + arch
+            if not meta_training["three_dim"] : arch_dim = "2D." + arch
             else : arch_dim = "3D." + arch
             model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
             model_list.append(model_part)

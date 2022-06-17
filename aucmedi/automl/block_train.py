@@ -58,7 +58,7 @@ def block_train(config):
         output (str):                       Path to the output directory in which fitted models and metadata are stored.
         analysis (str):                     Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`.
         ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
-        two_dim (bool):                     Boolean, whether data is 2D or 3D.
+        three_dim (bool):                   Boolean, whether data is 2D or 3D.
         shape_3D (tuple of int):            Desired input shape of 3D volume for architecture (will be cropped).
         epochs (int):                       Number of epochs. A single epoch is defined as one iteration through
                                             the complete data set.
@@ -142,13 +142,13 @@ def block_train(config):
                 "multiprocessing": False,
     }
     # Select input shape for 3D
-    if not config["two_dim"] : nn_paras["input_shape"] = config["shape_3D"]
+    if config["three_dim"] : nn_paras["input_shape"] = config["shape_3D"]
     # Select task type
     if config["multi_label"] : nn_paras["activation_output"] = "sigmoid"
     else : nn_paras["activation_output"] = "softmax"
 
     # Initialize Augmentation for 2D image data
-    if config["two_dim"]:
+    if not config["three_dim"]:
         data_aug = ImageAugmentation(flip=True, rotate=True, scale=False,
                                      brightness=True, contrast=True,
                                      saturation=False, hue=False, crop=False,
@@ -157,7 +157,7 @@ def block_train(config):
                                      gaussian_blur=False, downscaling=False,
                                      elastic_transform=True)
     # Initialize Augmentation for 3D volume data
-    elif not config["two_dim"]:
+    elif config["three_dim"]:
         data_aug = BatchgeneratorsAugmentation(image_shape=config["shape_3D"],
                         mirror=True, rotate=True, scale=True,
                         elastic_transform=True, gaussian_noise=False,
@@ -166,7 +166,7 @@ def block_train(config):
 
     # Subfunctions
     sf_list = []
-    if not config["two_dim"]:
+    if config["three_dim"]:
         sf_norm = Standardize(mode="grayscale")
         sf_pad = Padding(mode="constant", shape=config["shape_3D"])
         sf_crop = Crop(shape=config["shape_3D"], mode="random")
@@ -185,7 +185,7 @@ def block_train(config):
         "image_format": image_format,
         "workers": config["workers"],
     }
-    if config["two_dim"] : paras_datagen["loader"] = image_loader
+    if not config["three_dim"] : paras_datagen["loader"] = image_loader
     else : paras_datagen["loader"] = sitk_loader
 
     # Gather training parameters
@@ -200,7 +200,7 @@ def block_train(config):
     # Apply MIC pipelines
     if config["analysis"] == "minimal":
         # Setup neural network
-        if config["two_dim"] : arch_dim = "2D." + config["architecture"]
+        if not config["three_dim"] : arch_dim = "2D." + config["architecture"]
         else : arch_dim = "3D." + config["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
@@ -219,7 +219,7 @@ def block_train(config):
         model.dump(path_model)
     elif config["analysis"] == "standard":
         # Setup neural network
-        if config["two_dim"] : arch_dim = "2D." + config["architecture"]
+        if not config["three_dim"] : arch_dim = "2D." + config["architecture"]
         else : arch_dim = "3D." + config["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
@@ -258,7 +258,7 @@ def block_train(config):
         # Build multi-model list
         model_list = []
         for arch in config["architecture"]:
-            if config["two_dim"] : arch_dim = "2D." + arch
+            if not config["three_dim"] : arch_dim = "2D." + arch
             else : arch_dim = "3D." + arch
             model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
             model_list.append(model_part)

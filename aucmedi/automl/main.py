@@ -205,13 +205,73 @@ def cli_prediction(subparsers):
     # Set description for cli training
     desc = """ Pipeline hub for Inference via AUCMEDI AutoML """
     # Setup SubParser
-    pp = subparsers.add_parser("prediction", help=desc)
+    parser_predict = subparsers.add_parser("prediction", help=desc,
+                                           add_help=False)
 
-    pp.add_argument('--path_pred', choices='XYZ', help='baz help')
+    # Add required configuration arguments
+    ra = parser_predict.add_argument_group("required arguments")
+    ra.add_argument("--path_imagedir",
+                    type=str,
+                    required=True,
+                    help="Path to the directory containing the images",
+                    )
 
-    # # Define SubParser Evaluation
-    # parser_pred = subparsers.add_parser('evaluation', help='asd')
-    # parser_pred.add_argument('--path_pred', choices='XYZ', help='baz help')
+    # Add optional configuration arguments
+    oa = parser_predict.add_argument_group("optional arguments")
+    oa.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
+    oa.add_argument("--path_input",
+                    type=str,
+                    required=False,
+                    default="model",
+                    help="Path to the input directory in which fitted " + \
+                         "models and metadata are stored " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--path_output",
+                    type=str,
+                    required=False,
+                    default="predictions.csv",
+                    help="Path to the output file in which predicted csv " + \
+                         "file should be stored " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--xai_method",
+                    type=str,
+                    required=False,
+                    help="Key for XAI method " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--xai_directory",
+                    type=str,
+                    required=False,
+                    default="xai",
+                    help="Path to the output directory in which predicted " + \
+                         "image xai heatmaps should be stored " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--batch_size",
+                    type=int,
+                    required=False,
+                    default=12,
+                    help="Number of samples inside a single batch " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--worker",
+                    type=int,
+                    required=False,
+                    default=1,
+                    help="Number of workers/threads which preprocess " + \
+                         "batches during runtime " + \
+                         "(default: '%(default)s')",
+                    )
+
+    # Help page hook for passing no parameters
+    if len(sys.argv)==2 and sys.argv[1] == "prediction":
+        parser_predict.print_help(sys.stderr)
+        sys.exit(1)
 
 #-----------------------------------------------------#
 #                Main Method - Runner                 #

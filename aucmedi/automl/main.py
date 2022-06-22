@@ -53,12 +53,27 @@ def cli_yaml(subparsers):
     # Set description for cli training
     desc = """ YAML interface for reading configurations from a file """
     # Setup SubParser
-    parser_yaml = subparsers.add_parser("yaml", help=desc)
+    parser_yaml = subparsers.add_parser("yaml", help=desc, add_help=False)
 
-    # Add configuration arguments
-    parser_yaml.add_argument("-i", "--input", type=str,
-                             help="Path to a YAML file with AUCMEDI AutoML " + \
-                                  "configurations")
+    # Add required configuration arguments
+    ra = parser_yaml.add_argument_group("required arguments")
+    ra.add_argument("-i", "--input",
+                    type=str,
+                    required=True,
+                    help="Path to a YAML file with AUCMEDI AutoML " + \
+                         "configurations")
+
+    # Add optional configuration arguments
+    oa = parser_yaml.add_argument_group("optional arguments")
+    oa.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
+
+    # Help page hook for passing no parameters
+    if len(sys.argv)==2 and sys.argv[1] == "yaml":
+        parser_yaml.print_help(sys.stderr)
+        sys.exit(1)
 
 #-----------------------------------------------------#
 #                    CLI - Training                   #
@@ -92,9 +107,9 @@ def cli_training(subparsers):
                     help="show this help message and exit")
     oa.add_argument("--analysis",
                     type=str,
-                    required=True,
+                    required=False,
                     default="standard",
-                    choices=["minimal", "standard", "composite"],
+                    choices=["minimal", "standard", "advanced"],
                     help="Analysis mode for the AutoML training " + \
                          "(default: '%(default)s')",
                     )
@@ -173,10 +188,15 @@ def cli_training(subparsers):
                     default="DenseNet121",
                     help="Key of single or multiple Architectures " + \
                          "(multiple Architectures are only supported for " + \
-                         "'analysis=composite', " + \
+                         "'analysis=advanced', " + \
                          "format: 'KEY' or 'KEY,KEY,KEY', " + \
                          "default: '%(default)s')",
                     )
+
+    # Help page hook for passing no parameters
+    if len(sys.argv)==2 and sys.argv[1] == "training":
+        parser_train.print_help(sys.stderr)
+        sys.exit(1)
 
 #-----------------------------------------------------#
 #                   CLI - Prediction                  #

@@ -274,6 +274,74 @@ def cli_prediction(subparsers):
         sys.exit(1)
 
 #-----------------------------------------------------#
+#                   CLI - Evaluation                  #
+#-----------------------------------------------------#
+def cli_evaluation(subparsers):
+    # Set description for cli training
+    desc = """ Pipeline hub for Evaluation via AUCMEDI AutoML """
+    # Setup SubParser
+    parser_evaluate = subparsers.add_parser("evaluation", help=desc,
+                                           add_help=False)
+
+    # Add required configuration arguments
+    ra = parser_evaluate.add_argument_group("required arguments")
+    ra.add_argument("--interface",
+                    type=str,
+                    required=True,
+                    choices=["csv", "directory"],
+                    help="String defining format interface for loading/storing"\
+                         + " data",
+                    )
+    ra.add_argument("--path_imagedir",
+                    type=str,
+                    required=True,
+                    help="Path to the directory containing the images",
+                    )
+
+    # Add optional configuration arguments
+    oa = parser_evaluate.add_argument_group("optional arguments")
+    oa.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
+    oa.add_argument("--path_data",
+                    type=str,
+                    required=False,
+                    help="Path to the index/class annotation CSV file " + \
+                         "(only required for interface 'csv')",
+                    )
+    oa.add_argument("--ohe",
+                    action="store_true",
+                    required=False,
+                    default=False,
+                    help="Boolean option whether annotation data is sparse " + \
+                         "categorical or one-hot encoded " + \
+                         "(only required for interface 'csv', " + \
+                         "default: '%(default)s')",
+                    )
+    oa.add_argument("--path_input",
+                    type=str,
+                    required=False,
+                    default="predictions.csv",
+                    help="Path to the output file in which predicted csv " + \
+                         "file are stored " + \
+                         "(default: '%(default)s')",
+                    )
+    oa.add_argument("--path_output",
+                    type=str,
+                    required=False,
+                    default="evaluation",
+                    help="Path to the directory in which evaluation " + \
+                         "figures and tables should be stored " + \
+                         "(default: '%(default)s')",
+                    )
+
+    # Help page hook for passing no parameters
+    if len(sys.argv)==2 and sys.argv[1] == "evaluation":
+        parser_evaluate.print_help(sys.stderr)
+        sys.exit(1)
+
+#-----------------------------------------------------#
 #                Main Method - Runner                 #
 #-----------------------------------------------------#
 if __name__ == "__main__":
@@ -285,6 +353,8 @@ if __name__ == "__main__":
     cli_training(subparsers)
     # Define Subparser Prediction
     cli_prediction(subparsers)
+    # Define Subparser Evaluation
+    cli_evaluation(subparsers)
 
     # Help page hook for passing no parameters
     if len(sys.argv)==1:
@@ -293,12 +363,4 @@ if __name__ == "__main__":
     # Parse arguments
     else : parser.parse_args()
 
-
-# read any single paramter via args -> 3x groups (analysis) with various parameters each
-
-# read a single yaml file -> one path to yaml file
-
-# run associated modi:
-# simple
-# standard
-# advanced (composite)
+    # call cli or yaml parser

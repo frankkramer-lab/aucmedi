@@ -25,6 +25,10 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
+# Block functions
 from aucmedi.automl.block_train import block_train
 from aucmedi.automl.block_pred import block_predict
 from aucmedi.automl.block_eval import block_evaluate
+# Parser
+from aucmedi.automl.parser_yaml import parse_yaml
+from aucmedi.automl.parser_cli import parse_cli

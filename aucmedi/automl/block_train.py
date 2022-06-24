@@ -109,7 +109,7 @@ def block_train(config):
         callbacks.append(cb_loss)
     if config["analysis"] in ["minimal", "standard"]:
         cb_cl = CSVLogger(os.path.join(config["output"], "logs.training.csv"),
-                          separator=',', append=False)
+                          separator=',', append=True)
         callbacks.append(cb_cl)
     if config["analysis"] != "minimal":
         cb_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=8,

@@ -62,9 +62,6 @@ def block_predict(config):
                          image_format=None)
     (index_list, _, _, _, image_format) = ds
 
-    # Create output directory
-    if not os.path.exists(config["output"]) : os.mkdir(config["output"])
-
     # Verify existence of input directory
     if not os.path.exists(config["input"]):
         raise FileNotFoundError(config["input"])

@@ -23,6 +23,7 @@
 import os
 import pandas as pd
 import numpy as np
+import re
 # Internal libraries
 from aucmedi import *
 from aucmedi.evaluation import evaluate_performance
@@ -43,7 +44,7 @@ def block_evaluate(config):
 
     Attributes:
         interface (str):                    String defining format interface for loading/storing data (`csv` or `dictionary`).
-        path_imagedir (str):                Path to the directory containing the images.
+        path_imagedir (str):                Path to the directory containing the ground truth images.
         path_data (str):                    Path to the index/class annotation file if required. (csv/json).
         input (str):                        Path to the input file in which predicted csv file is stored.
         output (str):                       Path to the directory in which evaluation figures and tables should be stored.
@@ -69,11 +70,25 @@ def block_evaluate(config):
     df_gt_data = pd.DataFrame(data=class_ohe, columns=class_names)
     df_gt = pd.concat([df_index, df_gt_data], axis=1, sort=False)
 
+
+    # Verify - maybe there is a file path encoded in the index?
+    if os.path.sep in df_gt.iloc[0,0]:
+        samples_split = df_gt["SAMPLE"].str.split(pat=os.path.sep,
+                                                  expand=False)
+        df_gt["SAMPLE"] = samples_split.str[-1]
+    # Verify - maybe the image format is present in the index?
+    if image_format is None and bool(re.fullmatch(r"^.*\.[A-Za-z]+$",
+                                                  df_gt.iloc[0,0])):
+        samples_split = df_gt["SAMPLE"].str.split(pat=".",
+                                                  expand=False)
+        df_gt["SAMPLE"] = samples_split.str[:-1].str.join(".")
+
     # Merge dataframes to verify correct order
     df_merged = df_pred.merge(df_gt, on="SAMPLE", suffixes=("_pd", "_gt"))
+
     # Extract pd and gt again to NumPy
     data_pd = df_merged.iloc[:, 1:(class_n+1)].to_numpy()
-    data_gt = df_merged.iloc[:, (class_n+1):9].to_numpy()
+    data_gt = df_merged.iloc[:, (class_n+1):].to_numpy()
 
     # Identify task (multi-class vs multi-label)
     if np.sum(data_pd) > (class_ohe.shape[0] + 1.5) : multi_label = True

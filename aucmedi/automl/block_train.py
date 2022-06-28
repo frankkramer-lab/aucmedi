@@ -112,9 +112,9 @@ def block_train(config):
                           separator=',', append=True)
         callbacks.append(cb_cl)
     if config["analysis"] != "minimal":
-        cb_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=8,
+        cb_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5,
                               verbose=1, mode='min', min_lr=1e-7)
-        cb_es = EarlyStopping(monitor='val_loss', patience=36, verbose=1)
+        cb_es = EarlyStopping(monitor='val_loss', patience=12, verbose=1)
         callbacks.extend([cb_lr, cb_es])
 
     # Initialize loss function for multi-class

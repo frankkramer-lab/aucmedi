@@ -295,7 +295,8 @@ def cli_evaluation(subparsers):
     ra.add_argument("--path_imagedir",
                     type=str,
                     required=True,
-                    help="Path to the directory containing the images",
+                    help="Path to the directory containing the ground truth" + \
+                         " images",
                     )
 
     # Add optional configuration arguments

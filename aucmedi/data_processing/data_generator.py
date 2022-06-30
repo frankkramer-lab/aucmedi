@@ -50,22 +50,44 @@ class DataGenerator(Iterator):
 
     The DataGenerator can be used for training, validation as well as for prediction.
 
+    ???+ warning
+        When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
+        by the `input_interface()`. It assures, that the samples contain the expected file extension.
+
     ???+ example
         ```python
         # Import
         from aucmedi import *
 
         # Initialize model
-        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model = NeuralNetwork(
+            n_labels=8,
+            channels=3,
+            architecture="2D.ResNet50"
+        )
 
         # Do some training
-        datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
-                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
+        datagen_train = DataGenerator(
+            samples=samples[:100],
+            path_imagedir="images_dir/",
+            image_format=image_format,
+            labels=class_ohe[:100],
+            resize=model.meta_input,
+            standardize_mode=model.meta_standardize
+        )
+
         model.train(datagen_train, epochs=50)
 
         # Do some predictions
-        datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
-                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        datagen_test = DataGenerator(
+            samples=samples[100:150],
+            path_imagedir="images_dir/",
+            image_format=image_format,
+            labels=None,
+            resize=model.meta_input,
+            standardize_mode=model.meta_standardize
+        )
+
         preds = model.predict(datagen_test)
         ```
 

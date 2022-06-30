@@ -124,10 +124,5 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
         # Raise Exception if image format is unknown
         if image_format is None:
             raise Exception("Unknown image format.", path_imagedir)
-
-        # If the list of samples does not contain the file extension, we add them manually
-        if not str(index_list[0]).endswith('.{}'.format(image_format)):
-            index_list = ['{}.{}'.format(file_name, image_format) for file_name in index_list]
-
         # Return parsing
         return index_list, None, None, None, image_format

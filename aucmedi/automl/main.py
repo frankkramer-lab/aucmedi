@@ -28,7 +28,7 @@ from aucmedi.automl.cli import *
 #-----------------------------------------------------#
 #                Main Method - Runner                 #
 #-----------------------------------------------------#
-if __name__ == "__main__":
+def main():
     # Initialize argparser core
     parser, subparsers = cli_core()
     # Define Subparser YAML
@@ -57,3 +57,7 @@ if __name__ == "__main__":
     if config["hub"] == "prediction" : block_predict(config)
     # Run evaluation pipeline
     if config["hub"] == "evaluation" : block_evaluate(config)
+
+# Runner for direct script call
+if __name__ == "__main__":
+    main()

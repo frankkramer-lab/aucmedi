@@ -35,6 +35,9 @@ def parse_cli(args):
     if config["hub"] == "training":
         # Handle 3D shape - from str to tuple
         config["shape_3D"] = tuple(map(int, config["shape_3D"].split("x")))
+        # Handle architecture list
+        if "," in config["architecture"]:
+            config["architecture"] = config["architecture"].split(",")
     else:
         # Handle input path
         config["input"] = config["path_input"]

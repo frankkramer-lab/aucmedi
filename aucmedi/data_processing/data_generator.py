@@ -50,10 +50,6 @@ class DataGenerator(Iterator):
 
     The DataGenerator can be used for training, validation as well as for prediction.
 
-    ???+ warning
-        When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
-        by the `input_interface()`. It assures, that the samples contain the expected file extension.
-
     ???+ example
         ```python
         # Import
@@ -102,6 +98,13 @@ class DataGenerator(Iterator):
     4. Application of Data Augmentation
     5. Standardize image
     6. Stacking processed images to a batch
+
+    ???+ warning
+        When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
+        by the `input_interface()` and the `resize` & `standardize_mode` parameters provided by the
+        `NeuralNetwork` class attributes `meta_input` & `meta_standardize`.
+
+        It assures, that the samples contain the expected file extension, input shape and standardization.
 
     ???+ abstract "Build on top of the library"
         Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator

@@ -150,5 +150,9 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         raise Exception("Numbers of samples and annotations do not match!",
                         len(index_list), len(class_ohe))
 
+    # If the list of samples does not contain the file extension, we add them manually
+    if not str(index_list[0]).endswith('.{}'.format(image_format)):
+        index_list = ['{}.{}'.format(file_name, image_format) for file_name in index_list]
+
     # Return parsed JSON data
     return index_list, class_ohe, class_n, class_names, image_format

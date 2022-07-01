@@ -6,7 +6,7 @@ AUCMEDI is based on 3 pillars which allow building any state-of-the-art medical 
     | Pillar                                                                    | Type     | Description                                                       |
     | ------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
     | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Function | Obtaining general information from the dataset.                   |
-    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]         | Class    | Building the deep learning model.                                 | 
+    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]         | Class    | Building the deep learning model.                                 |
     | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Class    | Powerful interface for loading any images/volumes into the model. |
 
 The different pillars are represented in Python as function and classes.
@@ -54,7 +54,9 @@ Congratulations to your ready-to-use Medical Image Classification pipeline inclu
 train_gen = DataGenerator(samples=index_list[:1000],
                           path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                           labels=class_ohe[:1000],
-                          image_format=image_format)
+                          image_format=image_format,
+                          resize=model.meta_input,
+                          standardize_mode=model.meta_standardize)
 # Run model training with Transfer Learning
 model.train(train_gen, epochs=20, transfer_learning=True)
 
@@ -62,7 +64,9 @@ model.train(train_gen, epochs=20, transfer_learning=True)
 test_gen = DataGenerator(samples=index_list[1000:1500],
                          path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                          labels=None,
-                         image_format=image_format)
+                         image_format=image_format,
+                         resize=model.meta_input,
+                         standardize_mode=model.meta_standardize)
 # Run model inference for unknown samples
 preds = model.predict(test_gen)
 

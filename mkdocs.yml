@@ -79,6 +79,16 @@ nav:
   - Framework: examples/framework.md
   - AutoML: examples/automl.md
   - Applications: examples/applications.md
+- AutoML:
+  - Overview: automl/overview.md
+  - Command Line Interface:
+    - Introduction: automl/cli/intro.md
+    - Usage: automl/cli/usage.md
+    - Parameters: automl/cli/parameters.md
+  - Docker:
+    - Introduction: automl/docker/intro.md
+    - Usage: automl/docker/usage.md
+    - Parameters: automl/docker/parameters.md
 - API Reference: reference/
 - About Us: about.md
 

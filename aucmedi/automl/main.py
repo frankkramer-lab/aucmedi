@@ -31,8 +31,8 @@ from aucmedi.automl.cli import *
 def main():
     # Initialize argparser core
     parser, subparsers = cli_core()
-    # Define Subparser YAML
-    cli_yaml(subparsers)
+    # # Define Subparser YAML
+    # cli_yaml(subparsers)
     # Define Subparser Training
     cli_training(subparsers)
     # Define Subparser Prediction

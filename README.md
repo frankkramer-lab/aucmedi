@@ -109,7 +109,9 @@ Congratulations to your ready-to-use Medical Image Classification pipeline inclu
 train_gen = DataGenerator(samples=index_list[:1000],
                           path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                           labels=class_ohe[:1000],
-                          image_format=image_format)
+                          image_format=image_format,
+                          resize=model.meta_input,
+                          standardize_mode=model.meta_standardize)
 # Run model training with Transfer Learning
 model.train(train_gen, epochs=20, transfer_learning=True)
 
@@ -117,7 +119,9 @@ model.train(train_gen, epochs=20, transfer_learning=True)
 test_gen = DataGenerator(samples=index_list[1000:1500],
                          path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
                          labels=None,
-                         image_format=image_format)
+                         image_format=image_format,
+                         resize=model.meta_input,
+                         standardize_mode=model.meta_standardize)
 # Run model inference for unknown samples
 preds = model.predict(test_gen)
 

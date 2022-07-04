@@ -68,13 +68,12 @@ class AutoML_block_evaluate(unittest.TestCase):
                                                      suffix=".train")
         # Define config
         config = {
-            "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "output": self.model_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": self.model_dir.name,
             "analysis": "minimal",
             "ohe": False,
-            "two_dim": True,
+            "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
             "workers": 1,
@@ -89,8 +88,8 @@ class AutoML_block_evaluate(unittest.TestCase):
                                                      suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": self.model_dir.name,
-            "output": self.pred_path.name,
+            "path_modeldir": self.model_dir.name,
+            "path_pred": self.pred_path.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -105,11 +104,10 @@ class AutoML_block_evaluate(unittest.TestCase):
     def test_eval_performance(self):
         # Define config
         config = {
-            "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "input": self.pred_path.name,
-            "output": self.model_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_pred": self.pred_path.name,
+            "path_evaldir": self.model_dir.name,
             "ohe": False,
         }
         # Run evaluation block

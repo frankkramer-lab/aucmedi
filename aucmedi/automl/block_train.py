@@ -52,10 +52,9 @@ def block_train(config):
     The following attributes are stored in the `config` dictionary:
 
     Attributes:
-        interface (str):                    String defining format interface for loading/storing data (`csv` or `dictionary`).
         path_imagedir (str):                Path to the directory containing the images.
-        path_data (str):                    Path to the index/class annotation file if required. (csv/json).
-        output (str):                       Path to the output directory in which fitted models and metadata are stored.
+        path_modeldir (str):                Path to the output directory in which fitted models and metadata are stored.
+        path_gt (str):                      Path to the index/class annotation file if required. (only for 'csv' interface).
         analysis (str):                     Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`.
         ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
         three_dim (bool):                   Boolean, whether data is 2D or 3D.
@@ -67,17 +66,21 @@ def block_train(config):
         metalearner (str):                  Key for Metalearner or Aggregate function.
         architecture (str or list of str):  Key (str) of a neural network model Architecture class instance.
     """
+    # Obtain interface
+    if config["path_gt"] is None : config["interface"] = "directory"
+    else : config["interface"] = "csv"
     # Peak into the dataset via the input interface
     ds = input_interface(config["interface"],
                          config["path_imagedir"],
-                         path_data=config["path_data"],
+                         path_data=config["path_gt"],
                          training=True,
                          ohe=config["ohe"],
                          image_format=None)
     (index_list, class_ohe, class_n, class_names, image_format) = ds
 
     # Create output directory
-    if not os.path.exists(config["output"]) : os.mkdir(config["output"])
+    if not os.path.exists(config["path_modeldir"]):
+        os.mkdir(config["path_modeldir"])
 
     # Identify task (multi-class vs multi-label)
     if np.sum(class_ohe) > class_ohe.shape[0] : config["multi_label"] = True
@@ -95,20 +98,21 @@ def block_train(config):
 
     # Store meta information
     config["class_names"] = class_names
-    path_meta = os.path.join(config["output"], "meta.training.json")
+    path_meta = os.path.join(config["path_modeldir"], "meta.training.json")
     with open(path_meta, "w") as json_io:
         json.dump(config, json_io)
 
     # Define Callbacks
     callbacks = []
     if config["analysis"] == "standard":
-        cb_loss = ModelCheckpoint(os.path.join(config["output"],
+        cb_loss = ModelCheckpoint(os.path.join(config["path_modeldir"],
                                                "model.best_loss.hdf5"),
                                   monitor="val_loss", verbose=1,
                                   save_best_only=True)
         callbacks.append(cb_loss)
     if config["analysis"] in ["minimal", "standard"]:
-        cb_cl = CSVLogger(os.path.join(config["output"], "logs.training.csv"),
+        cb_cl = CSVLogger(os.path.join(config["path_modeldir"],
+                                       "logs.training.csv"),
                           separator=',', append=True)
         callbacks.append(cb_cl)
     if config["analysis"] != "minimal":
@@ -215,7 +219,7 @@ def block_train(config):
         # Start model training
         hist = model.train(training_generator=train_gen, **paras_train)
         # Store model
-        path_model = os.path.join(config["output"], "model.last.hdf5")
+        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
         model.dump(path_model)
     elif config["analysis"] == "standard":
         # Setup neural network
@@ -248,7 +252,7 @@ def block_train(config):
                            validation_generator=val_gen,
                            **paras_train)
         # Store model
-        path_model = os.path.join(config["output"], "model.last.hdf5")
+        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
         model.dump(path_model)
     else:
         # Sanity check of architecutre config
@@ -275,7 +279,7 @@ def block_train(config):
         # Start model training
         hist = el.train(training_generator=train_gen, **paras_train)
         # Store model directory
-        el.dump(config["output"])
+        el.dump(config["path_modeldir"])
 
     # Plot fitting history
-    evaluate_fitting(train_history=hist, out_path=config["output"])
+    evaluate_fitting(train_history=hist, out_path=config["path_modeldir"])

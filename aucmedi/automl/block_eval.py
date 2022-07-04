@@ -43,27 +43,30 @@ def block_evaluate(config):
     The following attributes are stored in the `config` dictionary:
 
     Attributes:
-        interface (str):                    String defining format interface for loading/storing data (`csv` or `dictionary`).
         path_imagedir (str):                Path to the directory containing the ground truth images.
-        path_data (str):                    Path to the index/class annotation file if required. (csv/json).
-        input (str):                        Path to the input file in which predicted csv file is stored.
-        output (str):                       Path to the directory in which evaluation figures and tables should be stored.
+        path_gt (str):                      Path to the index/class annotation file if required. (only for 'csv' interface).
+        path_pred (str):                    Path to the input file in which predicted csv file is stored.
+        path_evaldir (str):                 Path to the directory in which evaluation figures and tables should be stored.
         ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
     """
+    # Obtain interface
+    if config["path_gt"] is None : config["interface"] = "directory"
+    else : config["interface"] = "csv"
     # Peak into the dataset via the input interface
     ds = input_interface(config["interface"],
                          config["path_imagedir"],
-                         path_data=config["path_data"],
+                         path_data=config["path_gt"],
                          training=True,
                          ohe=config["ohe"],
                          image_format=None)
     (index_list, class_ohe, class_n, class_names, image_format) = ds
 
     # Create output directory
-    if not os.path.exists(config["output"]) : os.mkdir(config["output"])
+    if not os.path.exists(config["path_evaldir"]):
+        os.mkdir(config["path_evaldir"])
 
     # Read prediction csv
-    df_pred = pd.read_csv(config["input"])
+    df_pred = pd.read_csv(config["path_pred"])
 
     # Create ground truth pandas dataframe
     df_index = pd.DataFrame(data={"SAMPLE": index_list})
@@ -96,7 +99,7 @@ def block_evaluate(config):
 
     # Evaluate performance via AUCMEDI evaluation submodule
     evaluate_performance(data_pd, data_gt,
-                         out_path=config["output"],
+                         out_path=config["path_evaldir"],
                          class_names=class_names,
                          multi_label=multi_label,
                          metrics_threshold=0.5,

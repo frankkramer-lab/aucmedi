@@ -95,29 +95,26 @@ class AutoML_CLI(unittest.TestCase):
 
     def test_training_functionality(self):
         args = ["aucmedi", "training"]
-        args_required = ["--interface", "directory",
-                         "--path_imagedir", self.tmp_data.name]
-        args_optional = ["--epochs", "1",
-                         "--architecture", "Vanilla",
-                         "--path_output", self.tmp_model.name]
-        with patch.object(sys, "argv", args + args_required + args_optional):
+        args_config = ["--path_imagedir", self.tmp_data.name,
+                       "--epochs", "1",
+                       "--architecture", "Vanilla",
+                       "--path_modeldir", self.tmp_model.name]
+        with patch.object(sys, "argv", args + args_config):
             main()
 
     def test_training_args(self):
         args = ["aucmedi", "training"]
-        args_required = ["--interface", "directory",
-                         "--path_imagedir", self.tmp_data.name]
+        args_config = ["--path_imagedir", self.tmp_data.name]
         # Build and run CLI functions
-        with patch.object(sys, "argv", args + args_required):
+        with patch.object(sys, "argv", args + args_config):
             parser, subparsers = cli_core()
             cli_training(subparsers)
             args = parser.parse_args()
             config_cli = parse_cli(args)
         # Define possible config parameters
-        config_map = ["interface",
-                      "path_imagedir",
-                      "path_data",
-                      "output",
+        config_map = ["path_imagedir",
+                      "path_gt",
+                      "path_modeldir",
                       "analysis",
                       "ohe",
                       "three_dim",
@@ -145,39 +142,38 @@ class AutoML_CLI(unittest.TestCase):
     def test_prediction_functionality(self):
         # Training
         args = ["aucmedi", "training"]
-        args_required = ["--interface", "directory",
-                         "--path_imagedir", self.tmp_data.name]
-        args_optional = ["--epochs", "1",
-                         "--architecture", "Vanilla",
-                         "--path_output", self.tmp_model.name]
-        with patch.object(sys, "argv", args + args_required + args_optional):
+        args_config = ["--path_imagedir", self.tmp_data.name,
+                       "--epochs", "1",
+                       "--architecture", "Vanilla",
+                       "--path_modeldir", self.tmp_model.name]
+        with patch.object(sys, "argv", args + args_config):
             main()
         # Prediction
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
                                                  suffix=".pred.csv")
         args = ["aucmedi", "prediction"]
-        args_required = ["--path_imagedir", os.path.join(self.tmp_data.name,
-                                                         "class_0")]
-        args_optional = ["--path_input", self.tmp_model.name,
-                         "--path_output", tmp_output.name]
-        with patch.object(sys, "argv", args + args_required + args_optional):
+        args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
+                                                       "class_0"),
+                       "--path_modeldir", self.tmp_model.name,
+                       "--path_pred", tmp_output.name]
+        with patch.object(sys, "argv", args + args_config):
             main()
 
     def test_prediction_args(self):
         args = ["aucmedi", "prediction"]
-        args_required = ["--path_imagedir", os.path.join(self.tmp_data.name,
+        args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
                                                          "class_0")]
         # Build and run CLI functions
-        with patch.object(sys, "argv", args + args_required):
+        with patch.object(sys, "argv", args + args_config):
             parser, subparsers = cli_core()
             cli_prediction(subparsers)
             args = parser.parse_args()
             config_cli = parse_cli(args)
         # Define possible config parameters
         config_map = ["path_imagedir",
-                      "input",
-                      "output",
+                      "path_modeldir",
+                      "path_pred",
                       "xai_method",
                       "xai_directory",
                       "batch_size",
@@ -200,49 +196,46 @@ class AutoML_CLI(unittest.TestCase):
     def test_evaluation_functionality(self):
         # Training
         args = ["aucmedi", "training"]
-        args_required = ["--interface", "directory",
-                         "--path_imagedir", self.tmp_data.name]
-        args_optional = ["--epochs", "1",
-                         "--architecture", "Vanilla",
-                         "--path_output", self.tmp_model.name]
-        with patch.object(sys, "argv", args + args_required + args_optional):
+        args_config = ["--path_imagedir", self.tmp_data.name,
+                       "--epochs", "1",
+                       "--architecture", "Vanilla",
+                       "--path_modeldir", self.tmp_model.name]
+        with patch.object(sys, "argv", args + args_config):
             main()
         # Prediction
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
                                                  suffix=".pred.csv")
         args = ["aucmedi", "prediction"]
-        args_required = ["--path_imagedir", os.path.join(self.tmp_data.name,
-                                                         "class_0")]
-        args_optional = ["--path_input", self.tmp_model.name,
-                         "--path_output", tmp_output.name]
-        with patch.object(sys, "argv", args + args_required + args_optional):
+        args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
+                                                       "class_0"),
+                       "--path_modeldir", self.tmp_model.name,
+                       "--path_pred", tmp_output.name]
+        with patch.object(sys, "argv", args + args_config):
             main()
         # Evaluation
         tmp_eval = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                suffix=".eval")
         args = ["aucmedi", "evaluation"]
-        args_required = ["--interface", "directory",
-                         "--path_imagedir", self.tmp_data.name]
-        args_optional = ["--path_input", tmp_output.name,
-                         "--path_output", tmp_eval.name]
-        with patch.object(sys, "argv", args + args_required + args_optional):
+        args_config = ["--path_imagedir", self.tmp_data.name,
+                       "--path_pred", tmp_output.name,
+                       "--path_evaldir", tmp_eval.name]
+        with patch.object(sys, "argv", args + args_config):
             main()
 
     def test_evaluation_args(self):
         args = ["aucmedi", "evaluation"]
-        args_required = ["--interface", "directory",
-                         "--path_imagedir", self.tmp_data.name]
+        args_config = ["--path_imagedir", self.tmp_data.name]
         # Build and run CLI functions
-        with patch.object(sys, "argv", args + args_required):
+        with patch.object(sys, "argv", args + args_config):
             parser, subparsers = cli_core()
             cli_evaluation(subparsers)
             args = parser.parse_args()
             config_cli = parse_cli(args)
         # Define possible config parameters
-        config_map = ["path_data",
-                      "input",
-                      "output",
+        config_map = ["path_gt",
+                      "path_pred",
+                      "path_evaldir",
                       "ohe",
                      ]
         # Check existence

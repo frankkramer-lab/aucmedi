@@ -102,8 +102,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "minimal",
             "ohe": False,
             "three_dim": False,
@@ -123,8 +123,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -151,8 +151,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv_ohe.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv_ohe.name,
+            "path_modeldir": input_dir.name,
             "analysis": "minimal",
             "ohe": True,
             "three_dim": False,
@@ -171,8 +171,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -195,8 +195,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data3D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "minimal",
             "ohe": False,
             "three_dim": True,
@@ -216,8 +216,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data3D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -240,8 +240,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "minimal",
             "ohe": False,
             "three_dim": False,
@@ -263,8 +263,8 @@ class AutoML_block_predict(unittest.TestCase):
                                               suffix=".xai")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": "gradcam",
@@ -296,8 +296,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "standard",
             "ohe": False,
             "three_dim": False,
@@ -316,8 +316,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -340,8 +340,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "standard",
             "ohe": False,
             "three_dim": False,
@@ -362,8 +362,8 @@ class AutoML_block_predict(unittest.TestCase):
                                               suffix=".xai")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": "gradcam",
@@ -388,8 +388,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv_ohe.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv_ohe.name,
+            "path_modeldir": input_dir.name,
             "analysis": "standard",
             "ohe": True,
             "three_dim": False,
@@ -407,8 +407,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -431,8 +431,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data3D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "standard",
             "ohe": False,
             "three_dim": True,
@@ -452,8 +452,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data3D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -479,8 +479,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "advanced",
             "ohe": False,
             "three_dim": False,
@@ -499,8 +499,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -523,8 +523,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
-            "path_data": self.tmp_csv_ohe.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv_ohe.name,
+            "path_modeldir": input_dir.name,
             "analysis": "advanced",
             "ohe": True,
             "three_dim": False,
@@ -543,8 +543,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data2D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,
@@ -567,8 +567,8 @@ class AutoML_block_predict(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data3D.name,
-            "path_data": self.tmp_csv.name,
-            "output": input_dir.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": input_dir.name,
             "analysis": "advanced",
             "ohe": False,
             "three_dim": True,
@@ -588,8 +588,8 @@ class AutoML_block_predict(unittest.TestCase):
                                                  suffix=".pred.csv")
         config = {
             "path_imagedir": self.tmp_data3D.name,
-            "input": input_dir.name,
-            "output": tmp_output.name,
+            "path_modeldir": input_dir.name,
+            "path_pred": tmp_output.name,
             "batch_size": 4,
             "workers": 1,
             "xai_method": None,

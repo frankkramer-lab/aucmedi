@@ -38,13 +38,6 @@ def parse_cli(args):
         # Handle architecture list
         if "," in config["architecture"]:
             config["architecture"] = config["architecture"].split(",")
-    else:
-        # Handle input path
-        config["input"] = config["path_input"]
-        del config["path_input"]
-    # Handle output path
-    config["output"] = config["path_output"]
-    del config["path_output"]
 
     # Return valid configs
     return config

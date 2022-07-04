@@ -82,42 +82,16 @@ def cli_training(subparsers):
     # Setup SubParser
     parser_train = subparsers.add_parser("training", help=desc, add_help=False)
 
-    # Add required configuration arguments
-    ra = parser_train.add_argument_group("required arguments")
-    ra.add_argument("--interface",
-                    type=str,
-                    required=True,
-                    choices=["csv", "directory"],
-                    help="String defining format interface for loading/storing"\
-                         + " data",
-                    )
-    ra.add_argument("--path_imagedir",
-                    type=str,
-                    required=True,
-                    help="Path to the directory containing the images",
-                    )
-
-    # Add optional configuration arguments
-    oa = parser_train.add_argument_group("optional arguments")
-    oa.add_argument("-h",
-                    "--help",
-                    action="help",
-                    help="show this help message and exit")
-    oa.add_argument("--analysis",
+    # Add IO arguments
+    od = parser_train.add_argument_group("Arguments - I/O")
+    od.add_argument("--path_imagedir",
                     type=str,
                     required=False,
-                    default="standard",
-                    choices=["minimal", "standard", "advanced"],
-                    help="Analysis mode for the AutoML training " + \
+                    default="training",
+                    help="Path to the directory containing the images " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--path_data",
-                    type=str,
-                    required=False,
-                    help="Path to the index/class annotation CSV file " + \
-                         "(only required for interface 'csv')",
-                    )
-    oa.add_argument("--path_output",
+    od.add_argument("--path_modeldir",
                     type=str,
                     required=False,
                     default="model",
@@ -125,23 +99,43 @@ def cli_training(subparsers):
                          "models and metadata are stored " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--ohe",
+    od.add_argument("--path_gt",
+                    type=str,
+                    required=False,
+                    help="Path to the index/class annotation CSV file " + \
+                         "(only required for defining the ground truth via " + \
+                         "'csv' instead of 'directory' interface)",
+                    )
+
+    od.add_argument("--ohe",
                     action="store_true",
                     required=False,
                     default=False,
                     help="Boolean option whether annotation data is sparse " + \
                          "categorical or one-hot encoded " + \
-                         "(only required for interface 'csv', " + \
+                         "(only required for interface 'csv' and multi-" + \
+                         "label data, " + \
                          "default: '%(default)s')",
                     )
-    oa.add_argument("--three_dim",
+
+    # Add configuration arguments
+    oc = parser_train.add_argument_group("Arguments - Configuration")
+    oc.add_argument("--analysis",
+                    type=str,
+                    required=False,
+                    default="standard",
+                    choices=["minimal", "standard", "advanced"],
+                    help="Analysis mode for the AutoML training " + \
+                         "(default: '%(default)s')",
+                    )
+    oc.add_argument("--three_dim",
                     action="store_true",
                     required=False,
                     default=False,
                     help="Boolean, whether imaging data is 2D or 3D " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--shape_3D",
+    oc.add_argument("--shape_3D",
                     type=str,
                     required=False,
                     default="128x128x128",
@@ -150,7 +144,7 @@ def cli_training(subparsers):
                          "format: '1x2x3', " + \
                          "default: '%(default)s')",
                     )
-    oa.add_argument("--epochs",
+    oc.add_argument("--epochs",
                     type=int,
                     required=False,
                     default=500,
@@ -158,14 +152,14 @@ def cli_training(subparsers):
                          "one iteration through the complete data set " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--batch_size",
+    oc.add_argument("--batch_size",
                     type=int,
                     required=False,
                     default=24,
                     help="Number of samples inside a single batch " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--workers",
+    oc.add_argument("--workers",
                     type=int,
                     required=False,
                     default=1,
@@ -173,14 +167,14 @@ def cli_training(subparsers):
                          "batches during runtime " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--metalearner",
+    oc.add_argument("--metalearner",
                     type=str,
                     required=False,
                     default="mean",
                     help="Key for Metalearner or Aggregate function "+ \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--architecture",
+    oc.add_argument("--architecture",
                     type=str,
                     required=False,
                     default="DenseNet121",
@@ -191,6 +185,13 @@ def cli_training(subparsers):
                          "default: '%(default)s')",
                     )
 
+    # Add other arguments
+    oo = parser_train.add_argument_group("Arguments - Other")
+    oo.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
+
     # Help page hook for passing no parameters
     if len(sys.argv)==2 and sys.argv[1] == "training":
         parser_train.print_help(sys.stderr)
@@ -200,50 +201,48 @@ def cli_training(subparsers):
 #                   CLI - Prediction                  #
 #-----------------------------------------------------#
 def cli_prediction(subparsers):
-    # Set description for cli training
+    # Set description for cli prediction
     desc = """ Pipeline hub for Inference via AUCMEDI AutoML """
     # Setup SubParser
     parser_predict = subparsers.add_parser("prediction",
                                            help=desc,
                                            add_help=False)
 
-    # Add required configuration arguments
-    ra = parser_predict.add_argument_group("required arguments")
-    ra.add_argument("--path_imagedir",
+    # Add IO arguments
+    od = parser_predict.add_argument_group("Arguments - I/O")
+    od.add_argument("--path_imagedir",
                     type=str,
-                    required=True,
-                    help="Path to the directory containing the images",
+                    required=False,
+                    default="test",
+                    help="Path to the directory containing the images " + \
+                         "(default: '%(default)s')",
                     )
-
-    # Add optional configuration arguments
-    oa = parser_predict.add_argument_group("optional arguments")
-    oa.add_argument("-h",
-                    "--help",
-                    action="help",
-                    help="show this help message and exit")
-    oa.add_argument("--path_input",
+    od.add_argument("--path_modeldir",
                     type=str,
                     required=False,
                     default="model",
-                    help="Path to the input directory in which fitted " + \
-                         "models and metadata are stored " + \
+                    help="Path to the model directory in which fitted " + \
+                         "model weights and metadata are stored " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--path_output",
+    od.add_argument("--path_pred",
                     type=str,
                     required=False,
-                    default="predictions.csv",
+                    default="preds.csv",
                     help="Path to the output file in which predicted csv " + \
                          "file should be stored " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--xai_method",
+
+    # Add configuration arguments
+    oc = parser_predict.add_argument_group("Arguments - Configuration")
+    oc.add_argument("--xai_method",
                     type=str,
                     required=False,
                     help="Key for XAI method " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--xai_directory",
+    oc.add_argument("--xai_directory",
                     type=str,
                     required=False,
                     default="xai",
@@ -251,14 +250,14 @@ def cli_prediction(subparsers):
                          "image xai heatmaps should be stored " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--batch_size",
+    oc.add_argument("--batch_size",
                     type=int,
                     required=False,
                     default=12,
                     help="Number of samples inside a single batch " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--workers",
+    oc.add_argument("--workers",
                     type=int,
                     required=False,
                     default=1,
@@ -266,6 +265,13 @@ def cli_prediction(subparsers):
                          "batches during runtime " + \
                          "(default: '%(default)s')",
                     )
+
+    # Add other arguments
+    oo = parser_predict.add_argument_group("Arguments - Other")
+    oo.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
 
     # Help page hook for passing no parameters
     if len(sys.argv)==2 and sys.argv[1] == "prediction":
@@ -276,59 +282,49 @@ def cli_prediction(subparsers):
 #                   CLI - Evaluation                  #
 #-----------------------------------------------------#
 def cli_evaluation(subparsers):
-    # Set description for cli training
+    # Set description for cli evaluation
     desc = """ Pipeline hub for Evaluation via AUCMEDI AutoML """
     # Setup SubParser
     parser_evaluate = subparsers.add_parser("evaluation",
                                             help=desc,
                                             add_help=False)
 
-    # Add required configuration arguments
-    ra = parser_evaluate.add_argument_group("required arguments")
-    ra.add_argument("--interface",
+    # Add IO arguments
+    od = parser_evaluate.add_argument_group("Arguments - I/O")
+    od.add_argument("--path_imagedir",
                     type=str,
-                    required=True,
-                    choices=["csv", "directory"],
-                    help="String defining format interface for loading/storing"\
-                         + " data",
-                    )
-    ra.add_argument("--path_imagedir",
-                    type=str,
-                    required=True,
+                    required=False,
+                    default="training",
                     help="Path to the directory containing the ground truth" + \
-                         " images",
+                         " images " + \
+                         "(default: '%(default)s')",
                     )
-
-    # Add optional configuration arguments
-    oa = parser_evaluate.add_argument_group("optional arguments")
-    oa.add_argument("-h",
-                    "--help",
-                    action="help",
-                    help="show this help message and exit")
-    oa.add_argument("--path_data",
+    od.add_argument("--path_gt",
                     type=str,
                     required=False,
                     help="Path to the index/class annotation CSV file " + \
-                         "(only required for interface 'csv')",
+                         "(only required for defining the ground truth via " + \
+                         "'csv' instead of 'directory' interface)",
                     )
-    oa.add_argument("--ohe",
+    od.add_argument("--ohe",
                     action="store_true",
                     required=False,
                     default=False,
                     help="Boolean option whether annotation data is sparse " + \
                          "categorical or one-hot encoded " + \
-                         "(only required for interface 'csv', " + \
+                         "(only required for interface 'csv' and multi-" + \
+                         "label data, " + \
                          "default: '%(default)s')",
                     )
-    oa.add_argument("--path_input",
+    od.add_argument("--path_pred",
                     type=str,
                     required=False,
-                    default="predictions.csv",
+                    default="preds.csv",
                     help="Path to the output file in which predicted csv " + \
                          "file are stored " + \
                          "(default: '%(default)s')",
                     )
-    oa.add_argument("--path_output",
+    od.add_argument("--path_evaldir",
                     type=str,
                     required=False,
                     default="evaluation",
@@ -336,6 +332,13 @@ def cli_evaluation(subparsers):
                          "figures and tables should be stored " + \
                          "(default: '%(default)s')",
                     )
+
+    # Add other arguments
+    oo = parser_evaluate.add_argument_group("Arguments - Other")
+    oo.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
 
     # Help page hook for passing no parameters
     if len(sys.argv)==2 and sys.argv[1] == "evaluation":

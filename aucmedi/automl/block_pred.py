@@ -45,9 +45,9 @@ def block_predict(config):
     The following attributes are stored in the `config` dictionary:
 
     Attributes:
-        path_imagedir (str):                Path to the directory containing the images.
-        input (str):                        Path to the input directory in which fitted models and metadata are stored.
-        output (str):                       Path to the output file in which predicted csv file should be stored.
+        path_imagedir (str):                Path to the directory containing the images for prediction.
+        path_modeldir (str):                Path to the model directory in which fitted model weights and metadata are stored.
+        path_pred (str):                    Path to the output file in which predicted csv file should be stored.
         xai_method (str or None):           Key for XAI method.
         xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be stored.
         batch_size (int):                   Number of samples inside a single batch.
@@ -63,11 +63,11 @@ def block_predict(config):
     (index_list, _, _, _, image_format) = ds
 
     # Verify existence of input directory
-    if not os.path.exists(config["input"]):
-        raise FileNotFoundError(config["input"])
+    if not os.path.exists(config["path_modeldir"]):
+        raise FileNotFoundError(config["path_modeldir"])
 
     # Load metadata from training
-    path_meta = os.path.join(config["input"], "meta.training.json")
+    path_meta = os.path.join(config["path_modeldir"], "meta.training.json")
     with open(path_meta, "r") as json_file:
         meta_training = json.load(json_file)
 
@@ -123,7 +123,7 @@ def block_predict(config):
                                  standardize_mode=model.meta_standardize,
                                  **paras_datagen)
         # Load model
-        path_model = os.path.join(config["input"], "model.last.hdf5")
+        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
         model.load(path_model)
         # Start model inference
         preds = model.predict(prediction_generator=pred_gen)
@@ -141,7 +141,8 @@ def block_predict(config):
                                  standardize_mode=model.meta_standardize,
                                  **paras_datagen)
         # Load model
-        path_model = os.path.join(config["input"], "model.best_loss.hdf5")
+        path_model = os.path.join(config["path_modeldir"],
+                                  "model.best_loss.hdf5")
         model.load(path_model)
         # Start model inference via Augmenting
         preds = predict_augmenting(model, pred_gen)
@@ -163,7 +164,7 @@ def block_predict(config):
                                  standardize_mode=None,
                                  **paras_datagen)
         # Load composite model directory
-        el.load(config["input"])
+        el.load(config["path_modeldir"])
         # Start model inference via ensemble learning
         preds = el.predict(pred_gen)
 
@@ -173,7 +174,7 @@ def block_predict(config):
     df_merged = pd.concat([df_index, df_pd], axis=1, sort=False)
     df_merged.sort_values(by=["SAMPLE"], inplace=True)
     # Store predictions to disk
-    df_merged.to_csv(config["output"], index=False)
+    df_merged.to_csv(config["path_pred"], index=False)
 
     # Create XAI heatmaps
     if config["xai_method"] is not None and config["xai_directory"] is not None:

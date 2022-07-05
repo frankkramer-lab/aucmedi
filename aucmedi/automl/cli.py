@@ -67,11 +67,6 @@ def cli_core():
 #                     "--help",
 #                     action="help",
 #                     help="show this help message and exit")
-#
-#     # Help page hook for passing no parameters
-#     if len(sys.argv)==2 and sys.argv[1] == "yaml":
-#         parser_yaml.print_help(sys.stderr)
-#         sys.exit(1)
 
 #-----------------------------------------------------#
 #                    CLI - Training                   #
@@ -192,11 +187,6 @@ def cli_training(subparsers):
                     action="help",
                     help="show this help message and exit")
 
-    # Help page hook for passing no parameters
-    if len(sys.argv)==2 and sys.argv[1] == "training":
-        parser_train.print_help(sys.stderr)
-        sys.exit(1)
-
 #-----------------------------------------------------#
 #                   CLI - Prediction                  #
 #-----------------------------------------------------#
@@ -273,11 +263,6 @@ def cli_prediction(subparsers):
                     action="help",
                     help="show this help message and exit")
 
-    # Help page hook for passing no parameters
-    if len(sys.argv)==2 and sys.argv[1] == "prediction":
-        parser_predict.print_help(sys.stderr)
-        sys.exit(1)
-
 #-----------------------------------------------------#
 #                   CLI - Evaluation                  #
 #-----------------------------------------------------#
@@ -339,8 +324,3 @@ def cli_evaluation(subparsers):
                     "--help",
                     action="help",
                     help="show this help message and exit")
-
-    # Help page hook for passing no parameters
-    if len(sys.argv)==2 and sys.argv[1] == "evaluation":
-        parser_evaluate.print_help(sys.stderr)
-        sys.exit(1)

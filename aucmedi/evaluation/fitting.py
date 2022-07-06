@@ -28,8 +28,13 @@ from plotnine import *
 #-----------------------------------------------------#
 #              Evaluation - Plot Fitting              #
 #-----------------------------------------------------#
-def evaluate_fitting(train_history, out_path, monitor=["loss"],
-                     prefix_split=".", suffix=None):
+def evaluate_fitting(train_history,
+                     out_path,
+                     monitor=["loss"],
+                     prefix_split=".",
+                     suffix=None,
+                     show=False
+                     ):
     """ Function for automatic plot generation providing a training history dictionary.
 
     !!! info "Preview"
@@ -58,6 +63,7 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
         monitor (list of str):      List of metrics which should be visualized in the fitting plot.
         prefix_split (str):         Split prefix for keys in the history dictionary. Used for Bagging and Stacking.
         suffix (str):               Special suffix to add in the created figure filename.
+        show (bool):                Option, whether to also display the generated chart.
     """
     # Combine transfer learning logs if present
     if ("cv_0.tl_loss" in train_history and "cv_0.ft_loss" in train_history) or\
@@ -136,6 +142,8 @@ def evaluate_fitting(train_history, out_path, monitor=["loss"],
     filename += ".png"
     fig.save(filename=filename,
              path=out_path, dpi=200, limitsize=False)
+
+    if show : print(fig)
 
 #-----------------------------------------------------#
 #                     Subroutines                     #

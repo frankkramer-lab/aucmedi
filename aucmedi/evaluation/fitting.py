@@ -65,32 +65,10 @@ def evaluate_fitting(train_history,
         suffix (str):               Special suffix to add in the created figure filename.
         show (bool):                Option, whether to also display the generated chart.
     """
-    # Combine transfer learning logs if present
-    if ("cv_0.tl_loss" in train_history and "cv_0.ft_loss" in train_history) or\
-       ("tl_loss" in train_history and "ft_loss" in train_history):
-        train_history_tmp = train_history.copy()
-        for key in train_history_tmp:
-            if "tl_" in key:
-               sec_key = key.replace("tl_", "ft_")
-               if key in train_history and sec_key in train_history:
-                   new_key = key.replace("tl_", "")
-                   train_history[new_key] = train_history[key] + \
-                                            train_history[sec_key]
-                   del train_history[key]
-                   del train_history[sec_key]
-            elif "ft_" in key:
-                sec_key = key.replace("ft_", "tl_")
-                if key in train_history and sec_key in train_history:
-                    new_key = key.replace("ft_", "")
-                    train_history[new_key] = train_history[sec_key] + \
-                                             train_history[key]
-                    del train_history[key]
-                    del train_history[sec_key]
-
     # Convert to pandas dataframe
     hist_prepared = dict([ (k,pd.Series(v)) for k,v in train_history.items() ])
     dt = pd.DataFrame.from_dict(hist_prepared, orient="columns")
-    
+
     # Identify all selected columns
     selected_cols = []
     for key in train_history:
@@ -118,10 +96,42 @@ def evaluate_fitting(train_history,
             dt_melted[["prefix", "metric"]] = dt_melted["metric"].str.split(".",
                                                         expand=True)
 
-    # Preprocess dataframe
+    # Remove NaN tags
+    dt_melted = dt_melted.dropna(axis=0)
+
+    # Preprocess transfer learning tag
+    if dt_melted["metric"].str.startswith("tl_").any():
+        # filter prefix groups
+        filter = dt_melted[dt_melted["metric"].str.startswith("ft_")]
+
+        # if prefix available -> add epochs for each prefix group
+        if valid_split:
+            # identify number of epochs for each prefix
+            filter_tl = dt_melted[dt_melted["metric"].str.startswith("tl_")]
+            tl_epochs = filter_tl.groupby(["prefix"])["epoch"].max()
+            # compute fine tune epoch update
+            group_repeats = filter.groupby(["prefix"]).size()
+            ft_update = tl_epochs.repeat(group_repeats).to_numpy()
+        # if no prefix available -> add epochs to all ft phases
+        else:
+            # identify number of epochs global
+            tl_epochs = dt_melted["epoch"].max()
+            # compute fine tune epoch update
+            ft_update = tl_epochs
+
+        # update number of epochs
+        dt_melted.loc[dt_melted["metric"].str.startswith("ft_"), "epoch"] =\
+            filter["epoch"].to_numpy() + ft_update
+    else : tl_epochs = None
+
+    # Remove preprocessed transfer learning tag from metric column
+    dt_melted["metric"] = dt_melted["metric"].apply(remove_tag, tag="tl_")
+    dt_melted["metric"] = dt_melted["metric"].apply(remove_tag, tag="ft_")
+
+    # Preprocess validation tag
     dt_melted["subset"] = np.where(dt_melted["metric"].str.startswith("val_"),
                                    "validation", "training")
-    dt_melted["metric"] = dt_melted["metric"].apply(remove_val_tag)
+    dt_melted["metric"] = dt_melted["metric"].apply(remove_tag, tag="val_")
 
     # Plot results via plotnine
     fig = (ggplot(dt_melted, aes("epoch", "score", color="subset"))
@@ -137,6 +147,12 @@ def evaluate_fitting(train_history,
         fig += facet_grid("prefix ~ metric")
     else : fig += facet_wrap("metric", scales="free_y")
 
+    if tl_epochs is not None and valid_split:
+        tle_df = tl_epochs.to_frame().reset_index()
+        fig += geom_vline(tle_df, aes(xintercept="epoch"))
+    elif tl_epochs is not None and not valid_split:
+        fig += geom_vline(xintercept=tl_epochs)
+
     # Store figure to disk
     filename = "plot.fitting_course"
     if suffix is not None : filename += "." + str(suffix)
@@ -149,6 +165,6 @@ def evaluate_fitting(train_history,
 #-----------------------------------------------------#
 #                     Subroutines                     #
 #-----------------------------------------------------#
-def remove_val_tag(x):
-    if x.startswith("val_") : return x[4:]
+def remove_tag(x, tag):
+    if x.startswith(tag) : return x[len(tag):]
     else : return x

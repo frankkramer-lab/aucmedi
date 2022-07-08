@@ -19,23 +19,27 @@ of detailed custom specification.
 
 ## Basic Usage
 
-Simply install AUCMEDI with a single line of code via pip.
+In this example, a standard AUCMEDI pipeline build is demonstrated.
 
 **Install AUCMEDI via PyPI**
+
+Simply install AUCMEDI with a single line of code via pip.
+
 ```sh
 pip install aucmedi
 ```
 
-Let's build a COVID-19 Detection AI on CT scans!
-
 **Build a pipeline**
+
+Let's build a COVID-19 Detection AI on 2D CT slides!
+
 ```python
 # AUCMEDI library
 from aucmedi import *
 
 # Pillar #1: Initialize input data reader
 ds = input_interface(interface="csv",
-                     path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                     path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                      path_data="/home/muellerdo/COVdataset/classes.csv",
                      ohe=False,           # OHE short for one-hot encoding
                      col_sample="ID", col_class="PCRpositive")
@@ -49,10 +53,14 @@ model = NeuralNetwork(n_labels=nclasses, channels=3,
 Congratulations to your ready-to-use Medical Image Classification pipeline including data I/O, preprocessing and a deep learning based neural network model.
 
 **Train a model and use it!**
+
+Now, we want to use our pipeline to train it on our training data. Afterwards,
+we use our fitted model to classify 500 unknown ct slides.
+
 ```python
 # Pillar #3: Initialize training Data Generator for first 1000 samples
 train_gen = DataGenerator(samples=index_list[:1000],
-                          path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                          path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                           labels=class_ohe[:1000],
                           image_format=image_format,
                           resize=model.meta_input,
@@ -62,7 +70,7 @@ model.train(train_gen, epochs=20, transfer_learning=True)
 
 # Pillar #3: Initialize testing Data Generator for 500 samples
 test_gen = DataGenerator(samples=index_list[1000:1500],
-                         path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                         path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                          labels=None,
                          image_format=image_format,
                          resize=model.meta_input,
@@ -73,3 +81,11 @@ preds = model.predict(test_gen)
 # preds <-> NumPy array with shape (500,2)
 # -> 500 predictions with softmax probabilities for our 2 classes
 ```
+
+## More Details
+
+More examples can be found here:
+[Examples - Framework](../../examples/framework/)
+
+The full documentation for AUCMEDI AutoML can be found here:
+[API Reference](../../reference/)

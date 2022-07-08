@@ -91,7 +91,7 @@ class OcclusionSensitivity(XAImethod_Base):
                 sensitivity_map[
                     top_left_y:top_left_y + self.patch_size,
                     top_left_x:top_left_x + self.patch_size,
-                ] = confidence
+                ] = 1 - confidence
         # Return the resulting sensitivity map (automatically a heatmap)
         return sensitivity_map
 

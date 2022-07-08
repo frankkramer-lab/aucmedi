@@ -77,7 +77,7 @@ aucmedi training --path_gt annotations.csv --ohe
 ```
 
 ???+ info "One-hot encoded CSV Example"
-    ![csv_ohe](../../images/docs.csv.ohe.png)
+    ![csv_ohe](../images/docs.csv.ohe.png)
 
 More information for CSV files can be found here:
 [IO_CSV Interface][aucmedi.data_processing.io_interfaces.io_csv]

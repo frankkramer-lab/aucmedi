@@ -60,10 +60,11 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - [x] Clean up Website
 - [x] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
 - [x] Integrate evaluation functions
+- [x] Support for AutoML via CLI and Docker
 
 **Planed milestones and features are:**
+- [ ] Examples
 - [ ] Tutorials
-- [ ] Support for AutoML via CLI and Docker
 - [ ] Documentation for AutoML
 - [ ] Publication
 

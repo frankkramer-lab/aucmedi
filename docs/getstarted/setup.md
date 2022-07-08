@@ -14,7 +14,7 @@ In order to install AUCMEDI, verify that all requirements are complied and funct
 
 There are three ways to install AUCMEDI which depends on the preferred usage:
 
-### Install from PyPI (recommended)
+### 1) Install from PyPI (recommended)
 
 Note: These installation steps assume that you are on a Linux or Mac environment. If you are on Windows or in a virtual environment without root, you will need to remove sudo to run the commands below.
 
@@ -24,11 +24,15 @@ This will allow utilizing the framework (in your favorite Python IDE or in a Jup
 pip install aucmedi
 ```
 
-### Install from DockerHub for AutoML
+### 2) Install from GitHub Container Registry
 
-Work in Progress. Coming soon.
+This will allow utilizing the AutoML module via Docker.
 
-### Alternatively: Install from the GitHub source
+```sh
+docker pull ghcr.io/frankkramer-lab/aucmedi:latest
+```
+
+### 3) Install from Source Code
 
 First, clone AUCMEDI using git:
 
@@ -38,7 +42,17 @@ git clone https://github.com/frankkramer-lab/aucmedi
 
 Then, cd to the 'aucmedi' folder and run the install command:
 
-```sh
+```sh title="Installation with setup.py (framework & AutoML)"
 cd aucmedi
 python setup.py install
+```
+
+```sh title="Installation with pip (framework & AutoML)"
+cd aucmedi
+pip install .
+```
+
+```sh title="Installation with Docker (AutoML)"
+cd aucmedi
+docker build -t ghcr.io/frankkramer-lab/aucmedi:latest .
 ```

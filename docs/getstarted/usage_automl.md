@@ -8,7 +8,7 @@ AUCMEDI offers a CLI and Docker interface for automatic building and fast applic
 
 ## Dataset Setup
 
-AUCMEDI AutoML expects a fixed dataset structure with default parameters.  
+AUCMEDI AutoML expects a fixed dataset structure if run on default parameters.  
 The dataset structure is by default in the working directory for CLI or
 is mounted as volume into the container for Docker.
 

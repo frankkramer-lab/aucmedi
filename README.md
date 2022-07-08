@@ -81,7 +81,6 @@ Now, you can build a state-of-the-art and complex medical image classification p
 - Pillar #2: `NeuralNetwork()` for the deep learning model
 - Pillar #3: `DataGenerator()` for a powerful interface to load any images/volumes into your model
 
-Let's build a COVID-19 Detection AI on CT scans!
 
 **Build a pipeline**
 ```python
@@ -90,7 +89,7 @@ from aucmedi import *
 
 # Pillar #1: Initialize input data reader
 ds = input_interface(interface="csv",
-                     path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                     path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                      path_data="/home/muellerdo/COVdataset/classes.csv",
                      ohe=False,           # OHE short for one-hot encoding
                      col_sample="ID", col_class="PCRpositive")
@@ -101,13 +100,12 @@ model = NeuralNetwork(n_labels=nclasses, channels=3,
                        architecture="2D.DenseNet121",
                        pretrained_weights=True)
 ```
-Congratulations to your ready-to-use Medical Image Classification pipeline including data I/O, preprocessing and a deep learning based neural network model.
 
 **Train a model and use it!**
 ```python
 # Pillar #3: Initialize training Data Generator for first 1000 samples
 train_gen = DataGenerator(samples=index_list[:1000],
-                          path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                          path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                           labels=class_ohe[:1000],
                           image_format=image_format,
                           resize=model.meta_input,
@@ -117,7 +115,7 @@ model.train(train_gen, epochs=20, transfer_learning=True)
 
 # Pillar #3: Initialize testing Data Generator for 500 samples
 test_gen = DataGenerator(samples=index_list[1000:1500],
-                         path_imagedir="/home/muellerdo/COVdataset/ct_scans/",
+                         path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                          labels=None,
                          image_format=image_format,
                          resize=model.meta_input,

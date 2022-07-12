@@ -17,6 +17,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
 #-----------------------------------------------------#
+#                    Documentation                    #
+#-----------------------------------------------------#
+""" Work in Progress.
+
+"""
+#-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
@@ -28,6 +34,7 @@ import sys
 #                    CLI - General                    #
 #-----------------------------------------------------#
 def cli_core():
+    """ Internal function for Command-Line-Interface (CLI) setup. """
     # Set description for cli core
     desc = """ AutoML command-line interface for AUCMEDI: a framework for
                Automated Classification of Medical Images """
@@ -72,6 +79,34 @@ def cli_core():
 #                    CLI - Training                   #
 #-----------------------------------------------------#
 def cli_training(subparsers):
+    """ Parameter overview for the training process.
+
+    | Category      | Argument               | Type       | Default        | Description |
+    | :------------ | :--------------------- | :--------- | :------------- | :---------- |
+    | I/O           | `--path_imagedir`      | str        | `training`     | Path to the directory containing the images. |
+    | I/O           | `--path_modeldir`      | str        | `model`        | Path to the output directory in which fitted models and metadata are stored. |
+    | I/O           | `--path_gt`            | str        | `None`         | Path to the index/class annotation file if required. (only for 'csv' interface). |
+    | I/O           | `--ohe`                | bool       | `False`        | Boolean option whether annotation data is sparse categorical or one-hot encoded. |
+    | Configuration | `--analysis`           | str        | `standard`     | Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`. |
+    | Configuration | `--three_dim`          | bool       | `False`        | Boolean, whether data is 2D or 3D. |
+    | Configuration | `--shape_3D`           | str        | `128x128x128`  | Desired input shape of 3D volume for architecture (will be cropped into, format: `1x2x3`). |
+    | Configuration | `--epochs`             | int        | `500`          | Number of epochs. A single epoch is defined as one iteration through the complete data set. |
+    | Configuration | `--batch_size`         | int        | `24`           | Number of samples inside a single batch. |
+    | Configuration | `--workers`            | int        | `1`            | Number of workers/threads which preprocess batches during runtime. |
+    | Configuration | `--metalearner`        | str        | `mean`         | Key for Metalearner or Aggregate function. |
+    | Configuration | `--architecture`       | str        | `DenseNet121`  | Key of single or multiple Architectures (only supported for 'analysis=advanced', format: 'KEY' or 'KEY,KEY,KEY). |
+    | Other         | `--help`               | bool       | `False`        | show this help message and exit. |
+
+    ??? info "List of Architectures"
+        AUCMEDI provides a large library of state-of-the-art and ready-to-use architectures.
+
+        - 2D Architectures: [aucmedi.neural_network.architectures.image][]
+        - 3D Architectures: [aucmedi.neural_network.architectures.volume][]
+
+    ??? info "List of Metalearner"
+        - Homogeneous pooling functions: [Aggregate][aucmedi.ensemble.aggregate]
+        - Heterogeneous pooling functions: [Metalearner][aucmedi.ensemble.metalearner]
+    """
     # Set description for cli training
     desc = """ Pipeline hub for Training via AUCMEDI AutoML """
     # Setup SubParser
@@ -191,6 +226,23 @@ def cli_training(subparsers):
 #                   CLI - Prediction                  #
 #-----------------------------------------------------#
 def cli_prediction(subparsers):
+    """ Parameter overview for the prediction process.
+
+    | Category      | Argument               | Type       | Default        | Description |
+    | :------------ | :--------------------- | :--------- | :------------- | :---------- |
+    | I/O           | `--path_imagedir`      | str        | `test`         | Path to the directory containing the images. |
+    | I/O           | `--path_modeldir`      | str        | `model`        | Path to the output directory in which fitted models and metadata are stored. |
+    | I/O           | `--path_pred`          | str        | `preds.csv`    | Path to the output file in which predicted csv file should be stored. |
+    | Configuration | `--xai_method`         | str        | `None`         | Key for XAI method.  |
+    | Configuration | `--xai_directory`      | str        | `xai`          | Path to the output directory in which predicted image xai heatmaps should be stored. |
+    | Configuration | `--batch_size`         | int        | `24`           | Number of samples inside a single batch. |
+    | Configuration | `--workers`            | int        | `1`            | Number of workers/threads which preprocess batches during runtime. |
+    | Other         | `--help`               | bool       | `False`        | show this help message and exit. |
+
+    ??? info "List of XAI Methods"
+        AUCMEDI provides a large library of state-of-the-art and ready-to-use XAI methods:
+        [aucmedi.xai.methods][]
+    """
     # Set description for cli prediction
     desc = """ Pipeline hub for Inference via AUCMEDI AutoML """
     # Setup SubParser
@@ -267,6 +319,17 @@ def cli_prediction(subparsers):
 #                   CLI - Evaluation                  #
 #-----------------------------------------------------#
 def cli_evaluation(subparsers):
+    """ Parameter overview for the evaluation process.
+
+    | Category      | Argument               | Type       | Default        | Description |
+    | :------------ | :--------------------- | :--------- | :------------- | :---------- |
+    | I/O           | `--path_imagedir`      | str        | `training`     | Path to the directory containing the ground truth images. |
+    | I/O           | `--path_gt`            | str        | `None`         | Path to the index/class annotation CSV file (only required for defining the ground truth via 'csv' instead of 'directory' interface). |
+    | I/O           | `--ohe`                | bool       | `False`        | Boolean option whether annotation data is sparse categorical or one-hot encoded. |
+    | I/O           | `--path_pred`          | str        | `preds.csv`    | Path to the input file in which predicted csv file is stored. |
+    | I/O           | `--path_evaldir`       | str        | `evaluation`   | Path to the directory in which evaluation figures and tables should be stored. |
+    | Other         | `--help`               | bool       | `False`        | show this help message and exit. |
+    """
     # Set description for cli evaluation
     desc = """ Pipeline hub for Evaluation via AUCMEDI AutoML """
     # Setup SubParser

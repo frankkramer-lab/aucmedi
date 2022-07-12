@@ -1,3 +1,16 @@
+```bash
+# Pull the image from the Container Registry
+docker pull ghcr.io/frankkramer-lab/aucmedi
+
+# Run a container call
+docker run \
+  -v /home/dominik/aucmedi.data:/data \
+  --rm \
+  ghcr.io/frankkramer-lab/aucmedi \
+  training \
+  --architecture "DenseNet121"
+```
+
 
 
 docker run ghcr.io/frankkramer-lab/aucmedi:latest training

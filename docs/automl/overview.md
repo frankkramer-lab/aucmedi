@@ -2,6 +2,12 @@ AUCMEDI integrates Automated Machine Learning (AutoML).
 
 The mentality behind AutoML is to ensure easy application, integration and maintenance of complex medical image classification pipelines.
 
+Especially for clinical scientists without a computer science background, research and application of state-of-the-art medical image classification approaches are a complex task. The majority of implementations are so called "island solutions", which are implemented and specialized for a single dataset without the possibility of fast reproducibility or even translational application on new datasets (even if it is the same image modality).
+
+This situation lead to a frustration of clinicians that high performing models are existing but can not be applied without various pipeline modifications.
+
+Thus, AUCMEDI wants to provide a fast and intuitive interface through AUCMEDI AutoML for building, application and sharing of state-of-the-art medical image classification models.
+
 !!! cite "Wikipedia defines AutoML"
     AutoML potentially includes every stage from beginning with a raw dataset to building a machine learning model ready for deployment.  
     AutoML was proposed as an artificial intelligence-based solution to the growing challenge of applying machine learning.

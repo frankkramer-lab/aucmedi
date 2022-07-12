@@ -2,7 +2,7 @@
 
 AUCMEDI offers a CLI and Docker interface for automatic building and fast application of state-of-the-art medical image classification pipelines.
 
-??? info "AutoML Overview of AUCMEDI"
+???+ info "AutoML Overview of AUCMEDI"
     ![Figure: AUCMEDI AutoML](../images/aucmedi.automl.png)
     *Flowchart diagram of AUCMEDI AutoML showing the pipeline workflow and three AutoML modes: training for model fitting, prediction for inference of unknown images, and evaluation for performance estimation.*
 
@@ -86,4 +86,4 @@ More examples can be found here:
 [Examples - AutoML](../../examples/automl/)
 
 The full documentation for AUCMEDI AutoML can be found here:
-[AutoML - Overview](../../automl/)
+[AutoML - Overview](../../automl/overview/)

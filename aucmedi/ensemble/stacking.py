@@ -190,24 +190,6 @@ class Stacking:
             data_train = (*ps_sampling[0], None)
             data_val = (*ps_sampling[1], None)
 
-        # Gather DataGenerator parameters
-        datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
-        }
-
         # Gather training parameters
         parameters_training = {"epochs": epochs,
                                "iterations": iterations,
@@ -246,6 +228,24 @@ class Stacking:
                 "batch_queue_size": self.model_list[i].batch_queue_size,
                 "workers": self.model_list[i].workers,
                 "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": self.model_list[i].meta_standardize,
+                             "resize": self.model_list[i].meta_input,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
             }
 
             # Start training process
@@ -304,24 +304,6 @@ class Stacking:
         if len(ps_sampling[0]) == 3 : data_ensemble = ps_sampling[2]
         else : data_ensemble = (*ps_sampling[2], None)
 
-        # Gather DataGenerator parameters
-        datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
-        }
-
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
@@ -349,6 +331,24 @@ class Stacking:
                 "batch_queue_size": self.model_list[i].batch_queue_size,
                 "workers": self.model_list[i].workers,
                 "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": self.model_list[i].meta_standardize,
+                             "resize": self.model_list[i].meta_input,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
             }
 
             # Start inference process for model i
@@ -418,24 +418,6 @@ class Stacking:
         # Extract data
         data_test = (temp_dg.samples, temp_dg.labels, temp_dg.metadata)
 
-        # Gather DataGenerator parameters
-        datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
-        }
-
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
@@ -462,6 +444,24 @@ class Stacking:
                 "batch_queue_size": self.model_list[i].batch_queue_size,
                 "workers": self.model_list[i].workers,
                 "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": self.model_list[i].meta_standardize,
+                             "resize": self.model_list[i].meta_input,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
             }
 
             # Start inference process for model i

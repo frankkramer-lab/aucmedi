@@ -39,6 +39,11 @@ Example: [[0.4, 0.3, 0.3]]
 -> shape (1, 3)
 ```
 
+!!! warning
+    Not all Metalearners support multi-label classification!
+
+    If a Metalearner has multi-label support can be found in its docs entry.
+
 Metalearners are based on the abstract base class [Metalearner_Base][aucmedi.ensemble.metalearner.ml_base],
 which allows simple integration of custom Metalearners for Ensemble.
 """

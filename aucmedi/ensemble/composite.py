@@ -84,6 +84,20 @@ class Composite:
 
         This can result in redundant image preparation if `prepare_images=True`.
 
+        Furthermore, the parameters `resize` and `standardize_mode` are automatically re-initialized with
+        NeuralNetwork model specific values (`model.meta_standardize` for `standardize_mode` and
+        `model.meta_input` for `input_shape`).
+
+        If desired (but not recommended!), it is possible to modify the meta variables of the NeuralNetwork model as follows:
+        ```python
+        # For input_shape
+        model_a = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50",
+                                input_shape=(64,64))
+        # For standardize_mode
+        model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
+        model_b.meta_standardize = "torch"
+        ```
+
     ??? warning "NeuralNetwork re-initialization"
         The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!
 

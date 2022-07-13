@@ -65,15 +65,13 @@ class Stacking:
         # Initialize training DataGenerator for complete training data
         datagen = DataGenerator(samples_train, "images_dir/",
                                 labels=train_labels_ohe, batch_size=3,
-                                resize=model_a.meta_input,
-                                standardize_mode=model_a.meta_standardize)
+                                resize=None, standardize_mode=None)
         # Train neural network and metalearner models
         el.train(datagen, epochs=100)
 
         # Initialize testing DataGenerator for testing data
         test_gen = DataGenerator(samples_test, "images_dir/",
-                                 resize=model_a.meta_input,
-                                 standardize_mode=model_a.meta_standardize)
+                                 resize=None, standardize_mode=None)
         # Run Inference
         preds = el.predict(test_gen)
         ```
@@ -85,6 +83,19 @@ class Stacking:
         The passed DataGenerator for the train() and predict() function of the Stacking class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
+
+        Furthermore, the parameters `resize` and `standardize_mode` are automatically re-initialized with
+        NeuralNetwork model specific values (`model.meta_standardize` for `standardize_mode` and
+        `model.meta_input` for `input_shape`).
+
+        If desired (but not recommended!), it is possible to modify the meta variables of the NeuralNetwork model as follows:
+        ```python
+        # For input_shape
+        model_a = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50",
+                                input_shape=(64,64))
+        # For standardize_mode
+        model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
+        model_b.meta_standardize = "torch"
 
     ??? warning "NeuralNetwork re-initialization"
         The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!

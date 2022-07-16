@@ -115,7 +115,9 @@ def evaluate_fitting(train_history,
         # if no prefix available -> add epochs to all ft phases
         else:
             # identify number of epochs global
-            tl_epochs = dt_melted["epoch"].max()
+            filter_tl = dt_melted[dt_melted["metric"].str.startswith("tl_")]
+            tl_epochs = filter_tl["epoch"].max()
+
             # compute fine tune epoch update
             ft_update = tl_epochs
 

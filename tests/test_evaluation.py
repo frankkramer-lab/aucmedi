@@ -214,6 +214,22 @@ class EvaluationTEST(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                        "plot.fitting_course.stacking.png")))
 
+    def test_evaluate_fitting_stacking_tl_only(self):
+        # Create artificial history data - transfer learning based stacking
+        hist_stacking = {}
+        for nn in range(0, 3):
+            metrics = ["tl_loss", "tl_val_loss"]
+            for m in metrics:
+                hist_stacking["nn_" + str(nn) + "." + m] = []
+                for i in range(0, nn*5+5):
+                    hist_stacking["nn_" + str(nn) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_stacking, out_path=self.tmp_plot.name,
+                         monitor=["loss"], suffix="stacking")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                       "plot.fitting_course.stacking.png")))
+
     #-------------------------------------------------#
     #          Evaluation - Plot Performance          #
     #-------------------------------------------------#

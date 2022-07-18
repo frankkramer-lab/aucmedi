@@ -19,11 +19,28 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" Work in Progress.
+""" API reference for the AUCMEDI AutoML pipeline.
 
-structure explaination
+The mentality behind AutoML is to ensure easy application, integration and
+maintenance of complex medical image classification pipelines.
+AUCMEDI provides a fast and intuitive interface through AUCMEDI AutoML for building,
+application and sharing of state-of-the-art medical image classification models.
 
-ref to automl docs
+The AutoML pipelines are categorized into the following modes:
+`training`, `prediction` and `evaluation`.
+
+- The console entry `aucmedi` refers to [aucmedi.automl.main:main][aucmedi.automl.main].
+- The Argparse interface for CLI is defined in [aucmedi.automl.cli][aucmedi.automl.cli]
+- Each AutoML mode is implemented as a code block defining the AUCMEDI pipeline.
+
+!!! info
+    | AutoML Mode   | Argparse                                              | Code Block (Pipeline)                         |
+    | ------------- | ----------------------------------------------------- | --------------------------------------------- |
+    | `training`    | [CLI - Training][aucmedi.automl.cli.cli_training]     | [Block - Train][aucmedi.automl.block_train]   |
+    | `prediction`  | [CLI - Prediction][aucmedi.automl.cli.cli_prediction] | [Block - Predict][aucmedi.automl.block_pred]  |
+    | `evaluation`  | [CLI - Evaluation][aucmedi.automl.cli.cli_evaluation] | [Block - Evaluate][aucmedi.automl.block_eval] |
+
+More information can be found in the docs: [Documentation - AutoML](../../automl/overview/)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

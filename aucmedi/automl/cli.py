@@ -19,8 +19,9 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" Work in Progress.
+""" Argparse for the AutoML Command Line Interface of [aucmedi.automl.main][aucmedi.automl.main].
 
+The parameters are summarized in the docs: [Documentation - AutoML - Parameters](../../../automl/parameters/)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

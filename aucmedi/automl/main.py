@@ -19,8 +19,13 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" ref to automl docs.
+""" Entry script (runner/main function) which will be called in AUCMEDI AutoML.
 
+The console entry `aucmedi` refers to `aucmedi.automl.main:main`.
+
+Executes AUCMEDI AutoML pipeline for training, prediction and evaluation.
+
+More information can be found in the docs: [Documentation - AutoML](../../../automl/overview/)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

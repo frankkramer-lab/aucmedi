@@ -86,13 +86,6 @@ class AutoML_CLI(unittest.TestCase):
     #-------------------------------------------------#
     #                CLI Hub: Training                #
     #-------------------------------------------------#
-    def test_training_empty(self):
-        args = ["aucmedi", "training"]
-        with patch.object(sys, "argv", args):
-            with self.assertRaises(SystemExit) as se:
-                main()
-            self.assertEqual(se.exception.code, 1)
-
     def test_training_functionality(self):
         args = ["aucmedi", "training"]
         args_config = ["--path_imagedir", self.tmp_data.name,
@@ -132,13 +125,6 @@ class AutoML_CLI(unittest.TestCase):
     #-------------------------------------------------#
     #               CLI Hub: Prediction               #
     #-------------------------------------------------#
-    def test_prediction_empty(self):
-        args = ["aucmedi", "prediction"]
-        with patch.object(sys, "argv", args):
-            with self.assertRaises(SystemExit) as se:
-                main()
-            self.assertEqual(se.exception.code, 1)
-
     def test_prediction_functionality(self):
         # Training
         args = ["aucmedi", "training"]
@@ -186,13 +172,6 @@ class AutoML_CLI(unittest.TestCase):
     #-------------------------------------------------#
     #               CLI Hub: Evaluation               #
     #-------------------------------------------------#
-    def test_evaluation_empty(self):
-        args = ["aucmedi", "evaluation"]
-        with patch.object(sys, "argv", args):
-            with self.assertRaises(SystemExit) as se:
-                main()
-            self.assertEqual(se.exception.code, 1)
-
     def test_evaluation_functionality(self):
         # Training
         args = ["aucmedi", "training"]

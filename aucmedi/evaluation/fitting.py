@@ -111,7 +111,8 @@ def evaluate_fitting(train_history,
             tl_epochs = filter_tl.groupby(["prefix"])["epoch"].max()
             # compute fine tune epoch update
             group_repeats = filter.groupby(["prefix"]).size()
-            ft_update = tl_epochs.repeat(group_repeats).to_numpy()
+            if group_repeats.empty : ft_update = 0
+            else : ft_update = tl_epochs.repeat(group_repeats).to_numpy()
         # if no prefix available -> add epochs to all ft phases
         else:
             # identify number of epochs global

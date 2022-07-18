@@ -61,11 +61,11 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - [x] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
 - [x] Integrate evaluation functions
 - [x] Support for AutoML via CLI and Docker
+- [x] Documentation for AutoML
 
 **Planed milestones and features are:**
 - [ ] Examples
 - [ ] Tutorials
-- [ ] Documentation for AutoML
 - [ ] Publication
 
 ## Getting started: 60 seconds to automated medical image classification

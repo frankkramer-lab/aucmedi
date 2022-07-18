@@ -7,34 +7,28 @@ The dataset structure is by default in the working directory for CLI.
 For the start, our working directory must contain the subdirectory `training`.
 The `training` directory must contain all images for model training, sorted class subdirectories.
 
-> show file structure of current working directory
-
-```bash title="$ ls -l . "
-drwxr-xr-x 10 root root 4096 Jul 17 23:02 training
 ```
-
-> show class structure of training directory
-
-```bash title="$ ls -l training/"
-drwxr-xr-x 2 root root 57344 Jul 17 23:02 01_TUMOR
-drwxr-xr-x 2 root root 65536 Jul 17 23:02 02_STROMA
-drwxr-xr-x 2 root root 49152 Jul 17 23:02 03_COMPLEX
-drwxr-xr-x 2 root root 61440 Jul 17 23:02 04_LYMPHO
-drwxr-xr-x 2 root root 65536 Jul 17 23:02 05_DEBRIS
-drwxr-xr-x 2 root root 57344 Jul 17 23:02 06_MUCOSA
-drwxr-xr-x 2 root root 57344 Jul 17 23:02 07_ADIPOSE
-drwxr-xr-x 2 root root 53248 Jul 17 23:02 08_EMPTY
-```
-
-> show file structure of a class directory
-
-```bash title="$ ls -l training/01_TUMOR/"
--rw-r--r-- 1 root root 68376 Jul 17 23:02 10009_CRC-Prim-HE-03_009.tif_Row_301_Col_151.tif
--rw-r--r-- 1 root root 68376 Jul 17 23:02 10062_CRC-Prim-HE-02_003b.tif_Row_1_Col_301.tif
--rw-r--r-- 1 root root 68374 Jul 17 23:02 100B0_CRC-Prim-HE-09_009.tif_Row_1_Col_301.tif
--rw-r--r-- 1 root root 68376 Jul 17 23:02 10104_CRC-Prim-HE-10_021.tif_Row_451_Col_1.tif
--rw-r--r-- 1 root root 68376 Jul 17 23:02 10142_CRC-Prim-HE-09_025.tif_Row_151_Col_151.tif
-...
+cwd/
+└── training/
+    ├── 01_TUMOR/
+    │   ├── 10009_CRC-Prim-HE-03_009.tif_Row_301_Col_151.tif
+    │   ├── 10062_CRC-Prim-HE-02_003b.tif_Row_1_Col_301.tif
+    │   ├── 100B0_CRC-Prim-HE-09_009.tif_Row_1_Col_301.tif
+    │   └── ...
+    ├── 02_STROMA/
+    │   └── ...
+    ├── 03_COMPLEX/
+    │   └── ...
+    ├── 04_LYMPHO/
+    │   └── ...
+    ├── 05_DEBRIS/
+    │   └── ...
+    ├── 06_MUCOSA/
+    │   └── ...
+    ├── 07_ADIPOSE/
+    │   └── ...
+    └── 08_EMPTY/
+        └── ...
 ```
 
 In order to create a high-performance model for clinical decision support, it is
@@ -78,21 +72,16 @@ The result of the AUCMEDI AutoML training hub is a `model` directory in the work
 
 It contains one or multiple AUCMEDI models with other metadata created during the fitting process.
 
-> show file structure of current working directory (after training)
-
-```bash title="$ ls -l ."
-drwxr-xr-x  2 root root 4096 Jul 18 13:05 model
-drwxr-xr-x 10 root root 4096 Jul 17 23:02 training
 ```
-
-> show model directory
-
-```bash title="$ ls -l model/"
--rw-r--r-- 1 root root      3028 Jul 18 13:05 logs.training.csv
--rw-r--r-- 1 root root       444 Jul 18 12:57 meta.training.json
--rw-r--r-- 1 root root 107530168 Jul 18 12:58 model.best_loss.hdf5
--rw-r--r-- 1 root root 296305016 Jul 18 13:05 model.last.hdf5
--rw-r--r-- 1 root root     80927 Jul 18 13:05 plot.fitting_course.png
+cwd/
+├── training/
+│   └── ...
+└── model/
+    ├── logs.training.csv
+    ├── meta.training.json
+    ├── model.best_loss.hdf5
+    ├── model.last.hdf5
+    └── plot.fitting_course.png
 ```
 
 More information about the parameters for training can be found here:
@@ -103,22 +92,16 @@ More information about the parameters for training can be found here:
 For predicting the classification of unknown images, the images should be stored
 in the `test` directory.
 
-
-> show file structure of current working directory (after training)
-
-```bash title="$ ls -l ."
-drwxr-xr-x  2 root root 4096 Jul 18 13:05 model
-drwxr-xr-x  2 root root 4096 Jul 18 13:10 test
-drwxr-xr-x 10 root root 4096 Jul 17 23:02 training
 ```
-
-> show file structure of test directory
-
-```bash title="$ ls -l test/"
--rw-r--r-- 1 root root 68376 Jun 28 15:43 UNKNOWN_IMAGE.0001.tif
--rw-r--r-- 1 root root 68376 Jun 28 15:43 UNKNOWN_IMAGE.0002.tif
--rw-r--r-- 1 root root 68364 Jun 28 15:43 UNKNOWN_IMAGE.0003.tif
--rw-r--r-- 1 root root 68378 Jun 28 15:43 UNKNOWN_IMAGE.0004.tif
+cwd/
+├── training/
+├── model/
+│   └── ...
+└── test/
+    ├── UNKNOWN_IMAGE.0001.tif
+    ├── UNKNOWN_IMAGE.0002.tif
+    ├── UNKNOWN_IMAGE.0003.tif
+    └── UNKNOWN_IMAGE.0004.tif
 ```
 
 The AUCMEDI AutoML prediction hub read out the pipeline configuration and fitted models
@@ -137,13 +120,17 @@ The results will be stored in a CSV file called `preds.csv` (by default).
 
 The CSV file shows the classification probability for an image for each class.
 
-> show file structure of current working directory (after prediction)
-
-```bash title="$ ls -l ."
-drwxr-xr-x  2 root root 4096 Jul 18 13:05 model
--rw-r--r--  1 root root  566 Jul 18 13:13 preds.csv
-drwxr-xr-x  2 root root 4096 Jul 18 13:10 test
-drwxr-xr-x 10 root root 4096 Jul 17 23:02 training
+```
+cwd/
+├── training/
+├── model/
+│   └── ...
+├── test/
+│   ├── UNKNOWN_IMAGE.0001.tif
+│   ├── UNKNOWN_IMAGE.0002.tif
+│   ├── UNKNOWN_IMAGE.0003.tif
+│   └── UNKNOWN_IMAGE.0004.tif
+└── preds.csv
 ```
 
 > show inference content of prediction file
@@ -167,30 +154,20 @@ the classification prediction of images with a known class annotation.
 In order to demonstrate the CSV annotation, as well, the validation data is encoded
 in the following file structure:
 
-> show file structure of current working directory (for evaluation)
-
-```bash title="$ ls -l ."
-drwxr-xr-x  2 root root 4096 Jul 18 13:05 model
--rw-r--r--  1 root root  566 Jul 18 13:13 preds.csv
-drwxr-xr-x  2 root root 4096 Jul 18 13:10 test
-drwxr-xr-x 10 root root 4096 Jul 17 23:02 training
-drwxr-xr-x  3 root root 4096 Jul 18 13:20 validation
 ```
-
-> show file structure of validation set
-
-```bash title="$ ls -l validation/"
--rw-r--r-- 1 root root 1419 Jul 18 13:20 annotations.csv
-drwxr-xr-x 2 root root 4096 Jul 18 13:20 images
-```
-
-> show file structure of the validation image directory
-
-```bash title="$ ls -l validation/images/"
--rw-r--r-- 1 root root 67926 Jul 17 23:02 10070_CRC-Prim-HE-04_036.tif_Row_601_Col_601.tif
--rw-r--r-- 1 root root 68374 Jul 17 23:02 10078_CRC-Prim-HE-03_001.tif_Row_151_Col_601.tif
--rw-r--r-- 1 root root 68376 Jul 17 23:02 1012B_CRC-Prim-HE-10_016.tif_Row_1_Col_301.tif
-...
+cwd/
+├── training/
+├── model/
+│   └── ...
+├── test/
+├── validation/
+│   ├── images/
+│   │   ├── 10070_CRC-Prim-HE-04_036.tif_Row_601_Col_601.tif
+│   │   ├── 10078_CRC-Prim-HE-03_001.tif_Row_151_Col_601.tif
+│   │   ├── 1012B_CRC-Prim-HE-10_016.tif_Row_1_Col_301.tif
+│   │   └── ...
+│   └── annotations.csv
+└── preds.csv
 ```
 
 > show annotation content of validation CSV file
@@ -241,22 +218,22 @@ and predicted classifications of the validation set.
 
 > show file structure of current working directory (after evaluation)
 
-```bash title="$ ls -l ."
-drwxr-xr-x  2 root root 4096 Jul 18 13:31 evaluation
-drwxr-xr-x  2 root root 4096 Jul 18 13:05 model
--rw-r--r--  1 root root  566 Jul 18 13:13 preds.csv
-drwxr-xr-x  2 root root 4096 Jul 18 13:10 test
-drwxr-xr-x 10 root root 4096 Jul 17 23:02 training
-drwxr-xr-x  3 root root 4096 Jul 18 13:20 validation
 ```
-
-> show file structure of evaluation directory
-
-```bash title="$ ls -l evaluation/"
--rw-r--r-- 1 root root   2537 Jul 18 13:31 metrics.performance.csv
--rw-r--r-- 1 root root 191015 Jul 18 13:31 plot.performance.barplot.png
--rw-r--r-- 1 root root 150348 Jul 18 13:31 plot.performance.confusion_matrix.png
--rw-r--r-- 1 root root 138702 Jul 18 13:31 plot.performance.roc.png
+cwd/
+├── training/
+├── model/
+│   └── ...
+├── test/
+├── validation/
+│   ├── images/
+│   │   └── ...
+│   └── annotations.csv
+├── evaluation/
+│   ├── metrics.performance.csv
+│   ├── plot.performance.barplot.png
+│   ├── plot.performance.confusion_matrix.png
+│   └── plot.performance.roc.png
+└── preds.csv
 ```
 
 ![Figure: Results](../../images/aucmedi.automl.usage.plot.png)

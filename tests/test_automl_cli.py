@@ -27,6 +27,7 @@ from PIL import Image
 import numpy as np
 from unittest.mock import patch
 import sys
+from shutil import which
 #Internal libraries
 from aucmedi.automl.main import main
 from aucmedi.automl.cli import *
@@ -61,6 +62,7 @@ class AutoML_CLI(unittest.TestCase):
     #                  CLI Hub: Core                  #
     #-------------------------------------------------#
     def test_core_empty(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         args = ["aucmedi"]
         with patch.object(sys, "argv", args):
             with self.assertRaises(SystemExit) as se:
@@ -68,6 +70,7 @@ class AutoML_CLI(unittest.TestCase):
             self.assertEqual(se.exception.code, 1)
 
     def test_core_version(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         with patch.object(sys, "argv", ["aucmedi", "-v"]):
             with self.assertRaises(SystemExit) as se:
                 main()
@@ -76,6 +79,7 @@ class AutoML_CLI(unittest.TestCase):
                 main()
 
     def test_core_help(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         with patch.object(sys, "argv", ["aucmedi", "-h"]):
             with self.assertRaises(SystemExit) as se:
                 main()
@@ -87,6 +91,7 @@ class AutoML_CLI(unittest.TestCase):
     #                CLI Hub: Training                #
     #-------------------------------------------------#
     def test_training_functionality(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         args = ["aucmedi", "training"]
         args_config = ["--path_imagedir", self.tmp_data.name,
                        "--epochs", "1",
@@ -96,6 +101,7 @@ class AutoML_CLI(unittest.TestCase):
             main()
 
     def test_training_args(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         args = ["aucmedi", "training"]
         args_config = ["--path_imagedir", self.tmp_data.name]
         # Build and run CLI functions
@@ -126,6 +132,7 @@ class AutoML_CLI(unittest.TestCase):
     #               CLI Hub: Prediction               #
     #-------------------------------------------------#
     def test_prediction_functionality(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         # Training
         args = ["aucmedi", "training"]
         args_config = ["--path_imagedir", self.tmp_data.name,
@@ -147,6 +154,7 @@ class AutoML_CLI(unittest.TestCase):
             main()
 
     def test_prediction_args(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         args = ["aucmedi", "prediction"]
         args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
                                                          "class_0")]
@@ -173,6 +181,7 @@ class AutoML_CLI(unittest.TestCase):
     #               CLI Hub: Evaluation               #
     #-------------------------------------------------#
     def test_evaluation_functionality(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         # Training
         args = ["aucmedi", "training"]
         args_config = ["--path_imagedir", self.tmp_data.name,
@@ -203,6 +212,7 @@ class AutoML_CLI(unittest.TestCase):
             main()
 
     def test_evaluation_args(self):
+        if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
         args = ["aucmedi", "evaluation"]
         args_config = ["--path_imagedir", self.tmp_data.name]
         # Build and run CLI functions

@@ -78,7 +78,10 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
         data_dict["F1"] = np.divide(2*tp, 2*tp+fp+fn)
 
         # Compute area under the ROC curve
-        data_dict["AUC"] = roc_auc_score(truth, pred_prob)
+        try:
+            data_dict["AUC"] = roc_auc_score(truth, pred_prob)
+        except:
+            print("ROC AUC score is not defined.")
 
         # Parse metrics to dataframe
         df = pd.DataFrame.from_dict(data_dict, orient="index",

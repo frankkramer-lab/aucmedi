@@ -23,11 +23,11 @@
 import os
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-import multiprocessing as mp
+from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
 # Internal libraries
-from aucmedi import DataGenerator
+from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 
@@ -78,6 +78,11 @@ class Bagging:
         The passed DataGenerator for the train() and predict() function of the Bagging class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
+
+    ??? warning "NeuralNetwork re-initialization"
+        The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!
+
+        Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
         For the training and inference process, each model will create an individual process via the Python multiprocessing package.
@@ -166,6 +171,24 @@ class Bagging:
                               separator=',', append=True)
             callbacks.extend([cb_mc, cb_cl])
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_template.n_labels,
+                "channels": self.model_template.channels,
+                "input_shape": self.model_template.input_shape,
+                "architecture": self.model_template.architecture,
+                "pretrained_weights": self.model_template.pretrained_weights,
+                "loss": self.model_template.loss,
+                "metrics": None,
+                "activation_output": self.model_template.activation_output,
+                "fcl_dropout": self.model_template.fcl_dropout,
+                "meta_variables": self.model_template.meta_variables,
+                "learning_rate": self.model_template.learning_rate,
+                "batch_queue_size": self.model_template.batch_queue_size,
+                "workers": self.model_template.workers,
+                "multiprocessing": self.model_template.multiprocessing,
+            }
+
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
                              "batch_size": temp_dg.batch_size,
@@ -196,7 +219,7 @@ class Bagging:
             process_queue = mp.Queue()
             process_train = mp.Process(target=__training_process__,
                                        args=(process_queue,
-                                             self.model_template,
+                                             model_paras,
                                              data,
                                              datagen_paras,
                                              parameters_training))
@@ -284,11 +307,29 @@ class Bagging:
             path_model = os.path.join(path_model_dir,
                                       "cv_" + str(i) + ".model.hdf5")
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_template.n_labels,
+                "channels": self.model_template.channels,
+                "input_shape": self.model_template.input_shape,
+                "architecture": self.model_template.architecture,
+                "pretrained_weights": self.model_template.pretrained_weights,
+                "loss": self.model_template.loss,
+                "metrics": None,
+                "activation_output": self.model_template.activation_output,
+                "fcl_dropout": self.model_template.fcl_dropout,
+                "meta_variables": self.model_template.meta_variables,
+                "learning_rate": self.model_template.learning_rate,
+                "batch_queue_size": self.model_template.batch_queue_size,
+                "workers": self.model_template.workers,
+                "multiprocessing": self.model_template.multiprocessing,
+            }
+
             # Start inference process for fold i
             process_queue = mp.Queue()
             process_pred = mp.Process(target=__prediction_process__,
                                       args=(process_queue,
-                                            self.model_template,
+                                            model_paras,
                                             path_model,
                                             datagen_paras))
             process_pred.start()
@@ -306,7 +347,7 @@ class Bagging:
 
         # Convert prediction list to NumPy
         preds_final = np.asarray(preds_final)
-        
+
         # Return ensembled predictions
         if return_ensemble : return preds_final, preds_ensemble
         else : return preds_final
@@ -324,11 +365,12 @@ class Bagging:
         if self.cache_dir is None:
             raise FileNotFoundError("Bagging does not have a valid model cache directory!")
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
-            shutil.copytree(self.cache_dir.name, directory_path)
+            shutil.copytree(self.cache_dir.name, directory_path,
+                            dirs_exist_ok=True)
             self.cache_dir.cleanup()
             self.cache_dir = directory_path
         else:
-            shutil.copytree(self.cache_dir, directory_path)
+            shutil.copytree(self.cache_dir, directory_path, dirs_exist_ok=True)
             self.cache_dir = directory_path
 
     # Load model from file
@@ -356,7 +398,7 @@ class Bagging:
 #                     Subroutines                     #
 #-----------------------------------------------------#
 # Internal function for training a NeuralNetwork model in a separate process
-def __training_process__(queue, model, data, datagen_paras, train_paras):
+def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     (train_x, train_y, train_m, test_x, test_y, test_m) = data
     # Build training DataGenerator
     cv_train_gen = DataGenerator(train_x,
@@ -396,13 +438,15 @@ def __training_process__(queue, model, data, datagen_paras, train_paras):
                                loader=datagen_paras["loader"],
                                workers=datagen_paras["workers"],
                                **datagen_paras["kwargs"])
+    # Create NeuralNetwork
+    model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
     cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(cv_history)
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
-def __prediction_process__(queue, model, path_model, datagen_paras):
+def __prediction_process__(queue, model_paras, path_model, datagen_paras):
     # Create inference DataGenerator
     cv_pred_gen = DataGenerator(datagen_paras["samples"],
                                 path_imagedir=datagen_paras["path_imagedir"],
@@ -422,6 +466,8 @@ def __prediction_process__(queue, model, path_model, datagen_paras):
                                 loader=datagen_paras["loader"],
                                 workers=datagen_paras["workers"],
                                 **datagen_paras["kwargs"])
+    # Create NeuralNetwork
+    model = NeuralNetwork(**model_paras)
     # Load model weights from disk
     model.load(path_model)
     # Make prediction

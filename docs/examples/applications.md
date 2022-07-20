@@ -9,6 +9,7 @@ Even so these implementations are more complex than standard examples, they repr
 |-------------|:------:|:--------:|:------:|
 | [Multi-Disease Detection in Retinal Imaging](#RIADD) | Challenge (rank #7) | v0.1.0 | [RIADD - Grand Challenge](https://github.com/frankkramer-lab/riadd.aucmedi) |
 | [Ensemble Learning Analysis](#ENSMIC) | Research | v0.3.0 | [ENSMIC](https://github.com/frankkramer-lab/ensmic) |
+| [Pneumonia Detector via Ensemble Learning](#Pneumonia) | Research | Latest | [xray_pneumonia.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/xray_pneumonia.ipynb) |
 | COVID-19 Severity Detection | Challenge (rank #4 - ongoing) | v0.4.0 | [COVID-19 Algorithm - Grand Challenge](https://grand-challenge.org/algorithms/stoic2021-covid-19-lung-ct-scans-team-augsburg) |
 | Pathology - Gleason Score Estimation | Clinical Study | Latest | Ongoing |
 
@@ -37,3 +38,10 @@ Our results revealed that Stacking achieved the largest performance gain of up t
 Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022)  
 An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.  
 arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
+
+## <a name="Pneumonia"></a>Pneumonia Detector via Ensemble Learning
+
+In this work we use the AUCMEDI-Framework to train a deep neural network to classify chest X-ray images as either normal or viral pneumonia. Stratified k-fold cross-validation with k=3 is used to generate the validation-set and 15% of the data are set aside for the evaluation of the models of the different folds and ensembles each. A random-forest ensemble as well as a Soft-Majority-Vote ensemble are built from the predictions of the different folds. Evaluation metrics (Classification-Report, macro F1-scores, Confusion-Matrices, ROC-Curves) of the individual folds and the ensembles show that the classifier works well. Finally Grad-CAM and LIME explainable artificial intelligence (XAI) algorithms are applied to visualize the image features that are most important for the prediction. For Grad-CAM the heatmaps of the three folds are furthermore averaged for all images in order to calculate a mean XAI-heatmap. As the heatmaps of the different folds for most images differ only slightly this averaging procedure works well. However, only medical professionals can evaluate the quality of the features marked by the XAI. A comparison of the evaluation metrics with metrics of standard procedures such as PCR would also be important. Further limitations are discussed.
+
+A manuscript describing this application was uploaded to arXiv:  
+[https://arxiv.org/abs/2110.01017](https://arxiv.org/abs/2110.01017)

@@ -19,36 +19,56 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" API reference for the AUCMEDI AutoML pipeline.
+""" Entry script (runner/main function) which will be called in AUCMEDI AutoML.
 
-The mentality behind AutoML is to ensure easy application, integration and
-maintenance of complex medical image classification pipelines.
-AUCMEDI provides a fast and intuitive interface through AUCMEDI AutoML for building,
-application and sharing of state-of-the-art medical image classification models.
+The console entry `aucmedi` refers to `aucmedi.automl.main:main`.
 
-The AutoML pipelines are categorized into the following modes:
-`training`, `prediction` and `evaluation`.
+Executes AUCMEDI AutoML pipeline for training, prediction and evaluation.
 
-- The console entry `aucmedi` refers to [aucmedi.automl.main:main][aucmedi.automl.main].
-- The Argparse interface for CLI is defined in [aucmedi.automl.cli][aucmedi.automl.cli]
-- Each AutoML mode is implemented as a code block defining the AUCMEDI pipeline.
-
-!!! info
-    | AutoML Mode   | Argparse                                              | Code Block (Pipeline)                         |
-    | ------------- | ----------------------------------------------------- | --------------------------------------------- |
-    | `training`    | [CLI - Training][aucmedi.automl.cli.cli_training]     | [Block - Train][aucmedi.automl.block_train]   |
-    | `prediction`  | [CLI - Prediction][aucmedi.automl.cli.cli_prediction] | [Block - Predict][aucmedi.automl.block_pred]  |
-    | `evaluation`  | [CLI - Evaluation][aucmedi.automl.cli.cli_evaluation] | [Block - Evaluate][aucmedi.automl.block_eval] |
-
-More information can be found in the docs: [Documentation - AutoML](../../automl/overview/)
+More information can be found in the docs: [Documentation - AutoML](../../../automl/overview/)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# Block functions
-from aucmedi.automl.block_train import block_train
-from aucmedi.automl.block_pred import block_predict
-from aucmedi.automl.block_eval import block_evaluate
-# Parser
-from aucmedi.automl.parser_yaml import parse_yaml
-from aucmedi.automl.parser_cli import parse_cli
+# External libraries
+import sys
+# Internal libraries
+from aucmedi.automl import *
+from aucmedi.automl.cli import *
+
+#-----------------------------------------------------#
+#                Main Method - Runner                 #
+#-----------------------------------------------------#
+def main():
+    # Initialize argparser core
+    parser, subparsers = cli_core()
+    # # Define Subparser YAML
+    # cli_yaml(subparsers)
+    # Define Subparser Training
+    cli_training(subparsers)
+    # Define Subparser Prediction
+    cli_prediction(subparsers)
+    # Define Subparser Evaluation
+    cli_evaluation(subparsers)
+
+    # Help page hook for passing no parameters
+    if len(sys.argv)<=1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    # Parse arguments
+    else : args = parser.parse_args()
+
+    # Call corresponding cli or yaml parser
+    if args.hub == "yaml" : config = parse_yaml(args)
+    else : config = parse_cli(args)
+
+    # Run training pipeline
+    if config["hub"] == "training" : block_train(config)
+    # Run prediction pipeline
+    if config["hub"] == "prediction" : block_predict(config)
+    # Run evaluation pipeline
+    if config["hub"] == "evaluation" : block_evaluate(config)
+
+# Runner for direct script call
+if __name__ == "__main__":
+    main()

@@ -28,28 +28,28 @@ import numpy as np
 import shutil
 # Internal libraries
 from aucmedi import DataGenerator, NeuralNetwork
-from aucmedi.sampling import sampling_split
+from aucmedi.sampling import sampling_split, sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 
 #-----------------------------------------------------#
-#             Ensemble Learning: Stacking             #
+#            Ensemble Learning: Composite             #
 #-----------------------------------------------------#
-class Stacking:
-    """ A Stacking class providing functionality for metalearner based ensemble learning.
+class Composite:
+    """ A Composite class providing functionality for cross-validation and metalearner based ensemble learning.
 
-    In contrast to single algorithm approaches, the ensemble of different deep convolutional neural network architectures
-    (also called heterogeneous ensemble learning) showed strong benefits for overall performance in several studies.
-    The idea of the Stacking technique is to utilize diverse and independent models by stacking another machine learning
-    algorithm on top of these predictions.
+    The Composite strategy combines the homogeneous [Bagging][aucmedi.ensemble.Bagging] and the heterogeneous
+    [Stacking][aucmedi.ensemble.Stacking] technique.
 
-    In AUCMEDI, a percentage split is applied on the dataset into the subsets: train, validation and ensemble.
+    If a metalearner is selected, a percentage sampling split is applied. For an aggregate function, this is not done.
+    The remaining training data is sampled via a cross-validation. For each fold, a different model is trained
+    returning into a heterogenous ensemble.
+    Predictions for this heterogenous ensemble are combined with the fitted metalearner model or an aggregate function.
 
-    On the train and validation subsets, one or multiple predefined [NeuralNetwork][aucmedi.neural_network.model]
-    models are trained, whereas on the ensemble subset a metalearner is fitted to merge
-    [NeuralNetwork][aucmedi.neural_network.model] model predictions into a single one.
+    Instead of utilizing the fixed parameters of the [DataGenerator][aucmedi.data_processing.data_generator],
+    default paramters for Resizing and Standardize of the associated models are used (if `fixed_datagenerator=True`).
 
     ???+ example
         ```python
@@ -58,9 +58,9 @@ class Stacking:
         model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
         model_c = NeuralNetwork(n_labels=4, channels=3, architecture="2D.EfficientNetB1")
 
-        # Initialize Stacking object
-        el = Stacking(model_list=[model_a, model_b, model_c],
-                      metalearner="logistic_regression")
+        # Initialize Composite object
+        el = Composite(model_list=[model_a, model_b, model_c],
+                       metalearner="logistic_regression", k_fold=3)
 
         # Initialize training DataGenerator for complete training data
         datagen = DataGenerator(samples_train, "images_dir/",
@@ -77,10 +77,10 @@ class Stacking:
         ```
 
     !!! warning "Training Time Increase"
-        Stacking sequentially performs fitting processes for multiple models, which will drastically increase training time.
+        Composite sequentially performs fitting processes for multiple models, which will drastically increase training time.
 
     ??? warning "DataGenerator re-initialization"
-        The passed DataGenerator for the train() and predict() function of the Stacking class will be re-initialized!
+        The passed DataGenerator for the train() and predict() function of the Composite class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
 
@@ -96,6 +96,7 @@ class Stacking:
         # For standardize_mode
         model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
         model_b.meta_standardize = "torch"
+        ```
 
     ??? warning "NeuralNetwork re-initialization"
         The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!
@@ -109,28 +110,28 @@ class Stacking:
         which is why more and more redundant data pile up with an increasing number of models.
 
         Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next model.
-
-    ??? reference "Reference for Ensemble Learning Techniques"
-        Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).
-        An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
-        arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
     def __init__(self, model_list, metalearner="logistic_regression",
-                 sampling=[0.7, 0.1, 0.2]):
-        """ Initialization function for creating a Stacking object.
+                 k_fold=3, sampling=[0.85, 0.15], fixed_datagenerator=False):
+        """ Initialization function for creating a Composite object.
 
         Args:
-            model_list (list of NeuralNetwork):        List of instances of AUCMEDI neural network class.
+            model_list (list of NeuralNetwork):         List of instances of AUCMEDI neural network class.
+                                                        The number of models (`len(model_list)`) have to be equal to `k_fold`.
             metalearner (str, Metalearner or Aggregate):Metalearner class instance / a string for an AUCMEDI Metalearner,
                                                         or Aggregate function / a string for an AUCMEDI Aggregate function.
-            sampling (list of float):                   List of percentage values with split sizes. Should be 3x percentage values
-                                                        for heterogenous metalearner and 2x percentage values for homogeneous
-                                                        Aggregate functions (must sum up to 1.0).
+            k_fold (int):                               Number of folds (k) for the Cross-Validation. Must be at least 2.
+            sampling (list of float):                   List of percentage values with split sizes. Should be 2x percentage values
+                                                        for heterogenous metalearner (must sum up to 1.0).
+            fixed_datagenerator (bool):                 Boolean, whether using fixed parameters of passed DataGenerator or
+                                                        using default architecture paramters for Resizing and Standardize.
         """
         # Cache class variables
         self.model_list = model_list
         self.metalearner = metalearner
         self.sampling = sampling
+        self.k_fold = k_fold
+        self.fixed_datagenerator = fixed_datagenerator
         self.sampling_seed = 0
         self.cache_dir = None
 
@@ -145,17 +146,22 @@ class Stacking:
         else : raise TypeError("Unknown type of Metalearner (neither known " + \
                                "ensembler nor Aggregate or Metalearner class)!")
 
+        # Verify model list length
+        if k_fold != len(model_list):
+            raise ValueError("Length of model_list and k_fold has to be equal!")
+
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
     def train(self, training_generator, epochs=20, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False,
               metalearner_fitting=True):
-        """ Training function for fitting the provided Stacking models.
+        """ Training function for fitting the provided NeuralNetwork models.
 
         The training data will be sampled according to a percentage split in which
         [DataGenerators][aucmedi.data_processing.data_generator.DataGenerator] for model training
-        and validation as well as one for the metalearner training will be automatically created.
+        and metalearner training if a metalearner is provided. Else all data is used as model
+        training subset. The model training subset is furthermore sampled via cross-validation.
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
@@ -163,7 +169,7 @@ class Stacking:
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according
-                                                    to percentage split sampling).
+                                                    to percentage split and k-fold cross-validation sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -171,35 +177,35 @@ class Stacking:
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
             metalearner_fitting (bool):             Option whether the Metalearner fitting process should be included in the
-                                                    Stacking training process. The `train_metalearner()` function can also be
+                                                    Composite training process. The `train_metalearner()` function can also be
                                                     run manually (or repeatedly).
         Returns:
-            history (dict):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                         A history dictionary from a Keras history object which contains several logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
-        history_stacking = {}           # Final history dictionary
+        history_composite = {}           # Final history dictionary
 
         # Create temporary model directory
         self.cache_dir = tempfile.TemporaryDirectory(prefix="aucmedi.tmp.",
-                                                     suffix=".stacking")
+                                                     suffix=".composite")
 
         # Obtain training data
         x = training_generator.samples
         y = training_generator.labels
         m = training_generator.metadata
 
-        # Apply percentage split sampling
-        ps_sampling = sampling_split(x, y, m, sampling=self.sampling,
-                                     stratified=True, iterative=True,
-                                     seed=self.sampling_seed)
+        # Apply percentage split sampling for metalearner
+        if isinstance(self.ml_model, Metalearner_Base):
+            ps_sampling = sampling_split(x, y, m, sampling=self.sampling,
+                                         stratified=True, iterative=True,
+                                         seed=self.sampling_seed)
+            # Pack data according to sampling
+            if len(ps_sampling[0]) == 3 : x, y, m = ps_sampling[0]
+            else : x, y = ps_sampling[0]
 
-        # Pack data according to sampling
-        if len(ps_sampling[0]) == 3:
-            data_train = ps_sampling[0]
-            data_val = ps_sampling[1]
-        else:
-            data_train = (*ps_sampling[0], None)
-            data_val = (*ps_sampling[1], None)
+        # Apply cross-validaton sampling
+        cv_sampling = sampling_kfold(x, y, m, n_splits=self.k_fold,
+                                     stratified=True, iterative=True)
 
         # Gather training parameters
         parameters_training = {"epochs": epochs,
@@ -211,14 +217,21 @@ class Stacking:
 
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
+            # Pack data into a tuple
+            fold = cv_sampling[i]
+            if len(fold) == 4:
+                (train_x, train_y, test_x, test_y) = fold
+                data = (train_x, train_y, None, test_x, test_y, None)
+            else : data = fold
+
             # Extend Callback list
             path_model = os.path.join(self.cache_dir.name,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.hdf5")
             cb_mc = ModelCheckpoint(path_model,
                                     monitor="val_loss", verbose=1,
                                     save_best_only=True, mode="min")
             cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
-                                                 "nn_" + str(i) + \
+                                                 "cv_" + str(i) + \
                                                  ".logs.csv"),
                               separator=',', append=True)
             callbacks.extend([cb_mc, cb_cl])
@@ -263,23 +276,23 @@ class Stacking:
             process_queue = mp.Queue()
             process_train = mp.Process(target=__training_process__,
                                        args=(process_queue,
+                                             data,
                                              model_paras,
-                                             data_train,
-                                             data_val,
                                              datagen_paras,
                                              parameters_training))
             process_train.start()
             process_train.join()
-            nn_history = process_queue.get()
+            cv_history = process_queue.get()
             # Combine logged history objects
-            hnn = {"nn_" + str(i) + "." + k: v for k, v in nn_history.items()}
-            history_stacking = {**history_stacking, **hnn}
+            hnn = {"cv_" + str(i) + "." + k: v for k, v in cv_history.items()}
+            history_composite = {**history_composite, **hnn}
 
         # Perform metalearner model training
-        self.train_metalearner(temp_dg)
+        if isinstance(self.ml_model, Metalearner_Base):
+            self.train_metalearner(temp_dg)
 
-        # Return Stacking history object
-        return history_stacking
+        # Return Composite history object
+        return history_composite
 
     def train_metalearner(self, training_generator):
         """ Training function for fitting the Metalearner model.
@@ -293,7 +306,7 @@ class Stacking:
 
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according
-                                                    to percentage split sampling).
+                                                    to percentage split).
         """
         # Skipping metalearner training if aggregate function
         if isinstance(self.ml_model, Aggregate_Base) : return
@@ -306,14 +319,14 @@ class Stacking:
         y = training_generator.labels
         m = training_generator.metadata
 
-        # Apply percentage split sampling
-        ps_sampling = sampling_split(x, y, m, sampling=self.sampling,
-                                     stratified=True, iterative=True,
-                                     seed=self.sampling_seed)
-
+        # Apply percentage split sampling for metalearner
+        if isinstance(self.ml_model, Metalearner_Base):
+            ps_sampling = sampling_split(x, y, m, sampling=self.sampling,
+                                         stratified=True, iterative=True,
+                                         seed=self.sampling_seed)
         # Pack data according to sampling
-        if len(ps_sampling[0]) == 3 : data_ensemble = ps_sampling[2]
-        else : data_ensemble = (*ps_sampling[2], None)
+        if len(ps_sampling[0]) == 3 : data_ensemble = ps_sampling[1]
+        else : data_ensemble = (*ps_sampling[1], None)
 
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
@@ -324,7 +337,7 @@ class Stacking:
         for i in range(len(self.model_list)):
             # Extend Callback list
             path_model = os.path.join(path_model_dir,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.hdf5")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -393,10 +406,10 @@ class Stacking:
             self.ml_model.dump(path_metalearner)
 
     def predict(self, prediction_generator, return_ensemble=False):
-        """ Prediction function for Stacking.
+        """ Prediction function for Composite.
 
-        The fitted models and selected Metalearner will predict classifications for the provided
-        [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+        The fitted models and selected Metalearner/Aggregate function will predict classifications
+        for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
         !!! info
             More about Metalearners can be found here: [Metelearner][aucmedi.ensemble.metalearner]
@@ -419,7 +432,8 @@ class Stacking:
                    not isinstance(self.cache_dir, tempfile.TemporaryDirectory) \
                    and os.path.exists(self.cache_dir))
         if not con_tmp and not con_var:
-            raise FileNotFoundError("Stacking does not have a valid model cache directory!")
+            raise FileNotFoundError("Composite instance does not have a valid" \
+                                    + "model cache directory!")
 
         # Initialize some variables
         temp_dg = prediction_generator
@@ -437,7 +451,7 @@ class Stacking:
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
             path_model = os.path.join(path_model_dir,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.hdf5")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -514,7 +528,7 @@ class Stacking:
 
     # Dump model to file
     def dump(self, directory_path):
-        """ Store temporary Stacking models directory permanently to disk at desired location.
+        """ Store temporary Composite models directory permanently to disk at desired location.
 
         If the model directory is a provided path which is already persistent on the disk,
         the directory is copied in order to keep original data persistent.
@@ -523,7 +537,7 @@ class Stacking:
             directory_path (str):       Path to store the model directory on disk.
         """
         if self.cache_dir is None:
-            raise FileNotFoundError("Stacking does not have a valid model cache directory!")
+            raise FileNotFoundError("Composite does not have a valid model cache directory!")
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             shutil.copytree(self.cache_dir.name, directory_path,
                             dirs_exist_ok=True)
@@ -535,10 +549,10 @@ class Stacking:
 
     # Load model from file
     def load(self, directory_path):
-        """ Load a Stacking model directory which can be used for Metalearner based inference.
+        """ Load a Composite model directory which can be used for Metalearner based inference.
 
         Args:
-            directory_path (str):       Input path, from which the Stacking models will be loaded.
+            directory_path (str):       Input path, from which the Composite models will be loaded.
         """
         # Check directory existence
         if not os.path.exists(directory_path):
@@ -547,9 +561,9 @@ class Stacking:
         # Check model existence
         for i in range(len(self.model_list)):
             path_model = os.path.join(directory_path,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.hdf5")
             if not os.path.exists(path_model):
-                raise FileNotFoundError("Stacking model " + str(i) + \
+                raise FileNotFoundError("Composite model " + str(i) + \
                                         " does not exist!", path_model)
         # If heterogenous metalearner -> load metalearner model file
         if isinstance(self.ml_model, Metalearner_Base):
@@ -567,13 +581,11 @@ class Stacking:
 #                     Subroutines                     #
 #-----------------------------------------------------#
 # Internal function for training a NeuralNetwork model in a separate process
-def __training_process__(queue, model_paras, data_train, data_val,
-                         datagen_paras, train_paras):
+def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
     # Extract data
-    (train_x, train_y, train_m) = data_train
-    (val_x, val_y, val_m) = data_val
+    (train_x, train_y, train_m, test_x, test_y, test_m) = data
     # Build training DataGenerator
-    nn_train_gen = DataGenerator(train_x,
+    cv_train_gen = DataGenerator(train_x,
                                  path_imagedir=datagen_paras["path_imagedir"],
                                  labels=train_y,
                                  metadata=train_m,
@@ -592,10 +604,10 @@ def __training_process__(queue, model_paras, data_train, data_val,
                                  workers=datagen_paras["workers"],
                                  **datagen_paras["kwargs"])
     # Build validation DataGenerator
-    nn_val_gen = DataGenerator(val_x,
+    cv_val_gen = DataGenerator(test_x,
                                path_imagedir=datagen_paras["path_imagedir"],
-                               labels=val_y,
-                               metadata=val_m,
+                               labels=test_y,
+                               metadata=test_m,
                                batch_size=datagen_paras["batch_size"],
                                data_aug=None,
                                seed=datagen_paras["seed"],
@@ -613,9 +625,9 @@ def __training_process__(queue, model_paras, data_train, data_val,
     # Create NeuralNetwork
     model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
-    nn_history = model.train(nn_train_gen, nn_val_gen, **train_paras)
+    cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
-    queue.put(nn_history)
+    queue.put(cv_history)
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, data_test,
@@ -623,7 +635,7 @@ def __prediction_process__(queue, model_paras, path_model, data_test,
     # Extract data
     (test_x, test_y, test_m) = data_test
     # Create inference DataGenerator
-    nn_pred_gen = DataGenerator(test_x,
+    cv_pred_gen = DataGenerator(test_x,
                                 path_imagedir=datagen_paras["path_imagedir"],
                                 labels=None,
                                 metadata=test_m,
@@ -646,6 +658,6 @@ def __prediction_process__(queue, model_paras, path_model, data_test,
     # Load model weights from disk
     model.load(path_model)
     # Make prediction
-    preds = model.predict(nn_pred_gen)
+    preds = model.predict(cv_pred_gen)
     # Store prediction results in cache (which will be returned by the process queue)
     queue.put(preds)

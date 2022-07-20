@@ -56,16 +56,34 @@ class DataGenerator(Iterator):
         from aucmedi import *
 
         # Initialize model
-        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
+        model = NeuralNetwork(
+            n_labels=8,
+            channels=3,
+            architecture="2D.ResNet50"
+        )
 
         # Do some training
-        datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
-                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
+        datagen_train = DataGenerator(
+            samples=samples[:100],
+            path_imagedir="images_dir/",
+            image_format=image_format,
+            labels=class_ohe[:100],
+            resize=model.meta_input,
+            standardize_mode=model.meta_standardize
+        )
+
         model.train(datagen_train, epochs=50)
 
         # Do some predictions
-        datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
-                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+        datagen_test = DataGenerator(
+            samples=samples[100:150],
+            path_imagedir="images_dir/",
+            image_format=image_format,
+            labels=None,
+            resize=model.meta_input,
+            standardize_mode=model.meta_standardize
+        )
+
         preds = model.predict(datagen_test)
         ```
 
@@ -80,6 +98,13 @@ class DataGenerator(Iterator):
     4. Application of Data Augmentation
     5. Standardize image
     6. Stacking processed images to a batch
+
+    ???+ warning
+        When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
+        by the `input_interface()` and the `resize` & `standardize_mode` parameters provided by the
+        `NeuralNetwork` class attributes `meta_input` & `meta_standardize`.
+
+        It assures, that the samples contain the expected file extension, input shape and standardization.
 
     ???+ abstract "Build on top of the library"
         Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
@@ -127,10 +152,10 @@ class DataGenerator(Iterator):
         ???+ info "IO_loader Functions"
             | Interface                                                        | Description                                  |
             | ---------------------------------------------------------------- | -------------------------------------------- |
-            | [image_loader()][aucmedi.data_processing.io_loader.image_loader] | Cache Loader for passing already loaded images. |
-            | [sitk_loader()][aucmedi.data_processing.io_loader.sitk_loader]   | Image Loader for image loading via Pillow.    |
+            | [image_loader()][aucmedi.data_processing.io_loader.image_loader] | Image Loader for image loading via Pillow. |
+            | [sitk_loader()][aucmedi.data_processing.io_loader.sitk_loader]   | SimpleITK Loader for loading NIfTI (nii) or Metafile (mha) formats.    |
             | [numpy_loader()][aucmedi.data_processing.io_loader.numpy_loader] | NumPy Loader for image loading of .npy files.    |
-            | [cache_loader()][aucmedi.data_processing.io_loader.cache_loader] | SimpleITK Loader for loading NIfTI (nii) or Metafile (mha) formats. |
+            | [cache_loader()][aucmedi.data_processing.io_loader.cache_loader] | Cache Loader for passing already loaded images. |
 
             More information on IO_loader functions can be found here: [aucmedi.data_processing.io_loader][]. <br>
             Parameters defined in `**kwargs` are passed down to IO_loader functions.

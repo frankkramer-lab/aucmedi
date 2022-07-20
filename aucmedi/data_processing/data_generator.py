@@ -152,10 +152,10 @@ class DataGenerator(Iterator):
         ???+ info "IO_loader Functions"
             | Interface                                                        | Description                                  |
             | ---------------------------------------------------------------- | -------------------------------------------- |
-            | [image_loader()][aucmedi.data_processing.io_loader.image_loader] | Cache Loader for passing already loaded images. |
-            | [sitk_loader()][aucmedi.data_processing.io_loader.sitk_loader]   | Image Loader for image loading via Pillow.    |
+            | [image_loader()][aucmedi.data_processing.io_loader.image_loader] | Image Loader for image loading via Pillow. |
+            | [sitk_loader()][aucmedi.data_processing.io_loader.sitk_loader]   | SimpleITK Loader for loading NIfTI (nii) or Metafile (mha) formats.    |
             | [numpy_loader()][aucmedi.data_processing.io_loader.numpy_loader] | NumPy Loader for image loading of .npy files.    |
-            | [cache_loader()][aucmedi.data_processing.io_loader.cache_loader] | SimpleITK Loader for loading NIfTI (nii) or Metafile (mha) formats. |
+            | [cache_loader()][aucmedi.data_processing.io_loader.cache_loader] | Cache Loader for passing already loaded images. |
 
             More information on IO_loader functions can be found here: [aucmedi.data_processing.io_loader][]. <br>
             Parameters defined in `**kwargs` are passed down to IO_loader functions.

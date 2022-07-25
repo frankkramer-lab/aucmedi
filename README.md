@@ -10,19 +10,14 @@
 
 The open-source software AUCMEDI allows fast setup of medical image classification pipelines with state-of-the-art methods via an intuitive, high-level Python API or via an AutoML deployment through Docker/CLI.
 
-## Work in Progress!
-
-This framework is currently under active development for publishing our first stable release.  
-
-The main reason this developed project is already publicly available is due to get things rolling and ensure the reproducibility of our challenge participations, ongoing clinical studies as well as publications based on AUCMEDI.
-
-**AUCMEDI is already fully functional by utilizing the Python API / framework.**
-
-Right now, it is possible to utilize the AUCMEDI framework as an high-level API for building state-of-the-art medical image classification pipelines.  
-
-But more things like CLI/Docker for AutoML and straightforward application are coming!  
-
-**Stay tuned and please have a look on AUCMEDI in the end of July, again! :)**  
+**AUCMEDI provides several core features:**  
+- Wide range of 2D/3D data entry options with interfaces to the most common medical image formats such as DICOM, MetaImage, NifTI, PNG or TIF already supplied.
+- Selection of pre-processing methods for preparing images, such as augmentation processes, color conversions, windowing, filtering, resizing and normalization.
+- Use of deep neural networks for binary, multi-class as well as multi-label classification and efficient methods against class imbalances using modern loss functions such as focal loss.
+- Library from modern architectures, like ResNet up to EfficientNet and Vision-Transformers (ViT)⁠.
+- Complex ensemble learning techniques (combination of predictions) using test-time augmentation, bagging via cross-validation or stacking via logistic regressions.
+- Explainable AI to explain opaque decision-making processes of the models using activation maps such as Grad-CAM or backpropagation.
+- Automated Machine Learning (AutoML) mentality to ensure easy deployment, integration and maintenance of complex medical image classification pipelines (Docker).
 
 ## Resources
 - Website: [AUCMEDI Website - Home](https://frankkramer-lab.github.io/aucmedi/)
@@ -30,45 +25,14 @@ But more things like CLI/Docker for AutoML and straightforward application are c
 - Documentation: [AUCMEDI Wiki - API Reference](https://frankkramer-lab.github.io/aucmedi/reference/)
 - Getting Started: [AUCMEDI Website - Getting Started](https://frankkramer-lab.github.io/aucmedi/getstarted/intro/)
 - Examples: [AUCMEDI Wiki - Examples](https://frankkramer-lab.github.io/aucmedi/examples/framework/)
-- Tutorials: Coming soon.
+- Tutorials: [AUCMEDI Wiki - Tutorials](https://frankkramer-lab.github.io/aucmedi/examples/tutorials/)
 - Applications: [AUCMEDI Wiki - Applications](https://frankkramer-lab.github.io/aucmedi/examples/applications/)
 - PyPI Package: [PyPI - aucmedi](https://pypi.org/project/aucmedi/)
-- Docker Hub: Coming soon.
+- Docker Image: [GitHub - ghcr.io/frankkramer-lab/aucmedi](https://github.com/frankkramer-lab/aucmedi/pkgs/container/aucmedi)
 - Zenodo Repository: [Zenodo - AUCMEDI](https://zenodo.org/record/6633540)
 
-## Roadmap
 
-**Features that are already supported by AUCMEDI:**
-- [x] Binary, multi-class and multi-label image classification
-- [x] Support for 2D as well as 3D data
-- [x] Handling class imbalance through class weights & loss weighting like Focal loss
-- [x] Stratified iterative sampling like percentage split and k-fold cross-validation
-- [x] Standard preprocessing functions like Padding, Resizing, Cropping, Normalization
-- [x] Extensive online image augmentation
-- [x] Automated data loading and batch generation
-- [x] Data IO interfaces for csv and subdirectory encoded datasets
-- [x] Transfer Learning on ImageNet weights
-- [x] Large library of popular modern deep convolutional neural network architectures
-- [x] Ensemble Learning techniques like Inference Augmenting
-- [x] Explainable AI (XAI) via Grad-Cam, Backpropagation, ...
-- [x] Clean implementation of the state-of-the-art for competitive application like challenges
-- [x] Full (and automatic) documentation of the complete API reference
-- [x] Started creating examples & applications for the community
-- [x] Available from PyPI for simple installation in various environments
-- [x] Interface for metadata / pandas or NumPy table inclusion in model architectures
-- [x] Unittesting -> CI/CD
-- [x] Clean up Website
-- [x] Integration of bagging and stacking pipelines for utilizing ensemble learning techniques
-- [x] Integrate evaluation functions
-- [x] Support for AutoML via CLI and Docker
-- [x] Documentation for AutoML
-
-**Planed milestones and features are:**
-- [ ] Examples
-- [ ] Tutorials
-- [ ] Publication
-
-## Getting started: 60 seconds to automated medical image classification
+## Getting started - Framework: 60 seconds to automated medical image classification
 
 Simply install AUCMEDI with a single line of code via pip.
 
@@ -77,11 +41,25 @@ Simply install AUCMEDI with a single line of code via pip.
 pip install aucmedi
 ```
 
-Now, you can build a state-of-the-art and complex medical image classification pipeline with just the 3 AUCMEDI pillars.
+Now, you can build a state-of-the-art medical image classification pipeline via
+the standardized AutoML interface or a custom pipeline with the framework interface.
+
+### AutoML
+
+**Train a model and classify unknown images**
+```bash
+# Run training with default arguments, but a specific architecture
+aucmedi training --architecture "DenseNet121"
+
+# Run prediction with default arguments
+aucmedi prediction
+```
+### Framework
+
+Your custom pipeline with just the 3 AUCMEDI pillars:
 - Pillar #1: `input_interface()` for obtaining general dataset information
 - Pillar #2: `NeuralNetwork()` for the deep learning model
 - Pillar #3: `DataGenerator()` for a powerful interface to load any images/volumes into your model
-
 
 **Build a pipeline**
 ```python
@@ -143,7 +121,7 @@ https://doi.org/10.1186/s12880-020-00543-7
 
 ```
 Müller, D., Mayer, S., Hartmann, D., Meyer, P., Schneider, P., Soto-Rey, I., & Kramer, F. (2022).
-AUCMEDI: a framework for Automated Classification of Medical Images (Version 1.0.0) [Computer software].
+AUCMEDI: a framework for Automated Classification of Medical Images (Version X.Y.Z) [Computer software].
 GitHub repository. https://github.com/frankkramer-lab/aucmedi
 ```
 

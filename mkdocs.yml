@@ -56,7 +56,7 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/aucmedi/
     - icon: fontawesome/brands/docker
-      link: Xplaceholder_for_dockerhubX
+      link: https://github.com/frankkramer-lab/aucmedi/pkgs/container/aucmedi
     - icon: fontawesome/solid/book
       link: https://zenodo.org/record/6633540
 
@@ -78,6 +78,7 @@ nav:
 - Examples:
   - Framework: examples/framework.md
   - AutoML: examples/automl.md
+  - Tutorials: examples/tutorials.md
   - Applications: examples/applications.md
 - AutoML:
   - Overview: automl/overview.md

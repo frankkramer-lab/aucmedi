@@ -32,7 +32,7 @@ The open-source software AUCMEDI allows fast setup of medical image classificati
 - Zenodo Repository: [Zenodo - AUCMEDI](https://zenodo.org/record/6633540)
 
 
-## Getting started - Framework: 60 seconds to automated medical image classification
+## Getting started: 60 seconds to automated medical image classification
 
 Simply install AUCMEDI with a single line of code via pip.
 

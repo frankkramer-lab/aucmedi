@@ -55,10 +55,10 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
         if threshold is None:
             pred_argmax = np.argmax(preds, axis=-1)
             pred = (pred_argmax == c).astype(np.int)
-            pred_prob = np.max(preds, axis=-1)
         else:
             pred = np.where(preds[:, c] >= threshold, 1, 0)
-            pred_prob = preds[:, c]
+        # Obtain prediction confidence (probability)
+        pred_prob = preds[:, c]
 
         # Compute the confusion matrix
         tp, tn, fp, fn = compute_CM(truth, pred)

@@ -61,10 +61,6 @@ class Subfunction_Base(ABC):
     def __init__(self):
         """ Functions which will be called during the Subfunction object creation.
 
-        ```
-        __init__(model, layerName=None)
-        ```
-
         This function can be used to pass variables and options in the Subfunction instance.
         The are no mandatory required parameters for the initialization.
         """

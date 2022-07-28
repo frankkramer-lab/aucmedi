@@ -170,21 +170,24 @@ def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
     rawcm.columns = class_names
 
     # Preprocess dataframe
-    dt = rawcm.div(rawcm.sum(axis=0), axis=1) * 100
+    dt = rawcm.div(rawcm.sum(axis=1), axis=0).fillna(0) * 100
     dt = dt.round(decimals=2)
     dt.reset_index(drop=False, inplace=True)
-    dt = dt.melt(id_vars=["index"], var_name="gt", value_name="score")
-    dt.rename(columns={"index": "pd"}, inplace=True)
+    dt = dt.melt(id_vars=["index"], var_name="pd", value_name="score")
+    dt.rename(columns={"index": "gt"}, inplace=True)
 
     # Generate confusion matrix
     fig = (ggplot(dt, aes("pd", "gt", fill="score"))
-                  + geom_tile()
+                  + geom_tile(color="white", size=1.5)
                   + geom_text(aes("pd", "gt", label="score"), color="black")
                   + ggtitle("Performance Evaluation: Confusion Matrix")
                   + xlab("Prediction")
                   + ylab("Ground Truth")
                   + scale_fill_gradient(low="white", high="royalblue",
                                         limits=[0, 100])
+                  + guides(fill = guide_colourbar(title="%",
+                                                  barwidth=10,
+                                                  barheight=50))
                   + theme_bw()
                   + theme(axis_text_x = element_text(angle = 45, vjust = 1,
                                                      hjust = 1)))
@@ -284,4 +287,3 @@ def evalby_csv(metrics, out_path, class_names, suffix=None):
 
     # Store file to disk
     metrics.to_csv(path_csv, index=False)
-

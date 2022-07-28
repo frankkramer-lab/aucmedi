@@ -139,6 +139,7 @@ def postprocess_output(sample, image, xai_map, n_classes, data_gen,
         if data_gen.image_format:
             xai_file = sample + "." + data_gen.image_format
         else : xai_file = sample
+        if os.sep in xai_file : xai_file = xai_file.replace(os.sep, ".")
         path_xai = os.path.join(out_path, xai_file)
         # If preds given, output only argmax class heatmap
         if len(xai_map.shape) == 2:

@@ -117,6 +117,32 @@ class xaiTEST(unittest.TestCase):
                 self.assertTrue(np.array_equal(img.shape, hm.shape))
                 self.assertFalse(np.array_equal(img, hm))
 
+    def test_Decoder_directoryInterface(self):
+        # Create imaging data with subdirectories
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        for i in range(0, 5):
+            os.mkdir(os.path.join(tmp_data.name, "class_" + str(i)))
+        # Fill subdirectories with images
+        for i in range(0, 25):
+            img = np.random.rand(32, 32, 3) * 255
+            img_pillow = Image.fromarray(img.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".png"
+            label_dir = "class_" + str((i % 5))
+            path_sample = os.path.join(tmp_data.name, label_dir, index)
+            img_pillow.save(path_sample)
+        ds = input_interface(interface="directory", path_imagedir=tmp_data.name)
+        (index_list, _, nclasses, _, _) = ds
+        # Create Data Generator
+        datagen = DataGenerator(index_list,  tmp_data.name,
+                                labels=None, resize=None,
+                                grayscale=False, batch_size=3)
+        # Create Neural Network model
+        model = NeuralNetwork(n_labels=nclasses, channels=3, input_shape=(32,32),
+                              architecture="2D.Vanilla", batch_queue_size=1)
+        path_xai = os.path.join(tmp_data.name, "xai_directory")
+        xai_decoder(datagen, model, preds=None, out_path=path_xai)
+
     #-------------------------------------------------#
     #            XAI Visualization: Heatmap           #
     #-------------------------------------------------#

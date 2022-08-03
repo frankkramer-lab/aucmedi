@@ -8,7 +8,7 @@ AUCMEDI is still under active development, which is why the official status is:
 
 **Current Progress:**  
 
-[=88% "22 of 26 (88%)"]
+[=88% "23 of 26 (88%)"]
 
 **Features that are already supported by AUCMEDI:**
 

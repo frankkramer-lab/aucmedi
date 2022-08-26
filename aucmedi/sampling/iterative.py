@@ -33,8 +33,8 @@ with the parameter `iterative=True`.
 
 ??? abstract "Reference - Implementation"
     Author: trend-b <br>
-    GitHub Profile: https://github.com/trent-b <br>
-    https://github.com/trent-b/iterative-stratification <br>
+    GitHub Profile: [https://github.com/trent-b](https://github.com/trent-b) <br>
+    [https://github.com/trent-b/iterative-stratification](https://github.com/trent-b/iterative-stratification) <br>
 
 ??? abstract "Reference - Publication"
     Sechidis K., Tsoumakas G., Vlahavas I. 2011.
@@ -43,7 +43,7 @@ with the parameter `iterative=True`.
     Lecture Notes in Computer Science, vol 6913. Springer, Berlin, Heidelberg.
     Aristotle University of Thessaloniki.
     <br>
-    https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10
+    [https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10](https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #
@@ -70,7 +70,7 @@ def IterativeStratification(labels, r, random_state):
         Lecture Notes in Computer Science, vol 6913. Springer, Berlin, Heidelberg.
         Aristotle University of Thessaloniki.
         <br>
-        https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10
+        [https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10](https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10)
     """
 
     n_samples = labels.shape[0]

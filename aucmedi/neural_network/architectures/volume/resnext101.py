@@ -30,13 +30,13 @@
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    https://github.com/ZFTurbo/classification_models_3D <br>
+    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
 
 ???+ abstract "Reference - Publication"
     Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He. 16 Nov 2016.
     Aggregated Residual Transformations for Deep Neural Networks.
     <br>
-    https://arxiv.org/abs/1611.05431
+    [https://arxiv.org/abs/1611.05431](https://arxiv.org/abs/1611.05431)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

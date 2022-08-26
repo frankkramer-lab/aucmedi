@@ -24,10 +24,10 @@
 Build your state-of-the-art medical image classification pipeline with the 3 AUCMEDI pillars:
 
 !!! info "Pillars of AUCMEDI"
-    | Pillar                                                                       | Description                                                    |
+    | Pillar                                                                    | Description                                                       |
     | ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
     | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Obtaining general information from the dataset.                   |
-    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]         | Building the deep learning model.                                 |
+    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]           | Building the deep learning model.                                 |
     | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Powerful interface for loading any images/volumes into the model. |
 
 

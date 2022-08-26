@@ -30,14 +30,14 @@
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    https://github.com/ZFTurbo/classification_models_3D <br>
+    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
 
 ???+ abstract "Reference - Publication"
     Andrew G. Howard, Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, Tobias Weyand,
     Marco Andreetto, Hartwig Adam. 17 Apr 2017.
     MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications.
     <br>
-    https://arxiv.org/abs/1704.04861
+    [https://arxiv.org/abs/1704.04861](https://arxiv.org/abs/1704.04861)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

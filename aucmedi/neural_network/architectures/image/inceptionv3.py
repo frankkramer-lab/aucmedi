@@ -28,13 +28,13 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/inceptionv3/ <br>
+    [https://keras.io/api/applications/inceptionv3/](https://keras.io/api/applications/inceptionv3/) <br>
 
 ???+ abstract "Reference - Publication"
     Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jonathon Shlens, Zbigniew Wojna. 2 Dec 2015.
     Rethinking the Inception Architecture for Computer Vision.
     <br>
-    https://arxiv.org/abs/1512.00567
+    [https://arxiv.org/abs/1512.00567](https://arxiv.org/abs/1512.00567)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

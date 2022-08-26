@@ -28,13 +28,13 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/resnet/ <br>
+    [https://keras.io/api/applications/resnet/](https://keras.io/api/applications/resnet/) <br>
 
 ???+ abstract "Reference - Publication"
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. 16 Mar 2016.
     Identity Mappings in Deep Residual Networks.
     <br>
-    https://arxiv.org/abs/1603.05027
+    [https://arxiv.org/abs/1603.05027](https://arxiv.org/abs/1603.05027)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

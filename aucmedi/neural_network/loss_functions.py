@@ -43,13 +43,13 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
 
     ??? abstract "Reference - Implementation"
         Author: Umberto Griffo <br>
-        GitHub: https://github.com/umbertogriffo <br>
-        Source: https://github.com/umbertogriffo/focal-loss-keras <br>
+        GitHub: [https://github.com/umbertogriffo](https://github.com/umbertogriffo) <br>
+        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras) <br>
 
     ??? abstract "Reference - Publication"
         Focal Loss for Dense Object Detection (Aug 2017) <br>
         Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár <br>
-        https://arxiv.org/abs/1708.02002
+        [https://arxiv.org/abs/1708.02002](https://arxiv.org/abs/1708.02002)
 
     Args:
         alpha (float):      Class weight for positive class.
@@ -117,13 +117,13 @@ def categorical_focal_loss(alpha, gamma=2.0):
 
     ??? abstract "Reference - Implementation"
         Author: Umberto Griffo <br>
-        GitHub: https://github.com/umbertogriffo <br>
-        Source: https://github.com/umbertogriffo/focal-loss-keras <br>
+        GitHub: [https://github.com/umbertogriffo](https://github.com/umbertogriffo) <br>
+        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras) <br>
 
     ??? abstract "Reference - Publication"
         Focal Loss for Dense Object Detection (Aug 2017) <br>
         Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár <br>
-        https://arxiv.org/abs/1708.02002
+        [https://arxiv.org/abs/1708.02002](https://arxiv.org/abs/1708.02002)
 
     Args:
         alpha (list of float):      The same as weighing factor in balanced cross entropy.
@@ -168,7 +168,7 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
         class_weights = compute_multilabel_weights(class_ohe)
 
         from aucmedi.neural_network.loss_functions import *
-        my_loss = multilabel_focal_loss(alpha=class_weights)
+        my_loss = multilabel_focal_loss(class_weights=class_weights)
 
         model = NeuralNetwork(n_labels=6, channels=3, loss=my_loss,
                                activation_output="sigmoid")
@@ -176,13 +176,13 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
 
     ??? abstract "Reference - Implementation"
         Author: Sushant Tripathy <br>
-        LinkedIn: https://www.linkedin.com/in/sushanttripathy/ <br>
-        Source: https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py <br>
+        LinkedIn: [https://www.linkedin.com/in/sushanttripathy/](https://www.linkedin.com/in/sushanttripathy/) <br>
+        Source: [https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py](https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py) <br>
 
     ??? abstract "Reference - Publication"
         Focal Loss for Dense Object Detection (Aug 2017) <br>
         Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár  <br>
-        https://arxiv.org/abs/1708.02002 <br>
+        [https://arxiv.org/abs/1708.02002](https://arxiv.org/abs/1708.02002) <br>
 
     Args:
         class_weights (list of float):      Non-zero, positive class-weights. This is used instead

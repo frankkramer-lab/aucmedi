@@ -28,13 +28,13 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/mobilenet/ <br>
+    [https://keras.io/api/applications/mobilenet/](https://keras.io/api/applications/mobilenet/) <br>
 
 ???+ abstract "Reference - Publication"
     Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen. 13 Jan 2018.
     MobileNetV2: Inverted Residuals and Linear Bottlenecks.
     <br>
-    https://arxiv.org/abs/1801.04381
+    [https://arxiv.org/abs/1801.04381](https://arxiv.org/abs/1801.04381)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

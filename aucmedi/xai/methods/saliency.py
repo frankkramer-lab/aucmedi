@@ -35,21 +35,21 @@ class SaliencyMap(XAImethod_Base):
 
     ??? abstract "Reference - Implementation #1"
         Author: Yasuhiro Kubota <br>
-        GitHub Profile: https://github.com/keisen <br>
+        GitHub Profile: [https://github.com/keisen](https://github.com/keisen) <br>
         Date: Aug 11, 2020 <br>
-        https://github.com/keisen/tf-keras-vis/ <br>
+        [https://github.com/keisen/tf-keras-vis/](https://github.com/keisen/tf-keras-vis/) <br>
 
     ??? abstract "Reference - Implementation #2"
         Author: Huynh Ngoc Anh <br>
-        GitHub Profile: https://github.com/experiencor <br>
+        GitHub Profile: [https://github.com/experiencor](https://github.com/experiencor) <br>
         Date: Jun 23, 2017 <br>
-        https://github.com/experiencor/deep-viz-keras/ <br>
+        [https://github.com/experiencor/deep-viz-keras/](https://github.com/experiencor/deep-viz-keras/) <br>
 
     ??? abstract "Reference - Publication"
         Karen Simonyan, Andrea Vedaldi, Andrew Zisserman. 20 Dec 2013.
         Deep Inside Convolutional Networks: Visualising Image Classification Models and Saliency Maps.
         <br>
-        https://arxiv.org/abs/1312.6034
+        [https://arxiv.org/abs/1312.6034](https://arxiv.org/abs/1312.6034)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Saliency Map for an image with a model.

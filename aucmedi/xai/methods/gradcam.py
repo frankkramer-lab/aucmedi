@@ -36,18 +36,18 @@ class GradCAM(XAImethod_Base):
     ??? abstract "Reference - Implementation #1"
         Author: François Chollet <br>
         Date: April 26, 2020 <br>
-        https://keras.io/examples/vision/grad_cam/ <br>
+        [https://keras.io/examples/vision/grad_cam/](https://keras.io/examples/vision/grad_cam/) <br>
 
     ??? abstract "Reference - Implementation #2"
         Author: Adrian Rosebrock <br>
         Date: March 9, 2020 <br>
-        https://www.pyimagesearch.com/2020/03/09/grad-cam-visualize-class-activation-maps-with-keras-tensorflow-and-deep-learning/ <br>
+        [https://www.pyimagesearch.com/2020/03/09/grad-cam-visualize-class-activation-maps-with-keras-tensorflow-and-deep-learning/](https://www.pyimagesearch.com/2020/03/09/grad-cam-visualize-class-activation-maps-with-keras-tensorflow-and-deep-learning/) <br>
 
     ??? abstract "Reference - Publication"
         Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, Dhruv Batra. 7 Oct 2016.
         Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.
         <br>
-        https://arxiv.org/abs/1610.02391
+        [https://arxiv.org/abs/1610.02391](https://arxiv.org/abs/1610.02391)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Grad-CAM heatmap for an image with a model.

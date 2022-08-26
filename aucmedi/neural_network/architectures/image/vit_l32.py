@@ -31,14 +31,14 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    Fausto Morales; https://github.com/faustomorales <br>
-    https://github.com/faustomorales/vit-keras <br>
+    Fausto Morales; [https://github.com/faustomorales](https://github.com/faustomorales) <br>
+    [https://github.com/faustomorales/vit-keras](https://github.com/faustomorales/vit-keras) <br>
 
-    Vo Van Tu; https://github.com/tuvovan <br>
-    https://github.com/tuvovan/Vision_Transformer_Keras <br>
+    Vo Van Tu; [https://github.com/tuvovan](https://github.com/tuvovan) <br>
+    [https://github.com/tuvovan/Vision_Transformer_Keras](https://github.com/tuvovan/Vision_Transformer_Keras) <br>
 
     Original: Google Research <br>
-    https://github.com/google-research/vision_transformer <br>
+    [https://github.com/google-research/vision_transformer](https://github.com/google-research/vision_transformer) <br>
 
 ???+ abstract "Reference - Publication"
     ```

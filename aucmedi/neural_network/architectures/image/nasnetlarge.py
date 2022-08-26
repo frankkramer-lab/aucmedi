@@ -28,13 +28,13 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/nasnet/ <br>
+    [https://keras.io/api/applications/nasnet/](https://keras.io/api/applications/nasnet/) <br>
 
 ???+ abstract "Reference - Publication"
     Barret Zoph, Vijay Vasudevan, Jonathon Shlens, Quoc V. Le. 10 Dec 2015.
     Learning Transferable Architectures for Scalable Image Recognition.
     <br>
-    https://arxiv.org/abs/1707.07012
+    [https://arxiv.org/abs/1707.07012](https://arxiv.org/abs/1707.07012)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

@@ -35,18 +35,18 @@ class IntegratedGradients(XAImethod_Base):
 
     ??? abstract "Reference - Implementation"
         Author: Aakash Kumar Nain <br>
-        GitHub Profile: https://github.com/AakashKumarNain <br>
+        GitHub Profile: [https://github.com/AakashKumarNain](https://github.com/AakashKumarNain) <br>
         Date: Jun 02, 2020 <br>
-        https://keras.io/examples/vision/integrated_gradients <br>
+        [https://keras.io/examples/vision/integrated_gradients](https://keras.io/examples/vision/integrated_gradients) <br>
 
     ??? abstract "Reference - Publication"
         Mukund Sundararajan, Ankur Taly, Qiqi Yan. 04 Mar 2017.
         Axiomatic Attribution for Deep Networks.
         <br>
-        https://arxiv.org/abs/1703.01365
+        [https://arxiv.org/abs/1703.01365](https://arxiv.org/abs/1703.01365)
 
     This class provides functionality for running the compute_heatmap function,
-    which computes a Integrated Gradients Map for an image with a model.
+    which computes an Integrated Gradients Map for an image with a model.
     """
     def __init__(self, model, layerName=None, num_steps=50):
         """ Initialization function for creating a Integrated Gradients Map as XAI Method object.

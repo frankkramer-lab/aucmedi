@@ -30,13 +30,13 @@
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    https://github.com/ZFTurbo/classification_models_3D <br>
+    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
 
 ???+ abstract "Reference - Publication"
     Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen. 13 Jan 2018.
     MobileNetV2: Inverted Residuals and Linear Bottlenecks.
     <br>
-    https://arxiv.org/abs/1801.04381
+    [https://arxiv.org/abs/1801.04381](https://arxiv.org/abs/1801.04381)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

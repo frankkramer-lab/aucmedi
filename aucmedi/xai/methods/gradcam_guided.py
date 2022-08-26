@@ -38,19 +38,19 @@ class GuidedGradCAM(XAImethod_Base):
     ??? abstract "Reference - Implementation"
         Author: Swapnil Ahlawat <br>
         Date: Jul 06, 2020 <br>
-        https://github.com/swapnil-ahlawat/Guided-GradCAM-Keras <br>
+        [https://github.com/swapnil-ahlawat/Guided-GradCAM-Keras](https://github.com/swapnil-ahlawat/Guided-GradCAM-Keras) <br>
 
     ??? abstract "Reference - Publication #1"
         Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, Martin Riedmiller. 21 Dec 2014.
         Striving for Simplicity: The All Convolutional Net.
         <br>
-        https://arxiv.org/abs/1412.6806
+        [https://arxiv.org/abs/1412.6806](https://arxiv.org/abs/1412.6806)
 
     ??? abstract "Reference - Publication #2"
         Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, Dhruv Batra. 7 Oct 2016.
         Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.
         <br>
-        https://arxiv.org/abs/1610.02391
+        [https://arxiv.org/abs/1610.02391](https://arxiv.org/abs/1610.02391)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Guided Grad-CAM heatmap for an image with a model.

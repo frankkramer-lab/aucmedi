@@ -28,13 +28,13 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/xception/ <br>
+    [https://keras.io/api/applications/xception/](https://keras.io/api/applications/xception/) <br>
 
 ???+ abstract "Reference - Publication"
     François Chollet. 07 Oct 2016.
     Xception: Deep Learning with Depthwise Separable Convolutions.
     <br>
-    https://arxiv.org/abs/1610.02357
+    [https://arxiv.org/abs/1610.02357](https://arxiv.org/abs/1610.02357)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

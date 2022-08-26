@@ -28,13 +28,13 @@
 | Standardization          | "torch"                    |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/applications/#densenet <br>
+    [https://keras.io/applications/#densenet](https://keras.io/applications/#densenet) <br>
 
 ???+ abstract "Reference - Publication"
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger. 25 Aug 2016.
     Densely Connected Convolutional Networks.
     <br>
-    https://arxiv.org/abs/1608.06993
+    [https://arxiv.org/abs/1608.06993](https://arxiv.org/abs/1608.06993)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

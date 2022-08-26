@@ -35,9 +35,9 @@ class OcclusionSensitivity(XAImethod_Base):
 
     ??? abstract "Reference - Implementation"
         Author: Raphael Meudec <br>
-        GitHub Profile: https://gist.github.com/RaphaelMeudec <br>
+        GitHub Profile: [https://gist.github.com/RaphaelMeudec](https://gist.github.com/RaphaelMeudec) <br>
         Date: Jul 18, 2019 <br>
-        https://gist.github.com/RaphaelMeudec/7985b0c5eb720a29021d52b0a0be549a <br>
+        [https://gist.github.com/RaphaelMeudec/7985b0c5eb720a29021d52b0a0be549a](https://gist.github.com/RaphaelMeudec/7985b0c5eb720a29021d52b0a0be549a) <br>
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Occlusion Sensitivity Map for an image with a model.

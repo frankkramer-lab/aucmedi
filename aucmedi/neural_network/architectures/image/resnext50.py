@@ -28,7 +28,7 @@
 | Standardization          | "torch"                    |
 
 ???+ abstract "Reference - Implementation"
-    [https://github.com/keras-team/keras-applications](https://arxiv.org/abs/1603.05027) <br>
+    [https://github.com/keras-team/keras-applications](https://github.com/keras-team/keras-applications) <br>
 
 ???+ abstract "Reference - Publication"
     Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He. 16 Nov 2016.

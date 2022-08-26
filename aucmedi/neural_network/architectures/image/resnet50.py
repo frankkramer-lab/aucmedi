@@ -28,7 +28,7 @@
 | Standardization          | "caffe"                    |
 
 ???+ abstract "Reference - Implementation"
-    [https://keras.io/api/applications/resnet/](https://arxiv.org/abs/1707.07012) <br>
+    [https://keras.io/api/applications/resnet/](https://keras.io/api/applications/resnet/) <br>
 
 ???+ abstract "Reference - Publication"
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. 10 Dec 2015.

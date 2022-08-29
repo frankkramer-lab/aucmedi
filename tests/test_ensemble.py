@@ -320,15 +320,15 @@ class EnsembleTEST(unittest.TestCase):
 
         self.assertTrue(os.path.exists(el.cache_dir.name))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_0.logs.csv")))
+                "nn_0.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_0.model.hdf5")))
+                "nn_0.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_1.logs.csv")))
+                "nn_1.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_1.model.hdf5")))
+                "nn_1.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "metalearner.model.pickle")))
+                "metalearner.model.pickle")))
         # Delete cached models
         path_tmp_bagging = el.cache_dir.name
         del el
@@ -354,13 +354,13 @@ class EnsembleTEST(unittest.TestCase):
 
         self.assertTrue(os.path.exists(el.cache_dir.name))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_0.logs.csv")))
+                "nn_0.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_0.model.hdf5")))
+                "nn_0.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_1.logs.csv")))
+                "nn_1.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
-                                                    "nn_1.model.hdf5")))
+                "nn_1.model.hdf5")))
         # Delete cached models
         path_tmp_bagging = el.cache_dir.name
         del el
@@ -467,13 +467,236 @@ class EnsembleTEST(unittest.TestCase):
         el.load(model_dir.name)
         self.assertTrue(os.path.exists(el.cache_dir))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
-                                                    "nn_0.logs.csv")))
+                "nn_0.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
-                                                    "nn_0.model.hdf5")))
+                "nn_0.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
-                                                    "nn_1.logs.csv")))
+                "nn_1.logs.csv")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
-                                                    "nn_1.model.hdf5")))
+                "nn_1.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                "metalearner.model.pickle")))
+        preds = el.predict(datagen)
+
+    #-------------------------------------------------#
+    #                    Composite                    #
+    #-------------------------------------------------#
+    def test_Composite_create_metalearner(self):
+        # Initialize Composite object with implemented dictionary
+        el = Composite(model_list=[self.model2D, self.model2D, self.model2D],
+                       metalearner="logistic_regression")
+        # Some sanity checks
+        self.assertIsInstance(el, Composite)
+        from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+        self.assertIsInstance(el.ml_model, Metalearner_Base)
+        # Initialize Composite object with direct ensembler call
+        from aucmedi.ensemble.metalearner import LogisticRegression
+        ensembler = LogisticRegression()
+        el = Composite(model_list=[self.model2D, self.model2D],
+                       metalearner=ensembler, k_fold=2)
+        # Some sanity checks
+        self.assertIsInstance(el, Composite)
+        from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+        self.assertIsInstance(el.ml_model, Metalearner_Base)
+
+    def test_Composite_create_aggregate(self):
+        # Initialize Composite object with implemented dictionary
+        el = Composite(model_list=[self.model2D, self.model2D, self.model2D],
+                       metalearner="majority_vote")
+        # Some sanity checks
+        self.assertIsInstance(el, Composite)
+        from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+        self.assertIsInstance(el.ml_model, Aggregate_Base)
+        # Initialize Composite object with direct ensembler call
+        from aucmedi.ensemble.aggregate import MajorityVote
+        ensembler = MajorityVote()
+        el = Composite(model_list=[self.model2D, self.model2D],
+                       metalearner=ensembler, k_fold=2)
+        # Some sanity checks
+        self.assertIsInstance(el, Composite)
+        from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+        self.assertIsInstance(el.ml_model, Aggregate_Base)
+
+    def test_Composite_create_checks(self):
+        el = Composite(model_list=[self.model2D, self.model2D, self.model2D])
+        self.assertTrue(len(el.model_list) == 3)
+        self.assertTrue(self.model2D in el.model_list)
+        with self.assertRaises(ValueError):
+            Composite(model_list=[self.model2D], k_fold=3)
+
+    def test_Composite_training_metalearner(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 6, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode=None, workers=0)
+        # Initialize Composite object
+        el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
+        # Run Composite based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        self.assertIsInstance(hist, dict)
+        self.assertTrue("cv_0.loss" in hist and "cv_0.val_loss" in hist)
+        self.assertTrue("cv_1.loss" in hist and "cv_1.val_loss" in hist)
+
+        self.assertTrue(os.path.exists(el.cache_dir.name))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_1.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "metalearner.model.pickle")))
+        # Delete cached models
+        path_tmp_bagging = el.cache_dir.name
+        del el
+        self.assertFalse(os.path.exists(path_tmp_bagging))
+
+    def test_Composite_training_aggregate(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 6, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Composite object
+        el = Composite(model_list=[self.model2D, self.model2D],
+                       metalearner="mean", k_fold=2)
+        # Run Composite based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        self.assertIsInstance(hist, dict)
+        self.assertTrue("cv_0.loss" in hist and "cv_0.val_loss" in hist)
+        self.assertTrue("cv_1.loss" in hist and "cv_1.val_loss" in hist)
+
+        self.assertTrue(os.path.exists(el.cache_dir.name))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir.name,
+                                                    "cv_1.model.hdf5")))
+        # Delete cached models
+        path_tmp_bagging = el.cache_dir.name
+        del el
+        self.assertFalse(os.path.exists(path_tmp_bagging))
+
+    def test_Composite_predict_metalearner(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 6, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode=None, workers=0)
+        # Initialize Composite object
+        el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
+        # Check cache model directory existence exception
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+
+        # Run Composite based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        # Run Inference
+        preds = el.predict(datagen)
+        self.assertTrue(np.array_equal(preds.shape, (18,2)))
+
+        # Run Inference with returned ensemble
+        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        self.assertTrue(np.array_equal(preds.shape, (18,2)))
+        self.assertTrue(np.array_equal(ensemble.shape, (2,18,2)))
+
+    def test_Composite_predict_aggregate(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 6, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode="tf", workers=0)
+        # Initialize Composite object
+        el = Composite(model_list=[self.model2D, self.model2D],
+                       metalearner="mean", k_fold=2)
+        # Check cache model directory existence exception
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+
+        # Run Composite based training process
+        hist = el.train(datagen, epochs=1, iterations=1)
+
+        # Run Inference
+        preds = el.predict(datagen)
+        self.assertTrue(np.array_equal(preds.shape, (18,2)))
+
+        # Run Inference with returned ensemble
+        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        self.assertTrue(np.array_equal(preds.shape, (18,2)))
+        self.assertTrue(np.array_equal(ensemble.shape, (2,18,2)))
+
+    def test_Composite_dump(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 6, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode=None, workers=0)
+        # Initialize Bagging object and train it
+        el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
+        el.train(datagen, epochs=1, iterations=1)
+        # Initialize temporary directory
+        target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                             suffix=".model")
+        self.assertTrue(len(os.listdir(target.name))==0)
+        self.assertTrue(len(os.listdir(el.cache_dir.name))==5)
+        origin = el.cache_dir.name
+        # Dump model
+        target_dir = os.path.join(target.name, "test")
+        el.dump(target_dir)
+        self.assertTrue(len(os.listdir(target_dir))==5)
+        self.assertFalse(os.path.exists(origin))
+        target_two = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".model")
+        target_dir_two = os.path.join(target_two.name, "test")
+        el.dump(target_dir_two)
+        self.assertTrue(len(os.listdir(target_dir_two))==5)
+        self.assertTrue(len(os.listdir(target_dir))==5)
+        self.assertTrue(os.path.exists(target_dir))
+
+    def test_Composite_load(self):
+        # Initialize training DataGenerator
+        datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
+                                self.tmp_data.name,
+                                labels=np.repeat(self.labels_ohe, 6, axis=0),
+                                batch_size=3, resize=None,
+                                data_aug=None, grayscale=False, subfunctions=[],
+                                standardize_mode=None, workers=0)
+        # Initialize Bagging object and train it
+        el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
+        el.train(datagen, epochs=1, iterations=1)
+
+        model_dir = el.cache_dir
+        el.cache_dir = None
+        self.assertRaises(FileNotFoundError, el.predict, datagen)
+        self.assertRaises(FileNotFoundError, el.load, "/not/existing/path")
+        self.assertRaises(FileNotFoundError, el.load, "/")
+        el.load(model_dir.name)
+        self.assertTrue(os.path.exists(el.cache_dir))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_0.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_0.model.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_1.logs.csv")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
+                                                    "cv_1.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
                                                     "metalearner.model.pickle")))
         preds = el.predict(datagen)

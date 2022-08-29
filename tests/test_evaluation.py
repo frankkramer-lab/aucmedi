@@ -49,43 +49,7 @@ class EvaluationTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
         # Create predictions
-        for i in range(0, 50):
-            self.preds = np.random.rand(50, 4)
-        # Create artificial history data - basic
-        self.hist_basic = {"loss": []}
-        for i in range(0, 150):
-            self.hist_basic["loss"].append(random.uniform(0, 1))
-        # Create artificial history data - standard
-        self.hist_standard = {"loss": [], "val_loss": []}
-        for i in range(0, 150):
-            self.hist_standard["loss"].append(random.uniform(0, 1))
-            self.hist_standard["val_loss"].append(random.uniform(0, 1))
-        # Create artificial history data - advanced
-        self.hist_advanced = {"loss": [], "val_loss": [],
-                              "accuracy": [], "val_accuracy": []}
-        for i in range(0, 150):
-            self.hist_advanced["loss"].append(random.uniform(0, 1))
-            self.hist_advanced["val_loss"].append(random.uniform(0, 1))
-            self.hist_advanced["accuracy"].append(random.uniform(0, 1))
-            self.hist_advanced["val_accuracy"].append(random.uniform(0, 1))
-        # Create artificial history data - bagging
-        self.hist_bagging = {}
-        for cv in range(0, 3):
-            metrics = ["loss", "val_loss", "accuracy", "val_accuracy"]
-            for m in metrics:
-                self.hist_bagging["cv_" + str(cv) + "." + m] = []
-                for i in range(0, 150):
-                    self.hist_bagging["cv_" + str(cv) + "." + m].append(
-                         random.uniform(0, 1))
-        # Create artificial history data - stacking
-        self.hist_stacking = {}
-        for nn in range(0, 3):
-            metrics = ["loss", "val_loss", "accuracy", "val_accuracy"]
-            for m in metrics:
-                self.hist_stacking["nn_" + str(nn) + "." + m] = []
-                for i in range(0, 150):
-                    self.hist_stacking["nn_" + str(nn) + "." + m].append(
-                         random.uniform(0, 1))
+        self.preds = np.random.rand(50, 4)
 
         # Create imaging data indices
         self.sample_list = []
@@ -97,31 +61,170 @@ class EvaluationTEST(unittest.TestCase):
     #            Evaluation - Plot Fitting            #
     #-------------------------------------------------#
     def test_evaluate_fitting_basic(self):
-        evaluate_fitting(self.hist_basic, out_path=self.tmp_plot.name,
+        # Create artificial history data - basic
+        hist_basic = {"loss": []}
+        for i in range(0, 150):
+            hist_basic["loss"].append(random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_basic, out_path=self.tmp_plot.name,
                          monitor=["loss"], suffix="basic")
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                        "plot.fitting_course.basic.png")))
 
     def test_evaluate_fitting_standard(self):
-        evaluate_fitting(self.hist_standard, out_path=self.tmp_plot.name,
+        # Create artificial history data - standard
+        hist_standard = {"loss": [], "val_loss": []}
+        for i in range(0, 150):
+            hist_standard["loss"].append(random.uniform(0, 1))
+            hist_standard["val_loss"].append(random.uniform(0, 1))
+
+        # Apply fitting evaluation
+        evaluate_fitting(hist_standard, out_path=self.tmp_plot.name,
+                        monitor=["loss"], suffix="standard")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                      "plot.fitting_course.standard.png")))
+
+    def test_evaluate_fitting_standard_tl(self):
+        # Create artificial history data - transfer learning
+        hist_standard_tl = {"tl_loss": [], "tl_val_loss": [],
+                            "ft_loss": [], "ft_val_loss": [],}
+        for i in range(0, 150):
+            hist_standard_tl["tl_loss"].append(random.uniform(0, 1))
+            hist_standard_tl["tl_val_loss"].append(random.uniform(0, 1))
+            hist_standard_tl["ft_loss"].append(random.uniform(0, 1))
+            hist_standard_tl["ft_val_loss"].append(random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_standard_tl, out_path=self.tmp_plot.name,
+                        monitor=["loss"], suffix="standard")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                      "plot.fitting_course.standard.png")))
+
+    def test_evaluate_fitting_standard_tl_noft(self):
+        # Create artificial history data - transfer learning
+        hist_standard_tl = {"tl_loss": [], "tl_val_loss": []}
+        for i in range(0, 150):
+            hist_standard_tl["tl_loss"].append(random.uniform(0, 1))
+            hist_standard_tl["tl_val_loss"].append(random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_standard_tl, out_path=self.tmp_plot.name,
                         monitor=["loss"], suffix="standard")
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                       "plot.fitting_course.standard.png")))
 
     def test_evaluate_fitting_advanced(self):
-        evaluate_fitting(self.hist_advanced, out_path=self.tmp_plot.name,
+        # Create artificial history data - advanced
+        hist_advanced = {"loss": [], "val_loss": [],
+                         "accuracy": [], "val_accuracy": []}
+        for i in range(0, 150):
+            hist_advanced["loss"].append(random.uniform(0, 1))
+            hist_advanced["val_loss"].append(random.uniform(0, 1))
+            hist_advanced["accuracy"].append(random.uniform(0, 1))
+            hist_advanced["val_accuracy"].append(random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_advanced, out_path=self.tmp_plot.name,
                        monitor=["loss", "accuracy"], suffix="advanced")
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                      "plot.fitting_course.advanced.png")))
 
     def test_evaluate_fitting_bagging(self):
-        evaluate_fitting(self.hist_bagging, out_path=self.tmp_plot.name,
+        # Create artificial history data - bagging
+        hist_bagging = {}
+        for cv in range(0, 3):
+            metrics = ["loss", "val_loss", "accuracy", "val_accuracy"]
+            for m in metrics:
+                hist_bagging["cv_" + str(cv) + "." + m] = []
+                for i in range(0, 150):
+                    hist_bagging["cv_" + str(cv) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_bagging, out_path=self.tmp_plot.name,
+                      monitor=["loss", "accuracy"], suffix="bagging")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                    "plot.fitting_course.bagging.png")))
+
+    def test_evaluate_fitting_bagging_unequal(self):
+        # Create artificial history data - bagging
+        hist_bagging = {}
+        for cv in range(0, 3):
+            metrics = ["loss", "val_loss", "accuracy", "val_accuracy"]
+            for m in metrics:
+                hist_bagging["cv_" + str(cv) + "." + m] = []
+                for i in range(0, 10*cv + 20):
+                    hist_bagging["cv_" + str(cv) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_bagging, out_path=self.tmp_plot.name,
+                      monitor=["loss", "accuracy"], suffix="bagging")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                    "plot.fitting_course.bagging.png")))
+
+    def test_evaluate_fitting_bagging_unequal_tl(self):
+        # Create artificial history data - bagging
+        hist_bagging = {}
+        for cv in range(0, 3):
+            metrics = ["tl_loss", "tl_val_loss", "ft_loss", "ft_val_loss"]
+            for m in metrics:
+                hist_bagging["cv_" + str(cv) + "." + m] = []
+                for i in range(0, 10*cv + 20):
+                    hist_bagging["cv_" + str(cv) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_bagging, out_path=self.tmp_plot.name,
                       monitor=["loss", "accuracy"], suffix="bagging")
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                     "plot.fitting_course.bagging.png")))
 
     def test_evaluate_fitting_stacking(self):
-        evaluate_fitting(self.hist_stacking, out_path=self.tmp_plot.name,
+        # Create artificial history data - stacking
+        hist_stacking = {}
+        for nn in range(0, 3):
+            metrics = ["loss", "val_loss", "accuracy", "val_accuracy"]
+            for m in metrics:
+                hist_stacking["nn_" + str(nn) + "." + m] = []
+                for i in range(0, 150):
+                    hist_stacking["nn_" + str(nn) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_stacking, out_path=self.tmp_plot.name,
+                         monitor=["loss"], suffix="stacking")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                       "plot.fitting_course.stacking.png")))
+
+    def test_evaluate_fitting_stacking_tl(self):
+        # Create artificial history data - transfer learning based stacking
+        hist_stacking = {}
+        for nn in range(0, 3):
+            metrics = ["tl_loss", "tl_val_loss"]
+            for m in metrics:
+                hist_stacking["nn_" + str(nn) + "." + m] = []
+                for i in range(0, nn*5+5):
+                    hist_stacking["nn_" + str(nn) + "." + m].append(
+                         random.uniform(0, 1))
+        for nn in range(0, 3):
+            metrics = ["ft_loss", "ft_val_loss"]
+            for m in metrics:
+                hist_stacking["nn_" + str(nn) + "." + m] = []
+                for i in range(0, nn*20+20):
+                    hist_stacking["nn_" + str(nn) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_stacking, out_path=self.tmp_plot.name,
+                         monitor=["loss"], suffix="stacking")
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
+                                       "plot.fitting_course.stacking.png")))
+
+    def test_evaluate_fitting_stacking_tl_only(self):
+        # Create artificial history data - transfer learning based stacking
+        hist_stacking = {}
+        for nn in range(0, 3):
+            metrics = ["tl_loss", "tl_val_loss"]
+            for m in metrics:
+                hist_stacking["nn_" + str(nn) + "." + m] = []
+                for i in range(0, nn*5+5):
+                    hist_stacking["nn_" + str(nn) + "." + m].append(
+                         random.uniform(0, 1))
+        # Apply fitting evaluation
+        evaluate_fitting(hist_stacking, out_path=self.tmp_plot.name,
                          monitor=["loss"], suffix="stacking")
         self.assertTrue(os.path.exists(os.path.join(self.tmp_plot.name,
                                        "plot.fitting_course.stacking.png")))
@@ -199,6 +302,33 @@ class EvaluationTEST(unittest.TestCase):
         path_plot = os.path.join(self.tmp_plot.name,
                                  "plot.performance.confusion_matrix.test.png")
         self.assertTrue(os.path.exists(path_plot))
+
+    def test_evaluate_performance_confusionmatrix_edgecases(self):
+        # Create classification labels
+        labels_ohe = np.zeros((50, 4), dtype=np.uint8)
+        for i in range(0, 50):
+            class_index = np.random.randint(0, 3)
+            labels_ohe[i][class_index] = 1
+        # Confusion Mat
+        evaluate_performance(self.preds, labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=False,
+                             plot_confusion_matrix=True,
+                             plot_roc_curve=False)
+        # Create predictions
+        preds = np.random.rand(50, 4)
+        for i in range(0, 50):
+            preds[i][3] = 0.0
+        # Confusion Mat
+        evaluate_performance(preds, self.labels_ohe,
+                             out_path=self.tmp_plot.name,
+                             multi_label=False,
+                             store_csv=False,
+                             plot_barplot=False,
+                             plot_confusion_matrix=True,
+                             plot_roc_curve=False)
 
     def test_evaluate_performance_roc(self):
         evaluate_performance(self.preds, self.labels_ohe,

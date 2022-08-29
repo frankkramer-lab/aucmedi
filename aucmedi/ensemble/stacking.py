@@ -23,11 +23,11 @@
 import os
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-import multiprocessing as mp
+from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
 # Internal libraries
-from aucmedi import DataGenerator
+from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.sampling import sampling_split
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
@@ -65,15 +65,13 @@ class Stacking:
         # Initialize training DataGenerator for complete training data
         datagen = DataGenerator(samples_train, "images_dir/",
                                 labels=train_labels_ohe, batch_size=3,
-                                resize=model_a.meta_input,
-                                standardize_mode=model_a.meta_standardize)
+                                resize=None, standardize_mode=None)
         # Train neural network and metalearner models
         el.train(datagen, epochs=100)
 
         # Initialize testing DataGenerator for testing data
         test_gen = DataGenerator(samples_test, "images_dir/",
-                                 resize=model_a.meta_input,
-                                 standardize_mode=model_a.meta_standardize)
+                                 resize=None, standardize_mode=None)
         # Run Inference
         preds = el.predict(test_gen)
         ```
@@ -85,6 +83,24 @@ class Stacking:
         The passed DataGenerator for the train() and predict() function of the Stacking class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
+
+        Furthermore, the parameters `resize` and `standardize_mode` are automatically re-initialized with
+        NeuralNetwork model specific values (`model.meta_standardize` for `standardize_mode` and
+        `model.meta_input` for `input_shape`).
+
+        If desired (but not recommended!), it is possible to modify the meta variables of the NeuralNetwork model as follows:
+        ```python
+        # For input_shape
+        model_a = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50",
+                                input_shape=(64,64))
+        # For standardize_mode
+        model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
+        model_b.meta_standardize = "torch"
+
+    ??? warning "NeuralNetwork re-initialization"
+        The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!
+
+        Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
         For the training and inference process, each model will create an individual process via the Python multiprocessing package.
@@ -185,24 +201,6 @@ class Stacking:
             data_train = (*ps_sampling[0], None)
             data_val = (*ps_sampling[1], None)
 
-        # Gather DataGenerator parameters
-        datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
-        }
-
         # Gather training parameters
         parameters_training = {"epochs": epochs,
                                "iterations": iterations,
@@ -225,11 +223,47 @@ class Stacking:
                               separator=',', append=True)
             callbacks.extend([cb_mc, cb_cl])
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_list[i].n_labels,
+                "channels": self.model_list[i].channels,
+                "input_shape": self.model_list[i].input_shape,
+                "architecture": self.model_list[i].architecture,
+                "pretrained_weights": self.model_list[i].pretrained_weights,
+                "loss": self.model_list[i].loss,
+                "metrics": None,
+                "activation_output": self.model_list[i].activation_output,
+                "fcl_dropout": self.model_list[i].fcl_dropout,
+                "meta_variables": self.model_list[i].meta_variables,
+                "learning_rate": self.model_list[i].learning_rate,
+                "batch_queue_size": self.model_list[i].batch_queue_size,
+                "workers": self.model_list[i].workers,
+                "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": self.model_list[i].meta_standardize,
+                             "resize": self.model_list[i].meta_input,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
+            }
+
             # Start training process
             process_queue = mp.Queue()
             process_train = mp.Process(target=__training_process__,
                                        args=(process_queue,
-                                             self.model_list[i],
+                                             model_paras,
                                              data_train,
                                              data_val,
                                              datagen_paras,
@@ -281,24 +315,6 @@ class Stacking:
         if len(ps_sampling[0]) == 3 : data_ensemble = ps_sampling[2]
         else : data_ensemble = (*ps_sampling[2], None)
 
-        # Gather DataGenerator parameters
-        datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
-        }
-
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
@@ -310,11 +326,47 @@ class Stacking:
             path_model = os.path.join(path_model_dir,
                                       "nn_" + str(i) + ".model.hdf5")
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_list[i].n_labels,
+                "channels": self.model_list[i].channels,
+                "input_shape": self.model_list[i].input_shape,
+                "architecture": self.model_list[i].architecture,
+                "pretrained_weights": self.model_list[i].pretrained_weights,
+                "loss": self.model_list[i].loss,
+                "metrics": None,
+                "activation_output": self.model_list[i].activation_output,
+                "fcl_dropout": self.model_list[i].fcl_dropout,
+                "meta_variables": self.model_list[i].meta_variables,
+                "learning_rate": self.model_list[i].learning_rate,
+                "batch_queue_size": self.model_list[i].batch_queue_size,
+                "workers": self.model_list[i].workers,
+                "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": self.model_list[i].meta_standardize,
+                             "resize": self.model_list[i].meta_input,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
+            }
+
             # Start inference process for model i
             process_queue = mp.Queue()
             process_pred = mp.Process(target=__prediction_process__,
                                       args=(process_queue,
-                                            self.model_list[i],
+                                            model_paras,
                                             path_model,
                                             data_ensemble,
                                             datagen_paras))
@@ -377,24 +429,6 @@ class Stacking:
         # Extract data
         data_test = (temp_dg.samples, temp_dg.labels, temp_dg.metadata)
 
-        # Gather DataGenerator parameters
-        datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
-        }
-
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
@@ -405,11 +439,47 @@ class Stacking:
             path_model = os.path.join(path_model_dir,
                                       "nn_" + str(i) + ".model.hdf5")
 
+            # Gather NeuralNetwork parameters
+            model_paras = {
+                "n_labels": self.model_list[i].n_labels,
+                "channels": self.model_list[i].channels,
+                "input_shape": self.model_list[i].input_shape,
+                "architecture": self.model_list[i].architecture,
+                "pretrained_weights": self.model_list[i].pretrained_weights,
+                "loss": self.model_list[i].loss,
+                "metrics": None,
+                "activation_output": self.model_list[i].activation_output,
+                "fcl_dropout": self.model_list[i].fcl_dropout,
+                "meta_variables": self.model_list[i].meta_variables,
+                "learning_rate": self.model_list[i].learning_rate,
+                "batch_queue_size": self.model_list[i].batch_queue_size,
+                "workers": self.model_list[i].workers,
+                "multiprocessing": self.model_list[i].multiprocessing,
+            }
+
+            # Gather DataGenerator parameters
+            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
+                             "batch_size": temp_dg.batch_size,
+                             "data_aug": temp_dg.data_aug,
+                             "seed": temp_dg.seed,
+                             "subfunctions": temp_dg.subfunctions,
+                             "shuffle": temp_dg.shuffle,
+                             "standardize_mode": self.model_list[i].meta_standardize,
+                             "resize": self.model_list[i].meta_input,
+                             "grayscale": temp_dg.grayscale,
+                             "prepare_images": temp_dg.prepare_images,
+                             "sample_weights": temp_dg.sample_weights,
+                             "image_format": temp_dg.image_format,
+                             "loader": temp_dg.sample_loader,
+                             "workers": temp_dg.workers,
+                             "kwargs": temp_dg.kwargs
+            }
+
             # Start inference process for model i
             process_queue = mp.Queue()
             process_pred = mp.Process(target=__prediction_process__,
                                       args=(process_queue,
-                                            self.model_list[i],
+                                            model_paras,
                                             path_model,
                                             data_test,
                                             datagen_paras))
@@ -455,11 +525,12 @@ class Stacking:
         if self.cache_dir is None:
             raise FileNotFoundError("Stacking does not have a valid model cache directory!")
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
-            shutil.copytree(self.cache_dir.name, directory_path)
+            shutil.copytree(self.cache_dir.name, directory_path,
+                            dirs_exist_ok=True)
             self.cache_dir.cleanup()
             self.cache_dir = directory_path
         else:
-            shutil.copytree(self.cache_dir, directory_path)
+            shutil.copytree(self.cache_dir, directory_path, dirs_exist_ok=True)
             self.cache_dir = directory_path
 
     # Load model from file
@@ -496,8 +567,8 @@ class Stacking:
 #                     Subroutines                     #
 #-----------------------------------------------------#
 # Internal function for training a NeuralNetwork model in a separate process
-def __training_process__(queue, model, data_train, data_val, datagen_paras,
-                         train_paras):
+def __training_process__(queue, model_paras, data_train, data_val,
+                         datagen_paras, train_paras):
     # Extract data
     (train_x, train_y, train_m) = data_train
     (val_x, val_y, val_m) = data_val
@@ -539,13 +610,16 @@ def __training_process__(queue, model, data_train, data_val, datagen_paras,
                                loader=datagen_paras["loader"],
                                workers=datagen_paras["workers"],
                                **datagen_paras["kwargs"])
+    # Create NeuralNetwork
+    model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
     nn_history = model.train(nn_train_gen, nn_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(nn_history)
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
-def __prediction_process__(queue, model, path_model, data_test, datagen_paras):
+def __prediction_process__(queue, model_paras, path_model, data_test,
+                           datagen_paras):
     # Extract data
     (test_x, test_y, test_m) = data_test
     # Create inference DataGenerator
@@ -567,6 +641,8 @@ def __prediction_process__(queue, model, path_model, data_test, datagen_paras):
                                 loader=datagen_paras["loader"],
                                 workers=datagen_paras["workers"],
                                 **datagen_paras["kwargs"])
+    # Create NeuralNetwork
+    model = NeuralNetwork(**model_paras)
     # Load model weights from disk
     model.load(path_model)
     # Make prediction

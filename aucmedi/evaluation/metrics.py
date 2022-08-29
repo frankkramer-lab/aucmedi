@@ -55,10 +55,10 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
         if threshold is None:
             pred_argmax = np.argmax(preds, axis=-1)
             pred = (pred_argmax == c).astype(np.int)
-            pred_prob = np.max(preds, axis=-1)
         else:
             pred = np.where(preds[:, c] >= threshold, 1, 0)
-            pred_prob = preds[:, c]
+        # Obtain prediction confidence (probability)
+        pred_prob = preds[:, c]
 
         # Compute the confusion matrix
         tp, tn, fp, fn = compute_CM(truth, pred)
@@ -78,7 +78,10 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
         data_dict["F1"] = np.divide(2*tp, 2*tp+fp+fn)
 
         # Compute area under the ROC curve
-        data_dict["AUC"] = roc_auc_score(truth, pred_prob)
+        try:
+            data_dict["AUC"] = roc_auc_score(truth, pred_prob)
+        except:
+            print("ROC AUC score is not defined.")
 
         # Parse metrics to dataframe
         df = pd.DataFrame.from_dict(data_dict, orient="index",

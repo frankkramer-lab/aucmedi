@@ -14,12 +14,12 @@ The open-source software AUCMEDI allows fast setup of medical image classificati
 - Website: [AUCMEDI Website - Home](https://frankkramer-lab.github.io/aucmedi/)
 - Git Repository: [GitHub - frankkramer-lab/aucmedi](https://github.com/frankkramer-lab/aucmedi)
 - Documentation: [AUCMEDI Wiki - API Reference](https://frankkramer-lab.github.io/aucmedi/reference/)
-- Getting Started: [AUCMEDI Website - Getting Started](https://frankkramer-lab.github.io/aucmedi/intro/)
+- Getting Started: [AUCMEDI Website - Getting Started](https://frankkramer-lab.github.io/aucmedi/getstarted/intro/)
 - Examples: [AUCMEDI Wiki - Examples](https://frankkramer-lab.github.io/aucmedi/examples/framework/)
-- Tutorials: Coming soon.
+- Tutorials: [AUCMEDI Wiki - Tutorials](https://frankkramer-lab.github.io/aucmedi/examples/tutorials/)
 - Applications: [AUCMEDI Wiki - Applications](https://frankkramer-lab.github.io/aucmedi/examples/applications/)
 - PyPI Package: [PyPI - aucmedi](https://pypi.org/project/aucmedi/)
-- Docker Hub: Coming soon.
+- Docker Image: [GitHub - ghcr.io/frankkramer-lab/aucmedi](https://github.com/frankkramer-lab/aucmedi/pkgs/container/aucmedi)
 - Zenodo Repository: [Zenodo - AUCMEDI](https://zenodo.org/record/6633540)
 
 ## How to cite
@@ -37,7 +37,7 @@ https://doi.org/10.1186/s12880-020-00543-7
 
 ```
 Müller, D., Mayer, S., Hartmann, D., Meyer, P., Schneider, P., Soto-Rey, I., & Kramer, F. (2022).
-AUCMEDI: a framework for Automated Classification of Medical Images (Version 1.0.0) [Computer software].
+AUCMEDI: a framework for Automated Classification of Medical Images (Version X.Y.Z) [Computer software].
 GitHub repository. https://github.com/frankkramer-lab/aucmedi
 ```
 

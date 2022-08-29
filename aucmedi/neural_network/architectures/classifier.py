@@ -76,17 +76,17 @@ class Classifier:
         ```python
         # Recommended way (automatic creation in NeuralNetwork)
         model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
-                               input_shape=(32, 32), activation_output="sigmoid",
-                               fcl_dropout=False)
+                              input_shape=(32, 32), activation_output="sigmoid",
+                              fcl_dropout=False)
 
         # Manual way
         from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.image import Vanilla
 
-        classification_head = Classifier(n_labels=20, fcl_dropout=True,
+        classification_head = Classifier(n_labels=20, fcl_dropout=False,
                                          activation_output="sigmoid")
         arch = Vanilla(classification_head, channels=3,
-                                    input_shape=(32, 32))
+                       input_shape=(32, 32))
         ```
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"

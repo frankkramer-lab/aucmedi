@@ -33,6 +33,7 @@ def evaluate_dataset(samples,
                      labels,
                      out_path,
                      class_names=None,
+                     show=False,
                      plot_barplot=False,
                      plot_heatmap=False,
                      suffix=None):
@@ -79,6 +80,7 @@ def evaluate_dataset(samples,
         class_names (list of str):          List of names for corresponding classes. Used for evaluation. Provided by
                                             [input_interface][aucmedi.data_processing.io_data.input_interface].
                                             If not provided (`None` provided), class indices will be used.
+        show (bool):                        Option, whether to also display the generated charts.
         plot_barplot (bool):                Option, whether to generate a bar plot of class distribution.
         plot_heatmap (bool):                Option, whether to generate a heatmap of class overview. Only recommended for subsets of ~50 samples.
         suffix (str):                       Special suffix to add in the created figure filename.
@@ -88,11 +90,12 @@ def evaluate_dataset(samples,
     """
 
     # Generate barplot
-    df_cf = evalby_barplot(labels, out_path, class_names, plot_barplot, suffix)
+    df_cf = evalby_barplot(labels, out_path, class_names, plot_barplot, show,
+                           suffix)
 
     # Generate heatmap
     if plot_heatmap:
-        evalby_heatmap(samples, labels, out_path, class_names, suffix)
+        evalby_heatmap(samples, labels, out_path, class_names, show, suffix)
 
     # Return table with class distribution
     return df_cf
@@ -100,7 +103,8 @@ def evaluate_dataset(samples,
 #-----------------------------------------------------#
 #             Dataset Analysis - Barplot              #
 #-----------------------------------------------------#
-def evalby_barplot(labels, out_path, class_names, plot_barplot, suffix=None):
+def evalby_barplot(labels, out_path, class_names, plot_barplot, show=False,
+                   suffix=None):
     # compute class frequency
     cf_list = []
     for c in range(0, labels.shape[1]):
@@ -136,13 +140,17 @@ def evalby_barplot(labels, out_path, class_names, plot_barplot, suffix=None):
         filename += ".png"
         fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
+        # Plot figure
+        if show : print(fig)
+
     # Return class table
     return df_cf
 
 #-----------------------------------------------------#
 #             Dataset Analysis - Heatmap              #
 #-----------------------------------------------------#
-def evalby_heatmap(samples, labels, out_path, class_names, suffix=None):
+def evalby_heatmap(samples, labels, out_path, class_names, show=False,
+                   suffix=None):
     # Create dataframe
     if class_names is None : df = pd.DataFrame(labels, index=samples)
     else : df = pd.DataFrame(labels, index=samples, columns=class_names)
@@ -168,3 +176,6 @@ def evalby_heatmap(samples, labels, out_path, class_names, suffix=None):
     if suffix is not None : filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
+
+    # Plot figure
+    if show : print(fig)

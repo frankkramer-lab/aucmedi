@@ -52,7 +52,9 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     train_gen = DataGenerator(samples=index_list[:1000],
                               path_imagedir="dataset/images/",
                               labels=class_ohe[:1000],
-                              image_format=image_format)
+                              image_format=image_format,
+                              resize=model.meta_input,
+                              standardize_mode=model.meta_standardize)
     # Run model training with Transfer Learning
     model.train(train_gen, epochs=20, transfer_learning=True)
 
@@ -60,7 +62,9 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     test_gen = DataGenerator(samples=index_list[1000:1500],
                              path_imagedir="dataset/images/",
                              labels=None,
-                             image_format=image_format)
+                             image_format=image_format,
+                             resize=model.meta_input,
+                             standardize_mode=model.meta_standardize)
     # Run model inference for unknown samples
     preds = model.predict(test_gen)
     ```

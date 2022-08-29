@@ -74,7 +74,8 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         out_path (str):                     Output path in which heatmaps are saved to disk as PNG files.
 
     Returns:
-        heatmaps (numpy.ndarray):           Combined array of heatmaps. Will be only returned if `out_path` parameter is `None`.
+        images (numpy.ndarray):             Combined array of images. Will be only returned if `out_path` parameter is `None`.
+        heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Will be only returned if `out_path` parameter is `None`.
     """
     # Initialize & access some variables
     batch_size = data_gen.batch_size
@@ -138,6 +139,7 @@ def postprocess_output(sample, image, xai_map, n_classes, data_gen,
         if data_gen.image_format:
             xai_file = sample + "." + data_gen.image_format
         else : xai_file = sample
+        if os.sep in xai_file : xai_file = xai_file.replace(os.sep, ".")
         path_xai = os.path.join(out_path, xai_file)
         # If preds given, output only argmax class heatmap
         if len(xai_map.shape) == 2:

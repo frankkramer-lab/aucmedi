@@ -27,11 +27,12 @@ boost prediction performance.
 
 AUCMEDI currently supports the following Ensemble Learning techniques:
 
-| Technique                                  | Description                                                                                          |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| [Augmenting][aucmedi.ensemble.augmenting]  | Inference Augmenting (test-time augmentation) function for augmenting unknown images for prediction. |
-| [Bagging][aucmedi.ensemble.bagging]        | Cross-Validation based Bagging for equal models trained with different sampling.                     |
-| [Stacking][aucmedi.ensemble.stacking]      | Ensemble of unequal models with a fitted Metalearner stacked on top of it. |
+| Technique                                  | Description                                                                                              |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| [Augmenting][aucmedi.ensemble.augmenting]  | Inference Augmenting (test-time augmentation) function for augmenting unknown images for prediction.     |
+| [Bagging][aucmedi.ensemble.bagging]        | Cross-Validation based Bagging for equal models trained with different sampling.                         |
+| [Stacking][aucmedi.ensemble.stacking]      | Ensemble of unequal models with a fitted Metalearner stacked on top of it.                               |
+| [Composite][aucmedi.ensemble.composite]    | Combination of Stacking and Bagging via cross-validation with a fitted Metalearner stacked on top of it. |
 
 !!! info
     ![EnsembleLearning_overview](../../images/ensemble.theory.png)
@@ -49,3 +50,4 @@ AUCMEDI currently supports the following Ensemble Learning techniques:
 from aucmedi.ensemble.augmenting import predict_augmenting
 from aucmedi.ensemble.bagging import Bagging
 from aucmedi.ensemble.stacking import Stacking
+from aucmedi.ensemble.composite import Composite

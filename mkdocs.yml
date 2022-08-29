@@ -56,7 +56,7 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/aucmedi/
     - icon: fontawesome/brands/docker
-      link: Xplaceholder_for_dockerhubX
+      link: https://github.com/frankkramer-lab/aucmedi/pkgs/container/aucmedi
     - icon: fontawesome/solid/book
       link: https://zenodo.org/record/6633540
 
@@ -65,6 +65,7 @@ extra:
 #-----------------------------------------------------#
 nav:
 - Home: index.md
+- Workflow: workflow.md
 - Getting Started:
     - Introduction: getstarted/intro.md
     - Current Status: getstarted/status.md
@@ -77,7 +78,18 @@ nav:
 - Examples:
   - Framework: examples/framework.md
   - AutoML: examples/automl.md
+  - Tutorials: examples/tutorials.md
   - Applications: examples/applications.md
+- AutoML:
+  - Overview: automl/overview.md
+  - Dataset Structure: automl/dataset.md
+  - Parameters: automl/parameters.md
+  - Command Line Interface:
+    - Introduction: automl/cli/intro.md
+    - Usage: automl/cli/usage.md
+  - Docker:
+    - Introduction: automl/docker/intro.md
+    - Usage: automl/docker/usage.md
 - API Reference: reference/
 - About Us: about.md
 
@@ -88,6 +100,10 @@ markdown_extensions:
 - admonition
 - def_list
 - tables
+- attr_list
+- pymdownx.emoji:
+    emoji_index: !!python/name:materialx.emoji.twemoji
+    emoji_generator: !!python/name:materialx.emoji.to_svg
 - pymdownx.progressbar
 - pymdownx.tasklist
 - pymdownx.superfences

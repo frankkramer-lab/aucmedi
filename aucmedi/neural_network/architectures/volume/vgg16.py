@@ -30,13 +30,13 @@
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    https://github.com/ZFTurbo/classification_models_3D <br>
+    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
 
 ???+ abstract "Reference - Publication"
     Karen Simonyan, Andrew Zisserman. 04 Sep 2014.
     Very Deep Convolutional Networks for Large-Scale Image Recognition.
     <br>
-    https://arxiv.org/abs/1409.1556
+    [https://arxiv.org/abs/1409.1556](https://arxiv.org/abs/1409.1556)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

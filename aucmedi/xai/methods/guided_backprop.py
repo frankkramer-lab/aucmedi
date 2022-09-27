@@ -35,26 +35,26 @@ class GuidedBackpropagation(XAImethod_Base):
 
     ??? abstract "Reference - Implementation #1"
         Author: Hoa Nguyen <br>
-        GitHub Profile: https://nguyenhoa93.github.io/ <br>
+        GitHub Profile: [https://nguyenhoa93.github.io/](https://nguyenhoa93.github.io/) <br>
         Date: Jul 29, 2020 <br>
-        https://stackoverflow.com/questions/55924331/how-to-apply-guided-backprop-in-tensorflow-2-0 <br>
+        [https://stackoverflow.com/questions/55924331/how-to-apply-guided-backprop-in-tensorflow-2-0](https://stackoverflow.com/questions/55924331/how-to-apply-guided-backprop-in-tensorflow-2-0) <br>
 
     ??? abstract "Reference - Implementation #2"
         Author: Huynh Ngoc Anh <br>
-        GitHub Profile: https://github.com/experiencor <br>
+        GitHub Profile: [https://github.com/experiencor](https://github.com/experiencor) <br>
         Date: Jun 23, 2017 <br>
-        https://github.com/experiencor/deep-viz-keras/ <br>
+        [https://github.com/experiencor/deep-viz-keras/](https://github.com/experiencor/deep-viz-keras/) <br>
 
     ??? abstract "Reference - Implementation #3"
         Author: Tim <br>
         Date: Jan 25, 2019 <br>
-        https://stackoverflow.com/questions/54366935/make-a-deep-copy-of-a-keras-model-in-python <br>
+        [https://stackoverflow.com/questions/54366935/make-a-deep-copy-of-a-keras-model-in-python](https://stackoverflow.com/questions/54366935/make-a-deep-copy-of-a-keras-model-in-python) <br>
 
     ??? abstract "Reference - Publication"
         Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, Martin Riedmiller. 21 Dec 2014.
         Striving for Simplicity: The All Convolutional Net.
         <br>
-        https://arxiv.org/abs/1412.6806
+        [https://arxiv.org/abs/1412.6806](https://arxiv.org/abs/1412.6806)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Guided Backpropagation for an image with a model.

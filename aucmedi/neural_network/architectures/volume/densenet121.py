@@ -30,13 +30,13 @@
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    https://github.com/ZFTurbo/classification_models_3D <br>
+    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
 
 ???+ abstract "Reference - Publication"
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger. 25 Aug 2016.
     Densely Connected Convolutional Networks.
     <br>
-    https://arxiv.org/abs/1608.06993
+    [https://arxiv.org/abs/1608.06993](https://arxiv.org/abs/1608.06993)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

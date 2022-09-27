@@ -28,13 +28,13 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/inceptionresnetv2/ <br>
+    [https://keras.io/api/applications/inceptionresnetv2/](https://keras.io/api/applications/inceptionresnetv2/) <br>
 
 ???+ abstract "Reference - Publication"
     Christian Szegedy, Sergey Ioffe, Vincent Vanhoucke, Alex Alemi. 23 Feb 2016.
     Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning.
     <br>
-    https://arxiv.org/abs/1602.07261
+    [https://arxiv.org/abs/1602.07261](https://arxiv.org/abs/1602.07261)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

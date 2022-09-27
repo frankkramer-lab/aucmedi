@@ -67,7 +67,7 @@ class Classifier:
         | Multi-label classification | `activation_output="sigmoid"`: Multiple classes can be correct. |
 
         For more information on multi-class vs multi-label, check out this blog post from Rachel Draelos: <br>
-        https://glassboxmedicine.com/2019/05/26/classification-sigmoid-vs-softmax/
+        [https://glassboxmedicine.com/2019/05/26/classification-sigmoid-vs-softmax/](https://glassboxmedicine.com/2019/05/26/classification-sigmoid-vs-softmax/)
 
     The recommended way is to pass all required variables to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
     which automatically creates the Classifier and passes it to the Architecture.
@@ -134,7 +134,7 @@ class Classifier:
     def build(self, model_input, model_output):
         """ Internal function which appends the classification head.
 
-        This function will be called inside of an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
+        This function will be called from inside an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
         and must return a functional Keras model.
         The `build()` function will append a classification head to the provided Keras model.
 

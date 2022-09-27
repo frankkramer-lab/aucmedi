@@ -28,13 +28,13 @@
 | Standardization          | "caffe"                    |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/resnet/ <br>
+    [https://keras.io/api/applications/resnet/](https://keras.io/api/applications/resnet/) <br>
 
 ???+ abstract "Reference - Publication"
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. 10 Dec 2015.
     Deep Residual Learning for Image Recognition.
     <br>
-    https://arxiv.org/abs/1512.03385
+    [https://arxiv.org/abs/1512.03385](https://arxiv.org/abs/1512.03385)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

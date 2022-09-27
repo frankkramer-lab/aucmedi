@@ -30,7 +30,7 @@ No intensive hardware requirements, which makes it ideal for debugging.
 | Standardization          | "z-score"                  |
 
 ???+ abstract "Reference - Implementation"
-    https://github.com/wanghsinwei/isic-2019/ <br>
+    [https://github.com/wanghsinwei/isic-2019/](https://github.com/wanghsinwei/isic-2019/) <br>
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

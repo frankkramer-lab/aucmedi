@@ -28,14 +28,14 @@
 | Standardization          | "tf"                       |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/mobilenet/ <br>
+    [https://keras.io/api/applications/mobilenet/](https://keras.io/api/applications/mobilenet/) <br>
 
 ???+ abstract "Reference - Publication"
     Andrew G. Howard, Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, Tobias Weyand,
     Marco Andreetto, Hartwig Adam. 17 Apr 2017.
     MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications.
     <br>
-    https://arxiv.org/abs/1704.04861
+    [https://arxiv.org/abs/1704.04861](https://arxiv.org/abs/1704.04861)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

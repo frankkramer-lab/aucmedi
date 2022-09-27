@@ -28,13 +28,13 @@
 | Standardization          | "torch"                    |
 
 ???+ abstract "Reference - Implementation"
-    https://github.com/keras-team/keras-applications <br>
+    [https://github.com/keras-team/keras-applications](https://github.com/keras-team/keras-applications) <br>
 
 ???+ abstract "Reference - Publication"
     Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He. 16 Nov 2016.
     Aggregated Residual Transformations for Deep Neural Networks.
     <br>
-    https://arxiv.org/abs/1611.05431
+    [https://arxiv.org/abs/1611.05431](https://arxiv.org/abs/1611.05431)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

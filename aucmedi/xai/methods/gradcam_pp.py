@@ -35,15 +35,15 @@ class GradCAMpp(XAImethod_Base):
 
     ??? abstract "Reference - Implementation"
         Author: Samson Woof <br>
-        GitHub Profile: https://github.com/samson6460 <br>
+        GitHub Profile: [https://github.com/samson6460](https://github.com/samson6460) <br>
         Date: May 21, 2020 <br>
-        https://github.com/samson6460/tf_keras_gradcamplusplus <br>
+        [https://github.com/samson6460/tf_keras_gradcamplusplus](https://github.com/samson6460/tf_keras_gradcamplusplus) <br>
 
     ??? abstract "Reference - Publication"
         Aditya Chattopadhay; Anirban Sarkar; Prantik Howlader; Vineeth N Balasubramanian. 07 May 2018.
         Grad-CAM++: Generalized Gradient-Based Visual Explanations for Deep Convolutional Networks.
         <br>
-        https://ieeexplore.ieee.org/document/8354201
+        [https://ieeexplore.ieee.org/document/8354201](https://ieeexplore.ieee.org/document/8354201)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Grad-CAM++ heatmap for an image with a model.

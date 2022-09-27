@@ -28,13 +28,13 @@
 | Standardization          | "caffe"                    |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/vgg/ <br>
+    [https://keras.io/api/applications/vgg/](https://keras.io/api/applications/vgg/) <br>
 
 ???+ abstract "Reference - Publication"
     Karen Simonyan, Andrew Zisserman. 04 Sep 2014.
     Very Deep Convolutional Networks for Large-Scale Image Recognition.
     <br>
-    https://arxiv.org/abs/1409.1556
+    [https://arxiv.org/abs/1409.1556](https://arxiv.org/abs/1409.1556)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

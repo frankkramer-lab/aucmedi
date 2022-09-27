@@ -35,13 +35,13 @@ class LimeCon(XAImethod_Base):
 
     ??? abstract "Reference - Implementation"
         Lime: Explaining the predictions of any machine learning classifier <br>
-        GitHub: https://github.com/marcotcr/lime <br>
+        GitHub: [https://github.com/marcotcr/lime](https://github.com/marcotcr/lime) <br>
 
     ??? abstract "Reference - Publication"
         Marco Tulio Ribeiro, Sameer Singh, Carlos Guestrin. 9 Aug 2016.
         "Why Should I Trust You?": Explaining the Predictions of Any Classifier
         <br>
-        https://arxiv.org/abs/1602.04938
+        [https://arxiv.org/abs/1602.04938](https://arxiv.org/abs/1602.04938)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Lime Con Map for an image with a model.

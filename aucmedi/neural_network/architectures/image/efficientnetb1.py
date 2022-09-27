@@ -28,13 +28,13 @@
 | Standardization          | "caffe"                    |
 
 ???+ abstract "Reference - Implementation"
-    https://keras.io/api/applications/efficientnet/ <br>
+    [https://keras.io/api/applications/efficientnet/](https://keras.io/api/applications/efficientnet/) <br>
 
 ???+ abstract "Reference - Publication"
     Mingxing Tan, Quoc V. Le. 28 May 2019.
     EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.
     <br>
-    https://arxiv.org/abs/1905.11946
+    [https://arxiv.org/abs/1905.11946](https://arxiv.org/abs/1905.11946)
 """
 #-----------------------------------------------------#
 #                   Library imports                   #

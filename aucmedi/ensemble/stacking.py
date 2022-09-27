@@ -96,6 +96,7 @@ class Stacking:
         # For standardize_mode
         model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
         model_b.meta_standardize = "torch"
+        ```
 
     ??? warning "NeuralNetwork re-initialization"
         The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!

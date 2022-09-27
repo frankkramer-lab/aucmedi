@@ -161,7 +161,7 @@ class NeuralNetwork:
                                                     metric guidelines, can be used.
             activation_output (str):                Activation function which should be used in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-                                                    Based on https://www.tensorflow.org/api_docs/python/tf/keras/activations.
+                                                    Based on [https://www.tensorflow.org/api_docs/python/tf/keras/activations](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
             fcl_dropout (bool):                     Option whether to utilize an additional Dense & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             meta_variables (int):                   Number of metadata variables, which should be included in the classification head.

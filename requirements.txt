@@ -15,5 +15,5 @@ SimpleITK==2.1.1.2
 batchgenerators==0.24
 volumentations-aucmedi==1.0.1
 plotnine==0.8.0
-protobuf==3.20.1
+protobuf==3.20.2
 pathos==0.2.9

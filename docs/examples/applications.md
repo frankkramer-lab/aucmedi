@@ -9,8 +9,8 @@ Even so these implementations are more complex than standard examples, they repr
 |-------------|:------:|:--------:|:------:|
 | [Multi-Disease Detection in Retinal Imaging](#RIADD) | Challenge (rank #7) | v0.1.0 | [RIADD - Grand Challenge](https://github.com/frankkramer-lab/riadd.aucmedi) |
 | [Ensemble Learning Analysis](#ENSMIC) | Research | v0.3.0 | [ENSMIC](https://github.com/frankkramer-lab/ensmic) |
-| [Pneumonia Detector via Ensemble Learning](#Pneumonia) | Research | Latest | [xray_pneumonia.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/xray_pneumonia.ipynb) |
-| COVID-19 Severity Detection | Challenge (rank #4 - ongoing) | v0.4.0 | [COVID-19 Algorithm - Grand Challenge](https://grand-challenge.org/algorithms/stoic2021-covid-19-lung-ct-scans-team-augsburg) |
+| [Pneumonia Detector via Ensemble Learning](#Pneumonia) | Research | v0.4.0 | [xray_pneumonia.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/applications/xray_pneumonia.ipynb) |
+| COVID-19 Severity Detection | Challenge (rank #5 - ongoing) | v0.4.0 | [COVID-19 Algorithm - Grand Challenge](https://grand-challenge.org/algorithms/stoic2021-covid-19-lung-ct-scans-team-augsburg) |
 | Pathology - Gleason Score Estimation | Clinical Study | Latest | Ongoing |
 
 

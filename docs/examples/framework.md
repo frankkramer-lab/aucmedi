@@ -19,7 +19,6 @@ In these examples, AUCMEDI was applied in a standardized way on various medical 
 
 | ID | Medical Field | Imaging Modality | Link  |
 |:--:|---------------|:-----------------|:-----:|
-| 00 | Template Notebook | Template Notebook | [00.template.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/template-pipeline.ipynb) |
 | 01 | Dermatology | Dermatoscopy | [01.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/01_dermatoscopy_notebook.ipynb) |
 | 02 | Gastroenterology | Endoscopy (lower) | [02.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/02_gi-endoscopy-lower_notebook.ipynb) |
 | 03 | Gastroenterology | Endoscopy (upper) | [03.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/03_gi-endoscopy-upper_notebook.ipynb) |

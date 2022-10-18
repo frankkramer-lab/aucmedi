@@ -18,15 +18,14 @@ In this example, AUCMEDI is applied with a in-depth explanatory way in order to 
 
 In these examples, AUCMEDI was applied in a standardized way on various medical imaging modalities in order to demonstrate the high adaptability of AUCMEDI.
 
-| ID | Medical Field | Imaging Modality | Link | Dataset |
-|:--:|---------------|:-----------------|:----:|:-------:|
-| 01 | Dermatology | Dermatoscopy | [01.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/01_dermatoscopy_notebook.ipynb) | asd |
-| 02 | Gastroenterology | Endoscopy (lower) | [02.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/02_gi-endoscopy-lower_notebook.ipynb) | asd |
-| 03 | Gastroenterology | Endoscopy (upper) | [03.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/03_gi-endoscopy-upper_notebook.ipynb) | asd |
-| 04 | Histopathology | Microscopy | [04.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/04_histopathology_notebook.ipynb) | asd |
-| 05 | Radiology | X-ray | [05.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/05_xray_notebook.ipynb) | asd |
-| 06 | Gynaecology | Ultrasound | [06.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/06_ultrasound_notebook.ipynb) | asd |
-| 07 | Radiology | Computed Tomography | [07.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/07_ct-covid_notebook.ipynb) | asd |
-| 08 | Ophthalmology | Retinal Imaging | [08.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/08_riadd_notebook.ipynb) | asd |
-| 09 | Neurology | Magnetic Resonance Imaging | [09.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/09_mri_notebook.ipynb) | asd |
-| 10 | Radiology | Computed Tomography | [10.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/10_ct_notebook.ipynb) | asd |
+| ID | Medical Field | Imaging Modality | Link | Manuscript |
+|:--:|---------------|:-----------------|:----:|:----------:|
+| 01 | Dermatology | Dermatoscopy | [01.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/01_dermatoscopy_notebook.ipynb) | [01.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_01_dermatology.pdf) |
+| 02 | Gastroenterology | Endoscopy (lower) | [02.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/02_gi-endoscopy-lower_notebook.ipynb) | [02.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_02_gastroenterology_lower.pdf) |
+| 03 | Gastroenterology | Endoscopy (upper) | [03.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/03_gi-endoscopy-upper_notebook.ipynb) | [03.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_03_gastroenterology_upper.pdf) |
+| 04 | Histopathology | Microscopy | [04.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/04_histopathology_notebook.ipynb) | [04.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_04_histopathology.pdf) |
+| 05 | Radiology | X-ray | [05.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/05_xray_notebook.ipynb) | [05.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_05_radiology_x_ray.pdf) |
+| 06 | Gynaecology | Ultrasound | [06.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/06_ultrasound_notebook.ipynb) | [06.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_06_gynecology.pdf) |
+| 07 | Radiology | Computed Tomography | [07.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/07_ct-covid_notebook.ipynb) | [07.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_07_radiology_ct.pdf) |
+| 08 | Ophthalmology | Retinal Imaging | [08.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/08_riadd_notebook.ipynb) | [08.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_08_ophtalmology.pdf) |
+| 09 | Neurology | Magnetic Resonance Imaging | [09.notebook.ipynb](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/09_mri_notebook.ipynb) | [09.manuscript.pdf](https://github.com/frankkramer-lab/aucmedi/blob/master/examples/framework/PM_09_neurology.pdf) |

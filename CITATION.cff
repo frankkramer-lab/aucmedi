@@ -9,8 +9,6 @@ authors:
   orcid: "https://orcid.org/0000-0002-7825-5738"
 - family-names: "Hartmann"
   given-names: "Dennis"
-- family-names: "Meyer"
-  given-names: "Philip"
 - family-names: "Schneider"
   given-names: "Pia"
 - family-names: "Soto-Rey"
@@ -20,7 +18,7 @@ authors:
   given-names: "Frank"
   orcid: "https://orcid.org/0000-0002-2857-7122"
 title: "AUCMEDI: a framework for Automated Classification of Medical Images"
-version: 1.0.0
+version: X.Y.Z
 doi: 10.5281/zenodo.6633540
 date-released: 2022-06-01
 url: "https://github.com/frankkramer-lab/aucmedi"

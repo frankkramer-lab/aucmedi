@@ -782,3 +782,87 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.assertTrue(sdm_global["2D.ViT_L32"] == "tf")
         self.assertTrue("2D.ViT_L32" in architecture_dict)
         # self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
+
+    #-------------------------------------------------#
+    #            Architecture: ConvNeXtBase           #
+    #-------------------------------------------------#
+    def test_ConvNeXtBase(self):
+        arch = ConvNeXtBase(Classifier(n_labels=4), channels=1,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = ConvNeXtBase(Classifier(n_labels=4), channels=3,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ConvNeXtBase",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ConvNeXtBase"] == None)
+        self.assertTrue(sdm_global["2D.ConvNeXtBase"] == None)
+
+    #-------------------------------------------------#
+    #            Architecture: ConvNeXtTiny           #
+    #-------------------------------------------------#
+    def test_ConvNeXtTiny(self):
+        arch = ConvNeXtTiny(Classifier(n_labels=4), channels=1,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = ConvNeXtTiny(Classifier(n_labels=4), channels=3,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ConvNeXtTiny",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ConvNeXtTiny"] == None)
+        self.assertTrue(sdm_global["2D.ConvNeXtTiny"] == None)
+
+    #-------------------------------------------------#
+    #           Architecture: ConvNeXtSmall           #
+    #-------------------------------------------------#
+    def test_ConvNeXtSmall(self):
+        arch = ConvNeXtSmall(Classifier(n_labels=4), channels=1,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = ConvNeXtSmall(Classifier(n_labels=4), channels=3,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ConvNeXtSmall",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ConvNeXtSmall"] == None)
+        self.assertTrue(sdm_global["2D.ConvNeXtSmall"] == None)
+
+    #-------------------------------------------------#
+    #           Architecture: ConvNeXtLarge           #
+    #-------------------------------------------------#
+    def test_ConvNeXtLarge(self):
+        arch = ConvNeXtLarge(Classifier(n_labels=4), channels=1,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = ConvNeXtLarge(Classifier(n_labels=4), channels=3,
+                                       input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch,
+                               batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ConvNeXtLarge",
+                               batch_queue_size=1, input_shape=(32, 32))
+        try : model.model.summary()
+        except : raise Exception()
+        self.assertTrue(supported_standardize_mode["ConvNeXtLarge"] == None)
+        self.assertTrue(sdm_global["2D.ConvNeXtLarge"] == None)

@@ -68,6 +68,11 @@ from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
 from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
 from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
 from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
+# ConvNeXt
+from aucmedi.neural_network.architectures.image.convnext_base import ConvNeXtBase
+from aucmedi.neural_network.architectures.image.convnext_tiny import ConvNeXtTiny
+from aucmedi.neural_network.architectures.image.convnext_small import ConvNeXtSmall
+from aucmedi.neural_network.architectures.image.convnext_large import ConvNeXtLarge
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -107,6 +112,10 @@ architecture_dict = {
     "ViT_B32": ViT_B32,
     "ViT_L16": ViT_L16,
     "ViT_L32": ViT_L32,
+    "ConvNeXtBase": ConvNeXtBase,
+    "ConvNeXtTiny": ConvNeXtTiny,
+    "ConvNeXtSmall": ConvNeXtSmall,
+    "ConvNeXtLarge": ConvNeXtLarge,
 }
 """ Dictionary of implemented 2D Architectures Methods in AUCMEDI.
 
@@ -192,6 +201,10 @@ supported_standardize_mode = {
     "ViT_B32": "tf",
     "ViT_L16": "tf",
     "ViT_L32": "tf",
+    "ConvNeXtBase": None,
+    "ConvNeXtTiny": None,
+    "ConvNeXtSmall": None,
+    "ConvNeXtLarge": None,
 }
 """ Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 2D Architectures Methods in AUCMEDI.
 

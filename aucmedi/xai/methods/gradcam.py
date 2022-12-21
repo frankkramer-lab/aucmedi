@@ -77,7 +77,7 @@ class GradCAM(XAImethod_Base):
         # Iterate over all layers
         for layer in reversed(self.model.layers):
             # Check to see if the layer has a 4D output -> Return layer
-            if len(layer.output.shape) == 4:
+            if len(layer.output_shape) >= 4:
                 return layer.name
         # Otherwise, throw exception
         raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM.")
@@ -99,7 +99,7 @@ class GradCAM(XAImethod_Base):
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap is 2D or 3D -> batch and channel axis will be removed.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM for provided image.
@@ -114,8 +114,11 @@ class GradCAM(XAImethod_Base):
             (conv_out, preds) = gradModel(inputs)
             loss = preds[:, class_index]
         grads = tape.gradient(loss, conv_out)
+        # Identify pooling axis
+        if len(image.shape) == 4 : pooling_axis = (0, 1, 2)
+        else : pooling_axis = (0, 1, 2, 3)
         # Averaged output gradient based on feature map of last conv layer
-        pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+        pooled_grads = tf.reduce_mean(grads, axis=pooling_axis)
         # Normalize gradients via "importance"
         heatmap = conv_out[0] @ pooled_grads[..., tf.newaxis]
         heatmap = tf.squeeze(heatmap).numpy()

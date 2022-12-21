@@ -114,7 +114,7 @@ def visualize_volume(array, out_path=None, iteration_axis=1):
 #-----------------------------------------------------#
 #               XAI Heatmap Visualizer                #
 #-----------------------------------------------------#
-def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
+def visualize_heatmap(image, heatmap, overlay=True, out_path=None, alpha=0.4):
     """ Simple wrapper function to visualize a heatmap encoded as NumPy matrix with a
         [0-1] range as image/volume via matplotlib.
 
@@ -141,13 +141,17 @@ def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
     if image.shape[-1] == 1 : image = np.concatenate((image,)*3, axis=-1)
     # Rescale heatmap to grayscale range
     heatmap = np.uint8(heatmap * 255)
-    # Use jet colormap to colorize heatmap
-    jet = cm.get_cmap("jet")
-    # Use RGB values of the colormap
-    jet_colors = jet(np.arange(256))[:,:3]
-    jet_heatmap = jet_colors[heatmap] * 255
-    # Superimpose the heatmap on original image
-    si_img = jet_heatmap * alpha + (1-alpha) * image
+    # Overlay the heatmap on the image 
+    if overlay:
+        # Use jet colormap to colorize heatmap
+        jet = cm.get_cmap("jet")
+        # Use RGB values of the colormap
+        jet_colors = jet(np.arange(256))[:,:3]
+        jet_heatmap = jet_colors[heatmap] * 255
+        # Superimpose the heatmap on original image
+        final_img = jet_heatmap * alpha + (1-alpha) * image
+    # Output just the heatmap
+    else : final_img = heatmap
     # Apply corresponding 2D visualizer 
-    if len(image.shape) == 3 : visualize_image(si_img, out_path=out_path)
-    elif len(image.shape) == 4 : visualize_volume(si_img, out_path=out_path)
+    if len(image.shape) == 3 : visualize_image(final_img, out_path=out_path)
+    elif len(image.shape) == 4 : visualize_volume(final_img, out_path=out_path)

@@ -24,14 +24,14 @@ import numpy as np
 import os
 # AUCMEDI Libraries
 from aucmedi.xai.methods import xai_dict
-from aucmedi.utils.visualizer import visualize_heatmap
+from aucmedi.utils.visualizer import *
 from aucmedi.data_processing.subfunctions import Resize
 
 #-----------------------------------------------------#
 #                    XAI - Decoder                    #
 #-----------------------------------------------------#
 def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
-                alpha=0.4, preprocess_overlay=True, out_path=None):
+                overlay=True, alpha=0.4, preprocess_overlay=True, out_path=None):
     """ XAI Decoder function for automatic computation of Explainable AI heatmaps.
 
     This module allows to visualize which regions were crucial for the neural network model
@@ -77,6 +77,8 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
         method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI method.
         layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`, the last conv layer is used.
+        overlay (bool):                     Switch deciding if XAI heatmap should be plotted as overlap on the original image.
+                                            If `False`, only the XAI heatmap will be stroed.
         alpha (float):                      Transparency value for heatmap overlap plotting on input image (range: [0-1]).
         preprocess_overlay (bool):          Switch for Subfunction application on visualization. Only relevant if heatmaps are saved to disk.
         out_path (str):                     Output path in which heatmaps are saved to disk as provided `image_format` (DataGenerator).
@@ -124,8 +126,9 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
             ci = np.argmax(preds[i])
             xai_map = xai_method.compute_heatmap(img_batch, class_index=ci)
             xai_map = Resize(shape=shape_org).transform(xai_map)
-            postprocess_output(sample_list[i], img_org, xai_map, n_classes,
-                               data_gen, res_img, res_xai, out_path, alpha)
+            postprocess_output(sample_list[i], img_org, xai_map, 
+                               n_classes, data_gen, res_img, res_xai, 
+                               overlay, out_path, alpha)
         # If no preds given, compute heatmap for all classes
         else:
             sample_maps = []
@@ -134,8 +137,9 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
                 xai_map = Resize(shape=shape_org).transform(xai_map)
                 sample_maps.append(xai_map)
             sample_maps = np.array(sample_maps)
-            postprocess_output(sample_list[i], img_org, sample_maps, n_classes,
-                               data_gen, res_img, res_xai, out_path, alpha)
+            postprocess_output(sample_list[i], img_org, sample_maps, 
+                               n_classes, data_gen, res_img, res_xai, 
+                               overlay, out_path, alpha)
     # Return output directly if no output path is defined (and convert to NumPy)
     if out_path is None : return np.array(res_img), np.array(res_xai)
 
@@ -147,7 +151,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 Caches heatmap for direct output or generates a visualization as PNG.
 """
 def postprocess_output(sample, image, xai_map, n_classes, data_gen,
-                       res_img, res_xai, out_path, alpha):
+                       res_img, res_xai, overlay, out_path, alpha):
     # Update result lists for direct output
     if out_path is None:
         res_img.append(image)
@@ -162,7 +166,8 @@ def postprocess_output(sample, image, xai_map, n_classes, data_gen,
         path_xai = os.path.join(out_path, xai_file)
         # If preds given (xai_map), output only argmax class heatmap
         if len(image.shape) == len(xai_map.shape)+1 :
-            visualize_heatmap(image, xai_map, out_path=path_xai, alpha=alpha)
+            visualize_heatmap(image, xai_map, overlay=overlay,
+                              out_path=path_xai, alpha=alpha)
         # If no preds given (sample_maps), output heatmaps for all classes
         else:
             for c in range(0, n_classes):
@@ -172,5 +177,5 @@ def postprocess_output(sample, image, xai_map, n_classes, data_gen,
                 else : ff = len(data_gen.image_format) + 1
                 path_xai_c = path_xai[:-ff] + ".class_" + str(c) + \
                              path_xai[-ff:]
-                visualize_heatmap(image, xai_map[c], out_path=path_xai_c,
-                                  alpha=alpha)
+                visualize_heatmap(image, xai_map[c], overlay=overlay,
+                                  out_path=path_xai_c, alpha=alpha)

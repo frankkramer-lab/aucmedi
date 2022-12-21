@@ -61,6 +61,7 @@ class xaiTEST(unittest.TestCase):
         # Create Data Generator
         self.datagen = DataGenerator(self.sampleList,  self.tmp_data.name,
                                      labels=self.labels_ohe, resize=None,
+                                     standardize_mode=None,
                                      grayscale=False, batch_size=3)
         # Create Neural Network model
         self.model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),

@@ -256,14 +256,15 @@ class DataGenerator(Sequence):
             if self.workers == 0 or self.workers == 1:
                 for i in range(0, len(samples)):
                     self.preprocess_image(index=i, prepared_image=False,
-                                          run_aug=False, run_standardize=False,
+                                          run_resize=True, run_aug=False,
+                                          run_standardize=False,
                                           dump_pickle=True)
             # Preprocess image for each index - Multi-threading
             else:
                 with ThreadPool(self.workers) as pool:
                     index_array = list(range(0, len(samples)))
-                    mp_params = zip(index_array, repeat(False), repeat(False),
-                                    repeat(False), repeat(True))
+                    mp_params = zip(index_array, repeat(False), repeat(True),
+                                    repeat(False), repeat(False), repeat(True))
                     pool.starmap(self.preprocess_image, mp_params)
             print("A directory for image preparation was created:",
                   self.prepare_dir)
@@ -351,7 +352,7 @@ class DataGenerator(Sequence):
             for sf in self.subfunctions:
                 img = sf.transform(img)
             # Apply resizing on image if activated
-            if self.sf_resize is not None:
+            if self.sf_resize is not None and run_resize:
                 img = self.sf_resize.transform(img)
             # Apply image augmentation on image if activated
             if self.data_aug is not None and run_aug:

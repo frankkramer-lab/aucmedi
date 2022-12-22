@@ -31,7 +31,7 @@ from aucmedi.data_processing.subfunctions import Resize
 #                    XAI - Decoder                    #
 #-----------------------------------------------------#
 def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
-                overlay=True, alpha=0.4, preprocess_overlay=True, out_path=None):
+                overlay=True, alpha=0.25, preprocess_overlay=True, out_path=None):
     """ XAI Decoder function for automatic computation of Explainable AI heatmaps.
 
     This module allows to visualize which regions were crucial for the neural network model

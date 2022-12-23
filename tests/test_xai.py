@@ -29,8 +29,6 @@ import numpy as np
 from aucmedi import *
 from aucmedi.xai import *
 from aucmedi.xai.methods import *
-from aucmedi.utils.visualizer import visualize_heatmap
-from aucmedi.data_processing.io_loader import image_loader
 
 #-----------------------------------------------------#
 #              Unittest: Explainable AI               #
@@ -143,24 +141,6 @@ class xaiTEST(unittest.TestCase):
                               architecture="2D.Vanilla", batch_queue_size=1)
         path_xai = os.path.join(tmp_data.name, "xai_directory")
         xai_decoder(datagen, model, preds=None, out_path=path_xai)
-
-    #-------------------------------------------------#
-    #            XAI Visualization: Heatmap           #
-    #-------------------------------------------------#
-    def test_Visualizer(self):
-        image = self.image[0]
-        heatmap = np.random.rand(32, 32)
-        path_xai = os.path.join(self.tmp_data.name, "xai_test.png")
-        visualize_heatmap(image, heatmap, out_path=path_xai, alpha=0.4)
-        self.assertTrue(os.path.exists(path_xai))
-        img = image_loader(sample=self.sampleList[0],
-                           path_imagedir=self.tmp_data.name,
-                           image_format=self.datagen.image_format)
-        hm = image_loader(sample="xai_test.png",
-                          path_imagedir=self.tmp_data.name,
-                          image_format=None)
-        self.assertTrue(np.array_equal(img.shape, hm.shape))
-        self.assertFalse(np.array_equal(img, hm))
 
     #-------------------------------------------------#
     #              XAI Methods: Grad-Cam              #

@@ -29,7 +29,7 @@ import SimpleITK as sitk
 #-----------------------------------------------------#
 def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
                 resampling=(1.0, 1.0, 1.0), outside_value=0, **kwargs):
-    """ SimpleITK Loader for loading of CT/MRI scans in NIfTI (nii) or Metafile (mha) format within the AUCMEDI pipeline.
+    """ SimpleITK Loader for loading of CT/MRI scans in DICOM (dcm), NIfTI (nii) or Metafile (mha) format within the AUCMEDI pipeline.
 
     The SimpleITK Loader is an IO_loader function, which have to be passed to the
     [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
@@ -105,7 +105,10 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
     else : sample_itk_resampled = sample_itk
     # Convert to NumPy
     img = sitk.GetArrayFromImage(sample_itk_resampled)
-    # Add single channel axis
-    if len(img.shape) == 3 : img = np.expand_dims(img, axis=-1)
+    # Process 2D imaging modalities
+    if sample_itk.GetDepth() == 1 or sample_itk.GetDepth() == 3:
+        img = np.swapaxes(img, 0, -1)
+    # Process 3D imaging modalities
+    elif len(img.shape) == 3 : img = np.expand_dims(img, axis=-1)
     # Return image
     return img

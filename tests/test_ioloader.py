@@ -37,11 +37,11 @@ class IOloaderTEST(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
-        self.img_2d_gray = np.random.rand(16, 16, 1) * 255
-        self.img_2d_rgb = np.random.rand(16, 16, 3) * 255
-        self.img_3d_gray = np.random.rand(16, 16, 16, 1) * 255
-        self.img_3d_rgb = np.random.rand(16, 16, 16, 3) * 255
-        self.img_3d_hu = np.float32(np.random.rand(16, 16, 16, 1) * 1500 - 500)
+        self.img_2d_gray = np.int16(np.random.rand(16, 16, 1) * 255)
+        self.img_2d_rgb = np.int16(np.random.rand(16, 16, 3) * 255)
+        self.img_3d_gray = np.int16(np.random.rand(16, 16, 16, 1) * 255)
+        self.img_3d_rgb = np.int16(np.random.rand(16, 16, 16, 3) * 255)
+        self.img_3d_hu = np.int16(np.random.rand(16, 16, 16, 1) * 1500 - 500)
 
     #-------------------------------------------------#
     #                  Image Loader                   #
@@ -220,8 +220,30 @@ class IOloaderTEST(unittest.TestCase):
             else:
                 self.assertTrue(np.array_equal(batch[0].shape, (1, 12, 20, 28, 1)))
 
+    # Test for hu 2D images
+    def test_sitk_loader_2D(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Run analysis
+        for i in range(0, 6):
+            if i < 3: format = ".mha"
+            else : format = ".nii"
+            if i%2==0 : img = self.img_2d_gray
+            else: img = self.img_3d_rgb
+            # Create image
+            index = "2Dimage.sample_" + str(i) + format
+            path_sample = os.path.join(tmp_data.name, index)
+            image_sitk = sitk.GetImageFromArray(np.swapaxes(img, 0, 2))
+            image_sitk.SetSpacing([1.0,1.0,1.0])
+            sitk.WriteImage(image_sitk, path_sample)
+            # Load image via loader
+            img_out = sitk_loader(index, tmp_data.name, image_format=None,
+                                  resampling=None)
+            self.assertTrue(np.array_equal(img.shape, img_out.shape))
+
     # Test for hu 3D images
-    def test_sitk_loader_3Dhu(self):
+    def test_sitk_loader_3D(self):
         # Create temporary directory
         tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                suffix=".data")

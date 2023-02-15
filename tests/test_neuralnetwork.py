@@ -72,6 +72,13 @@ class NeuralNetworkTEST(unittest.TestCase):
                            epochs=3)
         self.assertTrue("loss" in hist)
 
+    def test_training_iterations(self):
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        hist = model.train(training_generator=self.datagen,
+                           epochs=5, iterations=10)
+        self.assertTrue("loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 5)
+
     def test_training_validation(self):
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         hist = model.train(training_generator=self.datagen,

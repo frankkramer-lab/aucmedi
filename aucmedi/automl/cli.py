@@ -93,7 +93,6 @@ def cli_training(subparsers):
     | Configuration | `--shape_3D`           | str        | `128x128x128`  | Desired input shape of 3D volume for architecture (will be cropped into, format: `1x2x3`). |
     | Configuration | `--epochs`             | int        | `500`          | Number of epochs. A single epoch is defined as one iteration through the complete data set. |
     | Configuration | `--batch_size`         | int        | `24`           | Number of samples inside a single batch. |
-    | Configuration | `--workers`            | int        | `1`            | Number of workers/threads which preprocess batches during runtime. |
     | Configuration | `--metalearner`        | str        | `mean`         | Key for Metalearner or Aggregate function. |
     | Configuration | `--architecture`       | str        | `DenseNet121`  | Key of single or multiple Architectures (only supported for 'analysis=advanced', format: 'KEY' or 'KEY,KEY,KEY). |
     | Other         | `--help`               | bool       | `False`        | show this help message and exit. |
@@ -190,14 +189,6 @@ def cli_training(subparsers):
                     help="Number of samples inside a single batch " + \
                          "(default: '%(default)s')",
                     )
-    oc.add_argument("--workers",
-                    type=int,
-                    required=False,
-                    default=1,
-                    help="Number of workers/threads which preprocess " + \
-                         "batches during runtime " + \
-                         "(default: '%(default)s')",
-                    )
     oc.add_argument("--metalearner",
                     type=str,
                     required=False,
@@ -237,7 +228,6 @@ def cli_prediction(subparsers):
     | Configuration | `--xai_method`         | str        | `None`         | Key for XAI method.  |
     | Configuration | `--xai_directory`      | str        | `xai`          | Path to the output directory in which predicted image xai heatmaps should be stored. |
     | Configuration | `--batch_size`         | int        | `24`           | Number of samples inside a single batch. |
-    | Configuration | `--workers`            | int        | `1`            | Number of workers/threads which preprocess batches during runtime. |
     | Other         | `--help`               | bool       | `False`        | show this help message and exit. |
 
     ??? info "List of XAI Methods"
@@ -298,14 +288,6 @@ def cli_prediction(subparsers):
                     required=False,
                     default=24,
                     help="Number of samples inside a single batch " + \
-                         "(default: '%(default)s')",
-                    )
-    oc.add_argument("--workers",
-                    type=int,
-                    required=False,
-                    default=1,
-                    help="Number of workers/threads which preprocess " + \
-                         "batches during runtime " + \
                          "(default: '%(default)s')",
                     )
 

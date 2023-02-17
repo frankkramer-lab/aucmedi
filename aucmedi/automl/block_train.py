@@ -62,7 +62,6 @@ def block_train(config):
         epochs (int):                       Number of epochs. A single epoch is defined as one iteration through
                                             the complete data set.
         batch_size (int):                   Number of samples inside a single batch.
-        workers (int):                      Number of workers/threads which preprocess batches during runtime.
         metalearner (str):                  Key for Metalearner or Aggregate function.
         architecture (str or list of str):  Key (str) of a neural network model Architecture class instance.
     """
@@ -137,13 +136,11 @@ def block_train(config):
     # Define neural network parameters
     nn_paras = {"n_labels": class_n,
                 "channels": 3,
-                "workers": config["workers"],
                 "batch_queue_size": 4,
                 "loss": loss,
                 "metrics": [AUC(100), F1Score(num_classes=class_n,
                                               average="macro")],
                 "pretrained_weights": True,
-                "multiprocessing": False,
     }
     # Select input shape for 3D
     if config["three_dim"] : nn_paras["input_shape"] = config["shape_3D"]
@@ -186,7 +183,6 @@ def block_train(config):
         "sample_weights": None,
         "seed": None,
         "image_format": image_format,
-        "workers": config["workers"],
     }
     if not config["three_dim"] : paras_datagen["loader"] = image_loader
     else : paras_datagen["loader"] = sitk_loader

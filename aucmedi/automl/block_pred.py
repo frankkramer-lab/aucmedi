@@ -51,7 +51,6 @@ def block_predict(config):
         xai_method (str or None):           Key for XAI method.
         xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be stored.
         batch_size (int):                   Number of samples inside a single batch.
-        workers (int):                      Number of workers/threads which preprocess batches during runtime.
     """
     # Peak into the dataset via the input interface
     ds = input_interface("directory",
@@ -74,9 +73,7 @@ def block_predict(config):
     # Define neural network parameters
     nn_paras = {"n_labels": 1,                                  # placeholder (will be defined by loaded model)
                 "channels": 3,
-                "workers": config["workers"],
                 "batch_queue_size": 4,
-                "multiprocessing": False,
     }
     # Select input shape for 3D
     if meta_training["three_dim"]:
@@ -100,7 +97,6 @@ def block_predict(config):
         "sample_weights": None,
         "seed": None,
         "image_format": image_format,
-        "workers": config["workers"],
         "shuffle": False,
         "grayscale": False,
     }

@@ -74,13 +74,13 @@ class ArchitecturesImageTEST(unittest.TestCase):
                                           self.tmp_data.name,
                                           labels=self.labels_ohe,
                                           resize=(32, 32),
-                                          grayscale=True, batch_size=1)
+                                          grayscale=True)
         # Create RGB Data Generator
         self.datagen_RGB = DataGenerator(self.sampleList_rgb,
                                          self.tmp_data.name,
                                          labels=self.labels_ohe,
                                          resize=(32, 32),
-                                         grayscale=False, batch_size=1)
+                                         grayscale=False)
 
     #-------------------------------------------------#
     #              Architecture: Vanilla              #

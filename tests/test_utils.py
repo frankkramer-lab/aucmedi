@@ -63,7 +63,7 @@ class UtilityTEST(unittest.TestCase):
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
                                      resize=(32, 32),
-                                     grayscale=False, batch_size=1)
+                                     grayscale=False)
 
     #-------------------------------------------------#
     #             Callbacks: CSV2history              #
@@ -74,10 +74,11 @@ class UtilityTEST(unittest.TestCase):
         path_csv = os.path.join(self.tmp_data.name, "testing.csv")
         csvlog = CSVLogger(path_csv)
 
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
+                              input_shape=(32,32))
         hist_returned = model.train(training_generator=self.datagen,
                                     validation_generator=self.datagen,
-                                    epochs=3, callbacks=[csvlog])
+                                    epochs=3, batch_size=1, callbacks=[csvlog])
 
         hist_loaded = csv_to_history(path_csv)
         del hist_loaded["epoch"]

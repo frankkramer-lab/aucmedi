@@ -120,7 +120,6 @@ class AutoML_CLI(unittest.TestCase):
                       "shape_3D",
                       "epochs",
                       "batch_size",
-                      "workers",
                       "metalearner",
                       "architecture",
                      ]
@@ -171,7 +170,6 @@ class AutoML_CLI(unittest.TestCase):
                       "xai_method",
                       "xai_directory",
                       "batch_size",
-                      "workers",
                      ]
         # Check existence
         for c in config_map:

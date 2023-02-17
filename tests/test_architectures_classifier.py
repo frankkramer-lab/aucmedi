@@ -70,7 +70,7 @@ class ClassifierTEST(unittest.TestCase):
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
                                      resize=(32, 32),
-                                     grayscale=False, batch_size=1)
+                                     grayscale=False)
 
         # Create Data Generator with Metadata
         self.datagen_meta = DataGenerator(self.sampleList,
@@ -78,7 +78,7 @@ class ClassifierTEST(unittest.TestCase):
                                           labels=self.labels_ohe,
                                           metadata=self.metadata,
                                           resize=(32, 32),
-                                          grayscale=False, batch_size=1)
+                                          grayscale=False)
 
     #-------------------------------------------------#
     #           Initialization Functionality          #
@@ -94,7 +94,7 @@ class ClassifierTEST(unittest.TestCase):
     def test_application_multiclass(self):
         model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
                                input_shape=(32, 32), activation_output="softmax")
-        preds = model.predict(self.datagen)
+        preds = model.predict(self.datagen, batch_size=1)
         self.assertTrue(np.sum(preds[0]) > 0.99 and np.sum(preds[0]) < 1.01)
 
     #-------------------------------------------------#
@@ -103,7 +103,7 @@ class ClassifierTEST(unittest.TestCase):
     def test_application_multilabel(self):
         model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
                                input_shape=(32, 32), activation_output="sigmoid")
-        preds = model.predict(self.datagen)
+        preds = model.predict(self.datagen, batch_size=1)
         self.assertTrue(np.sum(preds[0]) > 5)
 
     #-------------------------------------------------#
@@ -113,7 +113,7 @@ class ClassifierTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
                                input_shape=(32, 32), activation_output="softmax",
                                meta_variables=10)
-        preds = model.predict(self.datagen_meta)
+        preds = model.predict(self.datagen_meta, batch_size=1)
         self.assertTrue(np.sum(preds[0]) > 0.99 and np.sum(preds[0]) < 1.01)
 
     #-------------------------------------------------#

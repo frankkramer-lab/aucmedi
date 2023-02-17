@@ -58,15 +58,15 @@ class LossfunctionsTEST(unittest.TestCase):
         # Create Data Generator
         self.datagen = DataGenerator(self.sampleList, self.tmp_data.name,
                                      labels=self.labels_ohe, resize=(32, 32),
-                                     grayscale=False, batch_size=1)
+                                     grayscale=False)
 
     #-------------------------------------------------#
     #          Keras Categorical Crossentropy         #
     #-------------------------------------------------#
     def test_Keras(self):
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
-                               loss="categorical_crossentropy")
-        model.train(self.datagen, epochs=1)
+                              loss="categorical_crossentropy", input_shape=(32,32))
+        model.train(self.datagen, epochs=1, batch_size=1)
 
     #-------------------------------------------------#
     #                Focal Loss: Binary               #
@@ -74,8 +74,8 @@ class LossfunctionsTEST(unittest.TestCase):
     def test_FocalLoss_binary(self):
         lf = binary_focal_loss(alpha=0.25, gamma=2)
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
-                               loss=lf)
-        model.train(self.datagen, epochs=1)
+                              loss=lf, input_shape=(32,32))
+        model.train(self.datagen, epochs=1, batch_size=1)
 
     #-------------------------------------------------#
     #             Focal Loss: Categorical             #
@@ -83,8 +83,8 @@ class LossfunctionsTEST(unittest.TestCase):
     def test_FocalLoss_categorical(self):
         lf = categorical_focal_loss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
-                               loss=lf)
-        model.train(self.datagen, epochs=1)
+                              loss=lf, input_shape=(32,32))
+        model.train(self.datagen, epochs=1, batch_size=1)
 
     #-------------------------------------------------#
     #             Focal Loss: Multi-Label             #
@@ -92,5 +92,5 @@ class LossfunctionsTEST(unittest.TestCase):
     def test_FocalLoss_multilabel(self):
         lf = multilabel_focal_loss(class_weights=[0.25, 0.25, 0.5, 4.0], gamma=2)
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1,
-                               loss=lf)
-        model.train(self.datagen, epochs=1)
+                              loss=lf, input_shape=(32,32))
+        model.train(self.datagen, epochs=1, batch_size=1)

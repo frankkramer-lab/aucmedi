@@ -61,10 +61,9 @@ class IOloaderTEST(unittest.TestCase):
            sample_list.append(index)
         # Test DataGenerator
         data_gen = DataGenerator(sample_list, tmp_data.name, resize=None,
-                                 grayscale=False, batch_size=2)
-        for i in range(0, 3):
-            batch = next(data_gen)
-            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 3)))
+                                 grayscale=False)
+        for sample in data_gen:
+            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 3)))
 
     # Test for grayscale images
     def test_image_loader_2Dgray(self):
@@ -117,10 +116,9 @@ class IOloaderTEST(unittest.TestCase):
         # Test DataGenerator
         data_gen = DataGenerator(sample_list, tmp_data.name, loader=numpy_loader,
                                  resize=None, two_dim=False, standardize_mode=None,
-                                 grayscale=True, batch_size=2)
-        for i in range(0, 3):
-            batch = next(data_gen)
-            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
+                                 grayscale=True)
+        for sample in data_gen:
+            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 16, 1)))
 
     # Test for grayscale 2D images
     def test_numpy_loader_2Dgray(self):
@@ -212,13 +210,12 @@ class IOloaderTEST(unittest.TestCase):
         data_gen = DataGenerator(sample_list, tmp_data.name,
                                  loader=sitk_loader,
                                  resize=None, standardize_mode=None,
-                                 grayscale=True, batch_size=1)
-        for i in range(0, 6):
-            batch = next(data_gen)
+                                 grayscale=True)
+        for i, sample in enumerate(data_gen):
             if i < 3:
-                self.assertTrue(np.array_equal(batch[0].shape, (1, 32, 24, 8, 1)))
+                self.assertTrue(np.array_equal(sample[0].shape, (32, 24, 8, 1)))
             else:
-                self.assertTrue(np.array_equal(batch[0].shape, (1, 12, 20, 28, 1)))
+                self.assertTrue(np.array_equal(sample[0].shape, (12, 20, 28, 1)))
 
     # Test for hu 3D images
     def test_sitk_loader_3Dhu(self):
@@ -276,10 +273,9 @@ class IOloaderTEST(unittest.TestCase):
         data_gen = DataGenerator(sample_list, tmp_data.name,
                                  loader=sitk_loader, resampling=(1.75,0.75,0.75),
                                  resize=None, standardize_mode=None,
-                                 grayscale=True, batch_size=1)
-        for i in range(0, 6):
-            batch = next(data_gen)
-            self.assertTrue(np.array_equal(batch[0].shape, (1, 18, 10, 10, 1)))
+                                 grayscale=True)
+        for sample in data_gen:
+            self.assertTrue(np.array_equal(sample[0].shape, (18, 10, 10, 1)))
 
     #-------------------------------------------------#
     #                  Cache Loader                   #
@@ -299,10 +295,9 @@ class IOloaderTEST(unittest.TestCase):
         # Test DataGenerator
         data_gen = DataGenerator(sample_list, tmp_data.name, loader=cache_loader,
                                  resize=None, two_dim=False, standardize_mode=None,
-                                 grayscale=True, batch_size=2, cache=cache)
-        for i in range(0, 3):
-            batch = next(data_gen)
-            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
+                                 grayscale=True, cache=cache)
+        for sample in data_gen:
+            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 16, 1)))
 
     # Test for grayscale 2D images
     def test_cache_loader_2Dgray(self):

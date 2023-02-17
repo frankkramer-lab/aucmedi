@@ -110,7 +110,6 @@ class AutoML_block_predict(unittest.TestCase):
             "shape_3D": (128,128,128),
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -126,7 +125,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -159,7 +157,6 @@ class AutoML_block_predict(unittest.TestCase):
             "shape_3D": (128,128,128),
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "architecture": "Vanilla"
         }
         # Run AutoML training block
@@ -174,7 +171,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -203,7 +199,6 @@ class AutoML_block_predict(unittest.TestCase):
             "shape_3D": (16, 16, 16),
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -219,7 +214,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -248,7 +242,6 @@ class AutoML_block_predict(unittest.TestCase):
             "shape_3D": (128,128,128),
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -266,7 +259,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": "gradcam",
             "xai_directory": xai_dir.name,
         }
@@ -303,7 +295,6 @@ class AutoML_block_predict(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -319,7 +310,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -347,7 +337,6 @@ class AutoML_block_predict(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -365,7 +354,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": "gradcam",
             "xai_directory": xai_dir.name,
         }
@@ -395,7 +383,6 @@ class AutoML_block_predict(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "architecture": "Vanilla"
         }
         # Run AutoML training block
@@ -410,7 +397,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -439,7 +425,6 @@ class AutoML_block_predict(unittest.TestCase):
             "shape_3D": (16, 16, 16),
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -455,7 +440,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -486,7 +470,6 @@ class AutoML_block_predict(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": ["Vanilla", "Vanilla"]
         }
@@ -502,7 +485,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -530,7 +512,6 @@ class AutoML_block_predict(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "mean",
             "architecture": ["Vanilla", "Vanilla"]
         }
@@ -546,7 +527,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }
@@ -575,7 +555,6 @@ class AutoML_block_predict(unittest.TestCase):
             "shape_3D": (16, 16, 16),
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": ["Vanilla", "Vanilla"]
         }
@@ -591,7 +570,6 @@ class AutoML_block_predict(unittest.TestCase):
             "path_modeldir": input_dir.name,
             "path_pred": tmp_output.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }

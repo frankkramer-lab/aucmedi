@@ -61,14 +61,14 @@ class xaiTEST(unittest.TestCase):
         # Create Data Generator
         self.datagen = DataGenerator(self.sampleList,  self.tmp_data.name,
                                      labels=self.labels_ohe, resize=None,
-                                     grayscale=False, batch_size=3)
+                                     grayscale=False)
         # Create Neural Network model
         self.model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
-                                    architecture="2D.Vanilla", batch_queue_size=1)
+                                   architecture="2D.Vanilla")
         # Compute predictions
-        self.preds = self.model.predict(self.datagen)
+        self.preds = self.model.predict(self.datagen, batch_size=3)
         # Initialize testing image
-        self.image = next(self.datagen)[0][[0]]
+        self.image = np.expand_dims(self.datagen[0][0], axis=0)
 
     #-------------------------------------------------#
     #             XAI Functions: Decoder              #
@@ -136,7 +136,7 @@ class xaiTEST(unittest.TestCase):
         # Create Data Generator
         datagen = DataGenerator(index_list,  tmp_data.name,
                                 labels=None, resize=None,
-                                grayscale=False, batch_size=3)
+                                grayscale=False)
         # Create Neural Network model
         model = NeuralNetwork(n_labels=nclasses, channels=3, input_shape=(32,32),
                               architecture="2D.Vanilla", batch_queue_size=1)

@@ -109,7 +109,6 @@ class AutoML_block_train(unittest.TestCase):
             "shape_3D": (128,128,128),
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -137,7 +136,6 @@ class AutoML_block_train(unittest.TestCase):
             "shape_3D": (128,128,128),
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "mean",
             "architecture": "Vanilla"
         }
@@ -165,7 +163,6 @@ class AutoML_block_train(unittest.TestCase):
             "shape_3D": (16, 16, 16),
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -195,7 +192,6 @@ class AutoML_block_train(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -223,7 +219,6 @@ class AutoML_block_train(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "metalearner": "mean",
             "architecture": "Vanilla"
         }
@@ -252,7 +247,6 @@ class AutoML_block_train(unittest.TestCase):
             "shape_3D": (16, 16, 16),
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": "Vanilla"
         }
@@ -283,7 +277,6 @@ class AutoML_block_train(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": ["Vanilla", "Vanilla"]
         }
@@ -307,7 +300,6 @@ class AutoML_block_train(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "mean",
             "architecture": ["Vanilla", "Vanilla"]
         }
@@ -332,7 +324,6 @@ class AutoML_block_train(unittest.TestCase):
             "shape_3D": (16, 16, 16),
             "epochs": 8,
             "batch_size": 1,
-            "workers": 1,
             "metalearner": "logistic_regression",
             "architecture": ["Vanilla", "Vanilla"]
         }

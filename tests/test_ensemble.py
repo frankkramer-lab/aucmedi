@@ -79,17 +79,17 @@ class EnsembleTEST(unittest.TestCase):
     def test_Augmenting_2D_functionality(self):
         # Test functionality with batch_size 10 and n_cycles = 1
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                batch_size=10, resize=None, data_aug=None,
+                                resize=None, data_aug=None,
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
-        preds = predict_augmenting(self.model2D, datagen,
+        preds = predict_augmenting(self.model2D, datagen, batch_size=10,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
         # Test functionality with batch_size 10 and n_cycles = 5
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                batch_size=10, resize=None, data_aug=None,
+                                resize=None, data_aug=None,
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
-        preds = predict_augmenting(self.model2D, datagen,
+        preds = predict_augmenting(self.model2D, datagen, batch_size=10,
                                    n_cycles=5, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
@@ -97,28 +97,28 @@ class EnsembleTEST(unittest.TestCase):
         # Test functionality with batch_size 10 and n_cycles = 1
         my_aug = ImageAugmentation()
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                batch_size=10, resize=None, data_aug=my_aug,
+                                resize=None, data_aug=my_aug,
                                 grayscale=False, subfunctions=[], standardize_mode="tf")
-        preds = predict_augmenting(self.model2D, datagen,
+        preds = predict_augmenting(self.model2D, datagen, batch_size=10,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
     def test_Augmenting_3D_functionality(self):
         # Test functionality with batch_size 3 and n_cycles = 1
         datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
-                                batch_size=3, resize=None, data_aug=None,
+                                resize=None, data_aug=None,
                                 grayscale=True, two_dim=False, subfunctions=[],
                                 standardize_mode="tf", loader=numpy_loader)
-        preds = predict_augmenting(self.model3D, datagen,
+        preds = predict_augmenting(self.model3D, datagen, batch_size=3,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
         # Test functionality with batch_size 8 and n_cycles = 5
         datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
-                                batch_size=8, resize=None, data_aug=None,
+                                resize=None, data_aug=None,
                                 grayscale=True, two_dim=False, subfunctions=[],
                                 standardize_mode="tf", loader=numpy_loader)
-        preds = predict_augmenting(self.model3D, datagen,
+        preds = predict_augmenting(self.model3D, datagen, batch_size=8,
                                    n_cycles=5, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
@@ -126,10 +126,10 @@ class EnsembleTEST(unittest.TestCase):
         # Test functionality with self provided augmentation
         my_aug = VolumeAugmentation()
         datagen = DataGenerator(self.sampleList3D, self.tmp_data.name,
-                                batch_size=3, resize=None, data_aug=my_aug,
+                                resize=None, data_aug=my_aug,
                                 grayscale=True, two_dim=False, subfunctions=[],
                                 standardize_mode="tf", loader=numpy_loader)
-        preds = predict_augmenting(self.model3D, datagen,
+        preds = predict_augmenting(self.model3D, datagen, batch_size=3,
                                    n_cycles=1, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
@@ -147,13 +147,13 @@ class EnsembleTEST(unittest.TestCase):
     def test_Bagging_training(self):
         # Initialize training DataGenerator
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                labels=self.labels_ohe, resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Bagging object
         el = Bagging(model=self.model2D, k_fold=3)
         # Run Bagging based training process
-        hist = el.train(datagen, epochs=3, iterations=None)
+        hist = el.train(datagen, epochs=3, batch_size=3, iterations=None)
 
         self.assertIsInstance(hist, dict)
         self.assertTrue("cv_0.loss" in hist and "cv_0.val_loss" in hist)
@@ -182,36 +182,36 @@ class EnsembleTEST(unittest.TestCase):
     def test_Bagging_predict(self):
         # Initialize training DataGenerator
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                labels=self.labels_ohe, resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Bagging object
         el = Bagging(model=self.model2D, k_fold=2)
         # Check cache model directory existence exception
         self.assertRaises(FileNotFoundError, el.predict, datagen)
 
         # Train model
-        el.train(datagen, epochs=1, iterations=None)
+        el.train(datagen, epochs=1, batch_size=3, iterations=None)
         # Run Inference with mean aggregation
-        preds = el.predict(datagen, aggregate="mean")
+        preds = el.predict(datagen, batch_size=3, aggregate="mean")
         self.assertTrue(np.array_equal(preds.shape, (3,2)))
         # Run Inference with majority vote aggregation
-        preds = el.predict(datagen, aggregate="majority_vote")
+        preds = el.predict(datagen, batch_size=3, aggregate="majority_vote")
         self.assertTrue(np.array_equal(preds.shape, (3,2)))
         # Run Inference with returned ensemble
-        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        preds, ensemble = el.predict(datagen, batch_size=3, return_ensemble=True)
         self.assertTrue(np.array_equal(preds.shape, (3,2)))
         self.assertTrue(np.array_equal(ensemble.shape, (2,3,2)))
 
     def test_Bagging_dump(self):
         # Initialize training DataGenerator
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                labels=self.labels_ohe, resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Bagging object and train it
         el = Bagging(model=self.model2D, k_fold=2)
-        el.train(datagen, epochs=1, iterations=None)
+        el.train(datagen, epochs=1, batch_size=3, iterations=None)
         # Initialize temporary directory
         target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                              suffix=".model")
@@ -234,12 +234,12 @@ class EnsembleTEST(unittest.TestCase):
     def test_Bagging_load(self):
         # Initialize training DataGenerator
         datagen = DataGenerator(self.sampleList2D, self.tmp_data.name,
-                                labels=self.labels_ohe, batch_size=3, resize=None,
+                                labels=self.labels_ohe, resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Bagging object and train it
         el = Bagging(model=self.model2D, k_fold=2)
-        el.train(datagen, epochs=1, iterations=None)
+        el.train(datagen, epochs=1, batch_size=3, iterations=None)
 
         model_dir = el.cache_dir
         el.cache_dir = None
@@ -306,13 +306,13 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 4, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Stacking object
         el = Stacking(model_list=[self.model2D, self.model2D])
         # Run Stacking based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         self.assertIsInstance(hist, dict)
         self.assertTrue("nn_0.loss" in hist and "nn_0.val_loss" in hist)
@@ -339,14 +339,14 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 4, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Stacking object
         el = Stacking(model_list=[self.model2D, self.model2D],
                       metalearner="mean")
         # Run Stacking based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         self.assertIsInstance(hist, dict)
         self.assertTrue("nn_0.loss" in hist and "nn_0.val_loss" in hist)
@@ -371,23 +371,23 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 4, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Stacking object
         el = Stacking(model_list=[self.model2D, self.model2D])
         # Check cache model directory existence exception
         self.assertRaises(FileNotFoundError, el.predict, datagen)
 
         # Run Stacking based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         # Run Inference
-        preds = el.predict(datagen)
+        preds = el.predict(datagen, batch_size=3)
         self.assertTrue(np.array_equal(preds.shape, (12,2)))
 
         # Run Inference with returned ensemble
-        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        preds, ensemble = el.predict(datagen, batch_size=3, return_ensemble=True)
         self.assertTrue(np.array_equal(preds.shape, (12,2)))
         self.assertTrue(np.array_equal(ensemble.shape, (2,12,2)))
 
@@ -396,9 +396,9 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 4, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Stacking object
         el = Stacking(model_list=[self.model2D, self.model2D],
                       metalearner="mean")
@@ -406,14 +406,14 @@ class EnsembleTEST(unittest.TestCase):
         self.assertRaises(FileNotFoundError, el.predict, datagen)
 
         # Run Stacking based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         # Run Inference
-        preds = el.predict(datagen)
+        preds = el.predict(datagen, batch_size=3)
         self.assertTrue(np.array_equal(preds.shape, (12,2)))
 
         # Run Inference with returned ensemble
-        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        preds, ensemble = el.predict(datagen, batch_size=3, return_ensemble=True)
         self.assertTrue(np.array_equal(preds.shape, (12,2)))
         self.assertTrue(np.array_equal(ensemble.shape, (2,12,2)))
 
@@ -422,12 +422,12 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 4, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Bagging object and train it
         el = Stacking(model_list=[self.model2D])
-        el.train(datagen, epochs=1, iterations=1)
+        el.train(datagen, epochs=1, batch_size=3, iterations=1)
         # Initialize temporary directory
         target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                              suffix=".model")
@@ -452,12 +452,12 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 4),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 4, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Bagging object and train it
         el = Stacking(model_list=[self.model2D, self.model2D])
-        el.train(datagen, epochs=1, iterations=1)
+        el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         model_dir = el.cache_dir
         el.cache_dir = None
@@ -476,7 +476,7 @@ class EnsembleTEST(unittest.TestCase):
                 "nn_1.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
                 "metalearner.model.pickle")))
-        preds = el.predict(datagen)
+        preds = el.predict(datagen, batch_size=3)
 
     #-------------------------------------------------#
     #                    Composite                    #
@@ -529,13 +529,13 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 6, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode=None, workers=0)
+                                standardize_mode=None)
         # Initialize Composite object
         el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
         # Run Composite based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         self.assertIsInstance(hist, dict)
         self.assertTrue("cv_0.loss" in hist and "cv_0.val_loss" in hist)
@@ -562,14 +562,14 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 6, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Composite object
         el = Composite(model_list=[self.model2D, self.model2D],
                        metalearner="mean", k_fold=2)
         # Run Composite based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         self.assertIsInstance(hist, dict)
         self.assertTrue("cv_0.loss" in hist and "cv_0.val_loss" in hist)
@@ -594,23 +594,23 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 6, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode=None, workers=0)
+                                standardize_mode=None)
         # Initialize Composite object
         el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
         # Check cache model directory existence exception
         self.assertRaises(FileNotFoundError, el.predict, datagen)
 
         # Run Composite based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         # Run Inference
-        preds = el.predict(datagen)
+        preds = el.predict(datagen, batch_size=3)
         self.assertTrue(np.array_equal(preds.shape, (18,2)))
 
         # Run Inference with returned ensemble
-        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        preds, ensemble = el.predict(datagen, batch_size=3, return_ensemble=True)
         self.assertTrue(np.array_equal(preds.shape, (18,2)))
         self.assertTrue(np.array_equal(ensemble.shape, (2,18,2)))
 
@@ -619,9 +619,9 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 6, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode="tf", workers=0)
+                                standardize_mode="tf")
         # Initialize Composite object
         el = Composite(model_list=[self.model2D, self.model2D],
                        metalearner="mean", k_fold=2)
@@ -629,14 +629,14 @@ class EnsembleTEST(unittest.TestCase):
         self.assertRaises(FileNotFoundError, el.predict, datagen)
 
         # Run Composite based training process
-        hist = el.train(datagen, epochs=1, iterations=1)
+        hist = el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         # Run Inference
-        preds = el.predict(datagen)
+        preds = el.predict(datagen, batch_size=3)
         self.assertTrue(np.array_equal(preds.shape, (18,2)))
 
         # Run Inference with returned ensemble
-        preds, ensemble = el.predict(datagen, return_ensemble=True)
+        preds, ensemble = el.predict(datagen, batch_size=3, return_ensemble=True)
         self.assertTrue(np.array_equal(preds.shape, (18,2)))
         self.assertTrue(np.array_equal(ensemble.shape, (2,18,2)))
 
@@ -645,12 +645,12 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 6, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode=None, workers=0)
+                                standardize_mode=None)
         # Initialize Bagging object and train it
         el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
-        el.train(datagen, epochs=1, iterations=1)
+        el.train(datagen, epochs=1, batch_size=3, iterations=1)
         # Initialize temporary directory
         target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                              suffix=".model")
@@ -675,12 +675,12 @@ class EnsembleTEST(unittest.TestCase):
         datagen = DataGenerator(np.repeat(self.sampleList2D, 6),
                                 self.tmp_data.name,
                                 labels=np.repeat(self.labels_ohe, 6, axis=0),
-                                batch_size=3, resize=None,
+                                resize=None,
                                 data_aug=None, grayscale=False, subfunctions=[],
-                                standardize_mode=None, workers=0)
+                                standardize_mode=None)
         # Initialize Bagging object and train it
         el = Composite(model_list=[self.model2D, self.model2D], k_fold=2)
-        el.train(datagen, epochs=1, iterations=1)
+        el.train(datagen, epochs=1, batch_size=3, iterations=1)
 
         model_dir = el.cache_dir
         el.cache_dir = None
@@ -699,4 +699,4 @@ class EnsembleTEST(unittest.TestCase):
                                                     "cv_1.model.hdf5")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir,
                                                     "metalearner.model.pickle")))
-        preds = el.predict(datagen)
+        preds = el.predict(datagen, batch_size=3)

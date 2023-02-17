@@ -76,7 +76,6 @@ class AutoML_block_evaluate(unittest.TestCase):
             "three_dim": False,
             "epochs": 8,
             "batch_size": 4,
-            "workers": 1,
             "architecture": "Vanilla"
         }
         # Run AutoML training block
@@ -91,7 +90,6 @@ class AutoML_block_evaluate(unittest.TestCase):
             "path_modeldir": self.model_dir.name,
             "path_pred": self.pred_path.name,
             "batch_size": 4,
-            "workers": 1,
             "xai_method": None,
             "xai_directory": None,
         }

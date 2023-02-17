@@ -64,7 +64,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
                                         labels=self.labels_ohe,
                                         resize=(32, 32, 32),
                                         loader=numpy_loader, two_dim=False,
-                                        grayscale=True, batch_size=1)
+                                        grayscale=True)
 
     #-------------------------------------------------#
     #              Architecture: Vanilla              #
@@ -295,12 +295,12 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #-------------------------------------------------#
     def test_MobileNetV2(self):
         arch = MobileNetV2(Classifier(n_labels=4), channels=1,
-                                        input_shape=(64, 64, 64))
+                                        input_shape=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
                                batch_queue_size=1)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.MobileNetV2",
-                               batch_queue_size=1, input_shape=(64, 64, 64))
+                               batch_queue_size=1, input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")

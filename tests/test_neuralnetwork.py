@@ -42,7 +42,7 @@ class NeuralNetworkTEST(unittest.TestCase):
 
         # Create RGB data
         self.sampleList_rgb = []
-        for i in range(0, 1):
+        for i in range(0, 3):
             img_rgb = np.random.rand(32, 32, 3) * 255
             imgRGB_pillow = Image.fromarray(img_rgb.astype(np.uint8))
             index = "image.sample_" + str(i) + ".RGB.png"
@@ -51,8 +51,8 @@ class NeuralNetworkTEST(unittest.TestCase):
             self.sampleList_rgb.append(index)
 
         # Create classification labels
-        self.labels_ohe = np.zeros((1, 4), dtype=np.uint8)
-        for i in range(0, 1):
+        self.labels_ohe = np.zeros((3, 4), dtype=np.uint8)
+        for i in range(0, 3):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
 
@@ -61,45 +61,164 @@ class NeuralNetworkTEST(unittest.TestCase):
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
                                      resize=(32, 32),
-                                     grayscale=False, batch_size=1)
+                                     grayscale=False)
 
     #-------------------------------------------------#
     #                  Model Training                 #
     #-------------------------------------------------#
     def test_training_pure(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
-        hist = model.train(training_generator=self.datagen,
-                           epochs=3)
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
+        hist = model.train(training_generator=self.datagen, 
+                           epochs=3, batch_size=2)
         self.assertTrue("loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_iterations(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
         hist = model.train(training_generator=self.datagen,
-                           epochs=5, iterations=10)
+                           epochs=3, iterations=5)
         self.assertTrue("loss" in hist)
-        self.assertTrue(len(hist["loss"]) == 5)
+        self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_validation(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
         hist = model.train(training_generator=self.datagen,
                            validation_generator=self.datagen,
-                           epochs=4)
+                           epochs=3, batch_size=2)
         self.assertTrue("loss" in hist and "val_loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_transferlearning(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
         model.tf_epochs = 2
         hist = model.train(training_generator=self.datagen,
                            validation_generator=self.datagen,
-                           epochs=3, transfer_learning=True)
+                           epochs=3, batch_size=2, transfer_learning=True)
         self.assertTrue("tl_loss" in hist and "tl_val_loss" in hist)
+        self.assertTrue(len(hist["tl_loss"])==2)
         self.assertTrue("ft_loss" in hist and "ft_val_loss" in hist)
+        self.assertTrue(len(hist["ft_loss"])==1)
+
+    def test_training_metadata(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
+                              meta_variables=5)
+        datagen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                labels=self.labels_ohe, resize=(32, 32), 
+                                grayscale=False,
+                                metadata=np.zeros((3, 5), dtype=np.float32))
+        hist = model.train(training_generator=datagen,
+                           validation_generator=datagen,
+                           epochs=3, batch_size=2)
+        self.assertTrue("loss" in hist and "val_loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 3)
 
     #-------------------------------------------------#
     #                 Model Inference                 #
     #-------------------------------------------------#
     def test_predict(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
-        preds = model.predict(self.datagen)
-        self.assertTrue(preds.shape == (1, 4))
-        self.assertTrue(np.sum(preds) >= 0.99 and np.sum(preds) <= 1.01)
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
+        preds = model.predict(self.datagen, batch_size=1)
+        self.assertTrue(preds.shape == (3, 4))
+        self.assertTrue(np.sum(preds[0]) >= 0.99 and np.sum(preds[0]) <= 1.01)
+
+    def test_predict_metadata(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
+                              meta_variables=5)
+        datagen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                labels=None, resize=(32, 32), 
+                                grayscale=False,
+                                metadata=np.zeros((3, 5), dtype=np.float32))
+        preds = model.predict(datagen, batch_size=2)
+        self.assertTrue(preds.shape == (3, 4))
+        self.assertTrue(np.sum(preds[0]) >= 0.99 and np.sum(preds[0]) <= 1.01)
+
+    #-------------------------------------------------#
+    #             Dataset Transformation              #
+    #-------------------------------------------------#
+    def test_dataset_build(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
+        ds = model.__prepare_dataset__(self.datagen, batch_size=2)
+
+    def test_dataset_training(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
+        ds = model.__prepare_dataset__(self.datagen, batch_size=2)
+        it = iter(ds)
+        batch_first = it.get_next()
+        self.assertTrue(len(batch_first) == 2)
+        self.assertTrue(np.array_equal(batch_first[0].shape, (2,32,32,3)))
+        self.assertTrue(np.array_equal(batch_first[1].shape, (2,4)))
+        batch_second = it.get_next()
+        self.assertTrue(len(batch_second) == 2)
+        self.assertTrue(np.array_equal(batch_second[0].shape, (1,32,32,3)))
+        self.assertTrue(np.array_equal(batch_second[1].shape, (1,4)))
+
+    def test_dataset_prediction(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32))
+        datagen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                labels=None, resize=(32, 32), grayscale=False)
+        ds = model.__prepare_dataset__(datagen, batch_size=2)
+        it = iter(ds)
+        batch_first = it.get_next()
+        self.assertTrue(len(batch_first) == 1)
+        self.assertTrue(np.array_equal(batch_first[0].shape, (2,32,32,3)))
+        batch_second = it.get_next()
+        self.assertTrue(len(batch_second) == 1)
+        self.assertTrue(np.array_equal(batch_second[0].shape, (1,32,32,3)))
+
+    def test_dataset_training_meta(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
+                              meta_variables=5)
+        datagen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                labels=self.labels_ohe, resize=(32, 32), 
+                                grayscale=False,
+                                metadata=np.zeros((3, 5), dtype=np.float32))
+        ds = model.__prepare_dataset__(datagen, batch_size=2)
+        it = iter(ds)
+        batch_first = it.get_next()
+        self.assertTrue(len(batch_first) == 2)
+        self.assertTrue(np.array_equal(batch_first[0][0].shape, (2,32,32,3)))
+        self.assertTrue(np.array_equal(batch_first[0][1].shape, (2,5)))
+        self.assertTrue(np.array_equal(batch_first[1].shape, (2,4)))
+        batch_second = it.get_next()
+        self.assertTrue(len(batch_second) == 2)
+        self.assertTrue(np.array_equal(batch_second[0][0].shape, (1,32,32,3)))
+        self.assertTrue(np.array_equal(batch_second[0][1].shape, (1,5)))
+        self.assertTrue(np.array_equal(batch_second[1].shape, (1,4)))
+
+    def test_dataset_prediction_meta(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
+                              meta_variables=5)
+        datagen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                labels=None, resize=(32, 32), 
+                                grayscale=False,
+                                metadata=np.zeros((3, 5), dtype=np.float32))
+        ds = model.__prepare_dataset__(datagen, batch_size=2)
+        it = iter(ds)
+        batch_first = it.get_next()
+        self.assertTrue(len(batch_first) == 1)
+        self.assertTrue(np.array_equal(batch_first[0][0].shape, (2,32,32,3)))
+        self.assertTrue(np.array_equal(batch_first[0][1].shape, (2,5)))
+        batch_second = it.get_next()
+        self.assertTrue(len(batch_second) == 1)
+        self.assertTrue(np.array_equal(batch_second[0][0].shape, (1,32,32,3)))
+        self.assertTrue(np.array_equal(batch_second[0][1].shape, (1,5)))
+
+    def test_dataset_training_weights(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
+                              meta_variables=5)
+        datagen = DataGenerator(self.sampleList_rgb, self.tmp_data.name,
+                                labels=self.labels_ohe, resize=(32, 32), 
+                                grayscale=False,
+                                sample_weights=np.random.random((3,)))
+        ds = model.__prepare_dataset__(datagen, batch_size=2)
+        it = iter(ds)
+        batch_first = it.get_next()
+        self.assertTrue(len(batch_first) == 3)
+        self.assertTrue(np.array_equal(batch_first[0].shape, (2,32,32,3)))
+        self.assertTrue(np.array_equal(batch_first[1].shape, (2,4)))
+        self.assertTrue(np.array_equal(batch_first[2].shape, (2,)))
+        batch_second = it.get_next()
+        self.assertTrue(len(batch_second) == 3)
+        self.assertTrue(np.array_equal(batch_second[0].shape, (1,32,32,3)))
+        self.assertTrue(np.array_equal(batch_second[1].shape, (1,4)))
+        self.assertTrue(np.array_equal(batch_second[2].shape, (1,)))

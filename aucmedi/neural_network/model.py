@@ -247,7 +247,7 @@ class NeuralNetwork:
     #---------------------------------------------#
     # Training the Neural Network model
     def train(self, training_generator, validation_generator=None, epochs=20,
-              batch_size=32, iterations=None, callbacks=[], class_weights=None,
+              batch_size=8, iterations=None, callbacks=[], class_weights=None,
               transfer_learning=False):
         """ Fitting function for the Neural Network model performing a training process.
 
@@ -350,7 +350,7 @@ class NeuralNetwork:
     #---------------------------------------------#
     #                 Prediction                  #
     #---------------------------------------------#
-    def predict(self, prediction_generator, batch_size=32):
+    def predict(self, prediction_generator, batch_size=8):
         """ Prediction function for the Neural Network model.
 
         The fitted model will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].

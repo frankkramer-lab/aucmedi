@@ -112,7 +112,7 @@ class Bagging:
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
-    def train(self, training_generator, epochs=20, batch_size=32, iterations=None,
+    def train(self, training_generator, epochs=20, batch_size=8, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False):
         """ Training function for the Bagging models which performs a k-fold cross-validation model fitting.
 
@@ -232,7 +232,7 @@ class Bagging:
         # Return Bagging history object
         return history_bagging
 
-    def predict(self, prediction_generator, batch_size=32, aggregate="mean",
+    def predict(self, prediction_generator, batch_size=8, aggregate="mean",
                 return_ensemble=False):
         """ Prediction function for the Bagging models.
 

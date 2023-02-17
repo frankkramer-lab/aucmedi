@@ -149,7 +149,7 @@ class Stacking:
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
-    def train(self, training_generator, epochs=20, batch_size=32, iterations=None,
+    def train(self, training_generator, epochs=20, batch_size=8, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False,
               metalearner_fitting=True):
         """ Training function for fitting the provided Stacking models.
@@ -281,7 +281,7 @@ class Stacking:
         # Return Stacking history object
         return history_stacking
 
-    def train_metalearner(self, training_generator, batch_size=32):
+    def train_metalearner(self, training_generator, batch_size=8):
         """ Training function for fitting the Metalearner model.
 
         Function will be called automatically in the `train()` function if
@@ -391,7 +391,7 @@ class Stacking:
                                             "metalearner.model.pickle")
             self.ml_model.dump(path_metalearner)
 
-    def predict(self, prediction_generator, batch_size=32, return_ensemble=False):
+    def predict(self, prediction_generator, batch_size=8, return_ensemble=False):
         """ Prediction function for Stacking.
 
         The fitted models and selected Metalearner will predict classifications for the provided

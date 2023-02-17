@@ -29,7 +29,7 @@ from aucmedi.data_processing.io_loader import image_loader
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
 #-----------------------------------------------------#
-def predict_augmenting(model, prediction_generator, batch_size=32,
+def predict_augmenting(model, prediction_generator, batch_size=8,
                        n_cycles=10, aggregate="mean"):
     """ Inference Augmenting function for automatically augmenting unknown images for prediction.
 

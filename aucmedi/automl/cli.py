@@ -296,7 +296,7 @@ def cli_prediction(subparsers):
     oc.add_argument("--batch_size",
                     type=int,
                     required=False,
-                    default=12,
+                    default=24,
                     help="Number of samples inside a single batch " + \
                          "(default: '%(default)s')",
                     )

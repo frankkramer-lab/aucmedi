@@ -29,7 +29,8 @@ from aucmedi.data_processing.io_loader import image_loader
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
 #-----------------------------------------------------#
-def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean"):
+def predict_augmenting(model, prediction_generator, batch_size=32,
+                       n_cycles=10, aggregate="mean"):
     """ Inference Augmenting function for automatically augmenting unknown images for prediction.
 
     The predictions of the augmented images are aggregated via the provided Aggregate function.
@@ -75,8 +76,9 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
 
     Args:
-        model (NeuralNetwork):                 Instance of a AUCMEDI neural network class.
+        model (NeuralNetwork):                  Instance of a AUCMEDI neural network class.
         prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.
+        batch_size (int):                       Number of samples inside a single batch.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
         aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
     """
@@ -111,7 +113,6 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
                             path_imagedir=prediction_generator.path_imagedir,
                             labels=None,
                             metadata=prediction_generator.metadata,
-                            batch_size=prediction_generator.batch_size,
                             data_aug=data_aug,
                             seed=prediction_generator.seed,
                             subfunctions=prediction_generator.subfunctions,
@@ -127,7 +128,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
                             **prediction_generator.kwargs)
 
     # Compute predictions with provided model
-    preds_all = model.predict(aug_gen)
+    preds_all = model.predict(aug_gen, batch_size=batch_size)
 
     # Ensemble inferences via aggregate function
     preds_ensembled = []

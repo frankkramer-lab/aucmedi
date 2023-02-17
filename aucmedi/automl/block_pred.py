@@ -72,8 +72,8 @@ def block_predict(config):
         meta_training = json.load(json_file)
 
     # Define neural network parameters
-    nn_paras = {"n_labels": 1,                                  # placeholder
-                "channels": 1,                                  # placeholder
+    nn_paras = {"n_labels": 1,                                  # placeholder (will be defined by loaded model)
+                "channels": 3,
                 "workers": config["workers"],
                 "batch_queue_size": 4,
                 "multiprocessing": False,
@@ -87,14 +87,13 @@ def block_predict(config):
     if meta_training["three_dim"]:
         sf_norm = Standardize(mode="grayscale")
         sf_pad = Padding(mode="constant", shape=meta_training["shape_3D"])
-        sf_crop = Crop(shape=meta_training["shape_3D"], mode="random")
+        sf_crop = Crop(shape=meta_training["shape_3D"], mode="center")
         sf_chromer = Chromer(target="rgb")
         sf_list.extend([sf_norm, sf_pad, sf_crop, sf_chromer])
 
     # Define parameters for DataGenerator
     paras_datagen = {
         "path_imagedir": config["path_imagedir"],
-        "batch_size": config["batch_size"],
         "img_aug": None,
         "subfunctions": sf_list,
         "prepare_images": False,
@@ -126,7 +125,8 @@ def block_predict(config):
         path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
         model.load(path_model)
         # Start model inference
-        preds = model.predict(prediction_generator=pred_gen)
+        preds = model.predict(prediction_generator=pred_gen, 
+                              batch_size=config["batch_size"])
     elif meta_training["analysis"] == "standard":
         # Setup neural network
         if not meta_training["three_dim"]:
@@ -145,7 +145,8 @@ def block_predict(config):
                                   "model.best_loss.hdf5")
         model.load(path_model)
         # Start model inference via Augmenting
-        preds = predict_augmenting(model, pred_gen)
+        preds = predict_augmenting(model, pred_gen, 
+                                   batch_size=config["batch_size"])
     else:
         # Build multi-model list
         model_list = []
@@ -166,7 +167,7 @@ def block_predict(config):
         # Load composite model directory
         el.load(config["path_modeldir"])
         # Start model inference via ensemble learning
-        preds = el.predict(pred_gen)
+        preds = el.predict(pred_gen, batch_size=config["batch_size"])
 
     # Create prediction dataset
     df_index = pd.DataFrame(data={"SAMPLE": index_list})

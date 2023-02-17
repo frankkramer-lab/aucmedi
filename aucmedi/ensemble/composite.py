@@ -64,16 +64,16 @@ class Composite:
 
         # Initialize training DataGenerator for complete training data
         datagen = DataGenerator(samples_train, "images_dir/",
-                                labels=train_labels_ohe, batch_size=3,
+                                labels=train_labels_ohe,
                                 resize=None, standardize_mode=None)
         # Train neural network and metalearner models
-        el.train(datagen, epochs=100)
+        el.train(datagen, epochs=100, batch_size=3)
 
         # Initialize testing DataGenerator for testing data
         test_gen = DataGenerator(samples_test, "images_dir/",
                                  resize=None, standardize_mode=None)
         # Run Inference
-        preds = el.predict(test_gen)
+        preds = el.predict(test_gen, batch_size=3)
         ```
 
     !!! warning "Training Time Increase"
@@ -153,7 +153,7 @@ class Composite:
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
-    def train(self, training_generator, epochs=20, iterations=None,
+    def train(self, training_generator, epochs=20, batch_size=32, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False,
               metalearner_fitting=True):
         """ Training function for fitting the provided NeuralNetwork models.
@@ -172,6 +172,7 @@ class Composite:
                                                     to percentage split and k-fold cross-validation sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
+            batch_size (int):                       Number of samples inside a single batch.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
@@ -209,6 +210,7 @@ class Composite:
 
         # Gather training parameters
         parameters_training = {"epochs": epochs,
+                               "batch_size": batch_size,
                                "iterations": iterations,
                                "callbacks": callbacks,
                                "class_weights": class_weights,
@@ -256,7 +258,6 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                             "batch_size": temp_dg.batch_size,
                              "data_aug": temp_dg.data_aug,
                              "seed": temp_dg.seed,
                              "subfunctions": temp_dg.subfunctions,
@@ -289,12 +290,12 @@ class Composite:
 
         # Perform metalearner model training
         if isinstance(self.ml_model, Metalearner_Base):
-            self.train_metalearner(temp_dg)
+            self.train_metalearner(temp_dg, batch_size=batch_size)
 
         # Return Composite history object
         return history_composite
 
-    def train_metalearner(self, training_generator):
+    def train_metalearner(self, training_generator, batch_size):
         """ Training function for fitting the Metalearner model.
 
         Function will be called automatically in the `train()` function if
@@ -307,6 +308,7 @@ class Composite:
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according
                                                     to percentage split).
+            batch_size (int):                       Number of samples inside a single batch.
         """
         # Skipping metalearner training if aggregate function
         if isinstance(self.ml_model, Aggregate_Base) : return
@@ -359,7 +361,6 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                             "batch_size": temp_dg.batch_size,
                              "data_aug": temp_dg.data_aug,
                              "seed": temp_dg.seed,
                              "subfunctions": temp_dg.subfunctions,
@@ -382,7 +383,8 @@ class Composite:
                                             model_paras,
                                             path_model,
                                             data_ensemble,
-                                            datagen_paras))
+                                            datagen_paras,
+                                            batch_size))
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
@@ -405,7 +407,7 @@ class Composite:
                                             "metalearner.model.pickle")
             self.ml_model.dump(path_metalearner)
 
-    def predict(self, prediction_generator, return_ensemble=False):
+    def predict(self, prediction_generator, batch_size=32, return_ensemble=False):
         """ Prediction function for Composite.
 
         The fitted models and selected Metalearner/Aggregate function will predict classifications
@@ -418,6 +420,7 @@ class Composite:
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            batch_size (int):                       Number of samples inside a single batch.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
@@ -473,7 +476,6 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                             "batch_size": temp_dg.batch_size,
                              "data_aug": temp_dg.data_aug,
                              "seed": temp_dg.seed,
                              "subfunctions": temp_dg.subfunctions,
@@ -496,7 +498,8 @@ class Composite:
                                             model_paras,
                                             path_model,
                                             data_test,
-                                            datagen_paras))
+                                            datagen_paras,
+                                            batch_size))
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
@@ -589,7 +592,6 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
                                  path_imagedir=datagen_paras["path_imagedir"],
                                  labels=train_y,
                                  metadata=train_m,
-                                 batch_size=datagen_paras["batch_size"],
                                  data_aug=datagen_paras["data_aug"],
                                  seed=datagen_paras["seed"],
                                  subfunctions=datagen_paras["subfunctions"],
@@ -608,7 +610,6 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
                                path_imagedir=datagen_paras["path_imagedir"],
                                labels=test_y,
                                metadata=test_m,
-                               batch_size=datagen_paras["batch_size"],
                                data_aug=None,
                                seed=datagen_paras["seed"],
                                subfunctions=datagen_paras["subfunctions"],
@@ -631,7 +632,7 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, data_test,
-                           datagen_paras):
+                           datagen_paras, batch_size):
     # Extract data
     (test_x, test_y, test_m) = data_test
     # Create inference DataGenerator
@@ -639,7 +640,6 @@ def __prediction_process__(queue, model_paras, path_model, data_test,
                                 path_imagedir=datagen_paras["path_imagedir"],
                                 labels=None,
                                 metadata=test_m,
-                                batch_size=datagen_paras["batch_size"],
                                 data_aug=None,
                                 seed=datagen_paras["seed"],
                                 subfunctions=datagen_paras["subfunctions"],
@@ -658,6 +658,6 @@ def __prediction_process__(queue, model_paras, path_model, data_test,
     # Load model weights from disk
     model.load(path_model)
     # Make prediction
-    preds = model.predict(cv_pred_gen)
+    preds = model.predict(cv_pred_gen, batch_size=batch_size)
     # Store prediction results in cache (which will be returned by the process queue)
     queue.put(preds)

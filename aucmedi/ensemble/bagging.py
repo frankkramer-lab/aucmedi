@@ -55,11 +55,11 @@ class Bagging:
 
         # Initialize training DataGenerator for complete training data
         datagen = DataGenerator(samples_train, "images_dir/",
-                                labels=train_labels_ohe, batch_size=3,
+                                labels=train_labels_ohe, 
                                 resize=model.meta_input,
                                 standardize_mode=model.meta_standardize)
         # Train models
-        el.train(datagen, epochs=100)
+        el.train(datagen, epochs=100, batch_size=12)
 
 
         # Initialize testing DataGenerator for testing data
@@ -67,7 +67,7 @@ class Bagging:
                                  resize=model.meta_input,
                                  standardize_mode=model.meta_standardize)
         # Run Inference with majority vote aggregation
-        preds = el.predict(test_gen, aggregate="majority_vote")
+        preds = el.predict(test_gen, aggregate="majority_vote", batch_size=12)
         ```
 
     !!! warning "Training Time Increase"
@@ -112,7 +112,7 @@ class Bagging:
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
-    def train(self, training_generator, epochs=20, iterations=None,
+    def train(self, training_generator, epochs=20, batch_size=32, iterations=None,
               callbacks=[], class_weights=None, transfer_learning=False):
         """ Training function for the Bagging models which performs a k-fold cross-validation model fitting.
 
@@ -127,6 +127,7 @@ class Bagging:
             training_generator (DataGenerator):     A data generator which will be used for training (will be split according to k-fold sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
+            batch_size (int):                       Number of samples inside a single batch.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class imbalance.
@@ -191,7 +192,6 @@ class Bagging:
 
             # Gather DataGenerator parameters
             datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                             "batch_size": temp_dg.batch_size,
                              "data_aug": temp_dg.data_aug,
                              "seed": temp_dg.seed,
                              "subfunctions": temp_dg.subfunctions,
@@ -209,6 +209,7 @@ class Bagging:
 
             # Gather training parameters
             parameters_training = {"epochs": epochs,
+                                   "batch_size": batch_size,
                                    "iterations": iterations,
                                    "callbacks": callbacks,
                                    "class_weights": class_weights,
@@ -233,7 +234,7 @@ class Bagging:
         # Return Bagging history object
         return history_bagging
 
-    def predict(self, prediction_generator, aggregate="mean",
+    def predict(self, prediction_generator, batch_size=32, aggregate="mean",
                 return_ensemble=False):
         """ Prediction function for the Bagging models.
 
@@ -251,6 +252,7 @@ class Bagging:
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            batch_size (int):                       Number of samples inside a single batch.
             aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
@@ -282,7 +284,6 @@ class Bagging:
         datagen_paras = {"samples": temp_dg.samples,
                          "metadata": temp_dg.metadata,
                          "path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
                          "data_aug": temp_dg.data_aug,
                          "seed": temp_dg.seed,
                          "subfunctions": temp_dg.subfunctions,
@@ -331,7 +332,8 @@ class Bagging:
                                       args=(process_queue,
                                             model_paras,
                                             path_model,
-                                            datagen_paras))
+                                            datagen_paras,
+                                            batch_size))
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
@@ -405,7 +407,6 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
                                  path_imagedir=datagen_paras["path_imagedir"],
                                  labels=train_y,
                                  metadata=train_m,
-                                 batch_size=datagen_paras["batch_size"],
                                  data_aug=datagen_paras["data_aug"],
                                  seed=datagen_paras["seed"],
                                  subfunctions=datagen_paras["subfunctions"],
@@ -424,7 +425,6 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
                                path_imagedir=datagen_paras["path_imagedir"],
                                labels=test_y,
                                metadata=test_m,
-                               batch_size=datagen_paras["batch_size"],
                                data_aug=None,
                                seed=datagen_paras["seed"],
                                subfunctions=datagen_paras["subfunctions"],
@@ -446,13 +446,13 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     queue.put(cv_history)
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
-def __prediction_process__(queue, model_paras, path_model, datagen_paras):
+def __prediction_process__(queue, model_paras, path_model, datagen_paras, 
+                           batch_size):
     # Create inference DataGenerator
     cv_pred_gen = DataGenerator(datagen_paras["samples"],
                                 path_imagedir=datagen_paras["path_imagedir"],
                                 labels=None,
                                 metadata=datagen_paras["metadata"],
-                                batch_size=datagen_paras["batch_size"],
                                 data_aug=datagen_paras["data_aug"],
                                 seed=datagen_paras["seed"],
                                 subfunctions=datagen_paras["subfunctions"],
@@ -471,6 +471,6 @@ def __prediction_process__(queue, model_paras, path_model, datagen_paras):
     # Load model weights from disk
     model.load(path_model)
     # Make prediction
-    preds = model.predict(cv_pred_gen)
+    preds = model.predict(cv_pred_gen, batch_size)
     # Store prediction results in cache (which will be returned by the process queue)
     queue.put(preds)

@@ -180,7 +180,6 @@ def block_train(config):
     # Define parameters for DataGenerator
     paras_datagen = {
         "path_imagedir": config["path_imagedir"],
-        "batch_size": config["batch_size"],
         "img_aug": data_aug,
         "subfunctions": sf_list,
         "prepare_images": False,
@@ -195,6 +194,7 @@ def block_train(config):
     # Gather training parameters
     paras_train = {
         "epochs": config["epochs"],
+        "batch_size": config["batch_size"],
         "iterations": None,
         "callbacks": callbacks,
         "class_weights": None,

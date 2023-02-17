@@ -66,7 +66,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 
     Args:
         data_gen (DataGenerator):           A data generator which will be used for inference.
-        model (NeuralNetwork):             Instance of a AUCMEDI neural network class.
+        model (NeuralNetwork):              Instance of a AUCMEDI neural network class.
         preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
         method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI method.
         layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`, the last conv layer is used.
@@ -78,7 +78,6 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Will be only returned if `out_path` parameter is `None`.
     """
     # Initialize & access some variables
-    batch_size = data_gen.batch_size
     n_classes = model.n_labels
     sample_list = data_gen.samples
     # Prepare XAI output methods

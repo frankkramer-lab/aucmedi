@@ -7,7 +7,7 @@ with open("docs/README.PyPI.md", "r") as fh:
 
 setup(
     name='aucmedi',
-    version='0.7.3',
+    version='0.8.0',
     description='AUCMEDI - a framework for Automated Classification of Medical Images',
     author='Dominik Müller',
     author_email='dominik.mueller@informatik.uni-augsburg.de',

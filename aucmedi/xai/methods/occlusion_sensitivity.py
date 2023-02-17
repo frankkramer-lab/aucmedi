@@ -42,7 +42,7 @@ class OcclusionSensitivity(XAImethod_Base):
     This class provides functionality for running the compute_heatmap function,
     which computes a Occlusion Sensitivity Map for an image with a model.
     """
-    def __init__(self, model, layerName=None, patch_size=4):
+    def __init__(self, model, layerName=None, patch_size=16):
         """ Initialization function for creating a Occlusion Sensitivity Map as XAI Method object.
 
         Args:

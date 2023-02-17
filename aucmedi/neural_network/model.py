@@ -22,6 +22,8 @@
 # External libraries
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
+from tensorflow.data import Dataset
+import tensorflow as tf
 import numpy as np
 # Internal libraries/scripts
 from aucmedi.neural_network.architectures import architecture_dict, \
@@ -250,7 +252,7 @@ class NeuralNetwork:
     #---------------------------------------------#
     # Training the Neural Network model
     def train(self, training_generator, validation_generator=None, epochs=20,
-              iterations=None, callbacks=[], class_weights=None,
+              batch_size=32, iterations=None, callbacks=[], class_weights=None,
               transfer_learning=False):
         """ Fitting function for the Neural Network model performing a training process.
 
@@ -280,6 +282,7 @@ class NeuralNetwork:
             validation_generator (DataGenerator):   A data generator which will be used for validation.
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
+            batch_size (int):                       Number of samples inside a single batch.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
@@ -288,11 +291,21 @@ class NeuralNetwork:
         Returns:
             history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
+        # Transform training DataGenerator into Tensorflow Dataset
+        if iterations is not None : repeat = True
+        else : repeat = False
+        ds_train = self.__prepare_dataset__(training_generator, batch_size,
+                                            repeat=repeat)
+        # Transform validation DataGenerator into Tensorflow Dataset
+        if validation_generator is not None:
+            ds_val = self.__prepare_dataset__(validation_generator, batch_size,
+                                              repeat=False)
+        else : ds_val = None
         # Running a standard training process
         if not transfer_learning:
             # Run training process with the Keras fit function
-            history = self.model.fit(training_generator,
-                                     validation_data=validation_generator,
+            history = self.model.fit(ds_train,
+                                     validation_data=ds_val,
                                      callbacks=callbacks, epochs=epochs,
                                      steps_per_epoch=iterations,
                                      class_weight=class_weights,
@@ -314,8 +327,8 @@ class NeuralNetwork:
             self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_start),
                                loss=self.loss, metrics=self.metrics)
             # Run first training with frozen layers
-            history_start = self.model.fit(training_generator,
-                                           validation_data=validation_generator,
+            history_start = self.model.fit(ds_train,
+                                           validation_data=ds_val,
                                            callbacks=callbacks,
                                            epochs=self.tf_epochs,
                                            steps_per_epoch=iterations,
@@ -330,12 +343,9 @@ class NeuralNetwork:
             # Compile model with lower learning rate
             self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_end),
                                loss=self.loss, metrics=self.metrics)
-            # Reset data generators
-            training_generator.reset()
-            if validation_generator is not None : validation_generator.reset()
             # Run second training with unfrozed layers
-            history_end = self.model.fit(training_generator,
-                                         validation_data=validation_generator,
+            history_end = self.model.fit(ds_train,
+                                         validation_data=ds_val,
                                          callbacks=callbacks, epochs=epochs,
                                          initial_epoch=self.tf_epochs,
                                          steps_per_epoch=iterations,
@@ -354,24 +364,62 @@ class NeuralNetwork:
     #---------------------------------------------#
     #                 Prediction                  #
     #---------------------------------------------#
-    def predict(self, prediction_generator):
+    def predict(self, prediction_generator, batch_size=32):
         """ Prediction function for the Neural Network model.
 
         The fitted model will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            batch_size (int):                       Number of samples inside a single batch.
 
         Returns:
             preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
         """
+        # Transform DataGenerator into Tensorflow Dataset
+        dataset = self.__prepare_dataset__(prediction_generator, batch_size,
+                                           repeat=False)
         # Run inference process with the Keras predict function
-        preds = self.model.predict(prediction_generator, workers=self.workers,
+        preds = self.model.predict(dataset, workers=self.workers,
                                    max_queue_size=self.batch_queue_size,
                                    use_multiprocessing=self.multiprocessing,
                                    verbose=self.verbose)
         # Output predictions results
         return preds
+
+    #---------------------------------------------#
+    #       Tensorflow Dataset Subroutines        #
+    #---------------------------------------------#
+    """ Internal function for transforming an AUCMEDI DataGenerator into a performant
+        TensorFlow dataset which can be passed to the Keras fit() and predict() functions. """
+    def __prepare_dataset__(self, datagen, batch_size, repeat=False):
+        # Define image TensorSpec
+        ts_img = tf.TensorSpec(shape=(self.input_shape), dtype=tf.float32)
+        # Define input stack TensorSpec (image + metadata)
+        if datagen.metadata is not None:
+            ts_meta = tf.TensorSpec(shape=(self.meta_variables), 
+                                    dtype=tf.float32)
+            input_stack = (ts_img, ts_meta)
+        else : input_stack = ts_img
+        signature = (input_stack, )
+        # Define classification TensorSpec
+        if datagen.labels is not None:
+            ts_label = tf.TensorSpec(shape=(self.n_labels), 
+                                     dtype=tf.int16)
+            signature += (ts_label,)
+        # Define sample weight TensorSpec
+        if datagen.sample_weights is not None:
+            ts_weight = tf.TensorSpec(shape=(), 
+                                      dtype=tf.float32)
+            signature += (ts_weight,)
+        # Transformation in Tensorflow Dataset
+        ds = Dataset.from_generator(datagen, output_signature=signature)
+        # Apply batching
+        ds = ds.batch(batch_size)
+        # Apply repetition if needed
+        if repeat : ds = ds.repeat()
+        # Return dataset
+        return ds
 
     #---------------------------------------------#
     #               Model Management              #

@@ -193,6 +193,7 @@ class DataGenerator():
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
             workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
+                                                Is utilized *only* for `prepare_images`.
             prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk before training.
                                                 Recommended for large images or volumes to reduce CPU computing time.
             loader (io_loader function):        Function for loading samples/images from disk.

@@ -140,7 +140,7 @@ class NeuralNetwork:
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
                  fcl_dropout=True, meta_variables=None, learning_rate=0.0001,
-                 batch_queue_size=3, verbose=1):
+                 workers=1, batch_queue_size=None, verbose=1):
         """ Initialization function for creating a Neural Network (model) object.
 
         Args:
@@ -169,7 +169,9 @@ class NeuralNetwork:
                                                     If `None`is provided, no metadata integration block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
+            workers (int):                          Number of workers which preprocess batches during runtime.
             batch_queue_size (int):                 The batch queue size is the number of previously prepared batches in the cache during runtime.
+                                                    By default, `None` for which automatic tuning is utilized (`tf.data.AUTOTUNE`).
             verbose (int):                          Option (0/1) how much information should be written to stdout.
 
         ???+ danger
@@ -190,12 +192,16 @@ class NeuralNetwork:
         self.loss = loss
         self.metrics = metrics
         self.learning_rate = learning_rate
-        self.batch_queue_size = batch_queue_size
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
         self.meta_variables = meta_variables
         self.verbose = verbose
+        # Data performance options
+        if batch_queue_size is not None:
+            self.batch_queue_size = batch_queue_size
+        else : self.batch_queue_size = tf.data.AUTOTUNE
+        self.workers = workers
 
         # Assemble architecture parameters
         arch_paras = {"channels":channels,
@@ -403,6 +409,11 @@ class NeuralNetwork:
         if repeat : ds = ds.repeat()
         # Apply prefetch (batch_queue_size)
         ds = ds.prefetch(self.batch_queue_size)
+        # Apply multi-processing according to number of workers
+        ds = tf.data.Dataset.range(self.workers).interleave(
+                lambda _: ds,
+                num_parallel_calls=tf.data.AUTOTUNE
+              )
         # Return dataset
         return ds
 

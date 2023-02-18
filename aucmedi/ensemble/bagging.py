@@ -101,7 +101,7 @@ class Bagging:
         """ Initialization function for creating a Bagging object.
 
         Args:
-            model (NeuralNetwork):         Instance of an AUCMEDI neural network class.
+            model (NeuralNetwork):          Instance of an AUCMEDI neural network class.
             k_fold (int):                   Number of folds (k) for the Cross-Validation. Must be at least 2.
         """
         # Cache class variables
@@ -186,6 +186,7 @@ class Bagging:
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
                 "batch_queue_size": self.model_template.batch_queue_size,
+                "workers": self.model_template.workers,
             }
 
             # Gather DataGenerator parameters
@@ -320,6 +321,7 @@ class Bagging:
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
                 "batch_queue_size": self.model_template.batch_queue_size,
+                "workers": self.model_template.workers,
             }
 
             # Start inference process for fold i

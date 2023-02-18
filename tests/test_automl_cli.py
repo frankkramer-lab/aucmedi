@@ -120,6 +120,7 @@ class AutoML_CLI(unittest.TestCase):
                       "shape_3D",
                       "epochs",
                       "batch_size",
+                      "workers",
                       "metalearner",
                       "architecture",
                      ]

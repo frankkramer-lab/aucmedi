@@ -382,15 +382,50 @@ class NeuralNetwork:
     """ Internal function for transforming an AUCMEDI DataGenerator into a performant
         TensorFlow dataset which can be passed to the Keras fit() and predict() functions. """
     def __prepare_dataset__(self, datagen, batch_size, repeat=False):
+        # # Define image TensorSpec
+        # ts_img = tf.TensorSpec(shape=(self.input_shape), dtype=tf.float32)
+        # # Define input stack TensorSpec (image + metadata)
+        # if datagen.metadata is not None:
+        #     ts_meta = tf.TensorSpec(shape=(self.meta_variables), 
+        #                             dtype=tf.float32)
+        #     input_stack = (ts_img, ts_meta)
+        # else : input_stack = ts_img
+        # signature = (input_stack, )
+        # # Define classification TensorSpec
+        # if datagen.labels is not None:
+        #     ts_label = tf.TensorSpec(shape=(self.n_labels), 
+        #                              dtype=tf.int16)
+        #     signature += (ts_label,)
+        # # Define sample weight TensorSpec
+        # if datagen.sample_weights is not None:
+        #     ts_weight = tf.TensorSpec(shape=(), 
+        #                               dtype=tf.float32)
+        #     signature += (ts_weight,)
+
+        # # Transformation in Tensorflow Dataset
+        # ds = Dataset.from_generator(datagen, output_signature=signature)
+
+        # https://stackoverflow.com/questions/61370108/tf-data-parallelize-loading-step
+
+        # wrapper function
+        # https://stackoverflow.com/questions/47086599/parallelising-tf-data-dataset-from-generator
+        # https://stackoverflow.com/questions/60290340/tensorflow-py-function-nested-output-type
+        # https://github.com/tensorflow/tensorflow/issues/27679
+
+        # austesten: Shuffling notwendig (kann man vom datagen herausziehen) -> shuffle_after_iteration
+        # shuffle BEVOR batch & repeat mit buffer_size = sample size des data generators
+        
+        # https://colab.research.google.com/drive/1uHWf1UpeOKwOKO91dwyHRNylMZWpeNkQ#scrollTo=bWTeXF66QSQ0
+
+
         # Define image TensorSpec
         ts_img = tf.TensorSpec(shape=(self.input_shape), dtype=tf.float32)
         # Define input stack TensorSpec (image + metadata)
         if datagen.metadata is not None:
             ts_meta = tf.TensorSpec(shape=(self.meta_variables), 
                                     dtype=tf.float32)
-            input_stack = (ts_img, ts_meta)
-        else : input_stack = ts_img
-        signature = (input_stack, )
+            signature = (ts_img, ts_meta)
+        else : signature = (ts_img,)
         # Define classification TensorSpec
         if datagen.labels is not None:
             ts_label = tf.TensorSpec(shape=(self.n_labels), 
@@ -401,19 +436,44 @@ class NeuralNetwork:
             ts_weight = tf.TensorSpec(shape=(), 
                                       dtype=tf.float32)
             signature += (ts_weight,)
-        # Transformation in Tensorflow Dataset
-        ds = Dataset.from_generator(datagen, output_signature=signature)
+
+        # The python function.
+        def unwrapper(idx):
+            sample = datagen.__getitem__(idx.numpy())
+            if datagen.metadata is not None:
+                unnested = (sample[0][0], sample[0][1])
+                unnested += sample[1:]
+            else : unnested = sample
+            return unnested
+
+        # Wrap the python function to make it compatible with `tf.data.Dataset.map`.
+        def wrapper(idx):
+            sample_unnested = tf.py_function(func=unwrapper, 
+                                             inp=[idx], Tout=signature)
+            if datagen.metadata is not None:
+                sample = ((sample_unnested[0], sample_unnested[1]),)
+                sample += tuple(sample_unnested)[2:]
+            else : sample = tuple(sample_unnested)
+            return sample
+
+        # Create dataset based on the index array of the DataGenerator
+        ds = tf.data.Dataset.from_tensor_slices(datagen.index_array)
+        ds = ds.map(lambda i: wrapper(i), 
+                    num_parallel_calls=self.workers)
+
+
+        # # Apply multi-processing according to number of workers
+        # ds = tf.data.Dataset.range(self.workers).interleave(
+        #         lambda _: ds,
+        #         num_parallel_calls=tf.data.AUTOTUNE
+        #       )
+
         # Apply batching
         ds = ds.batch(batch_size)
         # Apply repetition if needed
         if repeat : ds = ds.repeat()
         # Apply prefetch (batch_queue_size)
         ds = ds.prefetch(self.batch_queue_size)
-        # Apply multi-processing according to number of workers
-        ds = tf.data.Dataset.range(self.workers).interleave(
-                lambda _: ds,
-                num_parallel_calls=tf.data.AUTOTUNE
-              )
         # Return dataset
         return ds
 

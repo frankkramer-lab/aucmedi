@@ -382,7 +382,6 @@ class DataGenerator(Sequence):
             self.batch_size * idx : self.batch_size * (idx + 1)
         ]
         # Generate batch
-        print(self.index_array, raw_idx, idx, index_array)
         return self._get_batches_of_transformed_samples(index_array)
 
     #-----------------------------------------------------#

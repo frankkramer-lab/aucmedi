@@ -68,7 +68,7 @@ class xaiTEST(unittest.TestCase):
         # Compute predictions
         self.preds = self.model.predict(self.datagen)
         # Initialize testing image
-        self.image = next(self.datagen)[0][[0]]
+        self.image = self.datagen[0][0][[0]]
 
     #-------------------------------------------------#
     #             XAI Functions: Decoder              #

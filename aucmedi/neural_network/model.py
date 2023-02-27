@@ -288,6 +288,8 @@ class NeuralNetwork:
         Returns:
             history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
+        # Adjust number of iterations in training DataGenerator to allow repitition
+        if iterations is not None : training_generator.set_length(iterations)
         # Running a standard training process
         if not transfer_learning:
             # Run training process with the Keras fit function
@@ -301,8 +303,7 @@ class NeuralNetwork:
                                      max_queue_size=self.batch_queue_size,
                                      verbose=self.verbose)
             # Return logged history object
-            return history.history
-
+            history_out = history.history
         # Running a transfer learning training process
         else:
             # Freeze all base model layers (all layers after "avg_pool")
@@ -330,9 +331,6 @@ class NeuralNetwork:
             # Compile model with lower learning rate
             self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_end),
                                loss=self.loss, metrics=self.metrics)
-            # Reset data generators
-            training_generator.reset()
-            if validation_generator is not None : validation_generator.reset()
             # Run second training with unfrozed layers
             history_end = self.model.fit(training_generator,
                                          validation_data=validation_generator,
@@ -349,7 +347,11 @@ class NeuralNetwork:
             he = {"ft_" + k: v for k, v in history_end.history.items()}         # prefix : ft for fine tuning
             history = {**hs, **he}
             # Return combined history objects
-            return history
+            history_out = history
+        # Reset number of iterations of the training DataGenerator
+        if iterations is not None : training_generator.reset_length()
+        # Return fitting history
+        return history_out
 
     #---------------------------------------------#
     #                 Prediction                  #

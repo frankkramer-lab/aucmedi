@@ -10,5 +10,9 @@ dist/
 release.sh
 
 # Testing
+.pytest_cache
 debug.sh
 debug.py
+
+# Visual Studio Code
+.vscode

@@ -237,10 +237,8 @@ class IOloaderTEST(unittest.TestCase):
             image_sitk.SetSpacing([0.5,1.5,2.0])
             sitk.WriteImage(image_sitk, path_sample)
             # Load image via loader
-            img = sitk_loader(index, tmp_data.name, image_format=None, 
-                              resampling=None)
-            # self.assertTrue(np.array_equal(img.shape, (32, 24, 8, 3)))
-            self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 3)))
+            img = sitk_loader(index, tmp_data.name, image_format=None)
+            self.assertTrue(np.array_equal(img.shape, (32, 24, 8, 3)))
 
     # Test for hu 3D images
     def test_sitk_loader_3Dhu(self):

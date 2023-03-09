@@ -57,25 +57,41 @@ class Standardize(Subfunction_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, mode="z-score", smooth=0.000001):
+    def __init__(self, mode="z-score", per_channel=False, smooth=0.000001):
         """ Initialization function for creating a Standardize Subfunction which can be passed to a
             [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
         Args:
-            mode (str):         Selected mode which standardization/normalization technique should be applied.
-            smooth (float):     Smoothing factor to avoid zero devisions (epsilon).
+            mode (str):             Selected mode which standardization/normalization technique should be applied.
+            per_channel (bool):     Option to apply standardization per channel instead of across complete image.
+            smooth (float):         Smoothing factor to avoid zero devisions (epsilon).
         """
         # Verify mode existence
         if mode not in ["z-score", "minmax", "grayscale", "tf", "caffe", "torch"]:
             raise ValueError("Subfunction - Standardize: Unknown modus", mode)
         # Cache class variables
         self.mode = mode
+        self.per_channel = per_channel
         self.e = smooth
 
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#
     def transform(self, image):
+        # Apply normalization per channel
+        if self.per_channel:
+            image_norm = image.copy()
+            for c in range(0, image.shape[-1]):
+                image_norm[..., c] = self.normalize(image[..., c])
+        # Apply normalization across complete image
+        else : image_norm = self.normalize(image)
+        # Return standardized image
+        return image_norm
+
+    #---------------------------------------------#
+    #      Internal Function: Normalization       #
+    #---------------------------------------------#
+    def normalize(self, image):
         # Perform z-score normalization
         if self.mode == "z-score":
             # Compute mean and standard deviation
@@ -108,5 +124,5 @@ class Standardize(Subfunction_Base):
                     "['tf', 'caffe', 'torch']")
             # Perform architecture standardization
             image_norm = imagenet_utils.preprocess_input(image, mode=self.mode)
-        # Return standardized image
+        # Return normalized image
         return image_norm

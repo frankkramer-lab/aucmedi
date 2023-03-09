@@ -151,6 +151,30 @@ class SubfunctionsTEST(unittest.TestCase):
                     self.assertTrue(np.amin(img_pp) <= 0)
                     self.assertTrue(np.amax(img_pp) >= 0)
             # self.assertRaises(ValueError, sf.transform, self.img3Dhu.copy())
+        # Per channel normalization
+        for mode in ["z-score", "minmax", "grayscale", "tf"]:
+            sf = Standardize(mode=mode, per_channel=True)
+            for data in [self.img2Drgb, self.img3Drgb]:
+                img_pp = sf.transform(data.copy())
+                for c in range(0, img_pp.shape[-1]):
+                    if mode == "z-score":
+                        self.assertTrue(np.amin(img_pp[..., c]) <= 0)
+                        self.assertTrue(np.amax(img_pp[..., c]) >= 0)
+                        if c != 0:
+                            self.assertFalse(np.amax(img_pp[..., 0]) == \
+                                             np.amax(img_pp[..., c]))
+                    elif mode == "minmax":
+                        self.assertTrue(np.amin(img_pp[..., c]) >= 0)
+                        self.assertTrue(np.amax(img_pp[..., c]) <= 1)
+                    elif mode == "grayscale":
+                        self.assertTrue(np.amin(img_pp[..., c]) >= 0)
+                        self.assertTrue(np.amax(img_pp[..., c]) <= 255)
+                    elif mode == "tf":
+                        self.assertTrue(np.amin(img_pp[..., c]) >= -1)
+                        self.assertTrue(np.amax(img_pp[..., c]) <= 1)
+                        if c != 0:
+                            self.assertFalse(np.amax(img_pp[..., 0]) == \
+                                             np.amax(img_pp[..., c]))
 
     #-------------------------------------------------#
     #              Subfunction: Cropping              #
@@ -203,6 +227,7 @@ class SubfunctionsTEST(unittest.TestCase):
         sf = Clip()
 
     def test_CLIP_transform(self):
+        # global clipping
         sf = Clip(min=10)
         img_clipped = sf.transform(self.img3Dhu.copy())
         self.assertTrue(np.amin(img_clipped) >= 10)
@@ -213,6 +238,33 @@ class SubfunctionsTEST(unittest.TestCase):
         img_clipped = sf.transform(self.img3Dhu.copy())
         self.assertTrue(np.amin(img_clipped) >= 10)
         self.assertTrue(np.amax(img_clipped) <= 50)
+        # per channel clipping
+        sf = Clip(min=10, max=50, per_channel=True)
+        img_clipped = sf.transform(self.img3Dgray.copy())
+        self.assertTrue(np.amin(img_clipped[:,:,:,0]) >= 10)
+        self.assertTrue(np.amax(img_clipped[:,:,:,0]) <= 50)
+        sf = Clip(min=10, max=50, per_channel=True)
+        img_clipped = sf.transform(self.img3Drgb.copy())
+        for c in range(0,self.img3Drgb.shape[-1]):
+            self.assertTrue(np.amin(img_clipped[:,:,:,c]) >= 10)
+            self.assertTrue(np.amax(img_clipped[:,:,:,c]) <= 50)
+        min_list = [10,20,60]
+        max_list = [20,40,80]
+        sf = Clip(min=min_list, max=max_list, per_channel=True)
+        img_clipped = sf.transform(self.img2Drgb.copy())
+        for c in range(0,self.img2Drgb.shape[-1]):
+            self.assertTrue(np.amin(img_clipped[:,:,c]) >= min_list[c])
+            self.assertTrue(np.amax(img_clipped[:,:,c]) <= max_list[c])
+        sf = Clip(min=20, max=max_list, per_channel=True)
+        img_clipped = sf.transform(self.img3Drgb.copy())
+        for c in range(0,self.img3Drgb.shape[-1]):
+            self.assertTrue(np.amin(img_clipped[:,:,:,c]) >= 20)
+            self.assertTrue(np.amax(img_clipped[:,:,:,c]) <= max_list[c])
+        sf = Clip(min=min_list, max=max_list, per_channel=True)
+        img_clipped = sf.transform(self.img3Drgb.copy())
+        for c in range(0,self.img3Drgb.shape[-1]):
+            self.assertTrue(np.amin(img_clipped[:,:,:,c]) >= min_list[c])
+            self.assertTrue(np.amax(img_clipped[:,:,:,c]) <= max_list[c])
 
     #-------------------------------------------------#
     #               Subfunction: Chromer              #

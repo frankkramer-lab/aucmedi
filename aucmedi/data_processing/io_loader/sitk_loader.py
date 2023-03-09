@@ -99,8 +99,7 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
                                              sample_itk.GetOrigin(),
                                              new_spacing,
                                              sample_itk.GetDirection(),
-                                             outside_value,
-                                             sitk.sitkFloat32)
+                                             outside_value)
     # Skip resampling if None
     else : sample_itk_resampled = sample_itk
     # Convert to NumPy

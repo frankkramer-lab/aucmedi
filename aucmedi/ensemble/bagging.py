@@ -159,6 +159,8 @@ class Bagging:
                 data = (train_x, train_y, None, test_x, test_y, None)
             else : data = fold
 
+            # Create model specific callback list
+            callbacks_model = callbacks.copy()
             # Extend Callback list
             cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
                                                  "cv_" + str(i) + \
@@ -169,7 +171,7 @@ class Bagging:
                                                  "cv_" + str(i) + \
                                                  ".logs.csv"),
                               separator=',', append=True)
-            callbacks.extend([cb_mc, cb_cl])
+            callbacks_model.extend([cb_mc, cb_cl])
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -210,7 +212,7 @@ class Bagging:
             # Gather training parameters
             parameters_training = {"epochs": epochs,
                                    "iterations": iterations,
-                                   "callbacks": callbacks,
+                                   "callbacks": callbacks_model,
                                    "class_weights": class_weights,
                                    "transfer_learning": transfer_learning
             }
@@ -298,12 +300,14 @@ class Bagging:
                          "kwargs": temp_dg.kwargs
         }
 
+        # Identify path to model directory
+        if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
+            path_model_dir = self.cache_dir.name
+        else : path_model_dir = self.cache_dir
+
         # Sequentially iterate over all fold models
         for i in range(self.k_fold):
             # Identify path to fitted model
-            if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
-                path_model_dir = self.cache_dir.name
-            else : path_model_dir = self.cache_dir
             path_model = os.path.join(path_model_dir,
                                       "cv_" + str(i) + ".model.hdf5")
 

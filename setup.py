@@ -36,7 +36,7 @@ setup(
                       'scikit-image>=0.19.1',
                       'lime>=0.2.0.1',
                       'pooch>=1.6.0',
-                      'classification-models-3D>=1.0.6',
+                      'classification-models-3D>=1.0.7',
                       'vit-keras>=0.1.0',
                       'SimpleITK>=2.2.0',
                       'batchgenerators>=0.24',

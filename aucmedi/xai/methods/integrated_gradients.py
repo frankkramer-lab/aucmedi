@@ -59,6 +59,7 @@ class IntegratedGradients(XAImethod_Base):
         # Cache class parameters
         self.model = model
         self.num_steps = num_steps
+        #create baseline entry in constructor
 
     #---------------------------------------------#
     #             Heatmap Computation             #
@@ -70,54 +71,64 @@ class IntegratedGradients(XAImethod_Base):
             Be aware that the image has to be provided in batch format.
 
         Args:
-            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as batch).
             class_index (int):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap potentially loses the channel axis.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Integrated Gradients Map for provided image.
         """
+        class_index = tf.convert_to_tensor(class_index, dtype=tf.int32)
+        
+        batch_size = len(image)
+        
         # Perform interpolation
-        baseline = np.zeros(image.shape).astype(np.float32)
-        interpolated_imgs = []
-        for step in range(0, self.num_steps + 1):
-            cii = baseline + (step / self.num_steps) * (image - baseline)
-            interpolated_imgs.append(cii)
-        interpolated_imgs = np.array(interpolated_imgs).astype(np.float32)
+        hm = []
+        baseline = np.zeros(image[0].shape).astype(np.float32) #TODO should not always be Zero. should be defined in constructor
+        interpolated_imgs = np.zeros((self.num_steps + 1,) + img.shape) #memory is allocated once here and then reused
+        for img in image:
+            interpolated_imgs = np.einsum("B...,B->B...",
+                                        np.repeat(img[None, ...], self.num_steps + 1, axis = 0), 
+                                        np.arange(self.num_steps + 1) / self.num_steps)
+            interpolated_imgs += np.einsum("B...,B->B...",
+                                        np.repeat(baseline[None, ...], self.num_steps + 1, axis = 0), 
+                                        1 - (np.arange(self.num_steps + 1) / self.num_steps))
 
-        # Get the gradients for each interpolated image
-        grads = []
-        for int_img in interpolated_imgs:
-            # Compute gradient
-            with tf.GradientTape() as tape:
-                inputs = tf.cast(int_img, tf.float32)
-                tape.watch(inputs)
-                preds = self.model(inputs)
-                loss = preds[:, class_index]
-            gradient = tape.gradient(loss, inputs)
-            # Add to gradient list
-            grads.append(gradient[0])
-        grads = tf.convert_to_tensor(grads, dtype=tf.float32)
+            # Get the gradients for each interpolated image
+            grads = []
+            for int_img in range(0, len(interpolated_imgs), batch_size): #batch gets evaluated n times
+                int_imgs = tf.cast(interpolated_imgs[int_img:int_img + batch_size], tf.float32)
+                # Compute gradient
+                with tf.GradientTape(watch_accessed_variables=False) as tape:
+                    tape.watch(int_imgs)
+                    preds = self.model(int_imgs)
+                    loss = tf.gather(preds, class_index, axis = 1)
+                gradient = tape.gradient(loss, int_imgs)
+                # Add to gradient list
+                grads.append(gradient)
+            grads = tf.concat(grads, axis = 0)#merge batches into a single set
 
-        # Approximate the integral using the trapezoidal rule
-        grads = (grads[:-1] + grads[1:]) / 2.0
-        avg_grads = tf.reduce_mean(grads, axis=0)
-        # Calculate integrated gradients
-        integrated_grads = (image - baseline) * avg_grads
-        # Obtain maximum gradient
-        integrated_grads = tf.reduce_max(integrated_grads, axis=-1)
+            # Approximate the integral using the trapezoidal rule
+            grads = (grads[:-1] + grads[1:]) / 2.0
+            avg_grads = tf.reduce_mean(grads, axis=0)
+            # Calculate integrated gradients
+            integrated_grads = (image - baseline) * avg_grads
+            # Obtain maximum gradient
+            integrated_grads = tf.reduce_max(integrated_grads, axis=-1)
 
-        # Convert to NumPy & Remove batch axis
-        heatmap = integrated_grads.numpy()[0,:,:]
-        # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
-        heatmap = numer / denom
+            # Convert to NumPy & Remove batch axis
+            heatmap = integrated_grads.numpy()
+            # Intensity normalization to [0,1]
+            min_val = np.amin(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+            max_val = np.amax(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+            numer = heatmap - min_val
+            denom = (max_val - min_val) + eps
+            hm.append(numer / denom)
 
         # Return the resulting heatmap
-        return heatmap
+        return hm

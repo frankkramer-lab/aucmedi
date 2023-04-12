@@ -90,7 +90,7 @@ class IntegratedGradients(XAImethod_Base):
         # Perform interpolation
         hm = []
         baseline = np.zeros(image[0].shape).astype(np.float32) #TODO should not always be Zero. should be defined in constructor
-        interpolated_imgs = np.zeros((self.num_steps + 1,) + img.shape) #memory is allocated once here and then reused
+        interpolated_imgs = np.zeros((self.num_steps + 1,) + baseline.shape) #memory is allocated once here and then reused
         for img in image:
             interpolated_imgs = np.einsum("B...,B->B...",
                                         np.repeat(img[None, ...], self.num_steps + 1, axis = 0), 

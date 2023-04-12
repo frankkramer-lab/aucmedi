@@ -114,7 +114,7 @@ class GradCAM(XAImethod_Base):
             loss = tf.gather(preds, class_index, axis = 1)
         grads = tape.gradient(loss, conv_out)
         
-        pooled_grads = tf.reduce_mean(grads, axis=tf.range(1, tf.rank(tensorsList) - 1))
+        pooled_grads = tf.reduce_mean(grads, axis=tf.range(1, tf.rank(grads) - 1))
         # Normalize gradients via "importance"
         heatmap = m.reduce_sum(m.multiply(conv_out, pooled_grads), axis = -1).numpy()
 

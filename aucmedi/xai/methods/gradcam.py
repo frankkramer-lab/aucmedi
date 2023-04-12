@@ -97,14 +97,11 @@ class GradCAM(XAImethod_Base):
             Be aware that the image has to be provided in batch format.
 
         Args:
-            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as batch).
             class_index (int or list):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
-
-        ???+ attention
-            The shape of the returned heatmap is 2D or 3D -> batch and channel axis will be removed.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM for provided image.

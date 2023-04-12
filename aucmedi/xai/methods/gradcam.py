@@ -22,6 +22,7 @@
 # External Libraries
 import numpy as np
 import tensorflow as tf
+import tensorflow.math as m
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
 
@@ -64,6 +65,10 @@ class GradCAM(XAImethod_Base):
         self.layerName = layerName
         # Try to find output layer if not defined
         if self.layerName is None : self.layerName = self.find_output_layer()
+        # Gradient model construction
+        self.gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
+                         outputs=[self.model.get_layer(self.layerName).output,
+                                  self.model.output])
 
     #---------------------------------------------#
     #            Identify Output Layer            #
@@ -80,7 +85,7 @@ class GradCAM(XAImethod_Base):
             if len(layer.output_shape) >= 4:
                 return layer.name
         # Otherwise, throw exception
-        raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM.")
+        raise ValueError("Could not find 4D or 5D layer. Cannot apply Grad-CAM.")
 
     #---------------------------------------------#
     #             Heatmap Computation             #
@@ -93,7 +98,7 @@ class GradCAM(XAImethod_Base):
 
         Args:
             image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
-            class_index (int):                  Classification index for which the heatmap should be computed.
+            class_index (int or list):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
@@ -104,28 +109,23 @@ class GradCAM(XAImethod_Base):
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM for provided image.
         """
-        # Gradient model construction
-        gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
-                         outputs=[self.model.get_layer(self.layerName).output,
-                                  self.model.output])
-        # Compute gradient for desierd class index
+        # Compute gradient for desired class index
+        class_index = tf.convert_to_tensor(class_index, dtype=tf.int32)
         with tf.GradientTape() as tape:
             inputs = tf.cast(image, tf.float32)
-            (conv_out, preds) = gradModel(inputs)
-            loss = preds[:, class_index]
+            (conv_out, preds) = self.gradModel(inputs)
+            loss = tf.gather(preds, class_index, axis = 1)
         grads = tape.gradient(loss, conv_out)
-        # Identify pooling axis
-        if len(image.shape) == 4 : pooling_axis = (0, 1, 2)
-        else : pooling_axis = (0, 1, 2, 3)
-        # Averaged output gradient based on feature map of last conv layer
-        pooled_grads = tf.reduce_mean(grads, axis=pooling_axis)
+        
+        pooled_grads = tf.reduce_mean(grads, axis=tf.range(1, tf.rank(tensorsList) - 1))
         # Normalize gradients via "importance"
-        heatmap = conv_out[0] @ pooled_grads[..., tf.newaxis]
-        heatmap = tf.squeeze(heatmap).numpy()
+        heatmap = m.reduce_sum(m.multiply(conv_out, pooled_grads), axis = -1).numpy()
 
         # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
+        min_val = np.amin(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+        max_val = np.amax(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+        numer = heatmap - min_val
+        denom = (max_val - min_val) + eps
         heatmap = numer / denom
 
         # Return the resulting heatmap

@@ -124,8 +124,8 @@ class IntegratedGradients(XAImethod_Base):
             # Convert to NumPy & Remove batch axis
             heatmap = integrated_grads.numpy()
             # Intensity normalization to [0,1]
-        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
-        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+            min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+            max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
             numer = heatmap - min_val
             denom = (max_val - min_val) + eps
             hm.append(numer / denom)

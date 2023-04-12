@@ -96,33 +96,36 @@ class GuidedBackpropagation(XAImethod_Base):
             Be aware that the image has to be provided in batch format.
 
         Args:
-            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as batch).
             class_index (int):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap will lose its channel axis.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Guided Backpropagation for provided image.
         """
         # Compute gradient for desierd class index
+        class_index = tf.convert_to_tensor(class_index, dtype=tf.int32)
         with tf.GradientTape() as tape:
-            inputs = tf.cast(image, tf.float32)
+            inputs = tf.convert_to_tensor(image, dtype=tf.float32)
             tape.watch(inputs)
             preds = self.model(inputs)
-            loss = preds[:, class_index]
+            loss = tf.gather(preds, class_index, axis = 1)
         gradient = tape.gradient(loss, inputs)
         # Obtain maximum gradient based on feature map of last conv layer
         gradient = tf.reduce_max(gradient, axis=-1)
         # Convert to NumPy & Remove batch axis
-        heatmap = gradient.numpy()[0,:,:]
+        heatmap = gradient.numpy()
 
         # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
+        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        numer = heatmap - min_val
+        denom = (max_val - min_val) + eps
         heatmap = numer / denom
 
         # Return the resulting heatmap

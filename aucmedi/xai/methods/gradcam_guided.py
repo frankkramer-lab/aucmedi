@@ -92,12 +92,14 @@ class GuidedGradCAM(XAImethod_Base):
         hm_bp = self.bp.compute_heatmap(image, class_index, eps)
         # Compute Grad-CAM
         hm_gc = self.gc.compute_heatmap(image, class_index, eps)
-        hm_gc = Resize(shape=image.shape[1:-1]).transform(hm_gc)
+        
         # Combine both XAI methods
-        heatmap = hm_bp * hm_gc
+        heatmap = np.asarray([hm_bp[i] * Resize(shape=image.shape[1:-1]).transform(h) for i, h in enumerate(hm_gc)]) #this is necessary due to resize batching
         # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
+        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        numer = heatmap - min_val
+        denom = (max_val - min_val) + eps
         heatmap = numer / denom
         # Return the resulting heatmap
         return heatmap

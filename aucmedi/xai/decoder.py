@@ -91,6 +91,8 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
     batch_size = data_gen.batch_size
     n_classes = model.n_labels
     sample_list = data_gen.samples
+    
+    batch_size = min(batch_size, len(sample_list))
     # Prepare XAI output methods
     res_img = []
     res_xai = []
@@ -101,45 +103,48 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
     else : xai_method = method
 
     # Iterate over all samples
-    for i in range(0, len(sample_list)):
+    for h in range(0, len(sample_list), batch_size):
+        k = min(batch_size, len(sample_list) - h)
         # Load overlay image
         if preprocess_overlay:
-            img_org = data_gen.preprocess_image(i, 
+            img_org = [data_gen.preprocess_image(h + i, 
                                                 run_resize=False, 
                                                 run_aug=False, 
-                                                run_standardize=False)
-            shape_org = img_org.shape[0:-1]
+                                                run_standardize=False) for i in range(k)]
+            shape_org = img_org[0].shape[0:-1]
         # Load original image
         else:
-            img_org = data_gen.sample_loader(sample_list[i], 
+            img_org = [data_gen.sample_loader(sample_list[h + i], 
                                     data_gen.path_imagedir,
                                     image_format=data_gen.image_format,
                                     grayscale=data_gen.grayscale,
-                                    **data_gen.kwargs)
-            shape_org = img_org.shape[0:-1]
+                                    **data_gen.kwargs) for i in range(k)]
+            shape_org = img_org[0].shape[0:-1]
 
         # Load processed image
-        img_prc = data_gen.preprocess_image(i, run_aug=False)
-        img_batch = np.expand_dims(img_prc, axis=0)
+        img_batch = [data_gen.preprocess_image(h + i) for i in range(k)]
         # If preds given, compute heatmap only for argmax class
         if preds is not None:
-            ci = np.argmax(preds[i])
+            ci = np.argmax(np.array(preds[h:h + k]), axis = 1)
             xai_map = xai_method.compute_heatmap(img_batch, class_index=ci)
             xai_map = Resize(shape=shape_org).transform(xai_map)
-            postprocess_output(sample_list[i], img_org, xai_map, 
-                               n_classes, data_gen, res_img, res_xai, 
-                               overlay, out_path, alpha)
+            for j, res_map in enumerate(xai_map): #required due to resize
+                res_map = Resize(shape=shape_org).transform(res_map)
+                postprocess_output(sample_list[h + j], img_org[j], xai_map, 
+                                   n_classes, data_gen, res_img, res_xai, 
+                                   overlay, out_path, alpha)
         # If no preds given, compute heatmap for all classes
         else:
             sample_maps = []
             for ci in range(0, n_classes):
                 xai_map = xai_method.compute_heatmap(img_batch, class_index=ci)
-                xai_map = Resize(shape=shape_org).transform(xai_map)
-                sample_maps.append(xai_map)
-            sample_maps = np.array(sample_maps)
-            postprocess_output(sample_list[i], img_org, sample_maps, 
-                               n_classes, data_gen, res_img, res_xai, 
-                               overlay, out_path, alpha)
+                for j in range(len(xai_map)):
+                    sample_maps.append(Resize(shape=shape_org).transform(xai_map[j]))
+            for i in range(0, k):
+                _sample_maps = np.array(sample_maps[i::batch_size])
+                postprocess_output(sample_list[h + i], img_org[i], _sample_maps, 
+                                   n_classes, data_gen, res_img, res_xai, 
+                                   overlay, out_path, alpha)
     # Return output directly if no output path is defined (and convert to NumPy)
     if out_path is None : return np.array(res_img), np.array(res_xai)
 

@@ -126,7 +126,7 @@ class GradCAMpp(XAImethod_Base):
 
         # Deep Linearization weighting
         weights = np.maximum(conv_first_grad, 0.0)
-        deep_linearization_weights = np.sum(weights*alphas, keepdims = True, axis=tuple(range(1, len(heatmap.shape) - 1)))
+        deep_linearization_weights = np.sum(weights*alphas, keepdims = True, axis=tuple(range(1, len(weights.shape) - 1)))
         heatmap = np.sum((deep_linearization_weights*conv_output), axis=-1)
 
         # Intensity normalization to [0,1]

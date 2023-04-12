@@ -92,7 +92,8 @@ class IntegratedGradients(XAImethod_Base):
         baseline = np.zeros(image[0].shape).astype(np.float32) #TODO should not always be Zero. should be defined in constructor
         interpolated_imgs = np.zeros((self.num_steps + 1,) + baseline.shape) #memory is allocated once here and then reused
         for img in image:
-            interpolated_imgs = np.einsum("B...,B->B...",
+            #the following two operations can also be considered a matrix multiplication if the data is arranhged differently. However the rearranging may be more expensive than this
+            interpolated_imgs = np.einsum("B...,B->B...", 
                                         np.repeat(img[None, ...], self.num_steps + 1, axis = 0), 
                                         np.arange(self.num_steps + 1) / self.num_steps)
             interpolated_imgs += np.einsum("B...,B->B...",
@@ -131,4 +132,4 @@ class IntegratedGradients(XAImethod_Base):
             hm.append(numer / denom)
 
         # Return the resulting heatmap
-        return hm
+        return np.asarray(hm)

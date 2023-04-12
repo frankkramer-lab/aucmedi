@@ -114,24 +114,24 @@ class GradCAMpp(XAImethod_Base):
                     conv_first_grad = gtape3.gradient(output, conv_output)
                 conv_second_grad = gtape2.gradient(conv_first_grad, conv_output)
             conv_third_grad = gtape1.gradient(conv_second_grad, conv_output)
-        global_sum = tf.reduce_sum(grads, axis=tf.range(1, tf.rank(tensorsList) - 1))
+        global_sum = tf.reduce_sum(conv_output, keepdims=True, axis=tf.range(1, tf.rank(conv_output) - 1))
 
         # Normalize constants
         alpha_num = conv_second_grad
         alpha_denom = conv_second_grad*2.0 + conv_third_grad*global_sum
-        alpha_denom = np.where(alpha_denom != 0.0, alpha_denom, eps)
+        alpha_denom = np.where(alpha_denom != 0.0, alpha_denom, eps) #clamp around 0
         alphas = alpha_num / alpha_denom
-        alpha_normalization_constant = np.sum(alphas, axis=np.arange(1, len(heatmap.shape) - 1))
+        alpha_normalization_constant = np.sum(alphas, keepdims = True, axis=tuple(range(1, len(alphas.shape) - 1)))
         alphas /= alpha_normalization_constant
 
         # Deep Linearization weighting
         weights = np.maximum(conv_first_grad, 0.0)
-        deep_linearization_weights = np.sum(weights*alphas, axis=np.arange(1, len(heatmap.shape) - 1))
-        heatmap = np.sum(deep_linearization_weights*conv_output, axis=-1)
+        deep_linearization_weights = np.sum(weights*alphas, keepdims = True, axis=tuple(range(1, len(heatmap.shape) - 1)))
+        heatmap = np.sum((deep_linearization_weights*conv_output), axis=-1)
 
         # Intensity normalization to [0,1]
-        min_val = np.amin(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
-        max_val = np.amax(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
         numer = heatmap - min_val
         denom = (max_val - min_val) + eps
         heatmap = numer / denom

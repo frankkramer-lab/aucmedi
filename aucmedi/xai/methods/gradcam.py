@@ -119,8 +119,8 @@ class GradCAM(XAImethod_Base):
         heatmap = m.reduce_sum(m.multiply(conv_out, pooled_grads), axis = -1).numpy()
 
         # Intensity normalization to [0,1]
-        min_val = np.amin(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
-        max_val = np.amax(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
         numer = heatmap - min_val
         denom = (max_val - min_val) + eps
         heatmap = numer / denom

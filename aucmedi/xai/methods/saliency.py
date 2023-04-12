@@ -87,20 +87,23 @@ class SaliencyMap(XAImethod_Base):
             heatmap (numpy.ndarray):            Computed Saliency Map for provided image.
         """
         # Compute gradient for desierd class index
+        class_index = tf.convert_to_tensor(class_index, dtype=tf.int32)
         with tf.GradientTape() as tape:
             inputs = tf.cast(image, tf.float32)
             tape.watch(inputs)
             preds = self.model(inputs)
-            loss = preds[:, class_index]
+            loss = tf.gather(preds, class_index, axis = 1)
         gradient = tape.gradient(loss, inputs)
         # Obtain maximum gradient based on feature map of last conv layer
         gradient = tf.reduce_max(gradient, axis=-1)
         # Convert to NumPy & Remove batch axis
-        heatmap = gradient.numpy()[0,:,:]
+        heatmap = gradient.numpy()
 
         # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
+        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        numer = heatmap - min_val
+        denom = (max_val - min_val) + eps
         heatmap = numer / denom
 
         # Return the resulting heatmap

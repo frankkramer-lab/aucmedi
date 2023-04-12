@@ -28,6 +28,7 @@ import os
 from tensorflow.keras.callbacks import CSVLogger
 #Internal libraries
 from aucmedi.utils.callbacks import *
+from aucmedi.utils.visualizer import *
 from aucmedi import *
 
 #-----------------------------------------------------#
@@ -41,28 +42,36 @@ class UtilityTEST(unittest.TestCase):
         # Initialize temporary directory
         self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                     suffix=".data")
-
-        # Create RGB data
-        self.sampleList_rgb = []
-        for i in range(0, 1):
-            img_rgb = np.random.rand(32, 32, 3) * 255
+        # Create Grayscale data for 2D
+        self.img_gray_2D = np.random.rand(16, 16, 1) * 255
+        # Create RGB data for 2D
+        self.sampleList_rgb_2D = []
+        for i in range(0, 5):
+            img_rgb = np.random.rand(16, 16, 3) * 255
             imgRGB_pillow = Image.fromarray(img_rgb.astype(np.uint8))
             index = "image.sample_" + str(i) + ".RGB.png"
             path_sampleRGB = os.path.join(self.tmp_data.name, index)
             imgRGB_pillow.save(path_sampleRGB)
-            self.sampleList_rgb.append(index)
-
+            self.sampleList_rgb_2D.append(index)
+        self.img_rgb_2D = np.random.rand(16, 16, 3) * 255
+        # Create Grayscale data for 3D
+        self.img_gray_3D = np.random.rand(16, 16, 16, 1) * 255
+        # Create HU data for 3D
+        self.img_hu_3D = (np.random.rand(16, 16, 16, 1) * 1000) - 500
+        # Create RGB data for 3D
+        self.img_rgb_3D = np.random.rand(16, 16, 16, 3) * 255
         # Create classification labels
-        self.labels_ohe = np.zeros((1, 4), dtype=np.uint8)
-        for i in range(0, 1):
+        self.labels_ohe = np.zeros((5, 4), dtype=np.uint8)
+        for i in range(0, 5):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
-
+        # Create xai heatmap
+        self.heatmap = np.random.rand(16, 16)
         # Create RGB Data Generator
-        self.datagen = DataGenerator(self.sampleList_rgb,
+        self.datagen = DataGenerator(self.sampleList_rgb_2D,
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
-                                     resize=(32, 32),
+                                     resize=(16, 16),
                                      grayscale=False, batch_size=1)
 
     #-------------------------------------------------#
@@ -74,7 +83,8 @@ class UtilityTEST(unittest.TestCase):
         path_csv = os.path.join(self.tmp_data.name, "testing.csv")
         csvlog = CSVLogger(path_csv)
 
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(16,16),
+                              batch_queue_size=1)
         hist_returned = model.train(training_generator=self.datagen,
                                     validation_generator=self.datagen,
                                     epochs=3, callbacks=[csvlog])
@@ -85,3 +95,166 @@ class UtilityTEST(unittest.TestCase):
         for key in hist_returned:
             self.assertTrue(key in hist_returned and key in hist_loaded)
             self.assertTrue(len(hist_returned[key]) == len(hist_loaded[key]))
+
+    #-------------------------------------------------#
+    #                Visualizer: Image                #
+    #-------------------------------------------------#
+    def test_Visualizer_Image_grayscale(self):
+        # PNG
+        path_out = os.path.join(self.tmp_data.name, "viz.image.2D.gray.png")
+        visualize_image(self.img_gray_2D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # JPG
+        path_out = os.path.join(self.tmp_data.name, "viz.image.2D.gray.jpg")
+        visualize_image(self.img_gray_2D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # TIF
+        path_out = os.path.join(self.tmp_data.name, "viz.image.2D.gray.tif")
+        visualize_image(self.img_gray_2D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+
+    def test_Visualizer_Image_rgb(self):
+        # PNG
+        path_out = os.path.join(self.tmp_data.name, "viz.image.rgb.png")
+        visualize_image(self.img_rgb_2D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # JPG
+        path_out = os.path.join(self.tmp_data.name, "viz.image.rgb.jpg")
+        visualize_image(self.img_rgb_2D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # TIF
+        path_out = os.path.join(self.tmp_data.name, "viz.image.rgb.tif")
+        visualize_image(self.img_rgb_2D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+
+    #-------------------------------------------------#
+    #                Visualizer: Volume               #
+    #-------------------------------------------------#
+    def test_Visualizer_Volume_grayscale(self):
+        # NumPy
+        path_out = os.path.join(self.tmp_data.name, "viz.volume.gray.npy")
+        visualize_volume(self.img_gray_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # MHA
+        path_out = os.path.join(self.tmp_data.name, "viz.volume.gray.mha")
+        visualize_volume(self.img_gray_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # NIfTI
+        path_out = os.path.join(self.tmp_data.name, "viz.image.gray.nii")
+        visualize_volume(self.img_gray_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # GIF
+        path_out = os.path.join(self.tmp_data.name, "viz.image.gray.gif")
+        visualize_volume(self.img_gray_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+
+    def test_Visualizer_Volume_HU(self):
+        # NumPy
+        path_out = os.path.join(self.tmp_data.name, "viz.volume.hu.npy")
+        visualize_volume(self.img_hu_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # MHA
+        path_out = os.path.join(self.tmp_data.name, "viz.volume.hu.mha")
+        visualize_volume(self.img_hu_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # NIfTI
+        path_out = os.path.join(self.tmp_data.name, "viz.image.hu.nii")
+        visualize_volume(self.img_hu_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # GIF
+        path_out = os.path.join(self.tmp_data.name, "viz.image.hu.gif")
+        visualize_volume(self.img_hu_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+
+    def test_Visualizer_Volume_rgb(self):
+        # NumPy
+        path_out = os.path.join(self.tmp_data.name, "viz.volume.rgb.npy")
+        visualize_volume(self.img_rgb_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # MHA
+        path_out = os.path.join(self.tmp_data.name, "viz.volume.rgb.mha")
+        visualize_volume(self.img_rgb_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # NIfTI
+        path_out = os.path.join(self.tmp_data.name, "viz.image.rgb.nii")
+        visualize_volume(self.img_rgb_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+        # GIF
+        path_out = os.path.join(self.tmp_data.name, "viz.image.rgb.gif")
+        visualize_volume(self.img_rgb_3D, out_path=path_out)
+        self.assertTrue(os.path.exists(path_out))
+
+    #-------------------------------------------------#
+    #             Visualizer: XAI Heatmap             #
+    #-------------------------------------------------#
+    def test_Visualizer_Heatmap_2D_grayscale(self):
+        # Default
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.gray.png")
+        visualize_heatmap(self.img_gray_2D, self.heatmap, 
+                          overlay=True, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+        os.remove(path_xai)
+        self.assertTrue(not os.path.exists(path_xai))
+        # With Overlay
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.gray.png")
+        visualize_heatmap(self.img_gray_2D, self.heatmap, 
+                          overlay=False, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+
+    def test_Visualizer_Heatmap_2D_rgb(self):
+        # Default
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.rgb.png")
+        visualize_heatmap(self.img_rgb_2D, self.heatmap, 
+                          overlay=True, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+        os.remove(path_xai)
+        self.assertTrue(not os.path.exists(path_xai))
+        # With Overlay
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.rgb.png")
+        visualize_heatmap(self.img_rgb_2D, self.heatmap, 
+                          overlay=False, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+
+    def test_Visualizer_Heatmap_3D_gray(self):
+        # Default
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.gray.npy")
+        visualize_heatmap(self.img_gray_3D, self.heatmap, 
+                          overlay=True, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+        os.remove(path_xai)
+        self.assertTrue(not os.path.exists(path_xai))
+        # With Overlay
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.gray.npy")
+        visualize_heatmap(self.img_gray_3D, self.heatmap, 
+                          overlay=False, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+
+    def test_Visualizer_Heatmap_3D_rgb(self):
+        # Default
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.rgb.npy")
+        visualize_heatmap(self.img_rgb_3D, self.heatmap, 
+                          overlay=True, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+        os.remove(path_xai)
+        self.assertTrue(not os.path.exists(path_xai))
+        # With Overlay
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.rgb.npy")
+        visualize_heatmap(self.img_rgb_3D, self.heatmap, 
+                          overlay=False, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+
+    def test_Visualizer_Heatmap_3D_hu(self):
+        # Default
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.hu.npy")
+        visualize_heatmap(self.img_hu_3D, self.heatmap, 
+                          overlay=True, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+        os.remove(path_xai)
+        self.assertTrue(not os.path.exists(path_xai))
+        # With Overlay
+        path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.hu.npy")
+        visualize_heatmap(self.img_hu_3D, self.heatmap, 
+                          overlay=False, out_path=path_xai)
+        self.assertTrue(os.path.exists(path_xai))
+
+

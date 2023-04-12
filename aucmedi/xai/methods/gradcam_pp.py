@@ -60,6 +60,11 @@ class GradCAMpp(XAImethod_Base):
         self.layerName = layerName
         # Try to find output layer if not defined
         if self.layerName is None : self.layerName = self.find_output_layer()
+        
+        # Gradient model construction
+        self.gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
+                         outputs=[self.model.get_layer(self.layerName).output,
+                                  self.model.output])
 
     #---------------------------------------------#
     #            Identify Output Layer            #
@@ -73,7 +78,7 @@ class GradCAMpp(XAImethod_Base):
         # Iterate over all layers
         for layer in reversed(self.model.layers):
             # Check to see if the layer has a 4D output -> Return layer
-            if len(layer.output_shape) == 4:
+            if len(layer.output_shape) >= 4:
                 return layer.name
         # Otherwise, throw exception
         raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM++.")
@@ -88,51 +93,47 @@ class GradCAMpp(XAImethod_Base):
             Be aware that the image has to be provided in batch format.
 
         Args:
-            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as batch).
             class_index (int):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
 
-        ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
-
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM++ for provided image.
         """
-        # Gradient model construction
-        gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
-                         outputs=[self.model.get_layer(self.layerName).output,
-                                  self.model.output])
 
         # Compute gradient for desierd class index
+        class_index = tf.convert_to_tensor(class_index, dtype=tf.int32)
         with tf.GradientTape() as gtape1:
             with tf.GradientTape() as gtape2:
                 with tf.GradientTape() as gtape3:
-                    inputs = tf.cast(image, tf.float32)
-                    (conv_output, preds) = gradModel(inputs)
-                    output = preds[:, class_index]
+                    inputs = tf.convert_to_tensor(image, dtype=tf.float32)
+                    (conv_output, preds) = self.gradModel(inputs)
+                    output = tf.gather(preds, class_index, axis = 1)
                     conv_first_grad = gtape3.gradient(output, conv_output)
                 conv_second_grad = gtape2.gradient(conv_first_grad, conv_output)
             conv_third_grad = gtape1.gradient(conv_second_grad, conv_output)
-        global_sum = np.sum(conv_output, axis=(0, 1, 2))
+        global_sum = tf.reduce_sum(grads, axis=tf.range(1, tf.rank(tensorsList) - 1))
 
         # Normalize constants
-        alpha_num = conv_second_grad[0]
-        alpha_denom = conv_second_grad[0]*2.0 + conv_third_grad[0]*global_sum
+        alpha_num = conv_second_grad
+        alpha_denom = conv_second_grad*2.0 + conv_third_grad*global_sum
         alpha_denom = np.where(alpha_denom != 0.0, alpha_denom, eps)
         alphas = alpha_num / alpha_denom
-        alpha_normalization_constant = np.sum(alphas, axis=(0,1))
+        alpha_normalization_constant = np.sum(alphas, axis=np.arange(1, len(heatmap.shape) - 1))
         alphas /= alpha_normalization_constant
 
         # Deep Linearization weighting
-        weights = np.maximum(conv_first_grad[0], 0.0)
-        deep_linearization_weights = np.sum(weights*alphas, axis=(0,1))
-        heatmap = np.sum(deep_linearization_weights*conv_output[0], axis=2)
+        weights = np.maximum(conv_first_grad, 0.0)
+        deep_linearization_weights = np.sum(weights*alphas, axis=np.arange(1, len(heatmap.shape) - 1))
+        heatmap = np.sum(deep_linearization_weights*conv_output, axis=-1)
 
         # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
+        min_val = np.amin(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+        max_val = np.amax(heatmap, keepdims = True, axis = np.arange(1, len(heatmap.shape)))
+        numer = heatmap - min_val
+        denom = (max_val - min_val) + eps
         heatmap = numer / denom
 
         # Return the resulting heatmap

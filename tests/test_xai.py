@@ -29,6 +29,7 @@ import numpy as np
 from aucmedi import *
 from aucmedi.xai import *
 from aucmedi.xai.methods import *
+from aucmedi.data_processing.io_loader import image_loader
 
 #-----------------------------------------------------#
 #              Unittest: Explainable AI               #

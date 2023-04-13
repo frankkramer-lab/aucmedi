@@ -127,10 +127,9 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         if preds is not None:
             ci = np.argmax(np.array(preds[h:h + k]), axis = 1)
             xai_map = xai_method.compute_heatmap(img_batch, class_index=ci)
-            xai_map = Resize(shape=shape_org).transform(xai_map)
             for j, res_map in enumerate(xai_map): #required due to resize
                 res_map = Resize(shape=shape_org).transform(res_map)
-                postprocess_output(sample_list[h + j], img_org[j], xai_map, 
+                postprocess_output(sample_list[h + j], img_org[j], res_map, 
                                    n_classes, data_gen, res_img, res_xai, 
                                    overlay, out_path, alpha)
         # If no preds given, compute heatmap for all classes
@@ -141,7 +140,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
                 for j in range(len(xai_map)):
                     sample_maps.append(Resize(shape=shape_org).transform(xai_map[j]))
             for i in range(0, k):
-                _sample_maps = np.array(sample_maps[i::batch_size])
+                _sample_maps = np.array(sample_maps[i::k])
                 postprocess_output(sample_list[h + i], img_org[i], _sample_maps, 
                                    n_classes, data_gen, res_img, res_xai, 
                                    overlay, out_path, alpha)

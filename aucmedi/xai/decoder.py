@@ -25,6 +25,7 @@ import os
 # AUCMEDI Libraries
 from aucmedi.xai.methods import xai_dict
 from aucmedi.utils.visualizer import *
+from aucmedi.data_processing.io_loader import image_loader
 from aucmedi.data_processing.subfunctions import Resize
 
 #-----------------------------------------------------#

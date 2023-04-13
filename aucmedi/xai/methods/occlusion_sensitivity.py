@@ -63,37 +63,40 @@ class OcclusionSensitivity(XAImethod_Base):
             Be aware that the image has to be provided in batch format.
 
         Args:
-            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as batch).
             class_index (int):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap is 2D -> channel axis will be removed.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Occlusion Sensitivity Map for provided image.
         """
         # Utilize only image matrix instead of batch
-        image = image[0]
-        # Create empty sensitivity map
-        sensitivity_map = np.zeros((image.shape[0], image.shape[1]))
-        # Iterate the patch over the image
-        for top_left_x in range(0, image.shape[0], self.patch_size):
-            for top_left_y in range(0, image.shape[1], self.patch_size):
-                patch = apply_grey_patch(image, top_left_x, top_left_y,
-                                         self.patch_size)
-                prediction = self.model.predict(np.array([patch]))[0]
-                confidence = prediction[class_index]
+        hm = []
+        for img in image:
+            # Create empty sensitivity map
+            sensitivity_map = np.zeros((img.shape[0], img.shape[1]))
+            # Iterate the patch over the image
+            for top_left_x in range(0, img.shape[0], self.patch_size):
+                for top_left_y in range(0, img.shape[1], self.patch_size):
+                    patch = apply_grey_patch(img, top_left_x, top_left_y,
+                                             self.patch_size)
+                    prediction = self.model.predict(np.array([patch]))[0]
+                    confidence = prediction[class_index]
 
-                # Save confidence for this specific patch in the map
-                sensitivity_map[
-                    top_left_y:top_left_y + self.patch_size,
-                    top_left_x:top_left_x + self.patch_size,
-                ] = 1 - confidence
+                    # Save confidence for this specific patch in the map
+                    sensitivity_map[
+                        top_left_y:top_left_y + self.patch_size,
+                        top_left_x:top_left_x + self.patch_size,
+                    ] = 1 - confidence
+            hm.append(sensitivity_map)
+        
         # Return the resulting sensitivity map (automatically a heatmap)
-        return sensitivity_map
+        return np.stack(hm, axis = 0)
 
 #-----------------------------------------------------#
 #                     Subroutines                     #

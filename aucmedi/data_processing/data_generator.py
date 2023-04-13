@@ -329,6 +329,8 @@ class DataGenerator(Sequence):
 
         Activating dump_pickle will store the preprocessed image as pickle on disk instead of returning.
         """
+    def preprocess_image(self, index, prepared_image=False, run_resize=True,
+                         run_aug=True, run_standardize=True, dump_pickle=False):
         # Load prepared image from disk
         if prepared_image:
             # Load from disk

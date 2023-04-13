@@ -68,31 +68,38 @@ class LimePro(XAImethod_Base):
             Be aware that the image has to be provided in batch format.
 
         Args:
-            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
+            image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as batch).
             class_index (int):                  Classification index for which the heatmap should be computed.
             eps (float):                        Epsilon for rounding.
 
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap is 2D -> channel axis will be removed.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Lime Pro Map for provided image.
         """
         # Initialize LIME explainer
         explainer = lime_image.LimeImageExplainer()
-        explanation = explainer.explain_instance(image[0].astype("double"),
-                                self.model.predict, hide_color=0,
-                                labels=(class_index,),
-                                num_samples=self.num_samples)
-        # Obtain PRO explanation mask
-        temp, mask = explanation.get_image_and_mask(class_index, hide_rest=True,
-                                positive_only=True, negative_only=False)
-        heatmap = mask
+        hm = []
+        for img in image:
+            explanation = explainer.explain_instance(img.astype("double"),
+                                    self.model.predict, hide_color=0,
+                                    labels=(class_index,),
+                                    num_samples=self.num_samples)
+            # Obtain PRO explanation mask
+            _, mask = explanation.get_image_and_mask(class_index, hide_rest=True,
+                                    positive_only=True, negative_only=False)
+            
+            hm.append(mask)
+            
+        heatmap = np.stack(hm, axis = 0)
         # Intensity normalization to [0,1]
-        numer = heatmap - np.min(heatmap)
-        denom = (heatmap.max() - heatmap.min()) + eps
+        min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
+        numer = heatmap - min_val
+        denom = (max_val - min_val) + eps
         heatmap = numer / denom
         # Return the resulting heatmap
         return heatmap

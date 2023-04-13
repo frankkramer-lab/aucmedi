@@ -263,7 +263,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = OcclusionSensitivity(self.model.model, patch_size=16)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_OcclusionSensitivity_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="OcclusionSensitivity")
@@ -281,7 +281,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = LimeCon(self.model.model, num_samples=10)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_LimeCon_decoder(self):
         xai_method = LimeCon(self.model.model, num_samples=10)
@@ -300,7 +300,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = LimePro(self.model.model, num_samples=10)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_LimePro_decoder(self):
         xai_method = LimePro(self.model.model, num_samples=10)

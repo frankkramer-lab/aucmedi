@@ -94,7 +94,7 @@ class GuidedGradCAM(XAImethod_Base):
         hm_gc = self.gc.compute_heatmap(image, class_index, eps)
         
         # Combine both XAI methods
-        heatmap = np.asarray([hm_bp[i] * Resize(shape=image.shape[1:-1]).transform(h) for i, h in enumerate(hm_gc)]) #this is necessary due to resize batching
+        heatmap = np.asarray([hm_bp[i] * Resize(shape=image[0].shape[:-1]).transform(h) for i, h in enumerate(hm_gc)]) #this is necessary due to resize batching
         # Intensity normalization to [0,1]
         min_val = np.amin(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))
         max_val = np.amax(heatmap, keepdims = True, axis = tuple(range(1, len(heatmap.shape))))

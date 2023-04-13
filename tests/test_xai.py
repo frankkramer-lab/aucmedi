@@ -154,7 +154,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GradCAM(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (2,2)))
+            self.assertTrue(np.array_equal(hm.shape, (1,2,2)))
 
     def test_XAImethod_GradCam_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam")
@@ -172,7 +172,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GradCAMpp(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (2,2)))
+            self.assertTrue(np.array_equal(hm.shape, (1,2,2)))
 
     def test_XAImethod_GradCamPP_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam++")
@@ -190,7 +190,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = SaliencyMap(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_SaliencyMap_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="saliency")
@@ -208,7 +208,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GuidedBackpropagation(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_GuidedBackprop_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="guidedbackprop")
@@ -226,7 +226,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = IntegratedGradients(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_IntegratedGradients_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="IntegratedGradients")
@@ -244,7 +244,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GuidedGradCAM(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (1,32,32)))
 
     def test_XAImethod_GuidedGradCAM_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="GuidedGradCAM")

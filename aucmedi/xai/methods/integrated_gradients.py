@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -113,15 +113,13 @@ class IntegratedGradients(XAImethod_Base):
                 # Add to gradient list
                 grads.append(gradient)
             grads = tf.concat(grads, axis = 0)#merge batches into a single set
-
             # Approximate the integral using the trapezoidal rule
             grads = (grads[:-1] + grads[1:]) / 2.0
             avg_grads = tf.reduce_mean(grads, axis=0)
             # Calculate integrated gradients
-            integrated_grads = (image - baseline) * avg_grads
+            integrated_grads = (img - baseline) * avg_grads
             # Obtain maximum gradient
             integrated_grads = tf.reduce_max(integrated_grads, axis=-1)
-
             # Convert to NumPy & Remove batch axis
             heatmap = integrated_grads.numpy()
             # Intensity normalization to [0,1]

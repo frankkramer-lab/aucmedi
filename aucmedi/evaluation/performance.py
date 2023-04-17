@@ -236,10 +236,12 @@ def evalby_barplot(metrics, out_path, class_names, show=False, suffix=None):
 #-----------------------------------------------------#
 def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix=None):
     # Initialize result dataframe
-    df_roc = pd.DataFrame(data=[fpr_list, tpr_list], dtype=np.float64)
-    # Preprocess dataframe
-    df_roc = df_roc.transpose()
-    df_roc = df_roc.apply(pd.Series.explode)
+    df_roc = pd.DataFrame()
+    for i, (tpr, fpr) in enumerate(zip(fpr_list, tpr_list)):
+        tmp = pd.DataFrame(data={"class" : i, "FPR": fpr, "TPR":tpr}, dtype=np.float64)
+        df_roc = pd.concat([df_roc, tmp], axis = 0)
+    df_roc["class"] = pd.Categorical(df_roc["class"])
+    print(df_roc)
     # Rename columns
     class_mapping = {}
     if class_names is not None:
@@ -247,8 +249,6 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
             class_mapping[c] = class_names[c]
         df_roc.rename(index=class_mapping, inplace=True)
     df_roc = df_roc.reset_index()
-    df_roc.rename(columns={"index": "class", 0: "FPR", 1: "TPR"}, inplace=True)
-    df_roc["class"] = pd.Categorical(df_roc["class"])
     # Convert from object to float
     df_roc["FPR"] = df_roc["FPR"].astype(float)
     df_roc["TPR"] = df_roc["TPR"].astype(float)

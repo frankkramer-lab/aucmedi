@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -20,7 +20,7 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.preprocessing.image import Iterator
+from tensorflow.keras.utils import Sequence
 import numpy as np
 from multiprocessing.pool import ThreadPool
 from itertools import repeat
@@ -34,7 +34,7 @@ from aucmedi.data_processing.subfunctions import Standardize, Resize
 #-----------------------------------------------------#
 #                 Keras Data Generator                #
 #-----------------------------------------------------#
-class DataGenerator(Iterator):
+class DataGenerator(Sequence):
     """ Infinite Data Generator which automatically creates batches from a list of samples.
 
     The created batches are model ready. This generator can be supplied directly
@@ -188,6 +188,7 @@ class DataGenerator(Iterator):
             **kwargs (dict):                    Additional parameters for the sample loader.
         """
         # Cache class variables
+        self.samples = samples
         self.labels = labels
         self.metadata = metadata
         self.sample_weights = sample_weights
@@ -195,14 +196,22 @@ class DataGenerator(Iterator):
         self.workers = workers
         self.sample_loader = loader
         self.kwargs = kwargs
-        self.samples = samples
         self.path_imagedir = path_imagedir
         self.image_format = image_format
         self.grayscale = grayscale
         self.subfunctions = subfunctions
+        self.batch_size = batch_size
         self.data_aug = data_aug
         self.standardize_mode = standardize_mode
         self.resize = resize
+        self.shuffle = shuffle
+        self.seed = seed
+        # Cache keras.Sequence class variables
+        self.n = len(samples)
+        self.max_iterations = (self.n + self.batch_size - 1) // self.batch_size
+        self.iterations = self.max_iterations
+        self.seed_walk = 0
+        self.index_array = None
 
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
@@ -260,10 +269,6 @@ class DataGenerator(Iterator):
             print("A directory for image preparation was created:",
                   self.prepare_dir)
 
-        # Pass initialization parameters to parent Iterator class
-        size = len(samples)
-        super(DataGenerator, self).__init__(size, batch_size, shuffle, seed)
-
     #-----------------------------------------------------#
     #              Batch Generation Function              #
     #-----------------------------------------------------#
@@ -311,17 +316,19 @@ class DataGenerator(Iterator):
     #-----------------------------------------------------#
     #                 Image Preprocessing                 #
     #-----------------------------------------------------#
-    """ Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
-        on an image given its index.
-
-    Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
-
-    Deactivating the run_aug & run_standardize option to output image without augmentation and standardization.
-
-    Activating dump_pickle will store the preprocessed image as pickle on disk instead of returning.
-    """
     def preprocess_image(self, index, prepared_image=False, run_resize=True,
                          run_aug=True, run_standardize=True, dump_pickle=False):
+        """ Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
+            on an image given its index.
+
+        Can be utilized for debugging purposes.
+
+        Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
+
+        Deactivating the run_aug & run_standardize option to output image without augmentation and standardization.
+
+        Activating dump_pickle will store the preprocessed image as pickle on disk instead of returning.
+        """
         # Load prepared image from disk
         if prepared_image:
             # Load from disk
@@ -360,3 +367,52 @@ class DataGenerator(Iterator):
                 pickle.dump(img, pickle_writer)
         # Return preprocessed image
         else : return img
+
+    #-----------------------------------------------------#
+    #              Sample Generation Function             #
+    #-----------------------------------------------------#
+    """ Internal function for calling the batch generation process. """
+    def __getitem__(self, raw_idx):
+        # Obtain the index based on the passed index offset to allow repetition
+        idx = raw_idx % self.max_iterations
+        # Build index array for the start
+        if self.index_array is None:
+            self.__set_index_array__()
+        # Select samples for next batch
+        index_array = self.index_array[
+            self.batch_size * idx : self.batch_size * (idx + 1)
+        ]
+        # Generate batch
+        return self._get_batches_of_transformed_samples(index_array)
+
+    #-----------------------------------------------------#
+    #                 Generator Functions                 #
+    #-----------------------------------------------------#
+    """ Internal function for identifying the generator length. """
+    def __len__(self):
+        return self.iterations
+
+    """ Configuration function for fixing the number of iterations. """
+    def set_length(self, iterations):
+        self.iterations = iterations
+
+    """ Configuration function for reseting the number of iterations. """
+    def reset_length(self):
+        self.iterations = self.max_iterations
+
+    """ Internal function for initializing and shuffling the index array. """
+    def __set_index_array__(self):
+        # Generate index array
+        self.index_array = np.arange(self.n)
+        # Shuffle if needed
+        if self.shuffle:
+            # Update seed for repeated permutation of the index_array
+            if self.seed is not None:
+                np.random.seed(self.seed + self.seed_walk)
+                self.seed_walk += 1
+            # Permutate index array
+            self.index_array = np.random.permutation(self.n)
+
+    """ Internal function at the end of an epoch. """
+    def on_epoch_end(self):
+        self.__set_index_array__()

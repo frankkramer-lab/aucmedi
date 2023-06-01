@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -42,7 +42,7 @@ class NeuralNetworkTEST(unittest.TestCase):
 
         # Create RGB data
         self.sampleList_rgb = []
-        for i in range(0, 1):
+        for i in range(0, 10):
             img_rgb = np.random.rand(32, 32, 3) * 255
             imgRGB_pillow = Image.fromarray(img_rgb.astype(np.uint8))
             index = "image.sample_" + str(i) + ".RGB.png"
@@ -51,8 +51,8 @@ class NeuralNetworkTEST(unittest.TestCase):
             self.sampleList_rgb.append(index)
 
         # Create classification labels
-        self.labels_ohe = np.zeros((1, 4), dtype=np.uint8)
-        for i in range(0, 1):
+        self.labels_ohe = np.zeros((10, 4), dtype=np.uint8)
+        for i in range(0, 10):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
 
@@ -61,7 +61,8 @@ class NeuralNetworkTEST(unittest.TestCase):
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
                                      resize=(32, 32),
-                                     grayscale=False, batch_size=1)
+                                     shuffle=True,
+                                     grayscale=False, batch_size=3)
 
     #-------------------------------------------------#
     #                  Model Training                 #
@@ -71,6 +72,18 @@ class NeuralNetworkTEST(unittest.TestCase):
         hist = model.train(training_generator=self.datagen,
                            epochs=3)
         self.assertTrue("loss" in hist)
+
+    def test_training_iterations(self):
+        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        hist = model.train(training_generator=self.datagen,
+                           epochs=5, iterations=10)
+        self.assertTrue("loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 5)
+
+        hist = model.train(training_generator=self.datagen,
+                           epochs=3, iterations=2)
+        self.assertTrue("loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_validation(self):
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
@@ -94,5 +107,6 @@ class NeuralNetworkTEST(unittest.TestCase):
     def test_predict(self):
         model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
         preds = model.predict(self.datagen)
-        self.assertTrue(preds.shape == (1, 4))
-        self.assertTrue(np.sum(preds) >= 0.99 and np.sum(preds) <= 1.01)
+        self.assertTrue(preds.shape == (10, 4))
+        for i in range(0, 10):
+            self.assertTrue(np.sum(preds[i]) >= 0.99 and np.sum(preds[i]) <= 1.01)

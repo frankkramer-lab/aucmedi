@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -104,7 +104,7 @@ class DataGeneratorTEST(unittest.TestCase):
         data_gen = DataGenerator(self.sampleList_gray_2D, self.tmp_data.name,
                                  grayscale=True, batch_size=5)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 1)
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 1)))
 
@@ -113,7 +113,7 @@ class DataGeneratorTEST(unittest.TestCase):
         data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
                                  grayscale=False, batch_size=5)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 1)
             self.assertTrue(np.array_equal(batch[0].shape, (5, 224, 224, 3)))
 
@@ -123,7 +123,7 @@ class DataGeneratorTEST(unittest.TestCase):
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
 
@@ -137,7 +137,7 @@ class DataGeneratorTEST(unittest.TestCase):
                                  loader=numpy_loader, resize=None,
                                  standardize_mode=None)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 1)
             self.assertTrue(np.array_equal(batch[0].shape, (5, 16, 16, 16, 1)))
 
@@ -148,7 +148,7 @@ class DataGeneratorTEST(unittest.TestCase):
                                  loader=numpy_loader, resize=None,
                                  standardize_mode=None)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 1)
             self.assertTrue(np.array_equal(batch[0].shape, (5, 16, 16, 16, 3)))
 
@@ -160,7 +160,7 @@ class DataGeneratorTEST(unittest.TestCase):
                                  loader=numpy_loader, resize=None,
                                  standardize_mode=None)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
 
@@ -173,7 +173,7 @@ class DataGeneratorTEST(unittest.TestCase):
                                  metadata=self.metadata, grayscale=False,
                                  batch_size=5)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 1)
             self.assertTrue(len(batch[0]) == 2)
             self.assertTrue(np.array_equal(batch[0][0].shape, (5, 224, 224, 3)))
@@ -185,7 +185,7 @@ class DataGeneratorTEST(unittest.TestCase):
                              labels=self.labels_ohe, metadata=self.metadata,
                              grayscale=False, batch_size=5)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
             self.assertTrue(len(batch[0]) == 2)
@@ -200,7 +200,7 @@ class DataGeneratorTEST(unittest.TestCase):
                                  labels=self.labels_ohe,
                                  grayscale=False, batch_size=5, workers=5)
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
 
@@ -214,7 +214,7 @@ class DataGeneratorTEST(unittest.TestCase):
         precprocessed_images = os.listdir(data_gen.prepare_dir)
         self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb_2D))
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
         shutil.rmtree(data_gen.prepare_dir)
@@ -226,7 +226,23 @@ class DataGeneratorTEST(unittest.TestCase):
         precprocessed_images = os.listdir(data_gen.prepare_dir)
         self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb_2D))
         for i in range(0, 10):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(len(batch), 2)
             self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
         shutil.rmtree(data_gen.prepare_dir)
+
+    #-------------------------------------------------#
+    #                   Utilization                   #
+    #-------------------------------------------------#
+    # Class Creation
+    def test_utils_iter(self):
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
+                                 batch_size=8)
+        counter = 0
+        for batch in data_gen:
+            if counter < 3:
+                self.assertTrue(np.array_equal(batch[0].shape, (8,224,224,3)))
+            else: 
+                self.assertTrue(np.array_equal(batch[0].shape, (1,224,224,3)))
+            counter += 1
+        self.assertTrue(counter == 4)

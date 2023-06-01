@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -63,7 +63,7 @@ class IOloaderTEST(unittest.TestCase):
         data_gen = DataGenerator(sample_list, tmp_data.name, resize=None,
                                  grayscale=False, batch_size=2)
         for i in range(0, 3):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 3)))
 
     # Test for grayscale images
@@ -119,7 +119,7 @@ class IOloaderTEST(unittest.TestCase):
                                  resize=None, two_dim=False, standardize_mode=None,
                                  grayscale=True, batch_size=2)
         for i in range(0, 3):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
 
     # Test for grayscale 2D images
@@ -214,7 +214,7 @@ class IOloaderTEST(unittest.TestCase):
                                  resize=None, standardize_mode=None,
                                  grayscale=True, batch_size=1)
         for i in range(0, 6):
-            batch = next(data_gen)
+            batch = data_gen[i]
             if i < 3:
                 self.assertTrue(np.array_equal(batch[0].shape, (1, 32, 24, 8, 1)))
             else:
@@ -278,7 +278,7 @@ class IOloaderTEST(unittest.TestCase):
                                  resize=None, standardize_mode=None,
                                  grayscale=True, batch_size=1)
         for i in range(0, 6):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(np.array_equal(batch[0].shape, (1, 18, 10, 10, 1)))
 
     #-------------------------------------------------#
@@ -301,7 +301,7 @@ class IOloaderTEST(unittest.TestCase):
                                  resize=None, two_dim=False, standardize_mode=None,
                                  grayscale=True, batch_size=2, cache=cache)
         for i in range(0, 3):
-            batch = next(data_gen)
+            batch = data_gen[i]
             self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
 
     # Test for grayscale 2D images

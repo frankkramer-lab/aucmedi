@@ -7,7 +7,7 @@ with open("docs/README.PyPI.md", "r") as fh:
 
 setup(
     name='aucmedi',
-    version='0.7.3',
+    version='0.8.1',
     description='AUCMEDI - a framework for Automated Classification of Medical Images',
     author='Dominik Müller',
     author_email='dominik.mueller@informatik.uni-augsburg.de',
@@ -25,7 +25,7 @@ setup(
         'console_scripts': ['aucmedi = aucmedi.automl.main:main'],
     },
     python_requires='>=3.8',
-    install_requires=['tensorflow>=2.10.0',
+    install_requires=['tensorflow>=2.11.1',
                       'tensorflow-addons>=0.18.0',
                       'keras-applications>=1.0.8',
                       'numpy>=1.23.0',

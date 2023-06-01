@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -202,16 +202,10 @@ class Stacking:
             data_train = (*ps_sampling[0], None)
             data_val = (*ps_sampling[1], None)
 
-        # Gather training parameters
-        parameters_training = {"epochs": epochs,
-                               "iterations": iterations,
-                               "callbacks": callbacks,
-                               "class_weights": class_weights,
-                               "transfer_learning": transfer_learning
-        }
-
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
+            # Create model specific callback list
+            callbacks_model = callbacks.copy()
             # Extend Callback list
             path_model = os.path.join(self.cache_dir.name,
                                       "nn_" + str(i) + ".model.hdf5")
@@ -222,7 +216,7 @@ class Stacking:
                                                  "nn_" + str(i) + \
                                                  ".logs.csv"),
                               separator=',', append=True)
-            callbacks.extend([cb_mc, cb_cl])
+            callbacks_model.extend([cb_mc, cb_cl])
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -258,6 +252,14 @@ class Stacking:
                              "loader": temp_dg.sample_loader,
                              "workers": temp_dg.workers,
                              "kwargs": temp_dg.kwargs
+            }
+
+            # Gather training parameters
+            parameters_training = {"epochs": epochs,
+                                "iterations": iterations,
+                                "callbacks": callbacks_model,
+                                "class_weights": class_weights,
+                                "transfer_learning": transfer_learning
             }
 
             # Start training process
@@ -323,7 +325,7 @@ class Stacking:
 
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
-            # Extend Callback list
+            #  Load current model
             path_model = os.path.join(path_model_dir,
                                       "nn_" + str(i) + ".model.hdf5")
 

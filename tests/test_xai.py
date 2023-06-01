@@ -1,6 +1,6 @@
 #==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -67,7 +67,7 @@ class xaiTEST(unittest.TestCase):
         # Compute predictions
         self.preds = self.model.predict(self.datagen)
         # Initialize testing image
-        self.image = next(self.datagen)[0][[0]]
+        self.image = self.datagen[0][0][[0]]
 
     #-------------------------------------------------#
     #             XAI Functions: Decoder              #

@@ -147,7 +147,7 @@ def evaluate_comparison(pred_list,
 
         # Optional: Macro average classes
         if macro_average_classes:
-            metrics_avg = metrics.groupby(["metric", "model"]).mean(numeric_only = True)
+            metrics_avg = metrics.groupby(["metric", "model"]).mean()
             metrics = metrics_avg.reset_index()
 
         # Append to dataframe list

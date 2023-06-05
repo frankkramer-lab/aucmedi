@@ -316,8 +316,8 @@ class DataGenerator(Sequence):
     #-----------------------------------------------------#
     #                 Image Preprocessing                 #
     #-----------------------------------------------------#
-    def preprocess_image(self, index, prepared_image=False, run_aug=True,
-                         run_standardize=True, dump_pickle=False):
+    def preprocess_image(self, index, prepared_image=False, run_resize=True,
+                         run_aug=True, run_standardize=True, dump_pickle=False):
         """ Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
             on an image given its index.
 

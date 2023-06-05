@@ -103,6 +103,8 @@ class GradCAM(XAImethod_Base):
 
         The returned heatmap is encoded within a range of [0,1]
 
+        ???+ attention
+            The shape of the returned heatmap is 2D or 3D -> batch and channel axis will be removed.
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM for provided image.
         """
@@ -113,7 +115,6 @@ class GradCAM(XAImethod_Base):
             (conv_out, preds) = self.gradModel(inputs)
             loss = tf.gather(preds, class_index, axis = 1)
         grads = tape.gradient(loss, conv_out)
-        
         pooled_grads = tf.reduce_mean(grads, keepdims = True, axis=tf.range(1, tf.rank(grads) - 1))
         # Normalize gradients via "importance"
         heatmap = m.reduce_sum(m.multiply(conv_out, pooled_grads), axis = -1).numpy()

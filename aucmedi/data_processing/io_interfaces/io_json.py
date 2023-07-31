@@ -1,6 +1,6 @@
 #==============================================================================#
-#  Author:       Dominik MÃ¼ller                                                #
-#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -25,11 +25,19 @@ import numpy as np
 import json
 import pandas as pd
 
+#this works on Python 3.7+
+#See: https://mail.python.org/pipermail/python-dev/2017-December/151283.html
+def read_load_params_from_dict(di, params):
+    if (len(params) > 0):
+        return [k + "[" + ";".join([k1 + "=" + di[k][k1] for k1 in params]) + "]" for k in di.keys()]
+    else:
+        return [k for k in di.keys()]
+
 #-----------------------------------------------------#
 #         Data Loader Interface based on JSON         #
 #-----------------------------------------------------#
 def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
-                ohe=True):
+                ohe=True, load_params=[], **kwargs):
     """ Data Input Interface for loading a dataset via a JSON and an image directory.
 
     This **internal** function allows simple parsing of class annotations encoded in a JSON.
@@ -60,6 +68,7 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         allowed_image_formats (list of str):    List of allowed imaging formats. (provided by IO_Interface)
         training (bool):                        Boolean option whether annotation data is available.
         ohe (bool):                             Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        load_params (list):                     Columns that are parsed as load paramters in addition to the sample. Default: []
 
     Returns:
         index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
@@ -68,6 +77,7 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         class_names (list of str):              List of names for corresponding classes. Used for later prediction storage or evaluation.
         image_format (str):                     Image format to add at the end of the sample index for image loading. Required in DataGenerator.
     """
+
     # Load JSON file
     with open(path_data, "r") as json_reader:
         dt_json = json.load(json_reader)
@@ -104,7 +114,7 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     if not training:
         # Ensure index list to contain strings
         if "legend" in dt_json : del dt_json["legend"]
-        index_list = [str(x) for x in dt_json]
+        index_list = read_load_params_from_dict(dt_json, load_params)
         # -> return parsing
         return index_list, None, None, None, image_format
 
@@ -116,10 +126,9 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
             del dt_json["legend"]
         else : class_names = None
         # Obtain class information and index list
-        index_list = []
+        index_list = read_load_params_from_dict(dt_json, load_params)
         classes_sparse = []
         for sample in dt_json:
-            index_list.append(str(sample))
             classes_sparse.append(dt_json[sample])
         if class_names is None : class_names = np.unique(classes_sparse).tolist()
         class_n = len(class_names)
@@ -136,10 +145,9 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
             class_names = None
             class_n = None
         # Obtain class information and index list
-        index_list = []
+        index_list = read_load_params_from_dict(dt_json, load_params)
         class_data = []
         for sample in dt_json:
-            index_list.append(str(sample))
             class_data.append(dt_json[sample])
         class_ohe = np.array(class_data)
         # Verify number of class annotation

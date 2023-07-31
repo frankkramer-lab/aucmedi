@@ -1,6 +1,6 @@
 #==============================================================================#
-#  Author:       Dominik MÃ¼ller                                                #
-#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -24,12 +24,20 @@ import os
 import numpy as np
 import pandas as pd
 
+
+def parse_tuple_to_load_options(tpl):
+    if (tpl[1] is not None):
+        return tpl[0] + "[" + ";".join([k + "=" + v for k, v in tpl[1].items()]) + "]"
+    else:
+        return tpl[0]
+
 #-----------------------------------------------------#
 #          Data Loader Interface based on CSV         #
 #-----------------------------------------------------#
 def csv_loader(path_data, path_imagedir, allowed_image_formats,
                training=True, ohe=True, ohe_range=None,
-               col_sample="SAMPLE", col_class="CLASS"):
+               col_sample="SAMPLE", col_class="CLASS",
+               load_params=[], **kwargs):
     """ Data Input Interface for loading a dataset via a CSV and an image directory.
 
     This **internal** function allows simple parsing of class annotations encoded in a CSV,
@@ -71,6 +79,7 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
         ohe_range (list of str):                List of column name values if annotation encoded in OHE. Example: ["classA", "classB", "classC"]
         col_sample (str):                       Index column name for the sample name column. Default: 'SAMPLE'
         col_class (str):                        Index column name for the sparse categorical classes column. Default: 'CLASS'
+        load_params (list):                     Columns that are parsed as load paramters in addition to the sample. Default: []
 
     Returns:
         index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
@@ -85,8 +94,23 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
     if col_sample in dt.columns : index_list = dt[col_sample].tolist()
     else : raise Exception("Sample column (" + str(col_sample) + \
                            ") not available in CSV file!", path_data)
-    # Ensure index list to contain strings
-    index_list = [str(index) for index in index_list]
+
+    # check if load_parameters exist and parse them from csv
+    column_set = set(dt.columns)
+    load_set = set(load_params)
+    if (len(load_set) > 0):
+        if (len(column_set & load_set) < len(load_set)):
+            print("Load Param columns " + \
+                  "(" + "), (".join(load_set - column_set) + ")"
+                  " not available in CSV file! Ignoring.", path_data)
+            load_set = load_set - column_set
+        dicts = dt.drop(column_set - load_set, axis = 1).to_dict(orient="records")
+        # Ensure index list to contain strings
+        index_list = [(str(index), d) for index, d in zip(index_list, dicts)]
+    else:
+        # Ensure index list to contain strings
+        index_list = [(str(index), None) for index in index_list]
+
     # Identify image format by peaking first image
     image_format = None
     for file in os.listdir(path_imagedir):
@@ -99,9 +123,9 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
     if image_format is None:
         raise Exception("Unknown image format.", path_imagedir)
     # Check if image ending is already in sample name by peaking first one
-    if index_list[0].endswith("." + image_format) : image_format = None
+    if index_list[0][0].endswith("." + image_format) : image_format = None
     # Verify if all images are existing
-    for sample in index_list:
+    for sample, _ in index_list:
         # Obtain image file path
         if image_format : img_file = sample + "." + image_format
         else : img_file = sample
@@ -110,6 +134,10 @@ def csv_loader(path_data, path_imagedir, allowed_image_formats,
         if not os.path.exists(path_img):
             raise Exception("Image does not exist / not accessible!",
                             'Sample: "' + sample + '"', path_img)
+
+    #convert index list into string for further processing
+    if (len(load_params) > 0):
+        index_list = [parse_tuple_to_load_options(sample) for sample in index_list]
 
     # If CSV is for inference (no annotation data) -> return parsing
     if not training : return index_list, None, None, None, image_format

@@ -1,6 +1,6 @@
 #==============================================================================#
-#  Author:       Dominik MÃ¼ller                                                #
-#  Copyright:    2023 IT-Infrastructure for Translational Medical Research,    #
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2022 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -114,19 +114,23 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
                   "path_imagedir": path_imagedir,
                   "allowed_image_formats": allowed_image_formats,
                   "training": training, "ohe": ohe}
+
+    parameters = {**parameters, **kwargs}
     # Identify correct dataset loader and parameters for CSV format
     if interface == "csv":
         ds_loader = io.csv_loader
-        additional_parameters = ["ohe_range", "col_sample", "col_class"]
-        for para in additional_parameters:
-            if para in kwargs : parameters[para] = kwargs[para]
+        superfluous_params = set(parameters.keys()) - {"path_imagedir", "allowed_image_formats", "training", "path_data", "ohe", "ohe_range", "col_sample", "col_class"}
     # Identify correct dataset loader and parameters for JSON format
-    elif interface == "json" : ds_loader = io.json_loader
+    elif interface == "json" :
+        ds_loader = io.json_loader
+        superfluous_params = set(parameters.keys()) - {"path_imagedir", "allowed_image_formats", "training", "path_data", "ohe"}
     # Identify correct dataset loader and parameters for directory format
     elif interface == "directory":
         ds_loader = io.directory_loader
-        del parameters["ohe"]
-        del parameters["path_data"]
+        superfluous_params = set(parameters.keys()) - {"path_imagedir", "allowed_image_formats", "training"}
+
+    if (len(superfluous_params) > 0):
+        print("WARNING: You are passing parameters the directory interface doesn't interpret.\nThe following parameters wil be ignored:\n" + "\n".join(superfluous_params))
 
     # Load the dataset with the selected format interface and return results
     return ds_loader(**parameters)

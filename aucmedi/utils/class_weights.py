@@ -100,7 +100,7 @@ def compute_multilabel_weights(ohe_array, method="balanced"):
     class_weights = np.empty([n_classes])
     # Compute weight for each class individually
     for i in range(0, n_classes):
-        weight = compute_class_weight(class_weight=method, classes=[0,1],
+        weight = compute_class_weight(class_weight=method, classes=np.array([0,1]),
                                       y=ohe_array[:, i])
         class_weights[i] = weight[1]
     # Return resulting class weight list

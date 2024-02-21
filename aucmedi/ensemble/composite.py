@@ -207,14 +207,6 @@ class Composite:
         cv_sampling = sampling_kfold(x, y, m, n_splits=self.k_fold,
                                      stratified=True, iterative=True)
 
-        # Gather training parameters
-        parameters_training = {"epochs": epochs,
-                               "iterations": iterations,
-                               "callbacks": callbacks,
-                               "class_weights": class_weights,
-                               "transfer_learning": transfer_learning
-        }
-
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
             # Pack data into a tuple
@@ -224,6 +216,8 @@ class Composite:
                 data = (train_x, train_y, None, test_x, test_y, None)
             else : data = fold
 
+            # Create model specific callback list
+            callbacks_model = callbacks.copy()
             # Extend Callback list
             path_model = os.path.join(self.cache_dir.name,
                                       "cv_" + str(i) + ".model.hdf5")
@@ -234,7 +228,7 @@ class Composite:
                                                  "cv_" + str(i) + \
                                                  ".logs.csv"),
                               separator=',', append=True)
-            callbacks.extend([cb_mc, cb_cl])
+            callbacks_model.extend([cb_mc, cb_cl])
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -270,6 +264,14 @@ class Composite:
                              "loader": temp_dg.sample_loader,
                              "workers": temp_dg.workers,
                              "kwargs": temp_dg.kwargs
+            }
+
+            # Gather training parameters
+            parameters_training = {"epochs": epochs,
+                                "iterations": iterations,
+                                "callbacks": callbacks_model,
+                                "class_weights": class_weights,
+                                "transfer_learning": transfer_learning
             }
 
             # Start training process
@@ -335,7 +337,7 @@ class Composite:
 
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
-            # Extend Callback list
+            # Load current model
             path_model = os.path.join(path_model_dir,
                                       "cv_" + str(i) + ".model.hdf5")
 

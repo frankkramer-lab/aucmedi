@@ -37,6 +37,7 @@ setup(
                       'classification-models-3D>=1.0.10',
                       'vit-keras>=0.1.2',
                       'tensorflow-addons>=0.21.0',
+                      'Keras-Applications==1.0.8',
                       'SimpleITK>=2.2.0',
                       'batchgenerators>=0.25',
                       'volumentations-aucmedi>=1.0.1',

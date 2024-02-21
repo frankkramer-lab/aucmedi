@@ -41,7 +41,7 @@ setup(
                       'SimpleITK>=2.2.0',
                       'batchgenerators>=0.25',
                       'volumentations-aucmedi>=1.0.1',
-                      'plotnine>=0.12.0',
+                      'plotnine==0.12.4',
                       'pathos>=0.3.0'],
     classifiers=["Programming Language :: Python :: 3",
                  "Programming Language :: Python :: 3.10",

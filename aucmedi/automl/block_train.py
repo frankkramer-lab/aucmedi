@@ -23,7 +23,8 @@
 import os
 import numpy as np
 import json
-from tensorflow.keras.metrics import AUC, F1Score
+from tensorflow.keras.metrics import AUC
+from tensorflow_addons.metrics import F1Score
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
                                        ReduceLROnPlateau, EarlyStopping
 # Internal libraries

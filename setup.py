@@ -24,10 +24,8 @@ setup(
     entry_points={
         'console_scripts': ['aucmedi = aucmedi.automl.main:main'],
     },
-    python_requires='>=3.8',
-    install_requires=['tensorflow>=2.11.1',
-                      'tensorflow-addons>=0.18.0',
-                      'keras-applications>=1.0.8',
+    python_requires='>=3.9',
+    install_requires=['tensorflow>=2.14.0',
                       'numpy>=1.23.0',
                       'pillow>=9.3.0',
                       'albumentations>=1.3.0',

@@ -3,7 +3,7 @@
 AUCMEDI is tested and supported on the following systems:
 
 - 64-bit Ubuntu 16.04 or later  
-- Python 3.8 - 3.10  
+- Python 3.9+ 
 
 AUCMEDI is heavily based on TensorFlow 2: an approachable, highly-productive interface for solving machine learning problems, with a focus on modern deep learning. It provides essential abstractions and building blocks for developing and shipping machine learning solutions with high iteration velocity.
 

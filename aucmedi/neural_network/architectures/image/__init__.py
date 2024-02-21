@@ -49,9 +49,6 @@ from aucmedi.neural_network.architectures.image.resnet152 import ResNet152
 from aucmedi.neural_network.architectures.image.resnet50v2 import ResNet50V2
 from aucmedi.neural_network.architectures.image.resnet101v2 import ResNet101V2
 from aucmedi.neural_network.architectures.image.resnet152v2 import ResNet152V2
-# ResNeXt
-from aucmedi.neural_network.architectures.image.resnext50 import ResNeXt50
-from aucmedi.neural_network.architectures.image.resnext101 import ResNeXt101
 # MobileNet
 from aucmedi.neural_network.architectures.image.mobilenet import MobileNet
 from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
@@ -86,8 +83,6 @@ architecture_dict = {
     "ResNet50V2": ResNet50V2,
     "ResNet101V2": ResNet101V2,
     "ResNet152V2": ResNet152V2,
-    "ResNeXt50": ResNeXt50,
-    "ResNeXt101": ResNeXt101,
     "DenseNet121": DenseNet121,
     "DenseNet169": DenseNet169,
     "DenseNet201": DenseNet201,
@@ -153,8 +148,8 @@ architecture_dict = {
 
         For example:
         ```python
-        # for the image architecture "ResNeXt101"
-        architecture="2D.ResNeXt101"
+        # for the image architecture "ResNet101"
+        architecture="2D.ResNet101"
         ```
 
     Architectures are based on the abstract base class [aucmedi.neural_network.architectures.arch_base.Architecture_Base][].
@@ -175,8 +170,6 @@ supported_standardize_mode = {
     "ResNet50V2": "tf",
     "ResNet101V2": "tf",
     "ResNet152V2": "tf",
-    "ResNeXt50": "torch",
-    "ResNeXt101": "torch",
     "DenseNet121": "torch",
     "DenseNet169": "torch",
     "DenseNet201": "torch",
@@ -237,8 +230,8 @@ supported_standardize_mode = {
 
         For example:
         ```python
-        # for the image architecture "ResNeXt101"
+        # for the image architecture "ResNet101"
         from aucmedi.neural_network.architectures import supported_standardize_mode
-        sf_norm = supported_standardize_mode["2D.ResNeXt101"]
+        sf_norm = supported_standardize_mode["2D.ResNet101"]
         ```
 """

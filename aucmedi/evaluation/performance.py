@@ -236,7 +236,7 @@ def evalby_barplot(metrics, out_path, class_names, show=False, suffix=None):
 #-----------------------------------------------------#
 def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix=None):
     # Initialize result dataframe
-    df_roc = pd.DataFrame(data=[fpr_list, tpr_list], dtype=np.float64)
+    df_roc = pd.DataFrame(data=[fpr_list, tpr_list], dtype=object)
     # Preprocess dataframe
     df_roc = df_roc.transpose()
     df_roc = df_roc.apply(pd.Series.explode)

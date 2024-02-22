@@ -43,6 +43,11 @@ from aucmedi.neural_network.architectures.volume.mobilenetv2 import MobileNetV2
 # VGG
 from aucmedi.neural_network.architectures.volume.vgg16 import VGG16
 from aucmedi.neural_network.architectures.volume.vgg19 import VGG19
+# ConvNeXt
+from aucmedi.neural_network.architectures.volume.convnext_tiny import ConvNeXtTiny
+from aucmedi.neural_network.architectures.volume.convnext_small import ConvNeXtSmall
+from aucmedi.neural_network.architectures.volume.convnext_base import ConvNeXtBase
+from aucmedi.neural_network.architectures.volume.convnext_large import ConvNeXtLarge
 
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -64,6 +69,10 @@ architecture_dict = {
     "MobileNetV2": MobileNetV2,
     "VGG16": VGG16,
     "VGG19": VGG19,
+    "ConvNeXtTiny": ConvNeXtTiny,
+    "ConvNeXtSmall": ConvNeXtSmall,
+    "ConvNeXtBase": ConvNeXtBase,
+    "ConvNeXtLarge": ConvNeXtLarge,
 }
 """ Dictionary of implemented 3D Architectures Methods in AUCMEDI.
 
@@ -130,6 +139,10 @@ supported_standardize_mode = {
     "MobileNetV2": "tf",
     "VGG16": "caffe",
     "VGG19": "caffe",
+    "ConvNeXtTiny": None,
+    "ConvNeXtSmall": None,
+    "ConvNeXtBase": None,
+    "ConvNeXtLarge": None,
 }
 """ Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 3D Architectures Methods in AUCMEDI.
 

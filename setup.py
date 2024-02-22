@@ -27,7 +27,7 @@ setup(
     python_requires='>=3.9',
     install_requires=['tensorflow>=2.14.0',
                       'numpy>=1.23.5',
-                      'pillow>=9.3.0',
+                      'pillow>=10.2.0',
                       'albumentations>=1.3.0',
                       'pandas>=1.5.2',
                       'scikit-learn>=1.3.0',

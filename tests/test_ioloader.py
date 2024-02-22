@@ -41,6 +41,7 @@ class IOloaderTEST(unittest.TestCase):
         self.img_2d_rgb = np.random.rand(16, 16, 3) * 255
         self.img_3d_gray = np.random.rand(16, 16, 16, 1) * 255
         self.img_3d_rgb = np.random.rand(16, 16, 16, 3) * 255
+        self.img_3d_rgb = self.img_3d_rgb.astype(int)
         self.img_3d_hu = np.float32(np.random.rand(16, 16, 16, 1) * 1500 - 500)
 
     #-------------------------------------------------#
@@ -219,6 +220,25 @@ class IOloaderTEST(unittest.TestCase):
                 self.assertTrue(np.array_equal(batch[0].shape, (1, 32, 24, 8, 1)))
             else:
                 self.assertTrue(np.array_equal(batch[0].shape, (1, 12, 20, 28, 1)))
+
+    # Test for rgb 3D images
+    def test_sitk_loader_3Drgb(self):
+        # Create temporary directory
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                               suffix=".data")
+        # Run analysis
+        for i in range(0, 6):
+            if i < 3: format = ".mha"
+            else : format = ".nii"
+            # Create image
+            index = "3Dimage.sample_" + str(i) + format
+            path_sample = os.path.join(tmp_data.name, index)
+            image_sitk = sitk.GetImageFromArray(self.img_3d_rgb)
+            image_sitk.SetSpacing([0.5,1.5,2.0])
+            sitk.WriteImage(image_sitk, path_sample)
+            # Load image via loader
+            img = sitk_loader(index, tmp_data.name, image_format=None)
+            self.assertTrue(np.array_equal(img.shape, (32, 24, 8, 3)))
 
     # Test for hu 3D images
     def test_sitk_loader_3Dhu(self):

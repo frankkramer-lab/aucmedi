@@ -37,22 +37,45 @@ class Clip(Subfunction_Base):
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
-    def __init__(self, min=None, max=None):
+    def __init__(self, min=None, max=None, per_channel=False):
         """ Initialization function for creating a Clip Subfunction which can be passed to a
             [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
         Args:
-            min (float or int):         Desired minimum value for clipping (if `None`, no lower limit is applied).
-            max (float or int):         Desired maximum value for clipping (if `None`, no upper limit is applied).
+            min (float or int or list):     Desired minimum value for clipping (if `None`, no lower limit is applied).
+                                            Also possible to pass a list of minimum values if `per_channel=True`.
+            max (float or int or list):     Desired maximum value for clipping (if `None`, no upper limit is applied).
+                                            Also possible to pass a list of maximum values if `per_channel=True`.
+            per_channel (bool):             Option if clipping should be applied per channel with different clipping ranges.
         """
         self.min = min
         self.max = max
+        self.per_channel = per_channel
 
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#
     def transform(self, image):
-        # Perform clipping
-        image_clipped = np.clip(image, a_min=self.min, a_max=self.max)
+        # Perform clipping on all channels
+        if not self.per_channel:
+            image_clipped = np.clip(image, a_min=self.min, a_max=self.max)
+        # Perform clipping on each channel
+        else:
+            image_clipped = image.copy()
+            for c in range(0, image.shape[-1]):
+                # Identify minimum to clip
+                if self.min is not None and \
+                    type(self.min) in [list, tuple, np.ndarray]:
+                    min = self.min[c]
+                else : min = self.min
+                # Identify maximum to clip
+                if self.max is not None and \
+                    type(self.max) in [list, tuple, np.ndarray]:
+                    max = self.max[c]
+                else : max = self.max
+                # Perform clipping
+                image_clipped[..., c] = np.clip(image[...,c], 
+                                                a_min=min, 
+                                                a_max=max)
         # Return clipped image
         return image_clipped

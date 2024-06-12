@@ -178,7 +178,7 @@ class NeuralNetwork:
             However, be aware of unexpected adverse effects (experimental)!
 
         Attributes:
-            tf_epochs (int, default=5):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
+            tf_epochs (int, default=10):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
             tf_lr_start (float, default=1e-4):      Transfer Learning configuration: Starting learning rate for frozen layer fitting.
             tf_lr_end (float, default=1e-5):        Transfer Learning configuration: Starting learning rate after layer unfreezing.
             meta_input (tuple of int):              Meta variable: Input shape of architecture which can be passed to a DataGenerator. For example: (224, 224).

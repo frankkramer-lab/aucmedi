@@ -22,7 +22,7 @@
 # External libraries
 import numpy as np
 from PIL import Image
-import matplotlib.cm as cm
+import matplotlib as mpl
 
 #-----------------------------------------------------#
 #                   Image Visualizer                  #
@@ -70,7 +70,7 @@ def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
     # Rescale heatmap to grayscale range
     heatmap = np.uint8(heatmap * 255)
     # Use jet colormap to colorize heatmap
-    jet = cm.get_cmap("jet")
+    jet = mpl.colormaps["jet"]
     # Use RGB values of the colormap
     jet_colors = jet(np.arange(256))[:,:3]
     jet_heatmap = jet_colors[heatmap] * 255

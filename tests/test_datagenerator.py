@@ -175,9 +175,9 @@ class DataGeneratorTEST(unittest.TestCase):
         for i in range(0, 10):
             batch = data_gen[i]
             self.assertTrue(len(batch), 1)
-            self.assertTrue(len(batch[0]) == 2)
-            self.assertTrue(np.array_equal(batch[0][0].shape, (5, 224, 224, 3)))
-            self.assertTrue(np.array_equal(batch[0][1].shape, (5, 10)))
+            self.assertTrue(len(batch[0][0]) == 2)
+            self.assertTrue(np.array_equal(batch[0][0][0].shape, (5, 224, 224, 3)))
+            self.assertTrue(np.array_equal(batch[0][0][1].shape, (5, 10)))
 
     # Usage: Metadata for training
     def test_RUN_Metadata_withLabel(self):

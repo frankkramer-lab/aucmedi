@@ -35,7 +35,7 @@ setup(
                       'lime>=0.2.0.1',
                       'pooch>=1.6.0',
                       'classification-models-3D>=1.0.10',
-                      'vit-keras>=0.1.2',
+                      # 'vit-keras>=0.1.2',
                       'tensorflow-addons>=0.21.0',
                       'Keras-Applications==1.0.8',
                       'SimpleITK>=2.2.0',

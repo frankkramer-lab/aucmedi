@@ -61,10 +61,10 @@ from aucmedi.neural_network.architectures.image.vgg19 import VGG19
 # Xception
 from aucmedi.neural_network.architectures.image.xception import Xception
 # Vision Transformer (ViT)
-from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
-from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
-from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
-from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
+# from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
+# from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
+# from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
+# from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
 # ConvNeXt
 from aucmedi.neural_network.architectures.image.convnext_base import ConvNeXtBase
 from aucmedi.neural_network.architectures.image.convnext_tiny import ConvNeXtTiny
@@ -103,10 +103,10 @@ architecture_dict = {
     "VGG16": VGG16,
     "VGG19": VGG19,
     "Xception": Xception,
-    "ViT_B16": ViT_B16,
-    "ViT_B32": ViT_B32,
-    "ViT_L16": ViT_L16,
-    "ViT_L32": ViT_L32,
+    # "ViT_B16": ViT_B16,
+    # "ViT_B32": ViT_B32,
+    # "ViT_L16": ViT_L16,
+    # "ViT_L32": ViT_L32,
     "ConvNeXtBase": ConvNeXtBase,
     "ConvNeXtTiny": ConvNeXtTiny,
     "ConvNeXtSmall": ConvNeXtSmall,
@@ -190,10 +190,10 @@ supported_standardize_mode = {
     "VGG16": "caffe",
     "VGG19": "caffe",
     "Xception": "tf",
-    "ViT_B16": "tf",
-    "ViT_B32": "tf",
-    "ViT_L16": "tf",
-    "ViT_L32": "tf",
+    # "ViT_B16": "tf",
+    # "ViT_B32": "tf",
+    # "ViT_L16": "tf",
+    # "ViT_L32": "tf",
     "ConvNeXtBase": None,
     "ConvNeXtTiny": None,
     "ConvNeXtSmall": None,

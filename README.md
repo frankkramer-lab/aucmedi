@@ -14,7 +14,7 @@ The open-source software AUCMEDI allows fast setup of medical image classificati
 - Wide range of 2D/3D data entry options with interfaces to the most common medical image formats such as DICOM, MetaImage, NifTI, PNG or TIF already supplied.
 - Selection of pre-processing methods for preparing images, such as augmentation processes, color conversions, windowing, filtering, resizing and normalization.
 - Use of deep neural networks for binary, multi-class as well as multi-label classification and efficient methods against class imbalances using modern loss functions such as focal loss.
-- Library from modern architectures, like ResNet up to EfficientNet and Vision-Transformers (ViT)⁠.
+- Library from modern architectures, like ResNet up to EfficientNet. <!-- and Vision-Transformers (ViT)⁠.-->
 - Complex ensemble learning techniques (combination of predictions) using test-time augmentation, bagging via cross-validation or stacking via logistic regressions.
 - Explainable AI to explain opaque decision-making processes of the models using activation maps such as Grad-CAM or backpropagation.
 - Automated Machine Learning (AutoML) mentality to ensure easy deployment, integration and maintenance of complex medical image classification pipelines (Docker).

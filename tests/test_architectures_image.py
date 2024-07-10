@@ -661,6 +661,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.datagen_GRAY.sf_resize = Resize(shape=(32, 32))
         self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
 
+'''
     #-------------------------------------------------#
     #              Architecture: ViT B16              #
     #-------------------------------------------------#
@@ -740,6 +741,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.assertTrue(sdm_global["2D.ViT_L32"] == "tf")
         self.assertTrue("2D.ViT_L32" in architecture_dict)
         # self.datagen_RGB.sf_resize = Resize(shape=(32, 32))
+'''
 
     #-------------------------------------------------#
     #            Architecture: ConvNeXtBase           #

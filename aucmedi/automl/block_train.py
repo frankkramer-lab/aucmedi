@@ -139,8 +139,7 @@ def block_train(config):
                 "workers": config["workers"],
                 "batch_queue_size": 4,
                 "loss": loss,
-                "metrics": [AUC(100), F1Score(num_classes=class_n,
-                                              average="macro")],
+                "metrics": [AUC(100), F1Score(average="macro")],
                 "pretrained_weights": True,
                 "multiprocessing": False,
     }

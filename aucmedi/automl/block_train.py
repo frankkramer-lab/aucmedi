@@ -23,7 +23,7 @@
 import os
 import numpy as np
 import json
-from tensorflow.keras.metrics import AUC
+from tensorflow.keras.metrics import AUC, F1Score
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
                                        ReduceLROnPlateau, EarlyStopping
 # Internal libraries
@@ -139,7 +139,7 @@ def block_train(config):
                 "workers": config["workers"],
                 "batch_queue_size": 4,
                 "loss": loss,
-                "metrics": [AUC(100)],
+                "metrics": [AUC(100), F1Score(average="macro")],
                 "pretrained_weights": True,
                 "multiprocessing": False,
     }

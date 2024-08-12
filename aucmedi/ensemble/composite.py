@@ -243,7 +243,6 @@ class Composite:
                 "fcl_dropout": self.model_list[i].fcl_dropout,
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
-                "batch_queue_size": self.model_list[i].batch_queue_size,
             }
 
             # Gather DataGenerator parameters
@@ -352,7 +351,6 @@ class Composite:
                 "fcl_dropout": self.model_list[i].fcl_dropout,
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
-                "batch_queue_size": self.model_list[i].batch_queue_size,
             }
 
             # Gather DataGenerator parameters
@@ -464,7 +462,6 @@ class Composite:
                 "fcl_dropout": self.model_list[i].fcl_dropout,
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
-                "batch_queue_size": self.model_list[i].batch_queue_size,
             }
 
             # Gather DataGenerator parameters

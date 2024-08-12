@@ -92,7 +92,7 @@ class ClassifierTEST(unittest.TestCase):
     #            Application - Multi-Class            #
     #-------------------------------------------------#
     def test_application_multiclass(self):
-        model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=20, channels=3,
                                input_shape=(32, 32), activation_output="softmax")
         preds = model.predict(self.datagen)
         self.assertTrue(np.sum(preds[0]) > 0.99 and np.sum(preds[0]) < 1.01)
@@ -101,7 +101,7 @@ class ClassifierTEST(unittest.TestCase):
     #            Application - Multi-Label            #
     #-------------------------------------------------#
     def test_application_multilabel(self):
-        model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=20, channels=3,
                                input_shape=(32, 32), activation_output="sigmoid")
         preds = model.predict(self.datagen)
         self.assertTrue(np.sum(preds[0]) > 5)
@@ -110,7 +110,7 @@ class ClassifierTEST(unittest.TestCase):
     #              Application - Metadata             #
     #-------------------------------------------------#
     def test_application_multilabel(self):
-        model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=20, channels=3,
                                input_shape=(32, 32), activation_output="softmax",
                                meta_variables=10)
         preds = model.predict(self.datagen_meta)

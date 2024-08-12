@@ -74,7 +74,6 @@ def block_predict(config):
     # Define neural network parameters
     nn_paras = {"n_labels": 1,                                  # placeholder
                 "channels": 1,                                  # placeholder
-                "batch_queue_size": 4,
     }
     # Select input shape for 3D
     if meta_training["three_dim"]:

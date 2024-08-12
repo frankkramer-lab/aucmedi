@@ -186,7 +186,6 @@ class Bagging:
                 "fcl_dropout": self.model_template.fcl_dropout,
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
-                "batch_queue_size": self.model_template.batch_queue_size,
             }
 
             # Gather DataGenerator parameters
@@ -322,7 +321,6 @@ class Bagging:
                 "fcl_dropout": self.model_template.fcl_dropout,
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
-                "batch_queue_size": self.model_template.batch_queue_size,
             }
 
             # Start inference process for fold i

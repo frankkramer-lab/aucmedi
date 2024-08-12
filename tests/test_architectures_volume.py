@@ -72,11 +72,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_Vanilla(self):
         arch = Vanilla(Classifier(n_labels=4), channels=1,
                                     input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.Vanilla",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["Vanilla"] == "z-score")
@@ -88,11 +87,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_DenseNet121(self):
         arch = DenseNet121(Classifier(n_labels=4), channels=1,
                                         input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.DenseNet121",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet121"] == "torch")
@@ -104,11 +102,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_DenseNet169(self):
         arch = DenseNet169(Classifier(n_labels=4), channels=1,
                                         input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.DenseNet169",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
@@ -120,11 +117,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_DenseNet201(self):
         arch = DenseNet201(Classifier(n_labels=4), channels=1,
                                         input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.DenseNet201",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
@@ -136,11 +132,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNet18(self):
         arch = ResNet18(Classifier(n_labels=4), channels=1,
                                      input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet18",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet18"] == "grayscale")
@@ -152,11 +147,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNet34(self):
         arch = ResNet34(Classifier(n_labels=4), channels=1,
                                      input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet34",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet34"] == "grayscale")
@@ -168,11 +162,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNet50(self):
         arch = ResNet50(Classifier(n_labels=4), channels=1,
                                      input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet50",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet50"] == "grayscale")
@@ -184,11 +177,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNet101(self):
         arch = ResNet101(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet101",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet101"] == "grayscale")
@@ -200,11 +192,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNet152(self):
         arch = ResNet152(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNet152",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNet152"] == "grayscale")
@@ -216,11 +207,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNeXt50(self):
         arch = ResNeXt50(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNeXt50",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNeXt50"] == "grayscale")
@@ -232,11 +222,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ResNeXt101(self):
         arch = ResNeXt101(Classifier(n_labels=4), channels=1,
                                        input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ResNeXt101",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ResNeXt101"] == "grayscale")
@@ -248,11 +237,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_VGG16(self):
         arch = VGG16(Classifier(n_labels=4), channels=1,
                                   input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.VGG16",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["VGG16"] == "caffe")
@@ -264,11 +252,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_VGG19(self):
         arch = VGG19(Classifier(n_labels=4), channels=1,
                                   input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.VGG19",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["VGG19"] == "caffe")
@@ -280,11 +267,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_MobileNet(self):
         arch = MobileNet(Classifier(n_labels=4), channels=1,
                                       input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.MobileNet",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["MobileNet"] == "tf")
@@ -296,11 +282,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_MobileNetV2(self):
         arch = MobileNetV2(Classifier(n_labels=4), channels=1,
                                         input_shape=(64, 64, 64))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.MobileNetV2",
-                               batch_queue_size=1, input_shape=(64, 64, 64))
+                               input_shape=(64, 64, 64))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")
@@ -312,11 +297,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ConvNeXtBase(self):
         arch = ConvNeXtBase(Classifier(n_labels=4), channels=1,
                                        input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ConvNeXtBase",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ConvNeXtBase"] == None)
@@ -328,11 +312,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ConvNeXtTiny(self):
         arch = ConvNeXtTiny(Classifier(n_labels=4), channels=1,
                                        input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ConvNeXtTiny",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ConvNeXtTiny"] == None)
@@ -344,11 +327,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ConvNeXtSmall(self):
         arch = ConvNeXtSmall(Classifier(n_labels=4), channels=1,
                                        input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ConvNeXtSmall",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ConvNeXtSmall"] == None)
@@ -360,11 +342,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     def test_ConvNeXtLarge(self):
         arch = ConvNeXtLarge(Classifier(n_labels=4), channels=1,
                                        input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
-                               batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(n_labels=4, channels=3, architecture="3D.ConvNeXtLarge",
-                               batch_queue_size=1, input_shape=(32, 32, 32))
+                               input_shape=(32, 32, 32))
         try : model.model.summary()
         except : raise Exception()
         self.assertTrue(supported_standardize_mode["ConvNeXtLarge"] == None)

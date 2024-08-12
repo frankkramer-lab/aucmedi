@@ -68,13 +68,13 @@ class NeuralNetworkTEST(unittest.TestCase):
     #                  Model Training                 #
     #-------------------------------------------------#
     def test_training_pure(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3)
         hist = model.train(training_generator=self.datagen,
                            epochs=3)
         self.assertTrue("loss" in hist)
 
     def test_training_iterations(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3)
         hist = model.train(training_generator=self.datagen,
                            epochs=5, iterations=10)
         self.assertTrue("loss" in hist)
@@ -86,14 +86,14 @@ class NeuralNetworkTEST(unittest.TestCase):
         self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_validation(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3)
         hist = model.train(training_generator=self.datagen,
                            validation_generator=self.datagen,
                            epochs=4)
         self.assertTrue("loss" in hist and "val_loss" in hist)
 
     def test_training_transferlearning(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3)
         model.tf_epochs = 2
         hist = model.train(training_generator=self.datagen,
                            validation_generator=self.datagen,
@@ -105,7 +105,7 @@ class NeuralNetworkTEST(unittest.TestCase):
     #                 Model Inference                 #
     #-------------------------------------------------#
     def test_predict(self):
-        model = NeuralNetwork(n_labels=4, channels=3, batch_queue_size=1)
+        model = NeuralNetwork(n_labels=4, channels=3)
         preds = model.predict(self.datagen)
         self.assertTrue(preds.shape == (10, 4))
         for i in range(0, 10):

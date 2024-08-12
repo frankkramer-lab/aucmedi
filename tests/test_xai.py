@@ -64,7 +64,7 @@ class xaiTEST(unittest.TestCase):
                                      grayscale=False, batch_size=3)
         # Create Neural Network model
         self.model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
-                                    architecture="2D.Vanilla", batch_queue_size=1)
+                                    architecture="2D.Vanilla")
         # Compute predictions
         self.preds = self.model.predict(self.datagen)
         # Initialize testing image
@@ -139,7 +139,7 @@ class xaiTEST(unittest.TestCase):
                                 grayscale=False, batch_size=3)
         # Create Neural Network model
         model = NeuralNetwork(n_labels=nclasses, channels=3, input_shape=(32,32),
-                              architecture="2D.Vanilla", batch_queue_size=1)
+                              architecture="2D.Vanilla")
         path_xai = os.path.join(tmp_data.name, "xai_directory")
         xai_decoder(datagen, model, preds=None, out_path=path_xai)
 

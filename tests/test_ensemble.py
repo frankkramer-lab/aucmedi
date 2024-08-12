@@ -66,11 +66,9 @@ class EnsembleTEST(unittest.TestCase):
         # Initialize model
         self.model2D = NeuralNetwork(n_labels=2, channels=3,
                                       architecture="2D.Vanilla",
-                                      batch_queue_size=1,
                                       input_shape=(16, 16))
         self.model3D = NeuralNetwork(n_labels=2, channels=1,
                                       architecture="3D.Vanilla",
-                                      batch_queue_size=1,
                                       input_shape=(16, 16, 16))
 
     #-------------------------------------------------#

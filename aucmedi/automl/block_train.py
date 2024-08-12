@@ -136,7 +136,6 @@ def block_train(config):
     # Define neural network parameters
     nn_paras = {"n_labels": class_n,
                 "channels": 3,
-                "batch_queue_size": 4,
                 "loss": loss,
                 "metrics": [AUC(100), F1Score(average="macro")],
                 "pretrained_weights": True,

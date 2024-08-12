@@ -293,7 +293,7 @@ class DataGenerator(Sequence):
 
         # Add classification to batch if available
         if self.labels is not None:
-            batch_stack[1].extend(np.float32(self.labels[index_array]))
+            batch_stack[1].extend(self.labels[index_array])
         # Add sample weight to batch if available
         if self.sample_weights is not None:
             batch_stack[2].extend(self.sample_weights[index_array])

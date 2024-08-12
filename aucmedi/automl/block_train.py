@@ -23,7 +23,7 @@
 import os
 import numpy as np
 import json
-from tensorflow.keras.metrics import AUC, F1Score
+from tensorflow.keras.metrics import AUC
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
                                        ReduceLROnPlateau, EarlyStopping
 # Internal libraries
@@ -137,7 +137,7 @@ def block_train(config):
     nn_paras = {"n_labels": class_n,
                 "channels": 3,
                 "loss": loss,
-                "metrics": [AUC(100), F1Score(average="macro")],
+                "metrics": [AUC(100)],
                 "pretrained_weights": True,
     }
     # Select input shape for 3D

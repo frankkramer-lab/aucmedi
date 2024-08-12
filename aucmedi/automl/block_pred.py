@@ -74,7 +74,6 @@ def block_predict(config):
     # Define neural network parameters
     nn_paras = {"n_labels": 1,                                  # placeholder
                 "channels": 1,                                  # placeholder
-                "workers": config["workers"],
                 "batch_queue_size": 4,
                 "multiprocessing": False,
     }

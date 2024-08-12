@@ -232,7 +232,6 @@ class Stacking:
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
                 "batch_queue_size": self.model_list[i].batch_queue_size,
-                "workers": self.model_list[i].workers,
                 "multiprocessing": self.model_list[i].multiprocessing,
             }
 
@@ -343,7 +342,6 @@ class Stacking:
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
                 "batch_queue_size": self.model_list[i].batch_queue_size,
-                "workers": self.model_list[i].workers,
                 "multiprocessing": self.model_list[i].multiprocessing,
             }
 
@@ -456,7 +454,6 @@ class Stacking:
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
                 "batch_queue_size": self.model_list[i].batch_queue_size,
-                "workers": self.model_list[i].workers,
                 "multiprocessing": self.model_list[i].multiprocessing,
             }
 

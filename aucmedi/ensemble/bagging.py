@@ -187,7 +187,6 @@ class Bagging:
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
                 "batch_queue_size": self.model_template.batch_queue_size,
-                "workers": self.model_template.workers,
                 "multiprocessing": self.model_template.multiprocessing,
             }
 
@@ -325,7 +324,6 @@ class Bagging:
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
                 "batch_queue_size": self.model_template.batch_queue_size,
-                "workers": self.model_template.workers,
                 "multiprocessing": self.model_template.multiprocessing,
             }
 

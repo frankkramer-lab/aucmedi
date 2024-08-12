@@ -140,7 +140,6 @@ def block_train(config):
                 "loss": loss,
                 "metrics": [AUC(100), F1Score(average="macro")],
                 "pretrained_weights": True,
-                "multiprocessing": False,
     }
     # Select input shape for 3D
     if config["three_dim"] : nn_paras["input_shape"] = config["shape_3D"]

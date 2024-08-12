@@ -138,7 +138,7 @@ class NeuralNetwork:
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
                  fcl_dropout=True, meta_variables=None, learning_rate=0.0001,
-                 batch_queue_size=10, multiprocessing=False,
+                 batch_queue_size=10,
                  verbose=1):
         """ Initialization function for creating a Neural Network (model) object.
 
@@ -169,7 +169,6 @@ class NeuralNetwork:
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
             batch_queue_size (int):                 The batch queue size is the number of previously prepared batches in the cache during runtime.
-            multiprocessing (bool):                 Option whether to utilize multi-processing for workers instead of threading .
             verbose (int):                          Option (0/1) how much information should be written to stdout.
 
         ???+ danger
@@ -191,7 +190,6 @@ class NeuralNetwork:
         self.metrics = metrics
         self.learning_rate = learning_rate
         self.batch_queue_size = batch_queue_size
-        self.multiprocessing = multiprocessing
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
@@ -296,7 +294,6 @@ class NeuralNetwork:
                                      callbacks=callbacks, epochs=epochs,
                                      steps_per_epoch=iterations,
                                      class_weight=class_weights,
-                                     use_multiprocessing=self.multiprocessing,
                                      max_queue_size=self.batch_queue_size,
                                      verbose=self.verbose)
             # Return logged history object
@@ -318,7 +315,6 @@ class NeuralNetwork:
                                            epochs=self.tf_epochs,
                                            steps_per_epoch=iterations,
                                            class_weight=class_weights,
-                                           use_multiprocessing=self.multiprocessing,
                                            max_queue_size=self.batch_queue_size,
                                            verbose=self.verbose)
             # Unfreeze base model layers again
@@ -334,7 +330,6 @@ class NeuralNetwork:
                                          initial_epoch=self.tf_epochs,
                                          steps_per_epoch=iterations,
                                          class_weight=class_weights,
-                                         use_multiprocessing=self.multiprocessing,
                                          max_queue_size=self.batch_queue_size,
                                          verbose=self.verbose)
             # Combine logged history objects
@@ -365,7 +360,6 @@ class NeuralNetwork:
         # Run inference process with the Keras predict function
         preds = self.model.predict(prediction_generator,
                                    max_queue_size=self.batch_queue_size,
-                                   use_multiprocessing=self.multiprocessing,
                                    verbose=self.verbose)
         # Output predictions results
         return preds

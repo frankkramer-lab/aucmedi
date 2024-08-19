@@ -95,11 +95,11 @@ To enable them in other operations, rebuild TensorFlow with the appropriate comp
 Epoch 1/10
 2022-07-18 12:57:32.516662: I tensorflow/stream_executor/cuda/cuda_dnn.cc:368] Loaded cuDNN version 8100
 177/177 [==============================] - ETA: 0s - loss: 0.5103 - auc: 0.9563 - f1_score: 0.7556   
-Epoch 1: val_loss improved from inf to 0.20766, saving model to model/model.best_loss.hdf5
+Epoch 1: val_loss improved from inf to 0.20766, saving model to model/model.best_loss.keras
 177/177 [==============================] - 21s 92ms/step - loss: 0.5103 - auc: 0.9563 - f1_score: 0.7556 - val_loss: 0.2077 - val_auc: 0.9864 - val_f1_score: 0.8958 - lr: 1.0000e-04
 Epoch 2/10
 177/177 [==============================] - ETA: 0s - loss: 0.1932 - auc: 0.9893 - f1_score: 0.8842
-Epoch 2: val_loss improved from 0.20766 to 0.18348, saving model to model/model.best_loss.hdf5
+Epoch 2: val_loss improved from 0.20766 to 0.18348, saving model to model/model.best_loss.keras
 177/177 [==============================] - 15s 84ms/step - loss: 0.1932 - auc: 0.9893 - f1_score: 0.8842 - val_loss: 0.1835 - val_auc: 0.9891 - val_f1_score: 0.9010 - lr: 1.0000e-04
 ...
 Epoch 23/25
@@ -130,8 +130,8 @@ aucmedi.data/
 └── model/
     ├── logs.training.csv
     ├── meta.training.json
-    ├── model.best_loss.hdf5
-    ├── model.last.hdf5
+    ├── model.best_loss.keras
+    ├── model.last.keras
     └── plot.fitting_course.png
 ```
 

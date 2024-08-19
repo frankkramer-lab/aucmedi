@@ -120,7 +120,7 @@ def block_predict(config):
                                  standardize_mode=model.meta_standardize,
                                  **paras_datagen)
         # Load model
-        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
+        path_model = os.path.join(config["path_modeldir"], "model.last.keras")
         model.load(path_model)
         # Start model inference
         preds = model.predict(prediction_generator=pred_gen)
@@ -139,7 +139,7 @@ def block_predict(config):
                                  **paras_datagen)
         # Load model
         path_model = os.path.join(config["path_modeldir"],
-                                  "model.best_loss.hdf5")
+                                  "model.best_loss.keras")
         model.load(path_model)
         # Start model inference via Augmenting
         preds = predict_augmenting(model, pred_gen)

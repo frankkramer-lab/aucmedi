@@ -220,7 +220,7 @@ class Composite:
             callbacks_model = callbacks.copy()
             # Extend Callback list
             path_model = os.path.join(self.cache_dir.name,
-                                      "cv_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.keras")
             cb_mc = ModelCheckpoint(path_model,
                                     monitor="val_loss", verbose=1,
                                     save_best_only=True, mode="min")
@@ -336,7 +336,7 @@ class Composite:
         for i in range(len(self.model_list)):
             # Load current model
             path_model = os.path.join(path_model_dir,
-                                      "cv_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.keras")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -447,7 +447,7 @@ class Composite:
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
             path_model = os.path.join(path_model_dir,
-                                      "cv_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.keras")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -554,7 +554,7 @@ class Composite:
         # Check model existence
         for i in range(len(self.model_list)):
             path_model = os.path.join(directory_path,
-                                      "cv_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.keras")
             if not os.path.exists(path_model):
                 raise FileNotFoundError("Composite model " + str(i) + \
                                         " does not exist!", path_model)

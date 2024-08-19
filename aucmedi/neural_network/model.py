@@ -372,7 +372,7 @@ class NeuralNetwork:
     def dump(self, file_path):
         """ Store model to disk.
 
-        Recommended to utilize the file format ".hdf5".
+        Recommended to utilize the file format ".keras".
 
         Args:
             file_path (str):    Path to store the model on disk.
@@ -385,7 +385,7 @@ class NeuralNetwork:
 
         After loading, the model will be compiled.
 
-        If loading a model in ".hdf5" format, it is not necessary to define any custom_objects.
+        If loading a model in ".keras" format, it is not necessary to define any custom_objects.
 
         Args:
             file_path (str):            Input path, from which the model will be loaded.

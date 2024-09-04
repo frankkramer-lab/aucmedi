@@ -19,10 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.metrics import roc_auc_score, roc_curve
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #         Computation: Classification Metrics         #

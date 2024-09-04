@@ -19,13 +19,17 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+import os
+
+# Third Party Libraries
 import numpy as np
 import pandas as pd
-import os
 from plotnine import *
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.evaluation.metrics import *
+
 
 #-----------------------------------------------------#
 #           Evaluation - Compare Performance          #

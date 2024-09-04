@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
-from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
-# Internal libraries
+from sklearn.model_selection import ShuffleSplit, StratifiedShuffleSplit
+
+# Internal Libraries
 from aucmedi.sampling.iterative import MultilabelStratifiedShuffleSplit
+
 
 #-----------------------------------------------------#
 #       Function: Sampling via Percentage Split       #

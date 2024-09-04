@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, KFold
-# Internal libraries
+from sklearn.model_selection import KFold, StratifiedKFold
+
+# Internal Libraries
 from aucmedi.sampling.iterative import MultilabelStratifiedKFold
+
 
 #-----------------------------------------------------#
 #    Function: Sampling via k-fold cross-validation   #

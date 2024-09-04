@@ -48,13 +48,17 @@ with the parameter `iterative=True`.
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
+from sklearn.model_selection._split import BaseShuffleSplit, _BaseKFold, _RepeatedSplits, _validate_shuffle_split
 from sklearn.utils import check_random_state
-from sklearn.utils.validation import _num_samples, check_array
 from sklearn.utils.multiclass import type_of_target
-from sklearn.model_selection._split import _BaseKFold, _RepeatedSplits, \
-                                    BaseShuffleSplit, _validate_shuffle_split
+from sklearn.utils.validation import _num_samples, check_array
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #       Subfunction for Iterative Stratification      #

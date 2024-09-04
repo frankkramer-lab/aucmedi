@@ -19,8 +19,13 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #             Cache Loader for AUCMEDI IO             #

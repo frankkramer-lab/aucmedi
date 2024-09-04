@@ -19,10 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
+
+# Third Party Libraries
 import numpy as np
 import SimpleITK as sitk
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #              SITK Loader for AUCMEDI IO             #

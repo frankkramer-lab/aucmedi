@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from tensorflow.keras.applications import imagenet_utils
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+from tensorflow.keras.applications import imagenet_utils
+
+# Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
 
 #-----------------------------------------------------#
 #           Subfunction class: Standardize            #

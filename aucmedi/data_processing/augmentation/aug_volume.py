@@ -19,12 +19,17 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+import random
+import warnings
+
+# Third Party Libraries
+import numpy as np
 from volumentations import Compose
 from volumentations import augmentations as ai
-import warnings
-import numpy as np
-import random
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #             AUCMEDI Volume Augmentation             #

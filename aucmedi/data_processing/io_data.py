@@ -20,7 +20,11 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
+# Python Standard Library
 import os
+
+# Internal Libraries
+# Local Libraries
 # Internal libraries
 import aucmedi.data_processing.io_interfaces as io
 

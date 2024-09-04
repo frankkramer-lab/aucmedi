@@ -19,13 +19,19 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from batchgenerators.transforms.abstract_transforms import Compose
-from batchgenerators.transforms.spatial_transforms import MirrorTransform, SpatialTransform
-from batchgenerators.transforms.color_transforms import ContrastAugmentationTransform, GammaTransform, BrightnessMultiplicativeTransform
-from batchgenerators.transforms.noise_transforms import GaussianNoiseTransform
+# Python Standard Library
 import warnings
+
+# Third Party Libraries
 import numpy as np
+from batchgenerators.transforms.abstract_transforms import Compose
+from batchgenerators.transforms.color_transforms import (BrightnessMultiplicativeTransform,
+                                                         ContrastAugmentationTransform, GammaTransform)
+from batchgenerators.transforms.noise_transforms import GaussianNoiseTransform
+from batchgenerators.transforms.spatial_transforms import MirrorTransform, SpatialTransform
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #        AUCMEDI Batchgenerators Augmentation         #

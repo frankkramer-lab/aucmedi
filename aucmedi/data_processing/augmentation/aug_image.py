@@ -19,12 +19,17 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from albumentations import Compose
-import albumentations.augmentations as ai
-import warnings
-import numpy as np
+# Python Standard Library
 import random
+import warnings
+
+# Third Party Libraries
+import albumentations.augmentations as ai
+import numpy as np
+from albumentations import Compose
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #              AUCMEDI Image Augmentation             #

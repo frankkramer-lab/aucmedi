@@ -19,10 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
+
+# Third Party Libraries
 import numpy as np
 import pandas as pd
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #      Data Loader Interface based on Directories     #

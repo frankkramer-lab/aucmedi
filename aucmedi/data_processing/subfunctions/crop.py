@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import albumentations
 import volumentations
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
 
 #-----------------------------------------------------#
 #             Subfunction class: Cropping             #

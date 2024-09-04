@@ -20,10 +20,16 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-import os
-import numpy as np
+# Python Standard Library
 import json
+import os
+
+# Third Party Libraries
+import numpy as np
 import pandas as pd
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #         Data Loader Interface based on JSON         #

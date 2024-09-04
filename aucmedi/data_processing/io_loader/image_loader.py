@@ -19,10 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
+
+# Third Party Libraries
 import numpy as np
 from PIL import Image
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #             Image Loader for AUCMEDI IO             #

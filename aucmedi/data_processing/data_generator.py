@@ -20,16 +20,23 @@
 #                   Library imports                   #
 #-----------------------------------------------------#
 # External libraries
-from tensorflow.keras.utils import Sequence
-import numpy as np
-from multiprocessing.pool import ThreadPool
-from itertools import repeat
-import tempfile
-import pickle
+# Python Standard Library
 import os
+import pickle
+import tempfile
+from itertools import repeat
+from multiprocessing.pool import ThreadPool
+
+# Third Party Libraries
+import numpy as np
+from tensorflow.keras.utils import Sequence
+
+# Internal Libraries
+# Local Libraries
 # Internal libraries
 from aucmedi.data_processing.io_loader import image_loader
-from aucmedi.data_processing.subfunctions import Standardize, Resize
+from aucmedi.data_processing.subfunctions import Resize, Standardize
+
 
 #-----------------------------------------------------#
 #                 Keras Data Generator                #

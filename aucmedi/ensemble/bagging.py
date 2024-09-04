@@ -19,17 +19,21 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
-import tempfile
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
-import numpy as np
 import shutil
-# Internal libraries
+import tempfile
+
+# Third Party Libraries
+import numpy as np
+from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
+from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
+
+# Internal Libraries
 from aucmedi import DataGenerator, NeuralNetwork
-from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
+from aucmedi.sampling import sampling_kfold
+
 
 #-----------------------------------------------------#
 #              Ensemble Learning: Bagging             #

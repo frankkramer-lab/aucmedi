@@ -19,12 +19,16 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
-# Internal libraries
-from aucmedi import ImageAugmentation, VolumeAugmentation, DataGenerator
-from aucmedi.ensemble.aggregate import aggregate_dict
+
+# Internal Libraries
+from aucmedi import DataGenerator, ImageAugmentation, VolumeAugmentation
 from aucmedi.data_processing.io_loader import image_loader
+from aucmedi.ensemble.aggregate import aggregate_dict
+
 
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #

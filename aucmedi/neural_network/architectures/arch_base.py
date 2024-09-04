@@ -19,8 +19,13 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 from abc import ABC, abstractmethod
+
+# Third Party Libraries
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #     Abstract Interface for an Architecture class    #

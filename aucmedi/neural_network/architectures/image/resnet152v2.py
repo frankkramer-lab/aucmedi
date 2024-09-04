@@ -39,10 +39,14 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 from tensorflow.keras.applications import ResNet152V2 as BaseModel
-# Internal libraries
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #           Architecture class: ResNet152V2           #

@@ -19,10 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
-from tensorflow.keras import backend as K
 import tensorflow as tf
+from tensorflow.keras import backend as K
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #                 Focal Loss - Binary                 #

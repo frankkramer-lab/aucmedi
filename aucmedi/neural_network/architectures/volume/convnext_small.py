@@ -45,10 +45,14 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 from classification_models_3D.tfkeras import Classifiers
-# Internal libraries
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #         Architecture class: ConvNeXt Small          #

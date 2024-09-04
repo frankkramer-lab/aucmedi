@@ -39,10 +39,14 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 from tensorflow.keras.applications.vgg16 import VGG16 as BaseModel
-# Internal libraries
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #              Architecture class: VGG16              #

@@ -39,11 +39,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from tensorflow import keras
+# Python Standard Library
+
+# Third Party Libraries
 from keras_applications.resnext import ResNeXt50 as BaseModel
-# Internal libraries
+from tensorflow import keras
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #            Architecture class: ResNeXt50            #

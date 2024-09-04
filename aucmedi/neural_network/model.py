@@ -19,14 +19,16 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
+import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
-import numpy as np
-# Internal libraries/scripts
-from aucmedi.neural_network.architectures import architecture_dict, \
-                                                 supported_standardize_mode, \
-                                                 Classifier
+
+# Internal Libraries
+from aucmedi.neural_network.architectures import Classifier, architecture_dict, supported_standardize_mode
+
 
 #-----------------------------------------------------#
 #            Neural Network (model) class             #

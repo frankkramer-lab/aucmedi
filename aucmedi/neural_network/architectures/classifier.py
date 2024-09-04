@@ -19,9 +19,14 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from tensorflow.keras.models import Model
+# Python Standard Library
+
+# Third Party Libraries
 from tensorflow.keras import Input, layers
+from tensorflow.keras.models import Model
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #                 Classification Head                 #

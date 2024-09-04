@@ -19,22 +19,25 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-import os
-import numpy as np
+# Python Standard Library
 import json
+import os
+
+# Third Party Libraries
+import numpy as np
+from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.metrics import AUC
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
-                                       ReduceLROnPlateau, EarlyStopping
-# Internal libraries
+
+# Internal Libraries
 from aucmedi import *
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
-from aucmedi.sampling import sampling_split
-from aucmedi.utils.class_weights import *
 from aucmedi.data_processing.subfunctions import *
-from aucmedi.neural_network.loss_functions import *
 from aucmedi.ensemble import *
 from aucmedi.evaluation import evaluate_fitting
+from aucmedi.neural_network.loss_functions import *
+from aucmedi.sampling import sampling_split
+from aucmedi.utils.class_weights import *
+
 
 #-----------------------------------------------------#
 #            Building Blocks for Training             #

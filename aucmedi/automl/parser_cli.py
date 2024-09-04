@@ -19,8 +19,11 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-# Internal libraries
+# Python Standard Library
+# Third Party Libraries
+# Internal Libraries
+
+
 #-----------------------------------------------------#
 #                     Parser - CLI                    #
 #-----------------------------------------------------#

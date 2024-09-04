@@ -30,11 +30,15 @@ More information can be found in the docs: [Documentation - AutoML](../../../aut
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import sys
-# Internal libraries
+
+# Third Party Libraries
+
+# Internal Libraries
 from aucmedi.automl import *
 from aucmedi.automl.cli import *
+
 
 #-----------------------------------------------------#
 #                Main Method - Runner                 #

@@ -19,14 +19,18 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
-import pandas as pd
-import numpy as np
 import re
-# Internal libraries
+
+# Third Party Libraries
+import numpy as np
+import pandas as pd
+
+# Internal Libraries
 from aucmedi import *
 from aucmedi.evaluation import evaluate_performance
+
 
 #-----------------------------------------------------#
 #            Building Blocks for Evaluation           #

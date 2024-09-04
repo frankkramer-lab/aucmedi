@@ -26,10 +26,14 @@ The parameters are summarized in the docs: [Documentation - AutoML - Parameters]
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import argparse
+
+# Third Party Libraries
 import pkg_resources
-import sys
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #                    CLI - General                    #

@@ -19,16 +19,20 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-import os
+# Python Standard Library
 import json
+import os
+
+# Third Party Libraries
 import pandas as pd
-# Internal libraries
+
+# Internal Libraries
 from aucmedi import *
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
 from aucmedi.data_processing.subfunctions import *
 from aucmedi.ensemble import *
 from aucmedi.xai import xai_decoder
+
 
 #-----------------------------------------------------#
 #            Building Blocks for Inference            #

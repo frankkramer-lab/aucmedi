@@ -19,14 +19,18 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
-import numpy as np
+# Python Standard Library
 import os
-# AUCMEDI Libraries
-from aucmedi.xai.methods import xai_dict
+
+# Third Party Libraries
+import numpy as np
+
+# Internal Libraries
 from aucmedi.data_processing.io_loader import image_loader
-from aucmedi.utils.visualizer import visualize_heatmap
 from aucmedi.data_processing.subfunctions import Resize
+from aucmedi.utils.visualizer import visualize_heatmap
+from aucmedi.xai.methods import xai_dict
+
 
 #-----------------------------------------------------#
 #                    XAI - Decoder                    #

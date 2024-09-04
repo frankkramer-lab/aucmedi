@@ -19,13 +19,17 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
 import tensorflow as tf
+
 # Internal Libraries
-from aucmedi.xai.methods.xai_base import XAImethod_Base
-from aucmedi.xai.methods import GuidedBackpropagation, GradCAM
 from aucmedi.data_processing.subfunctions import Resize
+from aucmedi.xai.methods import GradCAM, GuidedBackpropagation
+from aucmedi.xai.methods.xai_base import XAImethod_Base
+
 
 #-----------------------------------------------------#
 #                   Guided Grad-CAM                   #

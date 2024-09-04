@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
 import tensorflow as tf
+
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
+
 
 #-----------------------------------------------------#
 #                 Integrated Gradients                #

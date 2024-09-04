@@ -43,7 +43,7 @@ AUCMEDI currently supports the following Ensemble Learning techniques:
     An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
     arXiv e-print: https://arxiv.org/abs/2201.11440
 
-"""
+""" # noqa 501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -51,3 +51,11 @@ from aucmedi.ensemble.augmenting import predict_augmenting
 from aucmedi.ensemble.bagging import Bagging
 from aucmedi.ensemble.stacking import Stacking
 from aucmedi.ensemble.composite import Composite
+
+
+__all__ = [
+    "predict_augmenting",
+    "Bagging",
+    "Stacking",
+    "Composite"
+]

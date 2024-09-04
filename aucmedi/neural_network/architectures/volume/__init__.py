@@ -49,6 +49,7 @@ from aucmedi.neural_network.architectures.volume.convnext_small import ConvNeXtS
 from aucmedi.neural_network.architectures.volume.convnext_base import ConvNeXtBase
 from aucmedi.neural_network.architectures.volume.convnext_large import ConvNeXtLarge
 
+
 #-----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
 #-----------------------------------------------------#
@@ -76,7 +77,8 @@ architecture_dict = {
 }
 """ Dictionary of implemented 3D Architectures Methods in AUCMEDI.
 
-    The base key (str) or an initialized Architecture can be passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class as `architecture` parameter.
+    The base key (str) or an initialized Architecture can be passed to the 
+    [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class as `architecture` parameter.
 
     ???+ example "Example"
         ```python title="Recommended via NeuralNetwork class"
@@ -113,7 +115,8 @@ architecture_dict = {
         architecture="3D.ResNeXt101"
         ```
 
-    Architectures are based on the abstract base class [aucmedi.neural_network.architectures.arch_base.Architecture_Base][].
+    Architectures are based on the abstract base class 
+    [aucmedi.neural_network.architectures.arch_base.Architecture_Base][].
 """
 
 # List of implemented architectures
@@ -144,9 +147,11 @@ supported_standardize_mode = {
     "ConvNeXtBase": None,
     "ConvNeXtLarge": None,
 }
-""" Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 3D Architectures Methods in AUCMEDI.
+""" Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 3D
+    Architectures Methods in AUCMEDI.
 
-    The base key (str) can be passed to the [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] as `standardize_mode` parameter.
+    The base key (str) can be passed to the [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] as
+    `standardize_mode` parameter.
 
     ???+ info
         If training a new model from scratch, any Standardize technique can be used at will. <br>
@@ -171,7 +176,8 @@ supported_standardize_mode = {
         ```
 
     ???+ warning
-        If using an architecture key for the supported_standardize_mode dictionary, be aware that you have to add "3D." in front of it.
+        If using an architecture key for the supported_standardize_mode dictionary, be aware that you have to add "3D."
+        in front of it.
 
         For example:
         ```python

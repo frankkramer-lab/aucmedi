@@ -68,7 +68,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     # Run model inference for unknown samples
     preds = model.predict(test_gen)
     ```
-"""
+""" # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -78,3 +78,13 @@ from aucmedi.data_processing.augmentation import ImageAugmentation, \
                                                  VolumeAugmentation, \
                                                  BatchgeneratorsAugmentation
 from aucmedi.neural_network.model import NeuralNetwork
+
+
+__all__ = [
+    "input_interface",
+    "DataGenerator",
+    "ImageAugmentation",
+    "VolumeAugmentation",
+    "BatchgeneratorsAugmentation",
+    "NeuralNetwork"
+]

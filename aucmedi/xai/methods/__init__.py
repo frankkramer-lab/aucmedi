@@ -30,6 +30,7 @@ from aucmedi.xai.methods.occlusion_sensitivity import OcclusionSensitivity
 from aucmedi.xai.methods.lime_pro import LimePro
 from aucmedi.xai.methods.lime_con import LimeCon
 
+
 #-----------------------------------------------------#
 #                XAI method dictionary                #
 #-----------------------------------------------------#
@@ -60,7 +61,8 @@ xai_dict = {
 }
 """ Dictionary of implemented XAI Methods in AUCMEDI.
 
-    A key (str) or an initialized XAI Method can be passed to the [aucmedi.xai.decoder.xai_decoder][] function as method parameter.
+    A key (str) or an initialized XAI Method can be passed to the [aucmedi.xai.decoder.xai_decoder][] function as method
+    parameter.
 
     ???+ example "Example"
         ```python
@@ -75,3 +77,7 @@ xai_dict = {
 
     XAI Methods are based on the abstract base class [aucmedi.xai.methods.xai_base][].
 """
+
+__all__ = [
+    "xai_dict"
+]

@@ -26,8 +26,6 @@ import os
 import numpy as np
 from PIL import Image
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #             Image Loader for AUCMEDI IO             #

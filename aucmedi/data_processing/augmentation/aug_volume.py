@@ -28,8 +28,6 @@ import numpy as np
 from volumentations import Compose
 from volumentations import augmentations as ai
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #             AUCMEDI Volume Augmentation             #

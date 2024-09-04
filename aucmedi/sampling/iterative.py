@@ -57,8 +57,6 @@ from sklearn.utils import check_random_state
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_array
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #       Subfunction for Iterative Stratification      #

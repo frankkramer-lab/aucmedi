@@ -30,8 +30,6 @@ from batchgenerators.transforms.color_transforms import (BrightnessMultiplicativ
 from batchgenerators.transforms.noise_transforms import GaussianNoiseTransform
 from batchgenerators.transforms.spatial_transforms import MirrorTransform, SpatialTransform
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #        AUCMEDI Batchgenerators Augmentation         #

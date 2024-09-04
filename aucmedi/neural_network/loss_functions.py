@@ -26,8 +26,6 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import backend as K
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #                 Focal Loss - Binary                 #

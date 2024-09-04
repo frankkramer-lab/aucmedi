@@ -25,8 +25,6 @@ import os
 # Third Party Libraries
 import numpy as np
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #             Numpy Loader for AUCMEDI IO             #

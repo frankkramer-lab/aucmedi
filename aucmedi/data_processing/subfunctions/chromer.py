@@ -27,7 +27,6 @@ import numpy as np
 # Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
-
 #-----------------------------------------------------#
 #              Subfunction class: Chromer             #
 #-----------------------------------------------------#

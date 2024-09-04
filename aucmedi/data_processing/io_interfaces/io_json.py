@@ -28,8 +28,6 @@ import os
 import numpy as np
 import pandas as pd
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #         Data Loader Interface based on JSON         #

@@ -33,8 +33,6 @@ More information can be found in the docs: [Documentation - AutoML](../../../aut
 # Python Standard Library
 import sys
 
-# Third Party Libraries
-
 # Internal Libraries
 from aucmedi.automl import *
 from aucmedi.automl.cli import *

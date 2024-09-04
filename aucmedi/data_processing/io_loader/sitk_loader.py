@@ -26,8 +26,6 @@ import os
 import numpy as np
 import SimpleITK as sitk
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #              SITK Loader for AUCMEDI IO             #

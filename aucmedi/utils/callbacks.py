@@ -25,8 +25,6 @@
 import pandas as pd
 from tensorflow.keras.callbacks import EarlyStopping
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #                   Custom Callbacks                  #

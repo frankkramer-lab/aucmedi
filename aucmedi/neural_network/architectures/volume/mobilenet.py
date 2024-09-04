@@ -50,7 +50,6 @@ from classification_models_3D.tfkeras import Classifiers
 # Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-
 #-----------------------------------------------------#
 #            Architecture class: MobileNet            #
 #-----------------------------------------------------#

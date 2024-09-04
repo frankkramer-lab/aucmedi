@@ -28,8 +28,6 @@ import albumentations.augmentations as ai
 import numpy as np
 from albumentations import Compose
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #              AUCMEDI Image Augmentation             #

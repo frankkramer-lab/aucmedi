@@ -25,8 +25,6 @@
 from tensorflow.keras import Input, layers
 from tensorflow.keras.models import Model
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #                 Classification Head                 #

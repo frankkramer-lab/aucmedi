@@ -26,8 +26,6 @@ import matplotlib.cm as cm
 import numpy as np
 from PIL import Image
 
-# Internal Libraries
-
 
 #-----------------------------------------------------#
 #                   Image Visualizer                  #

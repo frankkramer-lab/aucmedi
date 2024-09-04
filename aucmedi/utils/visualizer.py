@@ -19,10 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
+import matplotlib.cm as cm
 import numpy as np
 from PIL import Image
-import matplotlib.cm as cm
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #                   Image Visualizer                  #

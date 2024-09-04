@@ -19,8 +19,14 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-from tensorflow.keras.callbacks import EarlyStopping
+# Python Standard Library
+
+# Third Party Libraries
 import pandas as pd
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Internal Libraries
+
 
 #-----------------------------------------------------#
 #                   Custom Callbacks                  #

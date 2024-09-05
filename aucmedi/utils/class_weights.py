@@ -74,6 +74,7 @@ def compute_class_weights(ohe_array, method="balanced"):
     # Return resulting class weights as list and dictionary
     return class_weights_list, class_weights_dict
 
+
 #-----------------------------------------------------#
 #           Multi-Label Weight Computation            #
 #-----------------------------------------------------#
@@ -109,6 +110,7 @@ def compute_multilabel_weights(ohe_array, method="balanced"):
     # Return resulting class weight list
     return class_weights
 
+
 #-----------------------------------------------------#
 #              Sample Weight Computation              #
 #-----------------------------------------------------#
@@ -116,7 +118,8 @@ def compute_sample_weights(ohe_array, method="balanced"):
     """ Simple wrapper function for scikit learn sample_weight function.
 
     The sample weights can be used for weighting the loss function on imbalanced data.
-    Returned sample weight array which can be directly fed to an AUCMEDI [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+    Returned sample weight array which can be directly fed to an AUCMEDI
+    [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
     ???+ info
         NumPy array shape has to be (n_samples, n_classes) like this: (500, 4).

@@ -55,6 +55,7 @@ class ThresholdEarlyStopping(EarlyStopping):
                 return
         super(ThresholdEarlyStopping, self).on_epoch_end(epoch, logs)
 
+
 class MinEpochEarlyStopping(EarlyStopping):
     """ Changed baseline to act as a real baseline.
 
@@ -63,15 +64,16 @@ class MinEpochEarlyStopping(EarlyStopping):
     ??? abstract "Reference - Implementation"
         Author:   McLawrence  <br>
         Source:   https://stackoverflow.com/questions/46287403/is-there-a-way-to-implement-early-stopping-in-keras-only-after-the-first-say-1  <br>
-    """
+    """ # noqa E501
     def __init__(self, monitor='val_loss', min_delta=0, patience=0, verbose=0,
-                 mode='auto', start_epoch = 100): # add argument for starting epoch
+                 mode='auto', start_epoch=100):  # add argument for starting epoch
         super(MinEpochEarlyStopping, self).__init__()
         self.start_epoch = start_epoch
 
     def on_epoch_end(self, epoch, logs=None):
         if epoch > self.start_epoch:
             super(MinEpochEarlyStopping, self).on_epoch_end(epoch, logs)
+
 
 #-----------------------------------------------------#
 #                    Callback Utils                   #

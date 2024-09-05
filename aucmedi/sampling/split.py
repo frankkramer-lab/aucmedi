@@ -67,7 +67,8 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
     Args:
         samples (list of str):          List of sample/index encoded as Strings.
         labels (numpy.ndarray):         NumPy matrix containing the ohe encoded classification.
-        metadata (numpy.ndarray):       NumPy matrix with additional metadata. Have to be shape (n_samples, meta_variables).
+        metadata (numpy.ndarray):       NumPy matrix with additional metadata. Have to be shape
+                                        (n_samples, meta_variables).
         sampling (list of float):       List of percentage values with split sizes.
         stratified (bool):              Option whether to use stratified sampling based on provided labels.
         iterative (bool):               Option whether to use iterative sampling algorithm.
@@ -79,12 +80,12 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
     """
     # Verify sampling percentages
     if not np.isclose(sum(sampling), 1.0):
-        raise ValueError("Sum of Percentage split ratios as sampling do not" + \
-                         " equal 1", sampling, np.sum(sampling))
+        raise ValueError("Sum of Percentage split ratios as sampling do not"
+                         + " equal 1", sampling, np.sum(sampling))
     # Initialize leftover with the complete dataset
     leftover_samples = np.asarray(samples)
     leftover_labels = np.asarray(labels)
-    if metadata is not None : leftover_meta = np.asarray(metadata)
+    if metadata is not None: leftover_meta = np.asarray(metadata)
     leftover_p = 0.0
     # Initialize result list
     results = []
@@ -94,8 +95,10 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
         # For last split, just take leftover data as subset
         if i == len(sampling)-1:
             # Generate split
-            if metadata is None : split = (leftover_samples, leftover_labels)
-            else : split = (leftover_samples, leftover_labels, leftover_meta)
+            if metadata is None:
+                split = (leftover_samples, leftover_labels)
+            else:
+                split = (leftover_samples, leftover_labels, leftover_meta)
             # Append splitted data and stop
             results.append(split)
             break
@@ -121,16 +124,15 @@ def sampling_split(samples, labels, metadata=None, sampling=[0.8, 0.2],
         # Generate split
         if metadata is None:
             split = (leftover_samples[subsets[1]], leftover_labels[subsets[1]])
-        else : split = (leftover_samples[subsets[1]],
-                        leftover_labels[subsets[1]],
-                        leftover_meta[subsets[1]])
+        else:
+            split = (leftover_samples[subsets[1]], leftover_labels[subsets[1]], leftover_meta[subsets[1]])
         # Append splitted data
         results.append(split)
         # Update remaining data
         leftover_p += sampling[i]
         leftover_samples = leftover_samples[subsets[0]]
         leftover_labels = leftover_labels[subsets[0]]
-        if metadata is not None : leftover_meta = leftover_meta[subsets[0]]
+        if metadata is not None: leftover_meta = leftover_meta[subsets[0]]
 
     # Return result sampling
     return results

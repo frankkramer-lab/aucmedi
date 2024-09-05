@@ -97,7 +97,7 @@ def sampling_kfold(samples, labels, metadata=None, n_splits=3,
     # Preprocess data
     x = np.asarray(samples)
     y = np.asarray(labels)
-    if metadata is not None : m = np.asarray(metadata)
+    if metadata is not None: m = np.asarray(metadata)
 
     # Apply sampling and generate folds
     for train, test in sampler.split(X=samples, y=wk_labels):

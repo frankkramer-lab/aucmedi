@@ -50,13 +50,15 @@ def block_predict(config):
 
     Attributes:
         path_imagedir (str):                Path to the directory containing the images for prediction.
-        path_modeldir (str):                Path to the model directory in which fitted model weights and metadata are stored.
+        path_modeldir (str):                Path to the model directory in which fitted model weights and metadata are
+                                            stored.
         path_pred (str):                    Path to the output file in which predicted csv file should be stored.
         xai_method (str or None):           Key for XAI method.
-        xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be stored.
+        xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be
+                                            stored.
         batch_size (int):                   Number of samples inside a single batch.
         workers (int):                      Number of workers/threads which preprocess batches during runtime.
-    """ # noqa E501
+    """
     # Peak into the dataset via the input interface
     ds = input_interface("directory",
                          config["path_imagedir"],

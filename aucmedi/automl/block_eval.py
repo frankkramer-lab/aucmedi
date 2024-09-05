@@ -48,11 +48,14 @@ def block_evaluate(config):
 
     Attributes:
         path_imagedir (str):                Path to the directory containing the ground truth images.
-        path_gt (str):                      Path to the index/class annotation file if required. (only for 'csv' interface).
+        path_gt (str):                      Path to the index/class annotation file if required
+                                            (only for 'csv' interface).
         path_pred (str):                    Path to the input file in which predicted csv file is stored.
-        path_evaldir (str):                 Path to the directory in which evaluation figures and tables should be stored.
-        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
-    """ # noqa E501
+        path_evaldir (str):                 Path to the directory in which evaluation figures and tables should be
+                                            stored.
+        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot
+                                            encoded.
+    """
     # Obtain interface
     if config["path_gt"] is None:
         config["interface"] = "directory"

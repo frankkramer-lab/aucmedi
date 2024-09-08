@@ -47,7 +47,8 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
     ??? abstract "Reference - Implementation"
         Author: Umberto Griffo <br>
         GitHub: [https://github.com/umbertogriffo](https://github.com/umbertogriffo) <br>
-        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras) <br>
+        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras)
+        <br>
 
     ??? abstract "Reference - Publication"
         Focal Loss for Dense Object Detection (Aug 2017) <br>
@@ -60,7 +61,8 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
 
     Returns:
         loss (Loss Function):               A TensorFlow compatible loss function. This object can be
-                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
+                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
+                                            `loss` parameter.
     """
     def binary_focal_loss_fixed(y_true, y_pred):
         y_true = tf.cast(y_true, tf.float32)
@@ -85,6 +87,7 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
         return loss
 
     return binary_focal_loss_fixed
+
 
 #-----------------------------------------------------#
 #              Focal Loss - Categorical               #
@@ -121,7 +124,8 @@ def categorical_focal_loss(alpha, gamma=2.0):
     ??? abstract "Reference - Implementation"
         Author: Umberto Griffo <br>
         GitHub: [https://github.com/umbertogriffo](https://github.com/umbertogriffo) <br>
-        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras) <br>
+        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras)
+        <br>
 
     ??? abstract "Reference - Publication"
         Focal Loss for Dense Object Detection (Aug 2017) <br>
@@ -136,7 +140,8 @@ def categorical_focal_loss(alpha, gamma=2.0):
 
     Returns:
         loss (Loss Function):               A TensorFlow compatible loss function. This object can be
-                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
+                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
+                                            `loss` parameter.
     """
     alpha = np.array(alpha, dtype=np.float32)
 
@@ -156,6 +161,7 @@ def categorical_focal_loss(alpha, gamma=2.0):
         return K.mean(K.sum(loss, axis=-1))
 
     return categorical_focal_loss_fixed
+
 
 #-----------------------------------------------------#
 #               Focal Loss - Multilabel               #
@@ -195,8 +201,9 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
                                             if True labels are sparse. Default value (1.0).
     Returns:
         loss (Loss Function):               A TensorFlow compatible loss function. This object can be
-                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
-    """
+                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
+                                            `loss` parameter.
+    """ # noqa E501
     class_weights = K.constant(class_weights, tf.float32)
     gamma = K.constant(gamma, tf.float32)
     class_sparsity_coefficient = K.constant(class_sparsity_coefficient,
@@ -210,7 +217,7 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
 
         cross_entropy_0 = (1.0 - y_true) * (-K.log(K.clip(1.0 - predictions_0,
                                 K.epsilon(), 1.0 - K.epsilon())))
-        cross_entropy_1 = y_true *(class_sparsity_coefficient * -K.log(K.clip(
+        cross_entropy_1 = y_true * (class_sparsity_coefficient * -K.log(K.clip(
                                 predictions_1, K.epsilon(), 1.0 - K.epsilon())))
 
         cross_entropy = cross_entropy_1 + cross_entropy_0

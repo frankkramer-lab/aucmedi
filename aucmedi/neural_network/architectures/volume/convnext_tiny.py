@@ -73,14 +73,16 @@ class ConvNeXtTiny(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "imagenet"
+        else:
+            model_weights = None
 
         # Obtain ConvNeXtTiny as base model
         BaseModel, preprocess_input = Classifiers.get("convnext_tiny")
         base_model = BaseModel(include_top=False, weights=model_weights,
                                input_tensor=None, input_shape=self.input,
-                               pooling=None, 
+                               pooling=None,
                                include_preprocessing=self.preprocessing)
         top_model = base_model.output
 

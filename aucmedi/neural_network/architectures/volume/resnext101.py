@@ -68,8 +68,10 @@ class ResNeXt101(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "imagenet"
+        else:
+            model_weights = None
 
         # Obtain ResNeXt101 as base model
         BaseModel, preprocess_input = Classifiers.get("resnext101")

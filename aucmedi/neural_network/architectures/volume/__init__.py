@@ -77,7 +77,7 @@ architecture_dict = {
 }
 """ Dictionary of implemented 3D Architectures Methods in AUCMEDI.
 
-    The base key (str) or an initialized Architecture can be passed to the 
+    The base key (str) or an initialized Architecture can be passed to the
     [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class as `architecture` parameter.
 
     ???+ example "Example"
@@ -115,7 +115,7 @@ architecture_dict = {
         architecture="3D.ResNeXt101"
         ```
 
-    Architectures are based on the abstract base class 
+    Architectures are based on the abstract base class
     [aucmedi.neural_network.architectures.arch_base.Architecture_Base][].
 """
 
@@ -186,3 +186,10 @@ supported_standardize_mode = {
         sf_norm = supported_standardize_mode["3D.ResNeXt101"]
         ```
 """
+
+__all__ = [
+    Architecture_Base,
+    architecture_dict,
+    architectures,
+    supported_standardize_mode
+]

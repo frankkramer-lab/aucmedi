@@ -27,9 +27,9 @@ import os
 import pandas as pd
 
 # Internal Libraries
-from aucmedi import DataGenerator, input_interface, NeuralNetwork
+from aucmedi import DataGenerator, NeuralNetwork, input_interface
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
-from aucmedi.data_processing.subfunctions import Standardize, Padding, Crop, Chromer
+from aucmedi.data_processing.subfunctions import Chromer, Crop, Padding, Standardize
 from aucmedi.ensemble import Composite, predict_augmenting
 from aucmedi.xai import xai_decoder
 

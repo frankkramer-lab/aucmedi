@@ -34,8 +34,8 @@ More information can be found in the docs: [Documentation - AutoML](../../../aut
 import sys
 
 # Internal Libraries
-from aucmedi.automl import parse_cli, parse_yaml, block_train, block_predict, block_evaluate
-from aucmedi.automl.cli import cli_core, cli_training, cli_prediction, cli_evaluation
+from aucmedi.automl import block_evaluate, block_predict, block_train, parse_cli, parse_yaml
+from aucmedi.automl.cli import cli_core, cli_evaluation, cli_prediction, cli_training
 
 
 #-----------------------------------------------------#

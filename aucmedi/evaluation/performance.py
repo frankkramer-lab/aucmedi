@@ -28,7 +28,7 @@ import pandas as pd
 import plotnine as p9
 
 # Internal Libraries
-from aucmedi.evaluation.metrics import compute_metrics, compute_confusion_matrix, compute_roc
+from aucmedi.evaluation.metrics import compute_confusion_matrix, compute_metrics, compute_roc
 
 
 #-----------------------------------------------------#

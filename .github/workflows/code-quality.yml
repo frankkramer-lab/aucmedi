@@ -87,4 +87,4 @@ jobs:
           python -m pip install .
       - name: Run flake8 linter
         run: |
-          python -m flake8 --ignore=E124,E127,E128,E701,E731,W503 --max-line-length 120 aucmedi
+          python -m flake8 --config .github/flake8.cfg aucmedi

@@ -29,9 +29,9 @@ from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from tensorflow.keras.metrics import AUC
 
 # Internal Libraries
-from aucmedi import DataGenerator, input_interface, NeuralNetwork, ImageAugmentation, BatchgeneratorsAugmentation
+from aucmedi import BatchgeneratorsAugmentation, DataGenerator, ImageAugmentation, NeuralNetwork, input_interface
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
-from aucmedi.data_processing.subfunctions import Standardize, Padding, Crop, Chromer
+from aucmedi.data_processing.subfunctions import Chromer, Crop, Padding, Standardize
 from aucmedi.ensemble import Composite
 from aucmedi.evaluation import evaluate_fitting
 from aucmedi.neural_network.loss_functions import categorical_focal_loss, multilabel_focal_loss

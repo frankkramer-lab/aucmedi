@@ -22,7 +22,6 @@
 # Internal Libraries
 import aucmedi.data_processing.io_interfaces as io
 
-
 #-----------------------------------------------------#
 #                   Static Variables                  #
 #-----------------------------------------------------#

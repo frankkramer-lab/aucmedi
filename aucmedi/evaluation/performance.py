@@ -25,10 +25,10 @@ import os
 # Third Party Libraries
 import numpy as np
 import pandas as pd
-from plotnine import *
+import plotnine as p9
 
 # Internal Libraries
-from aucmedi.evaluation.metrics import *
+from aucmedi.evaluation.metrics import compute_metrics, compute_confusion_matrix, compute_roc
 
 
 #-----------------------------------------------------#
@@ -46,7 +46,8 @@ def evaluate_performance(preds,
                          plot_barplot=True,
                          plot_confusion_matrix=True,
                          plot_roc_curve=True):
-    """ Function for automatic performance evaluation based on model predictions.
+    """ Function for automatic performance evaluation based on model
+    predictions.
 
     ???+ example
         ```python
@@ -55,7 +56,7 @@ def evaluate_performance(preds,
         from aucmedi.evaluation import *
 
         # Load data
-        ds = input_interface(interface="csv",                       # Interface type
+        ds = input_interface(interface="csv", # Interface type
                              path_imagedir="dataset/images/",
                              path_data="dataset/annotations.csv",
                              ohe=False, col_sample="ID", col_class="diagnosis")
@@ -99,8 +100,8 @@ def evaluate_performance(preds,
         utilizing a DenseNet121.
 
     Args:
-        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [NeuralNetwork][aucmedi.neural_network.model].
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels).
+                                        Provided by [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         out_path (str):                 Path to directory in which plotted figures are stored.
@@ -123,8 +124,10 @@ def evaluate_performance(preds,
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold
-    if multi_label : threshold = metrics_threshold
-    else : threshold = None
+    if multi_label:
+        threshold = metrics_threshold
+    else:
+        threshold = None
 
     # Compute metrics
     metrics = compute_metrics(preds, labels, n_labels, threshold)
@@ -137,7 +140,8 @@ def evaluate_performance(preds,
         for c in range(len(class_names)):
             class_mapping[c] = class_names[c]
         metrics["class"].replace(class_mapping, inplace=True)
-    if class_names is None : metrics["class"] = pd.Categorical(metrics["class"])
+    if class_names is None:
+        metrics["class"] = pd.Categorical(metrics["class"])
 
     # Store metrics to CSV
     if store_csv:
@@ -145,18 +149,22 @@ def evaluate_performance(preds,
 
     # Generate bar plot
     if plot_barplot:
-        evalby_barplot(metrics, out_path, class_names, show=show, suffix=suffix)
+        evalby_barplot(metrics, out_path, class_names,
+                       show=show, suffix=suffix)
 
     # Generate confusion matrix plot
     if plot_confusion_matrix and not multi_label:
-        evalby_confusion_matrix(cm, out_path, class_names, show=show, suffix=suffix)
+        evalby_confusion_matrix(
+            cm, out_path, class_names, show=show, suffix=suffix)
 
     # Generate ROC curve
     if plot_roc_curve:
-        evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=show, suffix=suffix)
+        evalby_rocplot(fpr_list, tpr_list, out_path,
+                       class_names, show=show, suffix=suffix)
 
     # Return metrics
     return metrics
+
 
 #-----------------------------------------------------#
 #      Evaluation Performance - Confusion Matrix      #
@@ -181,29 +189,33 @@ def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
     dt.rename(columns={"index": "gt"}, inplace=True)
 
     # Generate confusion matrix
-    fig = (ggplot(dt, aes("pd", "gt", fill="score"))
-                  + geom_tile(color="white", size=1.5)
-                  + geom_text(aes("pd", "gt", label="score"), color="black")
-                  + ggtitle("Performance Evaluation: Confusion Matrix")
-                  + xlab("Prediction")
-                  + ylab("Ground Truth")
-                  + scale_fill_gradient(low="white", high="royalblue",
-                                        limits=[0, 100])
-                  + guides(fill = guide_colourbar(title="%",
-                                                  barwidth=10,
-                                                  barheight=50))
-                  + theme_bw()
-                  + theme(axis_text_x = element_text(angle = 45, vjust = 1,
-                                                     hjust = 1)))
+    fig = (p9.ggplot(dt, p9.aes("pd", "gt", fill="score"))
+           + p9.geom_tile(color="white", size=1.5)
+           + p9.geom_text(p9.aes("pd", "gt",
+                                 label="score"), color="black")
+           + p9.ggtitle("Performance Evaluation: Confusion Matrix")
+           + p9.xlab("Prediction")
+           + p9.ylab("Ground Truth")
+           + p9.scale_fill_gradient(low="white", high="royalblue",
+                                    limits=[0, 100])
+           + p9.guides(fill=p9.guide_colourbar(title="%",
+                                               barwidth=10,
+                                               barheight=50))
+           + p9.theme_bw()
+           + p9.theme(axis_text_x=p9.element_text(angle=45, vjust=1,
+                                                  hjust=1)))
 
     # Store figure to disk
     filename = "plot.performance.confusion_matrix"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)
+
 
 #-----------------------------------------------------#
 #          Evaluation Performance - Barplots          #
@@ -214,26 +226,30 @@ def evalby_barplot(metrics, out_path, class_names, show=False, suffix=None):
     df_metrics["class"] = pd.Categorical(df_metrics["class"])
 
     # Generate metric results
-    fig = (ggplot(df_metrics, aes("class", "score", fill="class"))
-              + geom_col(stat='identity', width=0.6, color="black",
-                         position = position_dodge(width=0.6))
-              + ggtitle("Performance Evaluation: Metric Overview")
-              + facet_wrap("metric")
-              + coord_flip()
-              + xlab("")
-              + ylab("Score")
-              + scale_y_continuous(limits=[0, 1], breaks=np.arange(0, 1.1, 0.1))
-              + scale_fill_discrete(name="Classes")
-              + theme_bw())
+    fig = (p9.ggplot(df_metrics, p9.aes("class", "score", fill="class"))
+           + p9.geom_col(stat='identity', width=0.6, color="black",
+                         position=p9.position_dodge(width=0.6))
+           + p9.ggtitle("Performance Evaluation: Metric Overview")
+           + p9.facet_wrap("metric")
+           + p9.coord_flip()
+           + p9.xlab("")
+           + p9.ylab("Score")
+           + p9.scale_y_continuous(limits=[0, 1],
+                                   breaks=np.arange(0, 1.1, 0.1))
+           + p9.scale_fill_discrete(name="Classes")
+           + p9.theme_bw())
 
     # Store figure to disk
     filename = "plot.performance.barplot"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=12, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)
+
 
 #-----------------------------------------------------#
 #          Evaluation Performance - ROC plot          #
@@ -258,26 +274,31 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
     df_roc["TPR"] = df_roc["TPR"].astype(float)
 
     # Generate roc results
-    fig = (ggplot(df_roc, aes("FPR", "TPR", color="class"))
-               + geom_line(size=1.0)
-               + geom_abline(intercept=0, slope=1, color="black",
-                             linetype="dashed")
-               + ggtitle("Performance Evaluation: ROC Curves")
-               + xlab("False Positive Rate")
-               + ylab("True Positive Rate")
-               + scale_x_continuous(limits=[0, 1], breaks=np.arange(0,1.1,0.1))
-               + scale_y_continuous(limits=[0, 1], breaks=np.arange(0,1.1,0.1))
-               + scale_color_discrete(name="Classes")
-               + theme_bw())
+    fig = (p9.ggplot(df_roc, p9.aes("FPR", "TPR", color="class"))
+           + p9.geom_line(size=1.0)
+           + p9.geom_abline(intercept=0, slope=1, color="black",
+                            linetype="dashed")
+           + p9.ggtitle("Performance Evaluation: ROC Curves")
+           + p9.xlab("False Positive Rate")
+           + p9.ylab("True Positive Rate")
+           + p9.scale_x_continuous(limits=[0, 1],
+                                   breaks=np.arange(0, 1.1, 0.1))
+           + p9.scale_y_continuous(limits=[0, 1],
+                                   breaks=np.arange(0, 1.1, 0.1))
+           + p9.scale_color_discrete(name="Classes")
+           + p9.theme_bw())
 
     # Store figure to disk
     filename = "plot.performance.roc"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)
+
 
 #-----------------------------------------------------#
 #          Evaluation Performance - CSV file          #
@@ -285,7 +306,8 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
 def evalby_csv(metrics, out_path, class_names, suffix=None):
     # Obtain filename to
     filename = "metrics.performance"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".csv"
     path_csv = os.path.join(out_path, filename)
 

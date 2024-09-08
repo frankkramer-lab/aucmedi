@@ -78,7 +78,8 @@ class Metalearner_Base(ABC):
         """ Training function to fit the Metalearner model.
 
         Args:
-            x (numpy.ndarray):          Assembled prediction dataset encoded in a NumPy matrix with shape (N_samples, N_classes*N_models).
+            x (numpy.ndarray):          Assembled prediction dataset encoded in a NumPy matrix with shape
+                                        (N_samples, N_classes*N_models).
             y (numpy.ndarray):          Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
         """
@@ -95,7 +96,8 @@ class Metalearner_Base(ABC):
         It is possible to pass configurations through the initialization function for this class.
 
         Args:
-            data (numpy.ndarray):       Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
+            data (numpy.ndarray):       Assembled predictions encoded in a NumPy matrix with shape
+                                        (N_models, N_classes).
         Returns:
             pred (numpy.ndarray):       Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
         """

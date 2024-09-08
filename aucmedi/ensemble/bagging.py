@@ -89,18 +89,21 @@ class Bagging:
         Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
-        For the training and inference process, each model will create an individual process via the Python multiprocessing package.
+        For the training and inference process, each model will create an individual process via the Python
+        multiprocessing package.
 
         This is crucial as TensorFlow does not fully support the VRAM memory garbage collection in GPUs,
         which is why more and more redundant data pile up with an increasing number of k-fold.
 
-        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next fold model.
+        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next
+        fold model.
 
     ??? reference "Reference for Ensemble Learning Techniques"
         Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).
         An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
+
     def __init__(self, model, k_fold=3):
         """ Initialization function for creating a Bagging object.
 
@@ -125,10 +128,12 @@ class Bagging:
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
-        For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
+        For more information on the fitting process, check out
+        [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according to k-fold sampling).
+            training_generator (DataGenerator):     A data generator which will be used for training (will be split
+                                                    according to k-fold sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -137,7 +142,8 @@ class Bagging:
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
 
         Returns:
-            history (dict):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                 A history dictionary from a Keras history object which contains several
+                                            logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_bagging = {}            # Final history dictionary
@@ -161,19 +167,20 @@ class Bagging:
             if len(fold) == 4:
                 (train_x, train_y, test_x, test_y) = fold
                 data = (train_x, train_y, None, test_x, test_y, None)
-            else : data = fold
+            else:
+                data = fold
 
             # Create model specific callback list
             callbacks_model = callbacks.copy()
             # Extend Callback list
             cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
-                                                 "cv_" + str(i) + \
+                                                 "cv_" + str(i) +
                                                  ".model.hdf5"),
                                     monitor="val_loss", verbose=1,
                                     save_best_only=True, mode="min")
             cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
-                                                 "cv_" + str(i) + \
-                                                 ".logs.csv"),
+                                           "cv_" + str(i) +
+                                           ".logs.csv"),
                               separator=',', append=True)
             callbacks_model.extend([cb_mc, cb_cl])
 
@@ -211,7 +218,7 @@ class Bagging:
                              "loader": temp_dg.sample_loader,
                              "workers": temp_dg.workers,
                              "kwargs": temp_dg.kwargs
-            }
+                             }
 
             # Gather training parameters
             parameters_training = {"epochs": epochs,
@@ -219,7 +226,7 @@ class Bagging:
                                    "callbacks": callbacks_model,
                                    "class_weights": class_weights,
                                    "transfer_learning": transfer_learning
-            }
+                                   }
 
             # Start training process
             process_queue = mp.Queue()
@@ -243,13 +250,15 @@ class Bagging:
                 return_ensemble=False):
         """ Prediction function for the Bagging models.
 
-        The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+        The fitted models will predict classifications for the provided
+        [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
         The inclusion of the Aggregate function can be achieved in multiple ways:
 
         - self-initialization with an AUCMEDI Aggregate function,
         - use a string key to call an AUCMEDI Aggregate function by name, or
-        - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base]
+        - implementing a custom Aggregate function by extending the
+            [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base]
 
         !!! info
             Description and list of implemented Aggregate functions can be found here:
@@ -257,27 +266,31 @@ class Bagging:
 
         Args:
             prediction_generator (DataGenerator):   A data generator which will be used for inference.
-            aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
+            aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI
+                                                    Aggregate function.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
-            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
-            ensemble (numpy.ndarray):               Optional ensemble of predictions: Will be only passed if `return_ensemble=True`.
-                                                    Shape (n_models, n_samples, n_labels).
+            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape
+                                                    (n_samples, n_labels).
+            ensemble (numpy.ndarray):               Optional ensemble of predictions: Will be only passed if
+                                                    `return_ensemble=True`. Shape (n_models, n_samples, n_labels).
         """
         # Verify if there is a linked cache dictionary
-        con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
+        con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and
                    os.path.exists(self.cache_dir.name))
-        con_var = (self.cache_dir is not None and \
-                   not isinstance(self.cache_dir, tempfile.TemporaryDirectory) \
+        con_var = (self.cache_dir is not None and
+                   not isinstance(self.cache_dir, tempfile.TemporaryDirectory)
                    and os.path.exists(self.cache_dir))
         if not con_tmp and not con_var:
-            raise FileNotFoundError("Bagging does not have a valid model cache directory!")
+            raise FileNotFoundError(
+                "Bagging does not have a valid model cache directory!")
 
         # Initialize aggregate function if required
         if isinstance(aggregate, str) and aggregate in aggregate_dict:
             agg_fun = aggregate_dict[aggregate]()
-        else : agg_fun = aggregate
+        else:
+            agg_fun = aggregate
 
         # Initialize some variables
         temp_dg = prediction_generator
@@ -302,12 +315,13 @@ class Bagging:
                          "loader": temp_dg.sample_loader,
                          "workers": temp_dg.workers,
                          "kwargs": temp_dg.kwargs
-        }
+                         }
 
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
-        else : path_model_dir = self.cache_dir
+        else:
+            path_model_dir = self.cache_dir
 
         # Sequentially iterate over all fold models
         for i in range(self.k_fold):
@@ -350,15 +364,17 @@ class Bagging:
         # Aggregate predictions
         preds_ensemble = np.array(preds_ensemble)
         for i in range(0, len(temp_dg.samples)):
-            pred_sample = agg_fun.aggregate(preds_ensemble[:,i,:])
+            pred_sample = agg_fun.aggregate(preds_ensemble[:, i, :])
             preds_final.append(pred_sample)
 
         # Convert prediction list to NumPy
         preds_final = np.asarray(preds_final)
 
         # Return ensembled predictions
-        if return_ensemble : return preds_final, preds_ensemble
-        else : return preds_final
+        if return_ensemble:
+            return preds_final, preds_ensemble
+        else:
+            return preds_final
 
     # Dump model to file
     def dump(self, directory_path):
@@ -371,7 +387,8 @@ class Bagging:
             directory_path (str):       Path to store the model directory on disk.
         """
         if self.cache_dir is None:
-            raise FileNotFoundError("Bagging does not have a valid model cache directory!")
+            raise FileNotFoundError(
+                "Bagging does not have a valid model cache directory!")
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             shutil.copytree(self.cache_dir.name, directory_path,
                             dirs_exist_ok=True)
@@ -397,10 +414,11 @@ class Bagging:
             path_model = os.path.join(directory_path,
                                       "cv_" + str(i) + ".model.hdf5")
             if not os.path.exists(path_model):
-                raise FileNotFoundError("Bagging model for fold " + str(i) + \
+                raise FileNotFoundError("Bagging model for fold " + str(i) +
                                         " does not exist!", path_model)
         # Update model directory
         self.cache_dir = directory_path
+
 
 #-----------------------------------------------------#
 #                     Subroutines                     #
@@ -452,6 +470,7 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(cv_history)
+
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, datagen_paras):

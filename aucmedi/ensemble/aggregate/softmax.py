@@ -19,8 +19,6 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# Python Standard Library
-
 # Third Party Libraries
 import numpy as np
 
@@ -53,6 +51,7 @@ class Softmax(Aggregate_Base):
         pred = compute_softmax(preds_sum)
         # Return prediction
         return pred
+
 
 #-----------------------------------------------------#
 #             Subfunction: Softmax Formula            #

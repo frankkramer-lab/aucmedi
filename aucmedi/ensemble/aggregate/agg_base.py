@@ -71,6 +71,7 @@ class Aggregate_Base(ABC):
         There are no mandatory parameters for the initialization.
         """
         pass
+
     #---------------------------------------------#
     #                  Aggregate                  #
     #---------------------------------------------#
@@ -82,8 +83,9 @@ class Aggregate_Base(ABC):
         It is possible to pass configurations through the initialization function for this class.
 
         Args:
-            preds (numpy.ndarray):      Assembled predictions encoded in a NumPy matrix with shape (N_models, N_classes).
+            preds (numpy.ndarray):      Assembled predictions encoded in a NumPy matrix with shape
+                                        (N_models, N_classes).
         Returns:
             pred (numpy.ndarray):       Merged prediction encoded in a NumPy matrix with shape (1, N_classes).
         """
-        return pred
+        return pred # noqa F821

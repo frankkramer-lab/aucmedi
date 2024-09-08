@@ -23,7 +23,6 @@
 import pickle
 
 # Third Party Libraries
-import numpy as np
 from sklearn.neural_network import MLPClassifier
 
 # Internal Libraries

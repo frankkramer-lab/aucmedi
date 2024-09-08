@@ -79,5 +79,14 @@ xai_dict = {
 """
 
 __all__ = [
-    "xai_dict"
+    "xai_dict",
+    "GradCAM",
+    "GradCAMpp",
+    "GuidedGradCAM",
+    "SaliencyMap",
+    "GuidedBackpropagation",
+    "IntegratedGradients",
+    "OcclusionSensitivity",
+    "LimePro",
+    "LimeCon"
 ]

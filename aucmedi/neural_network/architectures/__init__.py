@@ -102,8 +102,8 @@ for m in modes_volume:
 
 
 __all__ = [
-    Architecture_Base,
-    Classifier,
-    architecture_dict,
-    supported_standardize_mode
+    "Architecture_Base",
+    "Classifier",
+    "architecture_dict",
+    "supported_standardize_mode"
 ]

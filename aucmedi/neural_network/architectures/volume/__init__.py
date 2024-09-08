@@ -188,8 +188,27 @@ supported_standardize_mode = {
 """
 
 __all__ = [
-    Architecture_Base,
-    architecture_dict,
-    architectures,
-    supported_standardize_mode
+    "Architecture_Base",
+    "Vanilla",
+    "DenseNet121",
+    "DenseNet169",
+    "DenseNet201",
+    "ResNet18",
+    "ResNet34",
+    "ResNet50",
+    "ResNet101",
+    "ResNet152",
+    "ResNeXt50",
+    "ResNeXt101",
+    "MobileNet",
+    "MobileNetV2",
+    "VGG16",
+    "VGG19",
+    "ConvNeXtTiny",
+    "ConvNeXtSmall",
+    "ConvNeXtBase",
+    "ConvNeXtLarge",
+    "architecture_dict",
+    "architectures",
+    "supported_standardize_mode",
 ]

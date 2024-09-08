@@ -44,21 +44,26 @@
     ```
     @article{dosovitskiy2020vit,
       title={An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale},
-      author={Dosovitskiy, Alexey and Beyer, Lucas and Kolesnikov, Alexander and Weissenborn, Dirk and Zhai, Xiaohua and Unterthiner, Thomas and  Dehghani, Mostafa and Minderer, Matthias and Heigold, Georg and Gelly, Sylvain and Uszkoreit, Jakob and Houlsby, Neil},
+      author={Dosovitskiy, Alexey and Beyer, Lucas and Kolesnikov, Alexander and Weissenborn, Dirk and Zhai, Xiaohua and
+      Unterthiner, Thomas and  Dehghani, Mostafa and Minderer, Matthias and Heigold, Georg and Gelly, Sylvain and
+      Uszkoreit, Jakob and Houlsby, Neil},
       journal={ICLR},
       year={2021}
     }
 
     @article{tolstikhin2021mixer,
       title={MLP-Mixer: An all-MLP Architecture for Vision},
-      author={Tolstikhin, Ilya and Houlsby, Neil and Kolesnikov, Alexander and Beyer, Lucas and Zhai, Xiaohua and Unterthiner, Thomas and Yung, Jessica and Steiner, Andreas and Keysers, Daniel and Uszkoreit, Jakob and Lucic, Mario and Dosovitskiy, Alexey},
+      author={Tolstikhin, Ilya and Houlsby, Neil and Kolesnikov, Alexander and Beyer, Lucas and Zhai, Xiaohua and
+      Unterthiner, Thomas and Yung, Jessica and Steiner, Andreas and Keysers, Daniel and Uszkoreit, Jakob and
+      Lucic, Mario and Dosovitskiy, Alexey},
       journal={arXiv preprint arXiv:2105.01601},
       year={2021}
     }
 
     @article{steiner2021augreg,
       title={How to train your ViT? Data, Augmentation, and Regularization in Vision Transformers},
-      author={Steiner, Andreas and Kolesnikov, Alexander and and Zhai, Xiaohua and Wightman, Ross and Uszkoreit, Jakob and Beyer, Lucas},
+      author={Steiner, Andreas and Kolesnikov, Alexander and and Zhai, Xiaohua and Wightman, Ross and Uszkoreit, Jakob
+      and Beyer, Lucas},
       journal={arXiv preprint arXiv:2106.10270},
       year={2021}
     }
@@ -72,7 +77,8 @@
 
     @article{zhai2022lit,
       title={LiT: Zero-Shot Transfer with Locked-image Text Tuning},
-      author={Zhai, Xiaohua and Wang, Xiao and Mustafa, Basil and Steiner, Andreas and Keysers, Daniel and Kolesnikov, Alexander and Beyer, Lucas},
+      author={Zhai, Xiaohua and Wang, Xiao and Mustafa, Basil and Steiner, Andreas and Keysers, Daniel and
+      Kolesnikov, Alexander and Beyer, Lucas},
       journal={CVPR},
       year={2022}
     }
@@ -108,8 +114,10 @@ class ViT_B16(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : pretrained = True
-        else : pretrained = False
+        if self.pretrained_weights:
+            pretrained = True
+        else:
+            pretrained = False
 
         # Obtain ViT B16 as base model
         base_model = vit.vit_b16(image_size=self.input[:-1],

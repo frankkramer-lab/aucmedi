@@ -41,7 +41,7 @@ Recommended alternative `Input_shape` is 384x384 pixels.
     10 Jan 2022. A ConvNet for the 2020s.
     <br>
     [https://arxiv.org/abs/2201.03545](https://arxiv.org/abs/2201.03545)
-"""
+""" # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -72,8 +72,10 @@ class ConvNeXtBase(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "imagenet"
+        else:
+            model_weights = None
 
         # Obtain ResNet50 as base model
         base_model = BaseModel(include_top=False, weights=model_weights,

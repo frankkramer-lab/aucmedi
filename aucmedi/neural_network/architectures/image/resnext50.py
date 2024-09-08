@@ -67,8 +67,10 @@ class ResNeXt50(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "imagenet"
+        else:
+            model_weights = None
 
         # Obtain ResNeXt50 as base model
         base_model = BaseModel(include_top=False, weights=model_weights,

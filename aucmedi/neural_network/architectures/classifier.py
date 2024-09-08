@@ -32,7 +32,8 @@ from tensorflow.keras.models import Model
 class Classifier:
     """ A powerful interface for all types of image classifications.
 
-    This class will be created automatically inside the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
+    This class will be created automatically inside the
+    [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
 
     !!! info "Supported Features"
         - Binary classification
@@ -107,7 +108,7 @@ class Classifier:
                               resize=my_model.meta_input,                  # (224,224)
                               standardize_mode=my_model.meta_standardize)  # "torch"
         ```
-    """
+    """ # noqa E501
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -117,14 +118,19 @@ class Classifier:
 
         The fully connected layer and dropout option (`fcl_dropout`) utilizes a 512 unit Dense layer with 30% Dropout.
 
-        Modi for activation_output: Check out [TensorFlow.Keras doc on activation functions](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
+        Modi for activation_output: Check out
+        [TensorFlow.Keras doc on activation functions](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
 
         Args:
-            n_labels (int):                 Number of classes/labels (important for the last layer of classification head).
+            n_labels (int):                 Number of classes/labels (important for the last layer of classification
+                                            head).
             activation_output (str):        Activation function which is used in the last classification layer.
-            meta_variables (int):           Number of metadata variables, which should be included in the classification head.
-                                            If `None`is provided, no metadata integration block will be added to the classification head.
-            fcl_dropout (bool):             Option whether to utilize a Dense & Dropout layer before the last classification layer.
+            meta_variables (int):           Number of metadata variables, which should be included in the classification
+                                            head.
+                                            If `None`is provided, no metadata integration block will be added to the
+                                            classification head.
+            fcl_dropout (bool):             Option whether to utilize a Dense & Dropout layer before the last
+                                            classification layer.
         """
         self.n_labels = n_labels
         self.activation_output = activation_output
@@ -137,7 +143,8 @@ class Classifier:
     def build(self, model_input, model_output):
         """ Internal function which appends the classification head.
 
-        This function will be called from inside an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
+        This function will be called from inside an
+        [Architecture][aucmedi.neural_network.architectures] `create_model()` function
         and must return a functional Keras model.
         The `build()` function will append a classification head to the provided Keras model.
 
@@ -154,7 +161,8 @@ class Classifier:
         elif len(model_output.shape) == 5:          # for 3D architectures
             model_head = layers.GlobalAveragePooling3D(name="avg_pool")(model_output)
         # if not model output shape 4 or 5 -> it is already GlobalAveragePooled to 2 dim
-        else : model_head = model_output
+        else:
+            model_head = model_output
 
         # Apply optional dense & dropout layer
         if self.fcl_dropout:
@@ -183,7 +191,8 @@ class Classifier:
         # Obtain input layer
         if self.meta_variables is not None:
             input_layer = [model_input, model_meta]
-        else : input_layer = model_input
+        else:
+            input_layer = model_input
 
         # Create tf.keras model
         model = Model(inputs=input_layer, outputs=model_head)

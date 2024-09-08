@@ -67,8 +67,10 @@ def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
         **kwargs (dict):            Additional parameters for the sample loader.
     """
     # Get image path
-    if image_format : img_file = sample + "." + image_format
-    else : img_file = sample
+    if image_format:
+        img_file = sample + "." + image_format
+    else:
+        img_file = sample
     path_img = os.path.join(path_imagedir, img_file)
     # Load image via the NumPy package
     img = np.load(path_img, allow_pickle=True)
@@ -82,8 +84,8 @@ def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 2D & Grayscale: Expected either 2D " + \
-                             "without channel axis or 3D with single channel" + \
+            raise ValueError("Parameter 2D & Grayscale: Expected either 2D " +
+                             "without channel axis or 3D with single channel" +
                              " axis, but got:", img.shape, len(img.shape))
     # Verify image shape for grayscale & 3D
     elif grayscale and not two_dim:
@@ -95,8 +97,8 @@ def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 3D & Grayscale: Expected either 3D " + \
-                             "without channel axis or 4D with single channel" + \
+            raise ValueError("Parameter 3D & Grayscale: Expected either 3D " +
+                             "without channel axis or 4D with single channel" +
                              " axis, but got:", img.shape, len(img.shape))
     # Verify image shape for rgb & 2D
     elif not grayscale and two_dim:
@@ -105,7 +107,7 @@ def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 2D & RGB: Expected 3D array " + \
+            raise ValueError("Parameter 2D & RGB: Expected 3D array " +
                              "including a single channel axis, but got:",
                              img.shape, len(img.shape))
     # Verify image shape for rgb & 3D
@@ -115,6 +117,6 @@ def numpy_loader(sample, path_imagedir, image_format=None, grayscale=False,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 3D & RGB: Expected 4D array " + \
+            raise ValueError("Parameter 3D & RGB: Expected 4D array " +
                              "including a single channel axis, but got:",
                              img.shape, len(img.shape))

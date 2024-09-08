@@ -27,6 +27,7 @@ import numpy as np
 # Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
 
+
 #-----------------------------------------------------#
 #              Subfunction class: Chromer             #
 #-----------------------------------------------------#
@@ -43,6 +44,8 @@ Methods:
     __init__                Object creation function.
     transform:              Apply chromer.
 """
+
+
 class Chromer(Subfunction_Base):
     """ A Subfunction class which which can be used for color format transforming.
 
@@ -80,15 +83,11 @@ class Chromer(Subfunction_Base):
     #---------------------------------------------#
     def transform(self, image):
         # Verify that image is in correct format
-        if self.target == "rgb" and (image.shape[-1] != 1 or \
-                                     np.max(image) > 255 or \
-                                     np.min(image) < 0):
+        if self.target == "rgb" and (image.shape[-1] != 1 or np.max(image) > 255 or np.min(image) < 0):
             raise ValueError("Subfunction Chromer: Image is not in grayscale format!",
                              "Ensure that it is grayscale normalized and has",
                              "a single channel.")
-        elif self.target == "grayscale" and (image.shape[-1] != 3 or \
-                                             np.max(image) > 255 or \
-                                             np.min(image) < 0):
+        elif self.target == "grayscale" and (image.shape[-1] != 3 or np.max(image) > 255 or np.min(image) < 0):
             raise ValueError("Subfunction Chromer: Image is not in RGB format!",
                              "Ensure that it is normalized [0,255] and has 3 channels.")
         # Run grayscale -> RGB

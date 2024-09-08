@@ -66,6 +66,7 @@ class Subfunction_Base(ABC):
         The are no mandatory required parameters for the initialization.
         """
         pass
+
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#

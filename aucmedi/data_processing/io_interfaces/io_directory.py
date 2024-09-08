@@ -23,7 +23,6 @@
 import os
 
 # Third Party Libraries
-import numpy as np
 import pandas as pd
 
 
@@ -82,11 +81,16 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
         training (bool):                        Boolean option whether annotation data is available.
 
     Returns:
-        index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
-        class_ohe (numpy.ndarray):              Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
-        class_n (int):                          Number of classes. Required in NeuralNetwork for Architecture design as `n_labels`.
-        class_names (list of str):              List of names for corresponding classes. Used for later prediction storage or evaluation.
-        image_format (str):                     Image format to add at the end of the sample index for image loading. Required in DataGenerator.
+        index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as
+                                                `samples`.
+        class_ohe (numpy.ndarray):              Classification list as One-Hot encoding. Required in DataGenerator as
+                                                `labels`.
+        class_n (int):                          Number of classes. Required in NeuralNetwork for Architecture design as
+                                                `n_labels`.
+        class_names (list of str):              List of names for corresponding classes. Used for later prediction
+                                                storage or evaluation.
+        image_format (str):                     Image format to add at the end of the sample index for image loading.
+                                                Required in DataGenerator.
     """
     # Initialize some variables
     image_format = None
@@ -121,7 +125,7 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
                 format = file.split(".")[-1]
                 if format.lower() in allowed_image_formats or \
                    format.upper() in allowed_image_formats:
-                   image_format = format
+                    image_format = format
             # Add sample to list
             index_list.append(file[:-(len(format)+1)])
         # Raise Exception if image format is unknown

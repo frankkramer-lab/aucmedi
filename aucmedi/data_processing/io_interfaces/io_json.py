@@ -63,14 +63,20 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         path_imagedir (str):                    Path to the directory containing the images.
         allowed_image_formats (list of str):    List of allowed imaging formats. (provided by IO_Interface)
         training (bool):                        Boolean option whether annotation data is available.
-        ohe (bool):                             Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        ohe (bool):                             Boolean option whether annotation data is sparse categorical or one-hot
+                                                encoded.
 
     Returns:
-        index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
-        class_ohe (numpy.ndarray):              Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
-        class_n (int):                          Number of classes. Required in NeuralNetwork for Architecture design as `n_labels`.
-        class_names (list of str):              List of names for corresponding classes. Used for later prediction storage or evaluation.
-        image_format (str):                     Image format to add at the end of the sample index for image loading. Required in DataGenerator.
+        index_list (list of str):               List of sample/index encoded as Strings. Required in DataGenerator as
+                                                `samples`.
+        class_ohe (numpy.ndarray):              Classification list as One-Hot encoding. Required in DataGenerator as
+                                                `labels`.
+        class_n (int):                          Number of classes. Required in NeuralNetwork for Architecture design as
+                                                `n_labels`.
+        class_names (list of str):              List of names for corresponding classes. Used for later prediction
+                                                storage or evaluation.
+        image_format (str):                     Image format to add at the end of the sample index for image loading.
+                                                Required in DataGenerator.
     """
     # Load JSON file
     with open(path_data, "r") as json_reader:
@@ -81,8 +87,8 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         format = file.split(".")[-1]
         if format.lower() in allowed_image_formats or \
            format.upper() in allowed_image_formats:
-           image_format = format
-           break
+            image_format = format
+            break
     # Raise Exception if image format is unknown
     if image_format is None:
         raise Exception("Unknown image format.", path_imagedir)
@@ -90,14 +96,18 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # Verify if all images are existing
     lever = True
     for sample in dt_json:
-        if sample == "legend" : continue
+        if sample == "legend":
+            continue
         # Check if image ending is already in sample name by peaking first one
         if lever:
             lever = False
-            if sample.endswith("." + image_format) : image_format = None
+            if sample.endswith("." + image_format):
+                image_format = None
         # Obtain image file path
-        if image_format : img_file = sample + "." + image_format
-        else : img_file = sample
+        if image_format:
+            img_file = sample + "." + image_format
+        else:
+            img_file = sample
         path_img = os.path.join(path_imagedir, img_file)
         # Check existance
         if not os.path.exists(path_img):
@@ -107,7 +117,8 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
     # If JSON is for inference (no annotation data)
     if not training:
         # Ensure index list to contain strings
-        if "legend" in dt_json : del dt_json["legend"]
+        if "legend" in dt_json:
+            del dt_json["legend"]
         index_list = [str(x) for x in dt_json]
         # -> return parsing
         return index_list, None, None, None, image_format
@@ -118,14 +129,16 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         if "legend" in dt_json:
             class_names = dt_json["legend"]
             del dt_json["legend"]
-        else : class_names = None
+        else:
+            class_names = None
         # Obtain class information and index list
         index_list = []
         classes_sparse = []
         for sample in dt_json:
             index_list.append(str(sample))
             classes_sparse.append(dt_json[sample])
-        if class_names is None : class_names = np.unique(classes_sparse).tolist()
+        if class_names is None:
+            class_names = np.unique(classes_sparse).tolist()
         class_n = len(class_names)
         # Parse sparse categorical annotations to One-Hot Encoding
         class_ohe = pd.get_dummies(classes_sparse).to_numpy()
@@ -147,7 +160,8 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
             class_data.append(dt_json[sample])
         class_ohe = np.array(class_data)
         # Verify number of class annotation
-        if class_n is None : class_ohe.shape[1]
+        if class_n is None:
+            class_ohe.shape[1]
 
     # Validate if number of samples and number of annotations match
     if len(index_list) != len(class_ohe):

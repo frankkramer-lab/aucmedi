@@ -19,9 +19,6 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# Python Standard Library
-import warnings
-
 # Third Party Libraries
 import numpy as np
 from batchgenerators.transforms.abstract_transforms import Compose
@@ -119,7 +116,8 @@ class BatchgeneratorsAugmentation():
             mirror (bool):                  Boolean, whether mirroring should be performed as data augmentation.
             rotate (bool):                  Boolean, whether rotations should be performed as data augmentation.
             scale (bool):                   Boolean, whether scaling should be performed as data augmentation.
-            elastic_transform (bool):       Boolean, whether elastic deformation should be performed as data augmentation.
+            elastic_transform (bool):       Boolean, whether elastic deformation should be performed as data
+                                            augmentation.
             gaussian_noise (bool):          Boolean, whether Gaussian noise should be added as data augmentation.
             brightness (bool):              Boolean, whether brightness changes should be added as data augmentation.
             contrast (bool):                Boolean, whether contrast changes should be added as data augmentation.
@@ -140,7 +138,8 @@ class BatchgeneratorsAugmentation():
             ```
 
         Attributes:
-            refine (bool):                  Boolean, whether clipping to [0,255] should be performed if outside of range.
+            refine (bool):                  Boolean, whether clipping to [0,255] should be performed if outside of
+                                            range.
             aug_mirror_p (float):           Probability of mirroring application if activated. Default=0.5.
             aug_rotate_p (float):           Probability of rotation application if activated. Default=0.5.
             aug_scale_p (float):            Probability of scaling application if activated. Default=0.5.

@@ -57,7 +57,7 @@ class Standardize(Subfunction_Base):
         Keras preprocess_input() for `"tf", "caffe", "torch"`
 
         https://www.tensorflow.org/api_docs/python/tf/keras/applications/imagenet_utils/preprocess_input
-    """
+    """ # noqa E501
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -88,7 +88,8 @@ class Standardize(Subfunction_Base):
             for c in range(0, image.shape[-1]):
                 image_norm[..., c] = self.normalize(image[..., c])
         # Apply normalization across complete image
-        else : image_norm = self.normalize(image)
+        else:
+            image_norm = self.normalize(image)
         # Return standardized image
         return image_norm
 
@@ -102,7 +103,7 @@ class Standardize(Subfunction_Base):
             mean = np.mean(image)
             std = np.std(image)
             # Scaling
-            image_norm = (image - mean + self.e) / (std  + self.e)
+            image_norm = (image - mean + self.e) / (std + self.e)
         # Perform MinMax normalization between [0,1]
         elif self.mode == "minmax":
             # Identify minimum and maximum

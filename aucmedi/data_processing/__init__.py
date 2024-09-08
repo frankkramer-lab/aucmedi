@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 """ The data processing is a important part of any AUCMEDI pipeline and represented by two core pillars.
 
-- The [input_interface][aucmedi.data_processing.io_data.input_interface] function provides important information on the 
+- The [input_interface][aucmedi.data_processing.io_data.input_interface] function provides important information on the
     dataset.
 - The [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] class is a
 powerful interface handling all data processing in AUCMEDI.

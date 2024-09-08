@@ -132,6 +132,7 @@ class DataGenerator(Sequence):
                               standardize_mode=my_model.meta_standardize)  # "torch"
         ```
     """
+
     #-----------------------------------------------------#
     #                    Initialization                   #
     #-----------------------------------------------------#
@@ -173,27 +174,36 @@ class DataGenerator(Sequence):
             path_imagedir (str):                Path to the directory containing the images.
             labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
                                                 [input_interface][aucmedi.data_processing.io_data.input_interface].
-            metadata (numpy.ndarray):           NumPy Array with additional metadata. Have to be shape (n_samples, meta_variables).
+            metadata (numpy.ndarray):           NumPy Array with additional metadata. Have to be shape
+                                                (n_samples, meta_variables).
             image_format (str):                 Image format to add at the end of the sample index for image loading.
-                                                Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
-            subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
+                                                Provided by
+                                                [input_interface][aucmedi.data_processing.io_data.input_interface].
+            subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed
+                                                on the data set.
             batch_size (int):                   Number of samples inside a single batch.
-            resize (tuple of int):              Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
+            resize (tuple of int):              Resizing shape consisting of a X and Y size. (optional Z size for
+                                                Volumes)
             standardize_mode (str):             Standardization modus in which image intensity values are scaled.
-                                                Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
-            data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation techniques.
+                                                Calls the
+                                                [Standardize][aucmedi.data_processing.subfunctions.standardize]
+                                                Subfunction.
+            data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation
+                                                techniques.
                                                 If `None` is provided, no augmentation will be performed.
             shuffle (bool):                     Boolean, whether dataset should be shuffled.
             grayscale (bool):                   Boolean, whether images are grayscale or RGB.
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
-            workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
-            prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk before training.
-                                                Recommended for large images or volumes to reduce CPU computing time.
+            workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image
+                                                preprocessing.
+            prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk before
+                                                training. Recommended for large images or volumes to reduce CPU
+                                                computing time.
             loader (io_loader function):        Function for loading samples/images from disk.
             seed (int):                         Seed to ensure reproducibility for random function.
             **kwargs (dict):                    Additional parameters for the sample loader.
-        """
+        """ # noqa E501
         # Cache class variables
         self.samples = samples
         self.labels = labels
@@ -223,10 +233,13 @@ class DataGenerator(Sequence):
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
             self.sf_standardize = Standardize(mode=standardize_mode)
-        else : self.sf_standardize = None
+        else:
+            self.sf_standardize = None
         # Initialize Resizing Subfunction
-        if resize is not None : self.sf_resize = Resize(shape=resize)
-        else : self.sf_resize = None
+        if resize is not None:
+            self.sf_resize = Resize(shape=resize)
+        else:
+            self.sf_resize = None
         # Sanity check for full sample list
         if samples is not None and len(samples) == 0:
             raise ValueError("Provided sample list is empty!", len(samples))
@@ -255,8 +268,8 @@ class DataGenerator(Sequence):
         # -> Preprocess images beforehand and store them to disk for fast usage later
         if self.prepare_images:
             self.prepare_dir_object = tempfile.TemporaryDirectory(
-                                               prefix="aucmedi.tmp.",
-                                               suffix=".data")
+                prefix="aucmedi.tmp.",
+                suffix=".data")
             self.prepare_dir = self.prepare_dir_object.name
 
             # Preprocess image for each index - Sequential
@@ -282,8 +295,10 @@ class DataGenerator(Sequence):
     def _get_batches_of_transformed_samples(self, index_array):
         # Initialize Batch stack
         batch_stack = ([],)
-        if self.labels is not None : batch_stack += ([],)
-        if self.sample_weights is not None : batch_stack += ([],)
+        if self.labels is not None:
+            batch_stack += ([],)
+        if self.sample_weights is not None:
+            batch_stack += ([],)
 
         # Process image for each index - Sequential
         if self.workers == 0 or self.workers == 1:
@@ -372,7 +387,8 @@ class DataGenerator(Sequence):
             with open(path_img + ".pickle", "wb") as pickle_writer:
                 pickle.dump(img, pickle_writer)
         # Return preprocessed image
-        else : return img
+        else:
+            return img
 
     #-----------------------------------------------------#
     #              Sample Generation Function             #
@@ -386,7 +402,7 @@ class DataGenerator(Sequence):
             self.__set_index_array__()
         # Select samples for next batch
         index_array = self.index_array[
-            self.batch_size * idx : self.batch_size * (idx + 1)
+            self.batch_size * idx: self.batch_size * (idx + 1)
         ]
         # Generate batch
         return self._get_batches_of_transformed_samples(index_array)
@@ -399,14 +415,17 @@ class DataGenerator(Sequence):
         return self.iterations
 
     """ Configuration function for fixing the number of iterations. """
+
     def set_length(self, iterations):
         self.iterations = iterations
 
     """ Configuration function for reseting the number of iterations. """
+
     def reset_length(self):
         self.iterations = self.max_iterations
 
     """ Internal function for initializing and shuffling the index array. """
+
     def __set_index_array__(self):
         # Generate index array
         self.index_array = np.arange(self.n)
@@ -420,5 +439,6 @@ class DataGenerator(Sequence):
             self.index_array = np.random.permutation(self.n)
 
     """ Internal function at the end of an epoch. """
+
     def on_epoch_end(self):
         self.__set_index_array__()

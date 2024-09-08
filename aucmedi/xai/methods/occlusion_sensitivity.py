@@ -23,7 +23,6 @@
 
 # Third Party Libraries
 import numpy as np
-import tensorflow as tf
 
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
@@ -45,13 +44,14 @@ class OcclusionSensitivity(XAImethod_Base):
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Occlusion Sensitivity Map for an image with a model.
-    """
+    """ # noqa E501
     def __init__(self, model, layerName=None, patch_size=16):
         """ Initialization function for creating a Occlusion Sensitivity Map as XAI Method object.
 
         Args:
             model (keras.model):            Keras model object.
-            layerName (str):                Not required in Occlusion Sensitivity Maps, but defined by Abstract Base Class.
+            layerName (str):                Not required in Occlusion Sensitivity Maps, but defined by Abstract
+                                            Base Class.
         """
         # Cache class parameters
         self.model = model
@@ -61,7 +61,8 @@ class OcclusionSensitivity(XAImethod_Base):
     #             Heatmap Computation             #
     #---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Occlusion Sensitivity Map for a provided image and for specific classification outcome.
+        """ Core function for computing the Occlusion Sensitivity Map for a provided image and for specific
+        classification outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.
@@ -98,6 +99,7 @@ class OcclusionSensitivity(XAImethod_Base):
                 ] = 1 - confidence
         # Return the resulting sensitivity map (automatically a heatmap)
         return sensitivity_map
+
 
 #-----------------------------------------------------#
 #                     Subroutines                     #

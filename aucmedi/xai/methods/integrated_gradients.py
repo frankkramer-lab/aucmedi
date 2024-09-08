@@ -41,7 +41,8 @@ class IntegratedGradients(XAImethod_Base):
         Author: Aakash Kumar Nain <br>
         GitHub Profile: [https://github.com/AakashKumarNain](https://github.com/AakashKumarNain) <br>
         Date: Jun 02, 2020 <br>
-        [https://keras.io/examples/vision/integrated_gradients](https://keras.io/examples/vision/integrated_gradients) <br>
+        [https://keras.io/examples/vision/integrated_gradients](https://keras.io/examples/vision/integrated_gradients)
+        <br>
 
     ??? abstract "Reference - Publication"
         Mukund Sundararajan, Ankur Taly, Qiqi Yan. 04 Mar 2017.
@@ -57,7 +58,8 @@ class IntegratedGradients(XAImethod_Base):
 
         Args:
             model (keras.model):            Keras model object.
-            layerName (str):                Not required in Integrated Gradients Maps, but defined by Abstract Base Class.
+            layerName (str):                Not required in Integrated Gradients Maps, but defined by Abstract
+                                            Base Class.
             num_steps (int):                Number of iterations for interpolation.
         """
         # Cache class parameters
@@ -68,7 +70,8 @@ class IntegratedGradients(XAImethod_Base):
     #             Heatmap Computation             #
     #---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Integrated Gradients Map for a provided image and for specific classification outcome.
+        """ Core function for computing the Integrated Gradients Map for a provided image and for specific
+        classification outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.

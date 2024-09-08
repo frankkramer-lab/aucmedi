@@ -70,29 +70,36 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 
     Args:
         data_gen (DataGenerator):           A data generator which will be used for inference.
-        model (NeuralNetwork):             Instance of a AUCMEDI neural network class.
-        preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
-        method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI method.
-        layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`, the last conv layer is used.
-        alpha (float):                      Transparency value for heatmap overlap plotting on input image (range: [0-1]).
+        model (NeuralNetwork):              Instance of a AUCMEDI neural network class.
+        preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI
+                                            prediction).
+        method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI
+                                            method.
+        layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`,
+                                            the last conv layer is used.
+        alpha (float):                      Transparency value for heatmap overlap plotting on input image
+                                            (range: [0-1]).
         out_path (str):                     Output path in which heatmaps are saved to disk as PNG files.
 
     Returns:
-        images (numpy.ndarray):             Combined array of images. Will be only returned if `out_path` parameter is `None`.
-        heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Will be only returned if `out_path` parameter is `None`.
+        images (numpy.ndarray):             Combined array of images. Will be only returned if `out_path` parameter is
+                                            `None`.
+        heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Will be only returned if `out_path`
+                                            parameter is `None`.
     """
     # Initialize & access some variables
-    batch_size = data_gen.batch_size
     n_classes = model.n_labels
     sample_list = data_gen.samples
     # Prepare XAI output methods
     res_img = []
     res_xai = []
-    if out_path is not None and not os.path.exists(out_path) : os.mkdir(out_path)
+    if out_path is not None and not os.path.exists(out_path):
+        os.mkdir(out_path)
     # Initialize xai method
     if isinstance(method, str) and method in xai_dict:
         xai_method = xai_dict[method](model.model, layerName=layerName)
-    else : xai_method = method
+    else:
+        xai_method = method
 
     # Iterate over all samples
     for i in range(0, len(sample_list)):
@@ -122,17 +129,18 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
             postprocess_output(sample_list[i], img_org, sample_maps, n_classes,
                                data_gen, res_img, res_xai, out_path, alpha)
     # Return output directly if no output path is defined (and convert to NumPy)
-    if out_path is None : return np.array(res_img), np.array(res_xai)
+    if out_path is None: return np.array(res_img), np.array(res_xai)
+
 
 #-----------------------------------------------------#
 #          Subroutine: Output Postprocessing          #
 #-----------------------------------------------------#
-""" Helper/Subroutine function for XAI Decoder.
-
-Caches heatmap for direct output or generates a visualization as PNG.
-"""
 def postprocess_output(sample, image, xai_map, n_classes, data_gen,
                        res_img, res_xai, out_path, alpha):
+    """ Helper/Subroutine function for XAI Decoder.
+
+    Caches heatmap for direct output or generates a visualization as PNG.
+    """
     # Update result lists for direct output
     if out_path is None:
         res_img.append(image)
@@ -142,8 +150,9 @@ def postprocess_output(sample, image, xai_map, n_classes, data_gen,
         # Create XAI path
         if data_gen.image_format:
             xai_file = sample + "." + data_gen.image_format
-        else : xai_file = sample
-        if os.sep in xai_file : xai_file = xai_file.replace(os.sep, ".")
+        else:
+            xai_file = sample
+        if os.sep in xai_file: xai_file = xai_file.replace(os.sep, ".")
         path_xai = os.path.join(out_path, xai_file)
         # If preds given, output only argmax class heatmap
         if len(xai_map.shape) == 2:

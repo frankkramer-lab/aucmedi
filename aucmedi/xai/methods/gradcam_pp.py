@@ -41,7 +41,8 @@ class GradCAMpp(XAImethod_Base):
         Author: Samson Woof <br>
         GitHub Profile: [https://github.com/samson6460](https://github.com/samson6460) <br>
         Date: May 21, 2020 <br>
-        [https://github.com/samson6460/tf_keras_gradcamplusplus](https://github.com/samson6460/tf_keras_gradcamplusplus) <br>
+        [https://github.com/samson6460/tf_keras_gradcamplusplus](https://github.com/samson6460/tf_keras_gradcamplusplus)
+        <br>
 
     ??? abstract "Reference - Publication"
         Aditya Chattopadhay; Anirban Sarkar; Prantik Howlader; Vineeth N Balasubramanian. 07 May 2018.
@@ -63,7 +64,7 @@ class GradCAMpp(XAImethod_Base):
         self.model = model
         self.layerName = layerName
         # Try to find output layer if not defined
-        if self.layerName is None : self.layerName = self.find_output_layer()
+        if self.layerName is None: self.layerName = self.find_output_layer()
 
     #---------------------------------------------#
     #            Identify Output Layer            #
@@ -86,7 +87,8 @@ class GradCAMpp(XAImethod_Base):
     #             Heatmap Computation             #
     #---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Grad-CAM++ heatmap for a provided image and for specific classification outcome.
+        """ Core function for computing the Grad-CAM++ heatmap for a provided image and for specific classification
+        outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.

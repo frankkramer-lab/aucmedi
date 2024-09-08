@@ -23,7 +23,6 @@
 
 # Third Party Libraries
 import numpy as np
-import tensorflow as tf
 
 # Internal Libraries
 from aucmedi.data_processing.subfunctions import Resize
@@ -37,7 +36,8 @@ from aucmedi.xai.methods.xai_base import XAImethod_Base
 class GuidedGradCAM(XAImethod_Base):
     """ XAI Method for Guided Grad-CAM.
 
-    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+    Normally, this class is used internally in the
+    [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
     ??? abstract "Reference - Implementation"
         Author: Swapnil Ahlawat <br>
@@ -51,14 +51,14 @@ class GuidedGradCAM(XAImethod_Base):
         [https://arxiv.org/abs/1412.6806](https://arxiv.org/abs/1412.6806)
 
     ??? abstract "Reference - Publication #2"
-        Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, Dhruv Batra. 7 Oct 2016.
-        Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.
+        Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, Dhruv Batra.
+        7 Oct 2016. Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.
         <br>
         [https://arxiv.org/abs/1610.02391](https://arxiv.org/abs/1610.02391)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Guided Grad-CAM heatmap for an image with a model.
-    """
+    """ # noqa E501
     def __init__(self, model, layerName=None):
         """ Initialization function for creating a Guided Grad-CAM as XAI Method object.
 
@@ -74,7 +74,8 @@ class GuidedGradCAM(XAImethod_Base):
     #             Heatmap Computation             #
     #---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Guided Grad-CAM heatmap for a provided image and for specific classification outcome.
+        """ Core function for computing the Guided Grad-CAM heatmap for a provided image and for specific classification
+        outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.

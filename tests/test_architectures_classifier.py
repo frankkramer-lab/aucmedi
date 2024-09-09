@@ -109,7 +109,7 @@ class ClassifierTEST(unittest.TestCase):
     #-------------------------------------------------#
     #              Application - Metadata             #
     #-------------------------------------------------#
-    def test_application_multilabel(self):
+    def test_application_metadata(self):
         model = NeuralNetwork(n_labels=20, channels=3,
                                input_shape=(32, 32), activation_output="softmax",
                                meta_variables=10)

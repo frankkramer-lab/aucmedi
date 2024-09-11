@@ -22,6 +22,7 @@
 # External libraries
 from albumentations import Compose
 import albumentations.augmentations as ai
+import cv2
 import warnings
 import numpy as np
 import random
@@ -291,7 +292,7 @@ class ImageAugmentation():
         aug_image = self.operator(image=image)["image"]
         # Perform padding & cropping if image shape changed
         if self.refine and aug_image.shape != org_shape:
-            aug_image = ai.pad(aug_image, org_shape[0], org_shape[1])
+            aug_image = ai.pad(aug_image, org_shape[0], org_shape[1], border_mode=cv2.BORDER_REPLICATE)
             offset = (random.random(), random.random())
             aug_image = ai.random_crop(aug_image,
                                        org_shape[0], org_shape[1],

@@ -57,7 +57,7 @@ class LossfunctionsTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
         # Create Data Generator
         self.datagen = DataGenerator(self.sampleList, self.tmp_data.name,
-                                     labels=self.labels_ohe, resize=(32, 32),
+                                     labels=self.labels_ohe, #resize=(32, 32),
                                      grayscale=False, batch_size=1)
 
     #-------------------------------------------------#

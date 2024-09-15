@@ -62,7 +62,7 @@ class UtilityTEST(unittest.TestCase):
         self.datagen = DataGenerator(self.sampleList_rgb,
                                      self.tmp_data.name,
                                      labels=self.labels_ohe,
-                                     resize=(32, 32),
+                                     #resize=(32, 32),
                                      grayscale=False, batch_size=1)
 
     #-------------------------------------------------#

@@ -117,69 +117,68 @@ def block_predict(config):
         paras_datagen["loader"] = sitk_loader
 
     # Apply MIC pipelines
-    match meta_training["analysis"]:
-        case "minimal":
-            # Setup neural network
+    if meta_training["analysis"] == "minimal":
+        # Setup neural network
+        if not meta_training["three_dim"]:
+            arch_dim = "2D." + meta_training["architecture"]
+        else:
+            arch_dim = "3D." + meta_training["architecture"]
+        model = NeuralNetwork(architecture=arch_dim, **nn_paras)
+
+        # Build DataGenerator
+        pred_gen = DataGenerator(samples=index_list,
+                                labels=None,
+                                resize=model.meta_input,
+                                standardize_mode=model.meta_standardize,
+                                **paras_datagen)
+        # Load model
+        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
+        model.load(path_model)
+        # Start model inference
+        preds = model.predict(prediction_generator=pred_gen)
+    if meta_training["analysis"] ==  "standard":
+        # Setup neural network
+        if not meta_training["three_dim"]:
+            arch_dim = "2D." + meta_training["architecture"]
+        else:
+            arch_dim = "3D." + meta_training["architecture"]
+        model = NeuralNetwork(architecture=arch_dim, **nn_paras)
+
+        # Build DataGenerator
+        pred_gen = DataGenerator(samples=index_list,
+                                labels=None,
+                                resize=model.meta_input,
+                                standardize_mode=model.meta_standardize,
+                                **paras_datagen)
+        # Load model
+        path_model = os.path.join(config["path_modeldir"],
+                                "model.best_loss.hdf5")
+        model.load(path_model)
+        # Start model inference via Augmenting
+        preds = predict_augmenting(model, pred_gen)
+    else:
+        # Build multi-model list
+        model_list = []
+        for arch in meta_training["architecture"]:
             if not meta_training["three_dim"]:
-                arch_dim = "2D." + meta_training["architecture"]
+                arch_dim = "2D." + arch
             else:
-                arch_dim = "3D." + meta_training["architecture"]
-            model = NeuralNetwork(architecture=arch_dim, **nn_paras)
+                arch_dim = "3D." + arch
+            model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
+            model_list.append(model_part)
+        el = Composite(model_list, metalearner=meta_training["metalearner"],
+                    k_fold=len(meta_training["architecture"]))
 
-            # Build DataGenerator
-            pred_gen = DataGenerator(samples=index_list,
-                                    labels=None,
-                                    resize=model.meta_input,
-                                    standardize_mode=model.meta_standardize,
-                                    **paras_datagen)
-            # Load model
-            path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
-            model.load(path_model)
-            # Start model inference
-            preds = model.predict(prediction_generator=pred_gen)
-        case "standard":
-            # Setup neural network
-            if not meta_training["three_dim"]:
-                arch_dim = "2D." + meta_training["architecture"]
-            else:
-                arch_dim = "3D." + meta_training["architecture"]
-            model = NeuralNetwork(architecture=arch_dim, **nn_paras)
-
-            # Build DataGenerator
-            pred_gen = DataGenerator(samples=index_list,
-                                    labels=None,
-                                    resize=model.meta_input,
-                                    standardize_mode=model.meta_standardize,
-                                    **paras_datagen)
-            # Load model
-            path_model = os.path.join(config["path_modeldir"],
-                                    "model.best_loss.hdf5")
-            model.load(path_model)
-            # Start model inference via Augmenting
-            preds = predict_augmenting(model, pred_gen)
-        case _:
-            # Build multi-model list
-            model_list = []
-            for arch in meta_training["architecture"]:
-                if not meta_training["three_dim"]:
-                    arch_dim = "2D." + arch
-                else:
-                    arch_dim = "3D." + arch
-                model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
-                model_list.append(model_part)
-            el = Composite(model_list, metalearner=meta_training["metalearner"],
-                        k_fold=len(meta_training["architecture"]))
-
-            # Build DataGenerator
-            pred_gen = DataGenerator(samples=index_list,
-                                    labels=None,
-                                    resize=None,
-                                    standardize_mode=None,
-                                    **paras_datagen)
-            # Load composite model directory
-            el.load(config["path_modeldir"])
-            # Start model inference via ensemble learning
-            preds = el.predict(pred_gen)
+        # Build DataGenerator
+        pred_gen = DataGenerator(samples=index_list,
+                                labels=None,
+                                resize=None,
+                                standardize_mode=None,
+                                **paras_datagen)
+        # Load composite model directory
+        el.load(config["path_modeldir"])
+        # Start model inference via ensemble learning
+        preds = el.predict(pred_gen)
 
     # Create prediction dataset
     df_index = pd.DataFrame(data={"SAMPLE": index_list})

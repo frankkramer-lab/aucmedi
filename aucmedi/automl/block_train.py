@@ -105,7 +105,7 @@ def block_train(config):
     callbacks = []
     if config["analysis"] == "standard":
         cb_loss = ModelCheckpoint(os.path.join(config["path_modeldir"],
-                                               "model.best_loss.hdf5"),
+                                               "model.best_loss.keras"),
                                   monitor="val_loss", verbose=1,
                                   save_best_only=True)
         callbacks.append(cb_loss)
@@ -136,12 +136,9 @@ def block_train(config):
     # Define neural network parameters
     nn_paras = {"n_labels": class_n,
                 "channels": 3,
-                "workers": config["workers"],
-                "batch_queue_size": 4,
                 "loss": loss,
                 "metrics": [AUC(100)],
                 "pretrained_weights": True,
-                "multiprocessing": False,
     }
     # Select input shape for 3D
     if config["three_dim"] : nn_paras["input_shape"] = config["shape_3D"]
@@ -217,7 +214,7 @@ def block_train(config):
         # Start model training
         hist = model.train(training_generator=train_gen, **paras_train)
         # Store model
-        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
+        path_model = os.path.join(config["path_modeldir"], "model.last.keras")
         model.dump(path_model)
     elif config["analysis"] == "standard":
         # Setup neural network
@@ -250,7 +247,7 @@ def block_train(config):
                            validation_generator=val_gen,
                            **paras_train)
         # Store model
-        path_model = os.path.join(config["path_modeldir"], "model.last.hdf5")
+        path_model = os.path.join(config["path_modeldir"], "model.last.keras")
         model.dump(path_model)
     else:
         # Sanity check of architecutre config

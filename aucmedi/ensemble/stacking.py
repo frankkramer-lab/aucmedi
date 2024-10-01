@@ -208,7 +208,7 @@ class Stacking:
             callbacks_model = callbacks.copy()
             # Extend Callback list
             path_model = os.path.join(self.cache_dir.name,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "nn_" + str(i) + ".model.keras")
             cb_mc = ModelCheckpoint(path_model,
                                     monitor="val_loss", verbose=1,
                                     save_best_only=True, mode="min")
@@ -231,9 +231,6 @@ class Stacking:
                 "fcl_dropout": self.model_list[i].fcl_dropout,
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
-                "batch_queue_size": self.model_list[i].batch_queue_size,
-                "workers": self.model_list[i].workers,
-                "multiprocessing": self.model_list[i].multiprocessing,
             }
 
             # Gather DataGenerator parameters
@@ -327,7 +324,7 @@ class Stacking:
         for i in range(len(self.model_list)):
             #  Load current model
             path_model = os.path.join(path_model_dir,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "nn_" + str(i) + ".model.keras")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -342,9 +339,6 @@ class Stacking:
                 "fcl_dropout": self.model_list[i].fcl_dropout,
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
-                "batch_queue_size": self.model_list[i].batch_queue_size,
-                "workers": self.model_list[i].workers,
-                "multiprocessing": self.model_list[i].multiprocessing,
             }
 
             # Gather DataGenerator parameters
@@ -440,7 +434,7 @@ class Stacking:
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
             path_model = os.path.join(path_model_dir,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "nn_" + str(i) + ".model.keras")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -455,9 +449,6 @@ class Stacking:
                 "fcl_dropout": self.model_list[i].fcl_dropout,
                 "meta_variables": self.model_list[i].meta_variables,
                 "learning_rate": self.model_list[i].learning_rate,
-                "batch_queue_size": self.model_list[i].batch_queue_size,
-                "workers": self.model_list[i].workers,
-                "multiprocessing": self.model_list[i].multiprocessing,
             }
 
             # Gather DataGenerator parameters
@@ -550,7 +541,7 @@ class Stacking:
         # Check model existence
         for i in range(len(self.model_list)):
             path_model = os.path.join(directory_path,
-                                      "nn_" + str(i) + ".model.hdf5")
+                                      "nn_" + str(i) + ".model.keras")
             if not os.path.exists(path_model):
                 raise FileNotFoundError("Stacking model " + str(i) + \
                                         " does not exist!", path_model)

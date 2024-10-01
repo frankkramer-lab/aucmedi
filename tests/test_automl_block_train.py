@@ -116,7 +116,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -144,7 +144,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -172,7 +172,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -202,8 +202,8 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.keras")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -230,8 +230,8 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.keras")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -259,8 +259,8 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.hdf5")))
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.hdf5")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.keras")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))

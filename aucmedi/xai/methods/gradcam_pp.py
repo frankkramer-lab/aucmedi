@@ -73,7 +73,7 @@ class GradCAMpp(XAImethod_Base):
         # Iterate over all layers
         for layer in reversed(self.model.layers):
             # Check to see if the layer has a 4D output -> Return layer
-            if len(layer.output_shape) == 4:
+            if len(layer.output.shape) == 4:
                 return layer.name
         # Otherwise, throw exception
         raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM++.")

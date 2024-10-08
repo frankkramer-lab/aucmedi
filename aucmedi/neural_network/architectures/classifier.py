@@ -79,7 +79,7 @@ class Classifier:
     ???+ example
         ```python
         # Recommended way (automatic creation in NeuralNetwork)
-        model = NeuralNetwork(n_labels=20, channels=3, batch_queue_size=1,
+        model = NeuralNetwork(n_labels=20, channels=3,
                               input_shape=(32, 32), activation_output="sigmoid",
                               fcl_dropout=False)
 

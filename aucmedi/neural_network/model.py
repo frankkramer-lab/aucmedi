@@ -139,7 +139,6 @@ class NeuralNetwork:
                  pretrained_weights=False, loss="categorical_crossentropy",
                  metrics=["categorical_accuracy"], activation_output="softmax",
                  fcl_dropout=True, meta_variables=None, learning_rate=0.0001,
-                 batch_queue_size=10, workers=1, multiprocessing=False,
                  verbose=1):
         """ Initialization function for creating a Neural Network (model) object.
 
@@ -172,13 +171,7 @@ class NeuralNetwork:
                                                     classification head. If `None`is provided, no metadata integration
                                                     block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-            learning_rate (float):                  Learning rate in which weights of the neural network will be
-                                                    updated.
-            batch_queue_size (int):                 The batch queue size is the number of previously prepared batches in
-                                                    the cache during runtime.
-            workers (int):                          Number of workers/threads which preprocess batches during runtime.
-            multiprocessing (bool):                 Option whether to utilize multi-processing for workers instead of
-                                                    threading .
+            learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
             verbose (int):                          Option (0/1) how much information should be written to stdout.
 
         ???+ danger
@@ -203,9 +196,6 @@ class NeuralNetwork:
         self.loss = loss
         self.metrics = metrics
         self.learning_rate = learning_rate
-        self.batch_queue_size = batch_queue_size
-        self.workers = workers
-        self.multiprocessing = multiprocessing
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
@@ -312,9 +302,6 @@ class NeuralNetwork:
                                      callbacks=callbacks, epochs=epochs,
                                      steps_per_epoch=iterations,
                                      class_weight=class_weights,
-                                     workers=self.workers,
-                                     use_multiprocessing=self.multiprocessing,
-                                     max_queue_size=self.batch_queue_size,
                                      verbose=self.verbose)
             # Return logged history object
             history_out = history.history
@@ -337,9 +324,6 @@ class NeuralNetwork:
                                            epochs=self.tf_epochs,
                                            steps_per_epoch=iterations,
                                            class_weight=class_weights,
-                                           workers=self.workers,
-                                           use_multiprocessing=self.multiprocessing,
-                                           max_queue_size=self.batch_queue_size,
                                            verbose=self.verbose)
             # Unfreeze base model layers again
             for layer in self.model.layers:
@@ -354,9 +338,6 @@ class NeuralNetwork:
                                          initial_epoch=self.tf_epochs,
                                          steps_per_epoch=iterations,
                                          class_weight=class_weights,
-                                         workers=self.workers,
-                                         use_multiprocessing=self.multiprocessing,
-                                         max_queue_size=self.batch_queue_size,
                                          verbose=self.verbose)
             # Combine logged history objects
             hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for transfer learning
@@ -387,9 +368,7 @@ class NeuralNetwork:
                                                     (n_samples, n_labels).
         """
         # Run inference process with the Keras predict function
-        preds = self.model.predict(prediction_generator, workers=self.workers,
-                                   max_queue_size=self.batch_queue_size,
-                                   use_multiprocessing=self.multiprocessing,
+        preds = self.model.predict(prediction_generator,
                                    verbose=self.verbose)
         # Output predictions results
         return preds
@@ -409,7 +388,7 @@ class NeuralNetwork:
     def dump(self, file_path):
         """ Store model to disk.
 
-        Recommended to utilize the file format ".hdf5".
+        Recommended to utilize the file format ".keras".
 
         Args:
             file_path (str):    Path to store the model on disk.
@@ -422,7 +401,7 @@ class NeuralNetwork:
 
         After loading, the model will be compiled.
 
-        If loading a model in ".hdf5" format, it is not necessary to define any custom_objects.
+        If loading a model in ".keras" format, it is not necessary to define any custom_objects.
 
         Args:
             file_path (str):            Input path, from which the model will be loaded.

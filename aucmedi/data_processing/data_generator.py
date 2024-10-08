@@ -323,7 +323,7 @@ class DataGenerator(Sequence):
         # Stack images and optional metadata together into a batch
         input_stack = np.stack(batch_stack[0], axis=0)
         if self.metadata is not None:
-            input_stack = [input_stack, self.metadata[index_array]]
+            input_stack = (input_stack, self.metadata[index_array])
         batch = (input_stack, )
         # Stack classifications together into a batch if available
         if self.labels is not None:

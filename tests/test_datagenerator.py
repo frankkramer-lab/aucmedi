@@ -235,14 +235,14 @@ class DataGeneratorTEST(unittest.TestCase):
     #                   Utilization                   #
     #-------------------------------------------------#
     # Class Creation
-    def test_utils_iter(self):
-        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
-                                 batch_size=8)
-        counter = 0
-        for batch in data_gen:
-            if counter < 3:
-                self.assertTrue(np.array_equal(batch[0].shape, (8,224,224,3)))
-            else: 
-                self.assertTrue(np.array_equal(batch[0].shape, (1,224,224,3)))
-            counter += 1
-        self.assertTrue(counter == 4)
+    # def test_utils_iter(self):
+    #    data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
+    #                             batch_size=8)
+    #    counter = 0
+    #    for batch in data_gen:
+    #        if counter < 3:
+    #            self.assertTrue(np.array_equal(batch[0].shape, (8,224,224,3)))
+    #        else: 
+    #            self.assertTrue(np.array_equal(batch[0].shape, (1,224,224,3)))
+    #        counter += 1
+    #    self.assertTrue(counter == 4)

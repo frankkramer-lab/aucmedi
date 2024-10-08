@@ -174,8 +174,8 @@ class Bagging:
             callbacks_model = callbacks.copy()
             # Extend Callback list
             cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
-                                                 "cv_" + str(i) +
-                                                 ".model.hdf5"),
+                                                 "cv_" + str(i) + \
+                                                 ".model.keras"),
                                     monitor="val_loss", verbose=1,
                                     save_best_only=True, mode="min")
             cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
@@ -197,9 +197,6 @@ class Bagging:
                 "fcl_dropout": self.model_template.fcl_dropout,
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
-                "batch_queue_size": self.model_template.batch_queue_size,
-                "workers": self.model_template.workers,
-                "multiprocessing": self.model_template.multiprocessing,
             }
 
             # Gather DataGenerator parameters
@@ -327,7 +324,7 @@ class Bagging:
         for i in range(self.k_fold):
             # Identify path to fitted model
             path_model = os.path.join(path_model_dir,
-                                      "cv_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.keras")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -342,9 +339,6 @@ class Bagging:
                 "fcl_dropout": self.model_template.fcl_dropout,
                 "meta_variables": self.model_template.meta_variables,
                 "learning_rate": self.model_template.learning_rate,
-                "batch_queue_size": self.model_template.batch_queue_size,
-                "workers": self.model_template.workers,
-                "multiprocessing": self.model_template.multiprocessing,
             }
 
             # Start inference process for fold i
@@ -412,7 +406,7 @@ class Bagging:
         # Check model existence
         for i in range(self.k_fold):
             path_model = os.path.join(directory_path,
-                                      "cv_" + str(i) + ".model.hdf5")
+                                      "cv_" + str(i) + ".model.keras")
             if not os.path.exists(path_model):
                 raise FileNotFoundError("Bagging model for fold " + str(i) +
                                         " does not exist!", path_model)

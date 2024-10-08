@@ -173,15 +173,16 @@ class Bagging:
             # Create model specific callback list
             callbacks_model = callbacks.copy()
             # Extend Callback list
-            cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
-                                                 "cv_" + str(i) + \
-                                                 ".model.keras"),
-                                    monitor="val_loss", verbose=1,
-                                    save_best_only=True, mode="min")
-            cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
-                                           "cv_" + str(i) +
-                                           ".logs.csv"),
-                              separator=',', append=True)
+            cb_mc = ModelCheckpoint(
+                os.path.join(self.cache_dir.name, "cv_" + str(i) + ".model.keras"),
+                monitor="val_loss", verbose=1,
+                save_best_only=True, mode="min"
+            )
+            cb_cl = CSVLogger(
+                os.path.join(self.cache_dir.name,"cv_" + str(i) + ".logs.csv"),
+                separator=',',
+                append=True
+            )
             callbacks_model.extend([cb_mc, cb_cl])
 
             # Gather NeuralNetwork parameters

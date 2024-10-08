@@ -19,10 +19,12 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
 
 #-----------------------------------------------------#
 #              Subfunction class: Padding             #
@@ -63,18 +65,21 @@ class Padding(Subfunction_Base):
             max_axis = max(image.shape[:-1])
             new_shape = [max_axis for x in range(0, len(image.shape[:-1]))]
         else:
-            new_shape = [max(self.shape[i],image.shape[i]) \
+            new_shape = [max(self.shape[i],image.shape[i])
                          for i in range(0, len(image.shape[:-1]))]
         # Compute padding width
-        ## Code inspiration from: https://github.com/MIC-DKFZ/batchgenerators/blob/master/batchgenerators/augmentations/utils.py
-        ## Leave a star for them if you are reading this. The MIC-DKFZ is doing some great work ;)
+        # Code inspiration from:
+        # https://github.com/MIC-DKFZ/batchgenerators/blob/master/batchgenerators/augmentations/utils.py
+        # Leave a star for them if you are reading this. The MIC-DKFZ is doing some great work ;)
         difference = new_shape - np.asarray(image.shape[0:-1])
         pad_below = difference // 2
         pad_above = difference // 2 + difference % 2
         pad_list = list([list(i) for i in zip(pad_below, pad_above)]) + [[0, 0]]
         # Identify correct NumPy pad mode
-        if self.mode == "square" : pad_mode = "edge"
-        else : pad_mode = self.mode
+        if self.mode == "square":
+            pad_mode = "edge"
+        else:
+            pad_mode = self.mode
         # Perform padding into desired shape
         image_padded = np.pad(image, pad_list, mode=pad_mode)
         # Return padded image

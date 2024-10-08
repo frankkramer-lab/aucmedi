@@ -19,12 +19,13 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Third Party Libraries
 import numpy as np
-# Internal libraries
-from aucmedi import ImageAugmentation, VolumeAugmentation, DataGenerator
+
+# Internal Libraries
+from aucmedi import DataGenerator, ImageAugmentation, VolumeAugmentation
 from aucmedi.ensemble.aggregate import aggregate_dict
-from aucmedi.data_processing.io_loader import image_loader
+
 
 #-----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
@@ -55,7 +56,8 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
 
     - self-initialization with an AUCMEDI Aggregate function,
     - use a string key to call an AUCMEDI Aggregate function by name, or
-    - implementing a custom Aggregate function by extending the [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base]
+    - implementing a custom Aggregate function by extending the
+        [AUCMEDI base class for Aggregate functions][aucmedi.ensemble.aggregate.agg_base]
 
     !!! info
         Description and list of implemented Aggregate functions can be found here:
@@ -78,12 +80,14 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         model (NeuralNetwork):                 Instance of a AUCMEDI neural network class.
         prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
-        aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
+        aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate
+                                                function.
     """
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:
         agg_fun = aggregate_dict[aggregate]()
-    else : agg_fun = aggregate
+    else:
+        agg_fun = aggregate
 
     # Initialize image augmentation if none provided (only flip, rotate)
     if prediction_generator.data_aug is None and len(model.input_shape) == 3:
@@ -102,7 +106,8 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
                                       gamma=False, gaussian_noise=False,
                                       gaussian_blur=False, downscaling=False,
                                       elastic_transform=False)
-    else : data_aug = prediction_generator.data_aug
+    else:
+        data_aug = prediction_generator.data_aug
     # Multiply sample list for prediction according to number of cycles
     samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 

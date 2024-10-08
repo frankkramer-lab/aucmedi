@@ -19,13 +19,13 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
-import numpy as np
+# Third Party Libraries
 import pandas as pd
-import os
-from plotnine import *
-# Internal libraries/scripts
-from aucmedi.evaluation.metrics import *
+import plotnine as p9
+
+# Internal Libraries
+from aucmedi.evaluation.metrics import compute_metrics
+
 
 #-----------------------------------------------------#
 #           Evaluation - Compare Performance          #
@@ -101,20 +101,22 @@ def evaluate_comparison(pred_list,
         Predictions based on [ISIC 2019 Challenge](https://challenge.isic-archive.com/landing/2019/).
 
     Args:
-        pred_list (list of numpy.ndarray):  A list of NumPy arrays containing predictions from multiple models formatted with shape
-                                            (n_models, n_samples, n_labels). Provided by [NeuralNetwork][aucmedi.neural_network.model].
+        pred_list (list of numpy.ndarray):  A list of NumPy arrays containing predictions from multiple models formatted
+                                            with shape (n_models, n_samples, n_labels). Provided by
+                                            [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
                                             [input_interface][aucmedi.data_processing.io_data.input_interface].
         out_path (str):                     Path to directory in which plotted figures are stored.
-        model_names (list of str):          List of names for corresponding models which are for visualization. If not provided (`None`
-                                            provided), model index of `pred_list` will be used.
+        model_names (list of str):          List of names for corresponding models which are for visualization. If not
+                                            provided (`None` provided), model index of `pred_list` will be used.
         class_names (list of str):          List of names for corresponding classes. Used for evaluation. Provided by
                                             [input_interface][aucmedi.data_processing.io_data.input_interface].
                                             If not provided (`None` provided), class indices will be used.
         multi_label (bool):                 Option, whether task is multi-label based (has impact on evaluation).
-        metrics_threshold (float):          Only required if 'multi_label==True`. Threshold value if prediction is positive.
-                                            Used in metric computation for CSV and bar plot.
-        macro_average_classes (bool):       Option, whether classes should be macro-averaged in order to increase visualization overview.
+        metrics_threshold (float):          Only required if 'multi_label==True`. Threshold value if prediction is
+                                            positive. Used in metric computation for CSV and bar plot.
+        macro_average_classes (bool):       Option, whether classes should be macro-averaged in order to increase
+                                            visualization overview.
         suffix (str):                       Special suffix to add in the created figure filename.
 
     Returns:
@@ -124,8 +126,10 @@ def evaluate_comparison(pred_list,
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold
-    if multi_label : threshold = metrics_threshold
-    else : threshold = None
+    if multi_label:
+        threshold = metrics_threshold
+    else:
+        threshold = None
 
     # Compute metric dataframe for each mode
     df_list = []
@@ -142,12 +146,15 @@ def evaluate_comparison(pred_list,
             metrics["class"] = pd.Categorical(metrics["class"])
 
         # Assign model name to dataframe
-        if model_names is not None : metrics["model"] = model_names[m]
-        else : metrics["model"] = "model_" + str(m)
+        if model_names is not None:
+            metrics["model"] = model_names[m]
+        else:
+            metrics["model"] = "model_" + str(m)
 
         # Optional: Macro average classes
         if macro_average_classes:
-            metrics_avg = metrics.groupby(["metric", "model"])[["score"]].mean()
+            metrics_avg = metrics.groupby(["metric", "model"])[
+                ["score"]].mean()
             metrics = metrics_avg.reset_index()
 
         # Append to dataframe list
@@ -164,6 +171,7 @@ def evaluate_comparison(pred_list,
     # Return combined and gain dataframe
     return df_merged, df_gain
 
+
 #-----------------------------------------------------#
 #           Evaluation Comparison - Beside            #
 #-----------------------------------------------------#
@@ -173,36 +181,38 @@ def evalby_beside(df, out_path, suffix=None):
 
     # Plot metric results class-wise
     if "class" in df.columns:
-        fig = (ggplot(df, aes("model", "score", fill="model"))
-                  + geom_col(stat='identity', width=0.6, color="black",
-                             position = position_dodge(width=0.6))
-                  + ggtitle("Performance Comparison: Metric Overview")
-                  + facet_grid("metric ~ class")
-                  + coord_flip()
-                  + xlab("")
-                  + ylab("Score")
-                  + scale_y_continuous(limits=[0, 1])
-                  + theme_bw()
-                  + theme(legend_position="none"))
+        fig = (p9.ggplot(df, p9.aes("model", "score", fill="model"))
+               + p9.geom_col(stat='identity', width=0.6, color="black",
+                          position=p9.position_dodge(width=0.6))
+               + p9.ggtitle("Performance Comparison: Metric Overview")
+               + p9.facet_grid("metric ~ class")
+               + p9.coord_flip()
+               + p9.xlab("")
+               + p9.ylab("Score")
+               + p9.scale_y_continuous(limits=[0, 1])
+               + p9.theme_bw()
+               + p9.theme(legend_position="none"))
     # Plot metric results class macro-averaged
     else:
-        fig = (ggplot(df, aes("model", "score", fill="model"))
-                  + geom_col(stat='identity', width=0.6, color="black",
-                             position = position_dodge(width=0.6))
-                  + ggtitle("Performance Comparison: Metric Overview")
-                  + facet_wrap("metric")
-                  + coord_flip()
-                  + xlab("")
-                  + ylab("Score")
-                  + scale_y_continuous(limits=[0, 1])
-                  + theme_bw()
-                  + theme(legend_position="none"))
+        fig = (p9.ggplot(df, p9.aes("model", "score", fill="model"))
+               + p9.geom_col(stat='identity', width=0.6, color="black",
+                          position=p9.position_dodge(width=0.6))
+               + p9.ggtitle("Performance Comparison: Metric Overview")
+               + p9.facet_wrap("metric")
+               + p9.coord_flip()
+               + p9.xlab("")
+               + p9.ylab("Score")
+               + p9.scale_y_continuous(limits=[0, 1])
+               + p9.theme_bw()
+               + p9.theme(legend_position="none"))
 
     # Store figure to disk
     filename = "plot.comparison.beside"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
+
 
 #-----------------------------------------------------#
 #            Evaluation Comparison - Gain             #
@@ -218,7 +228,7 @@ def evalby_gain(df, out_path, suffix=None):
         # Obtain class-wise divisor
         if "class" in row.index:
             c = row["class"]
-            div = template.loc[(template["metric"] == m) & \
+            div = template.loc[(template["metric"] == m) &
                                (template["class"] == c)]["score"].values[0]
         # Obtain macro-averaged divisor
         else:
@@ -234,32 +244,35 @@ def evalby_gain(df, out_path, suffix=None):
 
     # Plot gain results class-wise
     if "class" in df.columns:
-        fig = (ggplot(df, aes("model", "score", fill="model"))
-                  + geom_col(stat='identity', width=0.6, color="black",
-                             position = position_dodge(width=0.2))
-                  + ggtitle("Performance Gain compared to Model: " + str(first_model))
-                  + facet_grid("metric ~ class")
-                  + coord_flip()
-                  + xlab("")
-                  + ylab("Performance Gain in Percent (%)")
-                  + theme_bw()
-                  + theme(legend_position="none"))
+        fig = (p9.ggplot(df, p9.aes("model", "score", fill="model"))
+               + p9.geom_col(stat='identity', width=0.6, color="black",
+                          position=p9.position_dodge(width=0.2))
+               + p9.ggtitle("Performance Gain compared to Model: " +
+                         str(first_model))
+               + p9.facet_grid("metric ~ class")
+               + p9.coord_flip()
+               + p9.xlab("")
+               + p9.ylab("Performance Gain in Percent (%)")
+               + p9.theme_bw()
+               + p9.theme(legend_position="none"))
     # Plot gain results class macro-averaged
     else:
-        fig = (ggplot(df, aes("model", "score", fill="model"))
-                  + geom_col(stat='identity', width=0.6, color="black",
-                             position = position_dodge(width=0.2))
-                  + ggtitle("Performance Gain compared to Model: " + str(first_model))
-                  + facet_wrap("metric")
-                  + coord_flip()
-                  + xlab("")
-                  + ylab("Performance Gain in Percent (%)")
-                  + theme_bw()
-                  + theme(legend_position="none"))
+        fig = (p9.ggplot(df, p9.aes("model", "score", fill="model"))
+               + p9.geom_col(stat='identity', width=0.6, color="black",
+                          position=p9.position_dodge(width=0.2))
+               + p9.ggtitle("Performance Gain compared to Model: " +
+                         str(first_model))
+               + p9.facet_wrap("metric")
+               + p9.coord_flip()
+               + p9.xlab("")
+               + p9.ylab("Performance Gain in Percent (%)")
+               + p9.theme_bw()
+               + p9.theme(legend_position="none"))
 
     # Store figure to disk
     filename = "plot.comparison.gain"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
 

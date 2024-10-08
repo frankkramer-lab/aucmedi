@@ -55,7 +55,7 @@ These functions are called **internally** via the [DataGenerator][aucmedi.data_p
                              image_format=image_format, resize=None,
                              loader=image_loader)
     ```
-"""
+""" # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -63,3 +63,11 @@ from aucmedi.data_processing.io_loader.image_loader import image_loader
 from aucmedi.data_processing.io_loader.numpy_loader import numpy_loader
 from aucmedi.data_processing.io_loader.sitk_loader import sitk_loader
 from aucmedi.data_processing.io_loader.cache_loader import cache_loader
+
+
+__all__ = [
+    "image_loader",
+    "numpy_loader",
+    "sitk_loader",
+    "cache_loader"
+]

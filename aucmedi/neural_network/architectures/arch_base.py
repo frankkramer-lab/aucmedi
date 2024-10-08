@@ -19,8 +19,9 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 from abc import ABC, abstractmethod
+
 
 #-----------------------------------------------------#
 #     Abstract Interface for an Architecture class    #
@@ -83,7 +84,8 @@ class Architecture_Base(ABC):
         Args:
             classification_head (Classifier):   Classifier object for building the classification head of the model.
             channels (int):                     Number of channels. For example: Grayscale->1 or RGB->3.
-            input_shape (tuple):                Input shape of the image data for the first model layer (excluding channel axis).
+            input_shape (tuple):                Input shape of the image data for the first model layer
+                                                (excluding channel axis).
             pretrained_weights (bool):          Option whether to utilize pretrained weights e.g. for ImageNet.
         """
         self.classifier = classification_head

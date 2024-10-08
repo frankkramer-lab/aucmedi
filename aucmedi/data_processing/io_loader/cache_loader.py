@@ -19,8 +19,11 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
+
 
 #-----------------------------------------------------#
 #             Cache Loader for AUCMEDI IO             #
@@ -29,7 +32,7 @@ def cache_loader(sample, path_imagedir=None, image_format=None,
                  grayscale=False, two_dim=True, cache=None, **kwargs):
     """ Cache Loader for passing already loaded images within the AUCMEDI pipeline.
 
-    The Cache Loader is an IO_loader function, which have to be passed to the 
+    The Cache Loader is an IO_loader function, which have to be passed to the
     [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
     The complete data management happens in the memory.
@@ -86,9 +89,9 @@ def cache_loader(sample, path_imagedir=None, image_format=None,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 2D & Grayscale: Expected either 2D " + \
-                             "without channel axis or 3D with single channel" + \
-                             " axis, but got:", img.shape, len(img.shape))
+            raise ValueError("Parameter 2D & Grayscale: Expected either 2D "
+                             + "without channel axis or 3D with single channel"
+                             + " axis, but got:", img.shape, len(img.shape))
     # Verify image shape for grayscale & 3D
     elif grayscale and not two_dim:
         # Add channel axis and return image
@@ -99,9 +102,9 @@ def cache_loader(sample, path_imagedir=None, image_format=None,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 3D & Grayscale: Expected either 3D " + \
-                             "without channel axis or 4D with single channel" + \
-                             " axis, but got:", img.shape, len(img.shape))
+            raise ValueError("Parameter 3D & Grayscale: Expected either 3D "
+                             + "without channel axis or 4D with single channel"
+                             + " axis, but got:", img.shape, len(img.shape))
     # Verify image shape for rgb & 2D
     elif not grayscale and two_dim:
         # Just return image
@@ -109,8 +112,8 @@ def cache_loader(sample, path_imagedir=None, image_format=None,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 2D & RGB: Expected 3D array " + \
-                             "including a single channel axis, but got:",
+            raise ValueError("Parameter 2D & RGB: Expected 3D array "
+                             + "including a single channel axis, but got:",
                              img.shape, len(img.shape))
     # Verify image shape for rgb & 3D
     elif not grayscale and not two_dim:
@@ -119,6 +122,6 @@ def cache_loader(sample, path_imagedir=None, image_format=None,
             return img
         # Throw Exception
         else:
-            raise ValueError("Parameter 3D & RGB: Expected 4D array " + \
-                             "including a single channel axis, but got:",
+            raise ValueError("Parameter 3D & RGB: Expected 4D array "
+                             + "including a single channel axis, but got:",
                              img.shape, len(img.shape))

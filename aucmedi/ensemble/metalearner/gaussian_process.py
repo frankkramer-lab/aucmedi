@@ -19,12 +19,16 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import pickle
-from sklearn.gaussian_process import GaussianProcessClassifier
+
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+from sklearn.gaussian_process import GaussianProcessClassifier
+
+# Internal Libraries
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+
 
 #-----------------------------------------------------#
 #            Metalearner: Gaussian Process            #

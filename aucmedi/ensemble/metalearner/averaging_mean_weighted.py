@@ -19,12 +19,16 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import pickle
-from sklearn.metrics import roc_auc_score
+
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+from sklearn.metrics import roc_auc_score
+
+# Internal Libraries
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+
 
 #-----------------------------------------------------#
 #             Metalearner: Weighted Mean              #

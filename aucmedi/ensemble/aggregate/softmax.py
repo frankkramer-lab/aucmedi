@@ -19,10 +19,12 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+
 
 #-----------------------------------------------------#
 #                  Aggregate: Softmax                 #
@@ -49,6 +51,7 @@ class Softmax(Aggregate_Base):
         pred = compute_softmax(preds_sum)
         # Return prediction
         return pred
+
 
 #-----------------------------------------------------#
 #             Subfunction: Softmax Formula            #

@@ -47,7 +47,8 @@ Example: [[0.4, 0.3, 0.3]]
     preds = predict_augmenting(model, test_datagen, n_cycles=5, aggregate=my_agg)
     ```
 
-Aggregate functions are based on the abstract base class [Aggregate_Base][aucmedi.ensemble.aggregate.agg_base.Aggregate_Base],
+Aggregate functions are based on the abstract base class
+[Aggregate_Base][aucmedi.ensemble.aggregate.agg_base.Aggregate_Base],
 which allows simple integration of custom aggregate methods for Ensemble.
 """
 #-----------------------------------------------------#
@@ -70,3 +71,13 @@ aggregate_dict = {"mean": AveragingMean,
                   "global_argmax": GlobalArgmax,
 }
 """ Dictionary of implemented Aggregate functions. """
+
+
+__all__ = [
+    "aggregate_dict",
+    "AveragingMean",
+    "AveragingMedian",
+    "MajorityVote",
+    "Softmax",
+    "GlobalArgmax"
+]

@@ -33,7 +33,7 @@ AUCMEDI currently supports the following evaluation techniques:
 | [Performance Evaluation][aucmedi.evaluation.performance] | Evaluate the performance of a single model / prediction list through various metrics. |
 | [Performance Comparison][aucmedi.evaluation.comparison]  | Compare the performance of predictions from multiple models.                          |
 
-"""
+""" # noqa 501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -41,3 +41,11 @@ from aucmedi.evaluation.fitting import evaluate_fitting
 from aucmedi.evaluation.performance import evaluate_performance
 from aucmedi.evaluation.comparison import evaluate_comparison
 from aucmedi.evaluation.dataset import evaluate_dataset
+
+
+__all__ = [
+    "evaluate_fitting",
+    "evaluate_performance",
+    "evaluate_comparison",
+    "evaluate_dataset"
+]

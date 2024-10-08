@@ -35,11 +35,15 @@ No intensive hardware requirements, which makes it ideal for debugging.
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 from tensorflow.keras import Input
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
-# Internal libraries
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #                 Vanilla Architecture                #

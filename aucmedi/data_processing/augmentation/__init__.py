@@ -81,10 +81,17 @@ instead of meaningless characteristics due to a small data set size.
                             resize=model.meta_input,
                             image_format=image_format)
     ```
-"""
+"""  # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 from aucmedi.data_processing.augmentation.aug_image import ImageAugmentation
 from aucmedi.data_processing.augmentation.aug_volume import VolumeAugmentation
 from aucmedi.data_processing.augmentation.aug_batchgenerators import BatchgeneratorsAugmentation
+
+
+__all__ = [
+    "ImageAugmentation",
+    "VolumeAugmentation",
+    "BatchgeneratorsAugmentation"
+]

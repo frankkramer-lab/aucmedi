@@ -19,22 +19,25 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-import os
-import numpy as np
+# Python Standard Library
 import json
+import os
+
+# Third Party Libraries
+import numpy as np
+from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.metrics import AUC
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
-                                       ReduceLROnPlateau, EarlyStopping
-# Internal libraries
-from aucmedi import *
+
+# Internal Libraries
+from aucmedi import BatchgeneratorsAugmentation, DataGenerator, ImageAugmentation, NeuralNetwork, input_interface
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
-from aucmedi.sampling import sampling_split
-from aucmedi.utils.class_weights import *
-from aucmedi.data_processing.subfunctions import *
-from aucmedi.neural_network.loss_functions import *
-from aucmedi.ensemble import *
+from aucmedi.data_processing.subfunctions import Chromer, Crop, Padding, Standardize
+from aucmedi.ensemble import Composite
 from aucmedi.evaluation import evaluate_fitting
+from aucmedi.neural_network.loss_functions import categorical_focal_loss, multilabel_focal_loss
+from aucmedi.sampling import sampling_split
+from aucmedi.utils.class_weights import compute_class_weights, compute_multilabel_weights
+
 
 #-----------------------------------------------------#
 #            Building Blocks for Training             #
@@ -53,9 +56,12 @@ def block_train(config):
     Attributes:
         path_imagedir (str):                Path to the directory containing the images.
         path_modeldir (str):                Path to the output directory in which fitted models and metadata are stored.
-        path_gt (str):                      Path to the index/class annotation file if required. (only for 'csv' interface).
-        analysis (str):                     Analysis mode for the AutoML training. Options: `["minimal", "standard", "advanced"]`.
-        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        path_gt (str):                      Path to the index/class annotation file if required
+                                            (only for 'csv' interface).
+        analysis (str):                     Analysis mode for the AutoML training. Options:
+                                            `["minimal", "standard", "advanced"]`.
+        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot
+                                            encoded.
         three_dim (bool):                   Boolean, whether data is 2D or 3D.
         shape_3D (tuple of int):            Desired input shape of 3D volume for architecture (will be cropped).
         epochs (int):                       Number of epochs. A single epoch is defined as one iteration through
@@ -66,8 +72,10 @@ def block_train(config):
         architecture (str or list of str):  Key (str) of a neural network model Architecture class instance.
     """
     # Obtain interface
-    if config["path_gt"] is None : config["interface"] = "directory"
-    else : config["interface"] = "csv"
+    if config["path_gt"] is None:
+        config["interface"] = "directory"
+    else:
+        config["interface"] = "csv"
     # Peak into the dataset via the input interface
     ds = input_interface(config["interface"],
                          config["path_imagedir"],
@@ -82,8 +90,10 @@ def block_train(config):
         os.mkdir(config["path_modeldir"])
 
     # Identify task (multi-class vs multi-label)
-    if np.sum(class_ohe) > class_ohe.shape[0] : config["multi_label"] = True
-    else : config["multi_label"] = False
+    if np.sum(class_ohe) > class_ohe.shape[0]:
+        config["multi_label"] = True
+    else:
+        config["multi_label"] = False
 
     # Sanity check on multi-label metalearner
     multilabel_metalearner_supported = ["mlp", "k_neighbors", "random_forest",
@@ -91,7 +101,7 @@ def block_train(config):
                                         "decision_tree", "mean", "median"]
     if config["multi_label"] and config["analysis"] == "advanced" and \
        config["metalearner"] not in multilabel_metalearner_supported:
-        raise ValueError("Non-compatible metalearner selected for multi-label"\
+        raise ValueError("Non-compatible metalearner selected for multi-label"
                          + " classification. Supported metalearner:",
                           multilabel_metalearner_supported)
 
@@ -141,10 +151,12 @@ def block_train(config):
                 "pretrained_weights": True,
     }
     # Select input shape for 3D
-    if config["three_dim"] : nn_paras["input_shape"] = config["shape_3D"]
+    if config["three_dim"]: nn_paras["input_shape"] = config["shape_3D"]
     # Select task type
-    if config["multi_label"] : nn_paras["activation_output"] = "sigmoid"
-    else : nn_paras["activation_output"] = "softmax"
+    if config["multi_label"]:
+        nn_paras["activation_output"] = "sigmoid"
+    else:
+        nn_paras["activation_output"] = "softmax"
 
     # Initialize Augmentation for 2D image data
     if not config["three_dim"]:
@@ -161,7 +173,8 @@ def block_train(config):
                         mirror=True, rotate=True, scale=True,
                         elastic_transform=True, gaussian_noise=False,
                         brightness=False, contrast=False, gamma=True)
-    else : data_aug = None
+    else:
+        data_aug = None
 
     # Subfunctions
     sf_list = []
@@ -184,8 +197,10 @@ def block_train(config):
         "image_format": image_format,
         "workers": config["workers"],
     }
-    if not config["three_dim"] : paras_datagen["loader"] = image_loader
-    else : paras_datagen["loader"] = sitk_loader
+    if not config["three_dim"]:
+        paras_datagen["loader"] = image_loader
+    else:
+        paras_datagen["loader"] = sitk_loader
 
     # Gather training parameters
     paras_train = {
@@ -199,8 +214,10 @@ def block_train(config):
     # Apply MIC pipelines
     if config["analysis"] == "minimal":
         # Setup neural network
-        if not config["three_dim"] : arch_dim = "2D." + config["architecture"]
-        else : arch_dim = "3D." + config["architecture"]
+        if not config["three_dim"]:
+            arch_dim = "2D." + config["architecture"]
+        else:
+            arch_dim = "3D." + config["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Build DataGenerator
@@ -218,8 +235,10 @@ def block_train(config):
         model.dump(path_model)
     elif config["analysis"] == "standard":
         # Setup neural network
-        if not config["three_dim"] : arch_dim = "2D." + config["architecture"]
-        else : arch_dim = "3D." + config["architecture"]
+        if not config["three_dim"]:
+            arch_dim = "2D." + config["architecture"]
+        else:
+            arch_dim = "3D." + config["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Apply percentage split sampling
@@ -252,13 +271,15 @@ def block_train(config):
     else:
         # Sanity check of architecutre config
         if not isinstance(config["architecture"], list):
-            raise ValueError("key 'architecture' in config has to be a list " \
+            raise ValueError("key 'architecture' in config has to be a list "
                              + "if 'advanced' was selected as analysis.")
         # Build multi-model list
         model_list = []
         for arch in config["architecture"]:
-            if not config["three_dim"] : arch_dim = "2D." + arch
-            else : arch_dim = "3D." + arch
+            if not config["three_dim"]:
+                arch_dim = "2D." + arch
+            else:
+                arch_dim = "3D." + arch
             model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
             model_list.append(model_part)
         el = Composite(model_list, metalearner=config["metalearner"],

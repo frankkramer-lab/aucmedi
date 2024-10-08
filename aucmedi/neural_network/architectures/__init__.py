@@ -19,17 +19,20 @@
 #-----------------------------------------------------#
 #                    Documentation                    #
 #-----------------------------------------------------#
-""" Models are represented with the open-source neural network library [TensorFlow.Keras](https://www.tensorflow.org/api_docs/python/tf/keras)
+""" Models are represented with the open-source neural network library
+    [TensorFlow.Keras](https://www.tensorflow.org/api_docs/python/tf/keras)
     which provides an user-friendly API for commonly used neural-network building blocks.
 
-The already implemented architectures are configurable by custom input sizes, optional dropouts, transfer learning via pretrained weights,
+The already implemented architectures are configurable by custom input sizes, optional dropouts, transfer learning via
+pretrained weights,
 meta data inclusion or activation output depending on classification type.
 
 Additionally, AUCMEDI offers architectures for 2D image and 3D volume classification.
 
 ???+ example "Example: How to select an Architecture"
     For architecture selection, just create a key (str) by adding "2D." or "3D." to the architecture name,
-    and pass the key to the `architecture` parameter of the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
+    and pass the key to the `architecture` parameter of the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
+    class.
 
     ```python
     # 2D architecture
@@ -52,7 +55,8 @@ Besides the flexibility in switching between already implemented architecture,
 the [abstract base class interface][aucmedi.neural_network.architectures.arch_base.Architecture_Base]
 for architectures offers the possibility for custom architecture integration into the AUCMEDI pipeline.
 
-Furthermore, AUCMEDI offers the powerful classification head interface [Classifier][aucmedi.neural_network.architectures.classifier],
+Furthermore, AUCMEDI offers the powerful classification head interface
+[Classifier][aucmedi.neural_network.architectures.classifier],
 which can be used for all types of image classifications and will be automatically created in the
 [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
 """
@@ -71,12 +75,12 @@ from aucmedi.neural_network.architectures.classifier import Classifier
 architecture_dict = {}
 
 # Add image architectures to architecture_dict
-from aucmedi.neural_network.architectures.image import architecture_dict as arch_image
+from aucmedi.neural_network.architectures.image import architecture_dict as arch_image # noqa E402
 for arch in arch_image:
     architecture_dict["2D." + arch] = arch_image[arch]
 
 # Add volume architectures to architecture_dict
-from aucmedi.neural_network.architectures.volume import architecture_dict as arch_volume
+from aucmedi.neural_network.architectures.volume import architecture_dict as arch_volume # noqa E402
 for arch in arch_volume:
     architecture_dict["3D." + arch] = arch_volume[arch]
 
@@ -87,11 +91,19 @@ for arch in arch_volume:
 supported_standardize_mode = {}
 
 # Add image architectures to supported_standardize_mode
-from aucmedi.neural_network.architectures.image import supported_standardize_mode as modes_image
+from aucmedi.neural_network.architectures.image import supported_standardize_mode as modes_image # noqa E402
 for m in modes_image:
     supported_standardize_mode["2D." + m] = modes_image[m]
 
 # Add volume architectures to supported_standardize_mode
-from aucmedi.neural_network.architectures.volume import supported_standardize_mode as modes_volume
+from aucmedi.neural_network.architectures.volume import supported_standardize_mode as modes_volume # noqa E402
 for m in modes_volume:
     supported_standardize_mode["3D." + m] = modes_volume[m]
+
+
+__all__ = [
+    "Architecture_Base",
+    "Classifier",
+    "architecture_dict",
+    "supported_standardize_mode"
+]

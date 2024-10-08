@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import albumentations
 import volumentations
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
 
 #-----------------------------------------------------#
 #              Subfunction class: Resize              #
@@ -65,7 +69,8 @@ class Resize(Subfunction_Base):
         elif len(shape) == 3:
             params["shape"] = shape
             mod = volumentations
-        else : raise ValueError("Shape for Resize has to be 2D or 3D!", shape)
+        else:
+            raise ValueError("Shape for Resize has to be 2D or 3D!", shape)
         # Initialize resizing transform
         self.aug_transform = mod.Compose([mod.Resize(**params)])
         # Cache shape

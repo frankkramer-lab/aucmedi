@@ -19,9 +19,10 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+# Third Party Libraries
+# Internal Libraries
 
-# Internal libraries
 
 #-----------------------------------------------------#
 #                    Parser - YAML                    #

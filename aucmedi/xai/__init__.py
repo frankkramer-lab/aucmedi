@@ -50,3 +50,9 @@
 # Import XAI functionalities
 from aucmedi.xai.methods import xai_dict
 from aucmedi.xai.decoder import xai_decoder
+
+
+__all__ = [
+    "xai_dict",
+    "xai_decoder"
+]

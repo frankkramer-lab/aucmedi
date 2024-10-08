@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import albumentations
 import volumentations
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
 
 #-----------------------------------------------------#
 #             Subfunction class: Cropping             #
@@ -45,7 +49,7 @@ class Crop(Subfunction_Base):
 
         Cropping is done via volumentations CenterCrop and RandomCrop transform. <br>
         https://github.com/muellerdo/volumentations
-    """
+    """ # noqa E501
     #---------------------------------------------#
     #                Initialization               #
     #---------------------------------------------#
@@ -67,13 +71,15 @@ class Crop(Subfunction_Base):
         elif len(shape) == 3:
             params["shape"] = shape
             mod = volumentations
-        else : raise ValueError("Shape for cropping has to be 2D or 3D!", shape)
+        else:
+            raise ValueError("Shape for cropping has to be 2D or 3D!", shape)
         # Initialize cropping transform
         if mode == "center":
             self.aug_transform = mod.Compose([mod.CenterCrop(**params)])
         elif mode == "random":
             self.aug_transform = mod.Compose([mod.RandomCrop(**params)])
-        else : raise ValueError("Unknown mode for crop Subfunction", mode,
+        else:
+            raise ValueError("Unknown mode for crop Subfunction", mode,
                                 "Possibles modes are: ['center', 'random']")
         # Cache shape
         self.shape = shape

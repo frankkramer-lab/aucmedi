@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
 import tensorflow as tf
+
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
+
 
 #-----------------------------------------------------#
 #                Guided Backpropagation               #
@@ -58,13 +62,14 @@ class GuidedBackpropagation(XAImethod_Base):
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Guided Backpropagation for an image with a model.
-    """
+    """ # noqa E501
     def __init__(self, model, layerName=None):
         """ Initialization function for creating Guided Backpropagation as XAI Method object.
 
         Args:
-            model (keras.model):               Keras model object.
-            layerName (str):                   Not required in Guided Backpropagation, but defined by Abstract Base Class.
+            model (keras.model):            Keras model object.
+            layerName (str):                Not required in Guided Backpropagation, but defined by Abstract
+                                            Base Class.
         """
         # Create a deep copy of the model
         model_copy = tf.keras.models.clone_model(model)
@@ -76,7 +81,7 @@ class GuidedBackpropagation(XAImethod_Base):
         @tf.custom_gradient
         def guidedRelu(x):
             def grad(dy):
-                return tf.cast(dy>0, "float32") * tf.cast(x>0, "float32") * dy
+                return tf.cast(dy > 0, "float32") * tf.cast(x > 0, "float32") * dy
             return tf.nn.relu(x), grad
         # Replace Relu activation layers with custom Relu activation layer
         layer_dict = [layer for layer in model_copy.layers if hasattr(layer, "activation")]
@@ -90,7 +95,8 @@ class GuidedBackpropagation(XAImethod_Base):
     #             Heatmap Computation             #
     #---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Guided Backpropagation for a provided image and for specific classification outcome.
+        """ Core function for computing the Guided Backpropagation for a provided image and for specific classification
+        outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.

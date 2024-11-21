@@ -215,6 +215,52 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.assertTrue(supported_standardize_mode["ResNet152V2"] == "tf")
         self.assertTrue(sdm_global["2D.ResNet152V2"] == "tf")
 
+    # -------------------------------------------------#
+    #             Architecture: ResNeXt50             #
+    # -------------------------------------------------#
+    def test_ResNeXt50(self):
+        arch = ResNeXt50(Classifier(n_labels=4), channels=1,
+                         input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
+                              batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = ResNeXt50(Classifier(n_labels=4), channels=3,
+                         input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch,
+                              batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNeXt50",
+                              batch_queue_size=1, input_shape=(32, 32))
+        try:
+            model.model.summary()
+        except:
+            raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNeXt50"] == "torch")
+        self.assertTrue(sdm_global["2D.ResNeXt50"] == "torch")
+
+    # -------------------------------------------------#
+    #             Architecture: ResNeXt101            #
+    # -------------------------------------------------#
+    def test_ResNeXt101(self):
+        arch = ResNeXt101(Classifier(n_labels=4), channels=1,
+                          input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch,
+                              batch_queue_size=1)
+        model.predict(self.datagen_GRAY)
+        arch = ResNeXt101(Classifier(n_labels=4), channels=3,
+                          input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch,
+                              batch_queue_size=1)
+        model.predict(self.datagen_RGB)
+        model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNeXt101",
+                              batch_queue_size=1, input_shape=(32, 32))
+        try:
+            model.model.summary()
+        except:
+            raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNeXt101"] == "torch")
+        self.assertTrue(sdm_global["2D.ResNeXt101"] == "torch")
+
     #-------------------------------------------------#
     #            Architecture: DenseNet121            #
     #-------------------------------------------------#

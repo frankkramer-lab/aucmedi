@@ -52,29 +52,50 @@ def cli_core():
     # Return parsers
     return parser, subparsers
 
-# #-----------------------------------------------------#
-# #                     CLI - YAML                      #
-# #-----------------------------------------------------#
-# def cli_yaml(subparsers):
-#     # Set description for cli training
-#     desc = """ YAML interface for reading configurations from a file """
-#     # Setup SubParser
-#     parser_yaml = subparsers.add_parser("yaml", help=desc, add_help=False)
-#
-#     # Add required configuration arguments
-#     ra = parser_yaml.add_argument_group("required arguments")
-#     ra.add_argument("-i", "--input",
-#                     type=str,
-#                     required=True,
-#                     help="Path to a YAML file with AUCMEDI AutoML " + \
-#                          "configurations")
-#
-#     # Add optional configuration arguments
-#     oa = parser_yaml.add_argument_group("optional arguments")
-#     oa.add_argument("-h",
-#                     "--help",
-#                     action="help",
-#                     help="show this help message and exit")
+
+#-----------------------------------------------------#
+#                     CLI - YAML                      #
+#-----------------------------------------------------#
+def cli_yaml(subparsers):
+    # Set description for cli training
+    desc = """ YAML interface for reading configurations from a file """
+    # Setup SubParser
+    parser_yaml = subparsers.add_parser("yaml", help=desc, add_help=False)
+    # Add required configuration arguments
+    ra = parser_yaml.add_argument_group("required arguments")
+    ra.add_argument("-cp", "--config_path",
+                    type=str,
+                    required=True,
+                    help="Path to a YAML file with AUCMEDI AutoML configurations")
+    # Add optional configuration arguments
+    oa = parser_yaml.add_argument_group("optional arguments")
+    oa.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
+    
+
+#-----------------------------------------------------#
+#                     CLI - JSON                      #
+#-----------------------------------------------------#
+def cli_json(subparsers):
+    # Set description for cli training
+    desc = """ JSON interface for reading configurations from a file """
+    # Setup SubParser
+    parser_yaml = subparsers.add_parser("json", help=desc, add_help=False)
+    # Add required configuration arguments
+    ra = parser_yaml.add_argument_group("required arguments")
+    ra.add_argument("-cp", "--config_path",
+                    type=str,
+                    required=True,
+                    help="Path to a JSON file with AUCMEDI AutoML configurations")
+    # Add optional configuration arguments
+    oa = parser_yaml.add_argument_group("optional arguments")
+    oa.add_argument("-h",
+                    "--help",
+                    action="help",
+                    help="show this help message and exit")
+
 
 #-----------------------------------------------------#
 #                    CLI - Training                   #

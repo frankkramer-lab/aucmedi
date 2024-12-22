@@ -1,0 +1,30 @@
+general:
+  hub: "training" # [training|prediction|evaluation]
+  path_imagedir: "./training"
+# Training
+training:
+  path_modeldir: "./model"
+  path_gt: null
+  ohe: False
+  analysis: "standard"
+  three_dim: False
+  shape_3D: [128, 128, 128]
+  epochs: 500
+  batch_size: 24
+  workers: 1
+  metalearner: "mean"
+  architecture: ["DenseNet121"]
+# pred
+prediction:
+  path_modeldir: "./model"
+  path_pred: "./preds.csv"
+  xai_method: null
+  xai_directory: "./xai"
+  batch_size: 24
+  workers: 1
+# evaluation
+evaluation:
+  path_gt: null
+  ohe: False
+  path_pred: "./preds.csv"
+  path_evaldir: "./evaluation"

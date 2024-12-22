@@ -19,6 +19,8 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
+# Python Standard Library
+from argparse import Namespace
 #External libraries
 import unittest
 import tempfile
@@ -31,7 +33,7 @@ from shutil import which
 #Internal libraries
 from aucmedi.automl.main import main
 from aucmedi.automl.cli import *
-from aucmedi.automl import parse_cli
+from aucmedi.automl.config_parsers import parse_cli
 
 #-----------------------------------------------------#
 #                Unittest: AutoML CLI                 #
@@ -57,6 +59,30 @@ class AutoML_CLI(unittest.TestCase):
         # Create temporary model directory
         self.tmp_model = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                      suffix=".model")
+    
+    def test_cli_parser_selected_if_no_hub_is_selected(self):
+        args = ["aucmedi", "training"]
+        # check if parse_cli is called
+        with patch.object(sys, "argv", args):
+            with (patch("aucmedi.automl.main.parse_cli") as mock):
+                main()
+                mock.assert_called()
+
+    def test_yaml_parser_selected_if_hub_is_yaml(self):
+        args = ["aucmedi", "yaml", "--config_path", "some.yml"]
+        # check if parse_config_file is called with "yml"
+        with patch.object(sys, "argv", args):
+            with (patch("aucmedi.automl.main.parse_config_file") as mock):
+                main()
+                mock.assert_called_with(Namespace(hub="yaml", config_path="some.yml"), "yml")
+
+    def test_json_parser_selected_if_hub_is_json(self):
+        args = ["aucmedi", "json", "--config_path", "some.json"]
+        # check if parse_config_file is called with "json"
+        with patch.object(sys, "argv", args):
+            with patch("aucmedi.automl.main.parse_config_file") as mock:
+                main()
+                mock.assert_called_with(Namespace(hub="json", config_path="some.json"), "json")
 
     #-------------------------------------------------#
     #                  CLI Hub: Core                  #

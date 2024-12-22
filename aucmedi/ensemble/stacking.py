@@ -19,20 +19,24 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
-import tempfile
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
-import numpy as np
 import shutil
-# Internal libraries
+import tempfile
+
+# Third Party Libraries
+import numpy as np
+from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
+from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
+
+# Internal Libraries
 from aucmedi import DataGenerator, NeuralNetwork
-from aucmedi.sampling import sampling_split
 from aucmedi.ensemble.aggregate import aggregate_dict
+from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 from aucmedi.ensemble.metalearner import metalearner_dict
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
-from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+from aucmedi.sampling import sampling_split
+
 
 #-----------------------------------------------------#
 #             Ensemble Learning: Stacking             #
@@ -40,10 +44,10 @@ from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
 class Stacking:
     """ A Stacking class providing functionality for metalearner based ensemble learning.
 
-    In contrast to single algorithm approaches, the ensemble of different deep convolutional neural network architectures
-    (also called heterogeneous ensemble learning) showed strong benefits for overall performance in several studies.
-    The idea of the Stacking technique is to utilize diverse and independent models by stacking another machine learning
-    algorithm on top of these predictions.
+    In contrast to single algorithm approaches, the ensemble of different deep convolutional neural network
+    architectures (also called heterogeneous ensemble learning) showed strong benefits for overall performance in
+    several studies. The idea of the Stacking technique is to utilize diverse and independent models by stacking another
+    machine learning algorithm on top of these predictions.
 
     In AUCMEDI, a percentage split is applied on the dataset into the subsets: train, validation and ensemble.
 
@@ -77,7 +81,8 @@ class Stacking:
         ```
 
     !!! warning "Training Time Increase"
-        Stacking sequentially performs fitting processes for multiple models, which will drastically increase training time.
+        Stacking sequentially performs fitting processes for multiple models, which will drastically increase training
+        time.
 
     ??? warning "DataGenerator re-initialization"
         The passed DataGenerator for the train() and predict() function of the Stacking class will be re-initialized!
@@ -88,7 +93,8 @@ class Stacking:
         NeuralNetwork model specific values (`model.meta_standardize` for `standardize_mode` and
         `model.meta_input` for `input_shape`).
 
-        If desired (but not recommended!), it is possible to modify the meta variables of the NeuralNetwork model as follows:
+        If desired (but not recommended!), it is possible to modify the meta variables of the NeuralNetwork model as
+        follows:
         ```python
         # For input_shape
         model_a = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50",
@@ -104,29 +110,33 @@ class Stacking:
         Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
-        For the training and inference process, each model will create an individual process via the Python multiprocessing package.
+        For the training and inference process, each model will create an individual process via the Python
+        multiprocessing package.
 
         This is crucial as TensorFlow does not fully support the VRAM memory garbage collection in GPUs,
         which is why more and more redundant data pile up with an increasing number of models.
 
-        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next model.
+        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next
+        model.
 
     ??? reference "Reference for Ensemble Learning Techniques"
         Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).
         An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
+
     def __init__(self, model_list, metalearner="logistic_regression",
                  sampling=[0.7, 0.1, 0.2]):
         """ Initialization function for creating a Stacking object.
 
         Args:
             model_list (list of NeuralNetwork):        List of instances of AUCMEDI neural network class.
-            metalearner (str, Metalearner or Aggregate):Metalearner class instance / a string for an AUCMEDI Metalearner,
-                                                        or Aggregate function / a string for an AUCMEDI Aggregate function.
-            sampling (list of float):                   List of percentage values with split sizes. Should be 3x percentage values
-                                                        for heterogenous metalearner and 2x percentage values for homogeneous
-                                                        Aggregate functions (must sum up to 1.0).
+            metalearner (str, Metalearner or Aggregate):Metalearner class instance / a string for an AUCMEDI
+                                                        Metalearner, or Aggregate function / a string for an AUCMEDI
+                                                        Aggregate function.
+            sampling (list of float):                   List of percentage values with split sizes. Should be 3x
+                                                        percentage values for heterogenous metalearner and 2x percentage
+                                                        values for homogeneous Aggregate functions (must sum up to 1.0).
         """
         # Cache class variables
         self.model_list = model_list
@@ -141,10 +151,11 @@ class Stacking:
         elif isinstance(metalearner, str) and metalearner in aggregate_dict:
             self.ml_model = aggregate_dict[metalearner]()
         elif isinstance(metalearner, Metalearner_Base) or \
-             isinstance(metalearner, Aggregate_Base):
+                isinstance(metalearner, Aggregate_Base):
             self.ml_model = metalearner
-        else : raise TypeError("Unknown type of Metalearner (neither known " + \
-                               "ensembler nor Aggregate or Metalearner class)!")
+        else:
+            raise TypeError("Unknown type of Metalearner (neither known " +
+                            "ensembler nor Aggregate or Metalearner class)!")
 
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
@@ -160,22 +171,24 @@ class Stacking:
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
-        For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
+        For more information on the fitting process, check out
+        [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
-                                                    to percentage split sampling).
+            training_generator (DataGenerator):     A data generator which will be used for training (will be split
+                                                    according to percentage split sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
-            metalearner_fitting (bool):             Option whether the Metalearner fitting process should be included in the
-                                                    Stacking training process. The `train_metalearner()` function can also be
-                                                    run manually (or repeatedly).
+            metalearner_fitting (bool):             Option whether the Metalearner fitting process should be included in
+                                                    the Stacking training process. The `train_metalearner()` function
+                                                    can also be run manually (or repeatedly).
         Returns:
-            history (dict):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                 A history dictionary from a Keras history object which contains several
+                                            logs.
         """
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         history_stacking = {}           # Final history dictionary
@@ -213,8 +226,8 @@ class Stacking:
                                     monitor="val_loss", verbose=1,
                                     save_best_only=True, mode="min")
             cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
-                                                 "nn_" + str(i) + \
-                                                 ".logs.csv"),
+                                           "nn_" + str(i) +
+                                           ".logs.csv"),
                               separator=',', append=True)
             callbacks_model.extend([cb_mc, cb_cl])
 
@@ -249,15 +262,15 @@ class Stacking:
                              "loader": temp_dg.sample_loader,
                              "workers": temp_dg.workers,
                              "kwargs": temp_dg.kwargs
-            }
+                             }
 
             # Gather training parameters
             parameters_training = {"epochs": epochs,
-                                "iterations": iterations,
-                                "callbacks": callbacks_model,
-                                "class_weights": class_weights,
-                                "transfer_learning": transfer_learning
-            }
+                                   "iterations": iterations,
+                                   "callbacks": callbacks_model,
+                                   "class_weights": class_weights,
+                                   "transfer_learning": transfer_learning
+                                   }
 
             # Start training process
             process_queue = mp.Queue()
@@ -292,11 +305,12 @@ class Stacking:
         re-training of the [NeuralNetwork][aucmedi.neural_network.model] models.
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
-                                                    to percentage split sampling).
+            training_generator (DataGenerator):     A data generator which will be used for training (will be split
+                                                    according to percentage split sampling).
         """
         # Skipping metalearner training if aggregate function
-        if isinstance(self.ml_model, Aggregate_Base) : return
+        if isinstance(self.ml_model, Aggregate_Base):
+            return
 
         temp_dg = training_generator    # Template DataGenerator variable for faster access
         preds_ensemble = []
@@ -312,13 +326,16 @@ class Stacking:
                                      seed=self.sampling_seed)
 
         # Pack data according to sampling
-        if len(ps_sampling[0]) == 3 : data_ensemble = ps_sampling[2]
-        else : data_ensemble = (*ps_sampling[2], None)
+        if len(ps_sampling[0]) == 3:
+            data_ensemble = ps_sampling[2]
+        else:
+            data_ensemble = (*ps_sampling[2], None)
 
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
-        else : path_model_dir = self.cache_dir
+        else:
+            path_model_dir = self.cache_dir
 
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
@@ -357,7 +374,7 @@ class Stacking:
                              "loader": temp_dg.sample_loader,
                              "workers": temp_dg.workers,
                              "kwargs": temp_dg.kwargs
-            }
+                             }
 
             # Start inference process for model i
             process_queue = mp.Queue()
@@ -405,18 +422,20 @@ class Stacking:
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
-            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
-            ensemble (numpy.ndarray):               Optional ensemble of predictions: Will be only passed if `return_ensemble=True`.
-                                                    Shape (n_models, n_samples, n_labels).
+            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape
+                                                    (n_samples, n_labels).
+            ensemble (numpy.ndarray):               Optional ensemble of predictions: Will be only passed if
+                                                    `return_ensemble=True`. Shape (n_models, n_samples, n_labels).
         """
         # Verify if there is a linked cache dictionary
-        con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
+        con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and
                    os.path.exists(self.cache_dir.name))
-        con_var = (self.cache_dir is not None and \
-                   not isinstance(self.cache_dir, tempfile.TemporaryDirectory) \
+        con_var = (self.cache_dir is not None and
+                   not isinstance(self.cache_dir, tempfile.TemporaryDirectory)
                    and os.path.exists(self.cache_dir))
         if not con_tmp and not con_var:
-            raise FileNotFoundError("Stacking does not have a valid model cache directory!")
+            raise FileNotFoundError(
+                "Stacking does not have a valid model cache directory!")
 
         # Initialize some variables
         temp_dg = prediction_generator
@@ -429,7 +448,8 @@ class Stacking:
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
-        else : path_model_dir = self.cache_dir
+        else:
+            path_model_dir = self.cache_dir
 
         # Sequentially iterate over model list
         for i in range(len(self.model_list)):
@@ -467,7 +487,7 @@ class Stacking:
                              "loader": temp_dg.sample_loader,
                              "workers": temp_dg.workers,
                              "kwargs": temp_dg.kwargs
-            }
+                             }
 
             # Start inference process for model i
             process_queue = mp.Queue()
@@ -496,15 +516,17 @@ class Stacking:
         # Apply homogeneous aggregate function
         elif isinstance(self.ml_model, Aggregate_Base):
             for i in range(preds_ensemble.shape[0]):
-                pred_sample = self.ml_model.aggregate(preds_ensemble[i,:,:])
+                pred_sample = self.ml_model.aggregate(preds_ensemble[i, :, :])
                 preds_final.append(pred_sample)
 
         # Convert prediction list to NumPy
         preds_final = np.asarray(preds_final)
 
         # Return ensembled predictions
-        if return_ensemble : return preds_final, np.swapaxes(preds_ensemble,1,0)
-        else : return preds_final
+        if return_ensemble:
+            return preds_final, np.swapaxes(preds_ensemble, 1, 0)
+        else:
+            return preds_final
 
     # Dump model to file
     def dump(self, directory_path):
@@ -517,7 +539,8 @@ class Stacking:
             directory_path (str):       Path to store the model directory on disk.
         """
         if self.cache_dir is None:
-            raise FileNotFoundError("Stacking does not have a valid model cache directory!")
+            raise FileNotFoundError(
+                "Stacking does not have a valid model cache directory!")
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             shutil.copytree(self.cache_dir.name, directory_path,
                             dirs_exist_ok=True)
@@ -543,7 +566,7 @@ class Stacking:
             path_model = os.path.join(directory_path,
                                       "nn_" + str(i) + ".model.keras")
             if not os.path.exists(path_model):
-                raise FileNotFoundError("Stacking model " + str(i) + \
+                raise FileNotFoundError("Stacking model " + str(i) +
                                         " does not exist!", path_model)
         # If heterogenous metalearner -> load metalearner model file
         if isinstance(self.ml_model, Metalearner_Base):
@@ -556,6 +579,7 @@ class Stacking:
 
         # Update model directory
         self.cache_dir = directory_path
+
 
 #-----------------------------------------------------#
 #                     Subroutines                     #
@@ -610,6 +634,7 @@ def __training_process__(queue, model_paras, data_train, data_val,
     nn_history = model.train(nn_train_gen, nn_val_gen, **train_paras)
     # Store result in cache (which will be returned by the process queue)
     queue.put(nn_history)
+
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, data_test,

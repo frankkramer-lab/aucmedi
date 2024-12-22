@@ -19,10 +19,13 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
+import matplotlib.cm as cm
 import numpy as np
 from PIL import Image
-import matplotlib.cm as cm
+
 
 #-----------------------------------------------------#
 #                   Image Visualizer                  #
@@ -40,12 +43,15 @@ def visualize_array(array, out_path=None):
     # Ensure integer intensity values
     array = np.uint8(array)
     # Remove channel axis if grayscale
-    if array.shape[-1] == 1 : array = np.reshape(array, array.shape[:-1])
+    if array.shape[-1] == 1: array = np.reshape(array, array.shape[:-1])
     # Convert array to PIL image
     image = Image.fromarray(array)
     # Visualize or store image
-    if out_path is None : image.show()
-    else : image.save(out_path)
+    if out_path is None:
+        image.show()
+    else:
+        image.save(out_path)
+
 
 #-----------------------------------------------------#
 #               XAI Heatmap Visualizer                #
@@ -66,7 +72,7 @@ def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
         alpha (float):                  Transparency value for heatmap overlap on image (range: [0-1]).
     """
     # If image is grayscale, convert to RGB
-    if image.shape[-1] == 1 : image = np.concatenate((image,)*3, axis=-1)
+    if image.shape[-1] == 1: image = np.concatenate((image,)*3, axis=-1)
     # Rescale heatmap to grayscale range
     heatmap = np.uint8(heatmap * 255)
     # Use jet colormap to colorize heatmap
@@ -80,5 +86,7 @@ def visualize_heatmap(image, heatmap, out_path=None, alpha=0.4):
     si_img = si_img.astype(np.uint8)
     pil_img = Image.fromarray(si_img)
     # Visualize or store image
-    if out_path is None : pil_img.show()
-    else : pil_img.save(out_path)
+    if out_path is None:
+        pil_img.show()
+    else:
+        pil_img.save(out_path)

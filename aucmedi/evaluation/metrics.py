@@ -19,10 +19,11 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Third Party Libraries
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.metrics import roc_auc_score, roc_curve
+
 
 #-----------------------------------------------------#
 #         Computation: Classification Metrics         #
@@ -35,11 +36,12 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
         FDR, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 
     Args:
-        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [NeuralNetwork][aucmedi.neural_network.model].
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels).
+                                        Provided by [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
-        n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+        n_labels (int):                 Number of classes. Provided by
+                                        [input_interface][aucmedi.data_processing.io_data.input_interface].
         threshold (float):              Only required for multi_label data. Threshold value if prediction is positive.
 
     Returns:
@@ -80,7 +82,7 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
         # Compute area under the ROC curve
         try:
             data_dict["AUC"] = roc_auc_score(truth, pred_prob)
-        except:
+        except Exception:
             print("ROC AUC score is not defined.")
 
         # Parse metrics to dataframe
@@ -98,6 +100,7 @@ def compute_metrics(preds, labels, n_labels, threshold=None):
     # Return final dataframe
     return df_final
 
+
 #-----------------------------------------------------#
 #            Computation: Confusion Matrix            #
 #-----------------------------------------------------#
@@ -105,11 +108,12 @@ def compute_confusion_matrix(preds, labels, n_labels):
     """ Function for computing a confusion matrix.
 
     Args:
-        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [NeuralNetwork][aucmedi.neural_network.model].
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels).
+                                        Provided by [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
-        n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+        n_labels (int):                 Number of classes. Provided by
+                                        [input_interface][aucmedi.data_processing.io_data.input_interface].
 
     Returns:
         rawcm (numpy.ndarray):          NumPy matrix with shape (n_labels, n_labels).
@@ -121,6 +125,7 @@ def compute_confusion_matrix(preds, labels, n_labels):
         rawcm[labels_argmax[i]][preds_argmax[i]] += 1
     return rawcm
 
+
 #-----------------------------------------------------#
 #             Computation: ROC Coordinates            #
 #-----------------------------------------------------#
@@ -128,14 +133,17 @@ def compute_roc(preds, labels, n_labels):
     """ Function for computing the data data of a ROC curve (FPR and TPR).
 
     Args:
-        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels). Provided by
-                                        [NeuralNetwork][aucmedi.neural_network.model].
+        preds (numpy.ndarray):          A NumPy array of predictions formatted with shape (n_samples, n_labels).
+                                        Provided by [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
-        n_labels (int):                 Number of classes. Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
+        n_labels (int):                 Number of classes. Provided by
+                                        [input_interface][aucmedi.data_processing.io_data.input_interface].
     Returns:
-        fpr_list (list of list):        List containing a list of false positive rate points for each class. Shape: (n_labels, tpr_coords).
-        tpr_list (list of list):        List containing a list of true positive rate points for each class. Shape: (n_labels, fpr_coords).
+        fpr_list (list of list):        List containing a list of false positive rate points for each class. Shape:
+                                        (n_labels, tpr_coords).
+        tpr_list (list of list):        List containing a list of true positive rate points for each class. Shape:
+                                        (n_labels, fpr_coords).
     """
     fpr_list = []
     tpr_list = []
@@ -147,6 +155,7 @@ def compute_roc(preds, labels, n_labels):
         tpr_list.append(tpr)
     return fpr_list, tpr_list
 
+
 #-----------------------------------------------------#
 #                     Subroutines                     #
 #-----------------------------------------------------#
@@ -157,9 +166,14 @@ def compute_CM(gt, pd):
     fp = 0
     fn = 0
     for i in range(0, len(gt)):
-        if gt[i] == 1 and pd[i] == 1 : tp += 1
-        elif gt[i] == 1 and pd[i] == 0 : fn += 1
-        elif gt[i] == 0 and pd[i] == 0 : tn += 1
-        elif gt[i] == 0 and pd[i] == 1 : fp += 1
-        else : print("ERROR at confusion matrix", i)
+        if gt[i] == 1 and pd[i] == 1:
+            tp += 1
+        elif gt[i] == 1 and pd[i] == 0:
+            fn += 1
+        elif gt[i] == 0 and pd[i] == 0:
+            tn += 1
+        elif gt[i] == 0 and pd[i] == 1:
+            fp += 1
+        else:
+            print("ERROR at confusion matrix", i)
     return tp, tn, fp, fn

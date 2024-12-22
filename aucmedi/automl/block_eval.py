@@ -19,14 +19,18 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
-import pandas as pd
-import numpy as np
 import re
-# Internal libraries
-from aucmedi import *
+
+# Third Party Libraries
+import numpy as np
+import pandas as pd
+
+# Internal Libraries
+from aucmedi import input_interface
 from aucmedi.evaluation import evaluate_performance
+
 
 #-----------------------------------------------------#
 #            Building Blocks for Evaluation           #
@@ -44,14 +48,20 @@ def block_evaluate(config):
 
     Attributes:
         path_imagedir (str):                Path to the directory containing the ground truth images.
-        path_gt (str):                      Path to the index/class annotation file if required. (only for 'csv' interface).
+        path_gt (str):                      Path to the index/class annotation file if required
+                                            (only for 'csv' interface).
         path_pred (str):                    Path to the input file in which predicted csv file is stored.
-        path_evaldir (str):                 Path to the directory in which evaluation figures and tables should be stored.
-        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot encoded.
+        path_evaldir (str):                 Path to the directory in which evaluation figures and tables should be
+                                            stored.
+        ohe (bool):                         Boolean option whether annotation data is sparse categorical or one-hot
+                                            encoded.
     """
     # Obtain interface
-    if config["path_gt"] is None : config["interface"] = "directory"
-    else : config["interface"] = "csv"
+    if config["path_gt"] is None:
+        config["interface"] = "directory"
+    else:
+        config["interface"] = "csv"
+
     # Peak into the dataset via the input interface
     ds = input_interface(config["interface"],
                          config["path_imagedir"],
@@ -73,7 +83,6 @@ def block_evaluate(config):
     df_gt_data = pd.DataFrame(data=class_ohe, columns=class_names)
     df_gt = pd.concat([df_index, df_gt_data], axis=1, sort=False)
 
-
     # Verify - maybe there is a file path encoded in the index?
     if os.path.sep in df_gt.iloc[0,0]:
         samples_split = df_gt["SAMPLE"].str.split(pat=os.path.sep,
@@ -94,8 +103,10 @@ def block_evaluate(config):
     data_gt = df_merged.iloc[:, (class_n+1):].to_numpy()
 
     # Identify task (multi-class vs multi-label)
-    if np.sum(data_pd) > (class_ohe.shape[0] + 1.5) : multi_label = True
-    else : multi_label = False
+    if np.sum(data_pd) > (class_ohe.shape[0] + 1.5):
+        multi_label = True
+    else:
+        multi_label = False
 
     # Evaluate performance via AUCMEDI evaluation submodule
     evaluate_performance(data_pd, data_gt,

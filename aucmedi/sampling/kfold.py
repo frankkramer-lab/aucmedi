@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, KFold
-# Internal libraries
+from sklearn.model_selection import KFold, StratifiedKFold
+
+# Internal Libraries
 from aucmedi.sampling.iterative import MultilabelStratifiedKFold
+
 
 #-----------------------------------------------------#
 #    Function: Sampling via k-fold cross-validation   #
@@ -93,7 +97,7 @@ def sampling_kfold(samples, labels, metadata=None, n_splits=3,
     # Preprocess data
     x = np.asarray(samples)
     y = np.asarray(labels)
-    if metadata is not None : m = np.asarray(metadata)
+    if metadata is not None: m = np.asarray(metadata)
 
     # Apply sampling and generate folds
     for train, test in sampler.split(X=samples, y=wk_labels):

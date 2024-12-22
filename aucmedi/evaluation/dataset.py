@@ -19,12 +19,11 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Third Party Libraries
 import numpy as np
 import pandas as pd
-import os
-from plotnine import *
-# Internal libraries/scripts
+import plotnine as p9
+
 
 #-----------------------------------------------------#
 #            Evaluation - Dataset Analysis            #
@@ -82,7 +81,8 @@ def evaluate_dataset(samples,
                                             If not provided (`None` provided), class indices will be used.
         show (bool):                        Option, whether to also display the generated charts.
         plot_barplot (bool):                Option, whether to generate a bar plot of class distribution.
-        plot_heatmap (bool):                Option, whether to generate a heatmap of class overview. Only recommended for subsets of ~50 samples.
+        plot_heatmap (bool):                Option, whether to generate a heatmap of class overview. Only recommended
+                                            for subsets of ~50 samples.
         suffix (str):                       Special suffix to add in the created figure filename.
 
     Returns:
@@ -100,6 +100,7 @@ def evaluate_dataset(samples,
     # Return table with class distribution
     return df_cf
 
+
 #-----------------------------------------------------#
 #             Dataset Analysis - Barplot              #
 #-----------------------------------------------------#
@@ -110,8 +111,10 @@ def evalby_barplot(labels, out_path, class_names, plot_barplot, show=False,
     for c in range(0, labels.shape[1]):
         n_samples = labels.shape[0]
         class_freq = np.sum(labels[:, c])
-        if class_names is None : curr_class = str(c)
-        else : curr_class = class_names[c]
+        if class_names is None:
+            curr_class = str(c)
+        else:
+            curr_class = class_names[c]
         class_percentage = np.round(class_freq / n_samples, 2) * 100
         cf_list.append([curr_class, class_freq, class_percentage])
 
@@ -122,29 +125,32 @@ def evalby_barplot(labels, out_path, class_names, plot_barplot, show=False,
 
     if plot_barplot:
         # Plot class frequency results
-        fig = (ggplot(df_cf, aes("class", "class_perc", fill="class"))
-                   + geom_bar(stat="identity", color="black")
-                   + geom_text(aes(label="class_freq"), nudge_y=5)
-                   + coord_flip()
-                   + ggtitle("Dataset Analysis: Class Distribution")
-                   + xlab("Classes")
-                   + ylab("Class Frequency (in %)")
-                   + scale_y_continuous(limits=[0, 100],
-                                        breaks=np.arange(0,110,10))
-                   + theme_bw()
-                   + theme(legend_position="none"))
+        fig = (p9.ggplot(df_cf, p9.aes("class", "class_perc", fill="class"))
+               + p9.geom_bar(stat="identity", color="black")
+               + p9.geom_text(p9.aes(label="class_freq"), nudge_y=5)
+               + p9.coord_flip()
+               + p9.ggtitle("Dataset Analysis: Class Distribution")
+               + p9.xlab("Classes")
+               + p9.ylab("Class Frequency (in %)")
+               + p9.scale_y_continuous(limits=[0, 100],
+                                    breaks=np.arange(0, 110, 10))
+               + p9.theme_bw()
+               + p9.theme(legend_position="none"))
 
         # Store figure to disk
         filename = "plot.dataset.barplot"
-        if suffix is not None : filename += "." + str(suffix)
+        if suffix is not None:
+            filename += "." + str(suffix)
         filename += ".png"
         fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
         # Plot figure
-        if show : print(fig)
+        if show:
+            print(fig)
 
     # Return class table
     return df_cf
+
 
 #-----------------------------------------------------#
 #             Dataset Analysis - Heatmap              #
@@ -152,8 +158,10 @@ def evalby_barplot(labels, out_path, class_names, plot_barplot, show=False,
 def evalby_heatmap(samples, labels, out_path, class_names, show=False,
                    suffix=None):
     # Create dataframe
-    if class_names is None : df = pd.DataFrame(labels, index=samples)
-    else : df = pd.DataFrame(labels, index=samples, columns=class_names)
+    if class_names is None:
+        df = pd.DataFrame(labels, index=samples)
+    else:
+        df = pd.DataFrame(labels, index=samples, columns=class_names)
 
     # Preprocess dataframe
     df = df.reset_index()
@@ -161,21 +169,23 @@ def evalby_heatmap(samples, labels, out_path, class_names, show=False,
                         value_name="presence")
 
     # Plot heatmap
-    fig = (ggplot(df_melted, aes("index", "class", fill="presence"))
-               + geom_tile()
-               + coord_flip()
-               + ggtitle("Dataset Analysis: Overview")
-               + xlab("Samples")
-               + ylab("Classes")
-               + scale_fill_gradient(low="white", high="#3399FF")
-               + theme_classic()
-               + theme(legend_position="none"))
+    fig = (p9.ggplot(df_melted, p9.aes("index", "class", fill="presence"))
+           + p9.geom_tile()
+           + p9.coord_flip()
+           + p9.ggtitle("Dataset Analysis: Overview")
+           + p9.xlab("Samples")
+           + p9.ylab("Classes")
+           + p9.scale_fill_gradient(low="white", high="#3399FF")
+           + p9.theme_classic()
+           + p9.theme(legend_position="none"))
 
     # Store figure to disk
     filename = "plot.dataset.heatmap"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)

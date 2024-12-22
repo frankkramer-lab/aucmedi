@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
 import tensorflow as tf
+
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
+
 
 #-----------------------------------------------------#
 #     Gradient-weighted Class Activation Mapping      #
@@ -31,7 +35,8 @@ from aucmedi.xai.methods.xai_base import XAImethod_Base
 class GradCAM(XAImethod_Base):
     """ XAI Method for Gradient-weighted Class Activation Mapping (Grad-CAM).
 
-    Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
+    Normally, this class is used internally in the 
+    [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
     ??? abstract "Reference - Implementation #1"
         Author: François Chollet <br>
@@ -44,14 +49,16 @@ class GradCAM(XAImethod_Base):
         [https://www.pyimagesearch.com/2020/03/09/grad-cam-visualize-class-activation-maps-with-keras-tensorflow-and-deep-learning/](https://www.pyimagesearch.com/2020/03/09/grad-cam-visualize-class-activation-maps-with-keras-tensorflow-and-deep-learning/) <br>
 
     ??? abstract "Reference - Publication"
-        Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, Dhruv Batra. 7 Oct 2016.
-        Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.
+        Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna 
+        Vedantam, Devi Parikh, Dhruv Batra. 7 Oct 2016.
+        Grad-CAM: Visual Explanations from Deep Networks via Gradient-based
+        Localization.
         <br>
         [https://arxiv.org/abs/1610.02391](https://arxiv.org/abs/1610.02391)
 
     This class provides functionality for running the compute_heatmap function,
     which computes a Grad-CAM heatmap for an image with a model.
-    """
+    """ # noqa  E501
     def __init__(self, model, layerName=None):
         """ Initialization function for creating a Grad-CAM as XAI Method object.
 
@@ -63,7 +70,7 @@ class GradCAM(XAImethod_Base):
         self.model = model
         self.layerName = layerName
         # Try to find output layer if not defined
-        if self.layerName is None : self.layerName = self.find_output_layer()
+        if self.layerName is None: self.layerName = self.find_output_layer()
 
     #---------------------------------------------#
     #            Identify Output Layer            #
@@ -86,7 +93,8 @@ class GradCAM(XAImethod_Base):
     #             Heatmap Computation             #
     #---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Grad-CAM heatmap for a provided image and for specific classification outcome.
+        """ Core function for computing the Grad-CAM heatmap for a provided image and for specific classification
+        outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.

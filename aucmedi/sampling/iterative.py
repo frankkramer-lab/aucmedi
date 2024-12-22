@@ -44,17 +44,19 @@ with the parameter `iterative=True`.
     Aristotle University of Thessaloniki.
     <br>
     [https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10](https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10)
-"""
+""" # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
+from sklearn.model_selection._split import BaseShuffleSplit, _BaseKFold, _validate_shuffle_split
 from sklearn.utils import check_random_state
-from sklearn.utils.validation import _num_samples, check_array
 from sklearn.utils.multiclass import type_of_target
-from sklearn.model_selection._split import _BaseKFold, _RepeatedSplits, \
-                                    BaseShuffleSplit, _validate_shuffle_split
+from sklearn.utils.validation import _num_samples, check_array
+
 
 #-----------------------------------------------------#
 #       Subfunction for Iterative Stratification      #
@@ -138,6 +140,7 @@ def IterativeStratification(labels, r, random_state):
             c_folds[fold_idx] -= 1
 
     return test_folds
+
 
 #-----------------------------------------------------#
 #     KFold Sampling via Iterative Stratification     #
@@ -234,9 +237,9 @@ class MultilabelStratifiedKFold(_BaseKFold):
         Args:
             X (array-like, shape (n_samples, n_features) ): Training data, where n_samples is the number of samples
                                                             and n_features is the number of features.
-                                                            Note that providing ``y`` is sufficient to generate the splits and
-                                                            hence ``np.zeros(n_samples)`` may be used as a placeholder for
-                                                            ``X`` instead of actual training data.
+                                                            Note that providing ``y`` is sufficient to generate the
+                                                            splits and hence ``np.zeros(n_samples)`` may be used as a
+                                                            placeholder for ``X`` instead of actual training data.
             y (array-like, shape (n_samples, n_labels) ):   The target variable for supervised learning problems.
                                                             Multilabel stratification is done based on the y labels.
             groups (object, optional):                      Always ignored, exists for compatibility.
@@ -247,6 +250,7 @@ class MultilabelStratifiedKFold(_BaseKFold):
         """
         y = check_array(y, ensure_2d=False, dtype=None)
         return super(MultilabelStratifiedKFold, self).split(X, y, groups)
+
 
 #-----------------------------------------------------#
 #     Split Sampling via Iterative Stratification     #
@@ -301,17 +305,17 @@ class MultilabelStratifiedShuffleSplit(BaseShuffleSplit):
                                                     The default will change in version 0.21. It will remain 0.1 only
                                                     if ``train_size`` is unspecified, otherwise it will complement
                                                     the specified ``train_size``.
-            train_size (float, int, or None, default is None):  If float, should be between 0.0 and 1.0 and represent the
-                                                    proportion of the dataset to include in the train split. If
+            train_size (float, int, or None, default is None):  If float, should be between 0.0 and 1.0 and represent
+                                                    the proportion of the dataset to include in the train split. If
                                                     int, represents the absolute number of train samples. If None,
                                                     the value is automatically set to the complement of the test size.
-            random_state (int, RandomState instance or None, optional): If int, random_state is the seed used by the random number generator;
-                                                    If RandomState instance, random_state is the random number generator;
-                                                    If None, the random number generator is the RandomState instance used
-                                                    by `np.random`. Unlike StratifiedShuffleSplit that only uses
-                                                    random_state when ``shuffle`` == True, this multilabel implementation
-                                                    always uses the random_state since the iterative stratification
-                                                    algorithm breaks ties randomly.
+            random_state (int, RandomState instance or None, optional): If int, random_state is the seed used by the
+                                                    random number generator; If RandomState instance, random_state is
+                                                    the random number generator; If None, the random number generator is
+                                                    the RandomState instance used by `np.random`. Unlike
+                                                    StratifiedShuffleSplit that only uses random_state when ``shuffle``
+                                                    == True, this multilabel implementation always uses the random_state
+                                                    since the iterative stratification algorithm breaks ties randomly.
         """
         super(MultilabelStratifiedShuffleSplit, self).__init__(
             n_splits=n_splits, test_size=test_size, train_size=train_size, random_state=random_state)
@@ -360,9 +364,9 @@ class MultilabelStratifiedShuffleSplit(BaseShuffleSplit):
         Args:
             X (array-like, shape (n_samples, n_features) ): Training data, where n_samples is the number of samples
                                                             and n_features is the number of features.
-                                                            Note that providing ``y`` is sufficient to generate the splits and
-                                                            hence ``np.zeros(n_samples)`` may be used as a placeholder for
-                                                            ``X`` instead of actual training data.
+                                                            Note that providing ``y`` is sufficient to generate the
+                                                            splits and hence ``np.zeros(n_samples)`` may be used as a
+                                                            placeholder for ``X`` instead of actual training data.
             y (array-like, shape (n_samples, n_labels) ):   The target variable for supervised learning problems.
                                                             Multilabel stratification is done based on the y labels.
             groups (object, optional):                      Always ignored, exists for compatibility.

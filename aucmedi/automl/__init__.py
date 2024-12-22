@@ -41,7 +41,7 @@ The AutoML pipelines are categorized into the following modes:
     | `evaluation`  | [CLI - Evaluation][aucmedi.automl.cli.cli_evaluation] | [Block - Evaluate][aucmedi.automl.block_eval] |
 
 More information can be found in the docs: [Documentation - AutoML](../../automl/overview/)
-"""
+""" # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
@@ -52,3 +52,12 @@ from aucmedi.automl.block_eval import block_evaluate
 # Parser
 from aucmedi.automl.parser_yaml import parse_yaml
 from aucmedi.automl.parser_cli import parse_cli
+
+
+__all__ = [
+    "block_train",
+    "block_predict",
+    "block_evaluate",
+    "parse_yaml",
+    "parse_cli"
+]

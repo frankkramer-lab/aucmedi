@@ -19,12 +19,16 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import pickle
-from sklearn.linear_model import LogisticRegression as LRscikit
+
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+from sklearn.linear_model import LogisticRegression as LRscikit
+
+# Internal Libraries
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+
 
 #-----------------------------------------------------#
 #           Metalearner: Logistic Regression          #

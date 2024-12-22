@@ -19,8 +19,9 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 from abc import ABC, abstractmethod
+
 
 #-----------------------------------------------------#
 #         Abstract Base Class for Subfunctions        #
@@ -65,6 +66,7 @@ class Subfunction_Base(ABC):
         The are no mandatory required parameters for the initialization.
         """
         pass
+
     #---------------------------------------------#
     #                Transformation               #
     #---------------------------------------------#

@@ -19,16 +19,20 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-import os
+# Python Standard Library
 import json
+import os
+
+# Third Party Libraries
 import pandas as pd
-# Internal libraries
-from aucmedi import *
+
+# Internal Libraries
+from aucmedi import DataGenerator, NeuralNetwork, input_interface
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
-from aucmedi.data_processing.subfunctions import *
-from aucmedi.ensemble import *
+from aucmedi.data_processing.subfunctions import Chromer, Crop, Padding, Standardize
+from aucmedi.ensemble import Composite, predict_augmenting
 from aucmedi.xai import xai_decoder
+
 
 #-----------------------------------------------------#
 #            Building Blocks for Inference            #
@@ -46,10 +50,12 @@ def block_predict(config):
 
     Attributes:
         path_imagedir (str):                Path to the directory containing the images for prediction.
-        path_modeldir (str):                Path to the model directory in which fitted model weights and metadata are stored.
+        path_modeldir (str):                Path to the model directory in which fitted model weights and metadata are
+                                            stored.
         path_pred (str):                    Path to the output file in which predicted csv file should be stored.
         xai_method (str or None):           Key for XAI method.
-        xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be stored.
+        xai_directory (str or None):        Path to the output directory in which predicted image xai heatmaps should be
+                                            stored.
         batch_size (int):                   Number of samples inside a single batch.
         workers (int):                      Number of workers/threads which preprocess batches during runtime.
     """
@@ -102,23 +108,26 @@ def block_predict(config):
         "shuffle": False,
         "grayscale": False,
     }
-    if not meta_training["three_dim"] : paras_datagen["loader"] = image_loader
-    else : paras_datagen["loader"] = sitk_loader
+    if not meta_training["three_dim"]:
+        paras_datagen["loader"] = image_loader
+    else:
+        paras_datagen["loader"] = sitk_loader
 
     # Apply MIC pipelines
     if meta_training["analysis"] == "minimal":
         # Setup neural network
         if not meta_training["three_dim"]:
             arch_dim = "2D." + meta_training["architecture"]
-        else : arch_dim = "3D." + meta_training["architecture"]
+        else:
+            arch_dim = "3D." + meta_training["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Build DataGenerator
         pred_gen = DataGenerator(samples=index_list,
-                                 labels=None,
-                                 resize=model.meta_input,
-                                 standardize_mode=model.meta_standardize,
-                                 **paras_datagen)
+                                labels=None,
+                                resize=model.meta_input,
+                                standardize_mode=model.meta_standardize,
+                                **paras_datagen)
         # Load model
         path_model = os.path.join(config["path_modeldir"], "model.last.keras")
         model.load(path_model)
@@ -128,15 +137,16 @@ def block_predict(config):
         # Setup neural network
         if not meta_training["three_dim"]:
             arch_dim = "2D." + meta_training["architecture"]
-        else : arch_dim = "3D." + meta_training["architecture"]
+        else:
+            arch_dim = "3D." + meta_training["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Build DataGenerator
         pred_gen = DataGenerator(samples=index_list,
-                                 labels=None,
-                                 resize=model.meta_input,
-                                 standardize_mode=model.meta_standardize,
-                                 **paras_datagen)
+                                labels=None,
+                                resize=model.meta_input,
+                                standardize_mode=model.meta_standardize,
+                                **paras_datagen)
         # Load model
         path_model = os.path.join(config["path_modeldir"],
                                   "model.best_loss.keras")
@@ -147,19 +157,21 @@ def block_predict(config):
         # Build multi-model list
         model_list = []
         for arch in meta_training["architecture"]:
-            if not meta_training["three_dim"] : arch_dim = "2D." + arch
-            else : arch_dim = "3D." + arch
+            if not meta_training["three_dim"]:
+                arch_dim = "2D." + arch
+            else:
+                arch_dim = "3D." + arch
             model_part = NeuralNetwork(architecture=arch_dim, **nn_paras)
             model_list.append(model_part)
         el = Composite(model_list, metalearner=meta_training["metalearner"],
-                       k_fold=len(meta_training["architecture"]))
+                    k_fold=len(meta_training["architecture"]))
 
         # Build DataGenerator
         pred_gen = DataGenerator(samples=index_list,
-                                 labels=None,
-                                 resize=None,
-                                 standardize_mode=None,
-                                 **paras_datagen)
+                                labels=None,
+                                resize=None,
+                                standardize_mode=None,
+                                **paras_datagen)
         # Load composite model directory
         el.load(config["path_modeldir"])
         # Start model inference via ensemble learning

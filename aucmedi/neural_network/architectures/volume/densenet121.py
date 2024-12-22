@@ -41,10 +41,14 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
+
+# Third Party Libraries
 from classification_models_3D.tfkeras import Classifiers
-# Internal libraries
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #           Architecture class: DenseNet121           #
@@ -64,8 +68,10 @@ class DenseNet121(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "imagenet"
+        else:
+            model_weights = None
 
         # Obtain DenseNet121 as base model
         BaseModel, preprocess_input = Classifiers.get("densenet121")

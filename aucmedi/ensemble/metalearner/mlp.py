@@ -19,12 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import pickle
+
+# Third Party Libraries
 from sklearn.neural_network import MLPClassifier
-import numpy as np
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+
 
 #-----------------------------------------------------#
 #           Metalearner: MLP Neural Network           #

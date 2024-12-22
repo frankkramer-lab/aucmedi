@@ -19,9 +19,7 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-import os
-# Internal libraries
+# Internal Libraries
 import aucmedi.data_processing.io_interfaces as io
 
 #-----------------------------------------------------#
@@ -30,6 +28,7 @@ import aucmedi.data_processing.io_interfaces as io
 ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif",
                             "npy", "nii", "gz", "mha"]
 """ List of accepted image formats. """
+
 
 #-----------------------------------------------------#
 #             Input Interface for AUCMEDI             #
@@ -87,21 +86,27 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         path_data (str):                Path to the index/class annotation file if required. (csv/json)
         training (bool):                Boolean option whether annotation data is available.
         ohe (bool):                     Boolean option whether annotation data is sparse categorical or one-hot encoded.
-        image_format (str):             Force to use a specific image format. By default, image format is determined automatically.
+        image_format (str):             Force to use a specific image format. By default, image format is determined
+                                        automatically.
         **kwargs (dict):                Additional parameters for the format interfaces.
 
     Returns:
         index_list (list of str):       List of sample/index encoded as Strings. Required in DataGenerator as `samples`.
         class_ohe (numpy.ndarray):      Classification list as One-Hot encoding. Required in DataGenerator as `labels`.
-        class_n (int):                  Number of classes. Required in NeuralNetwork for Architecture design as `n_labels`.
-        class_names (list of str):      List of names for corresponding classes. Used for later prediction storage or evaluation.
-        image_format (str):             Image format to add at the end of the sample index for image loading. Required in DataGenerator.
-    """
+        class_n (int):                  Number of classes. Required in NeuralNetwork for Architecture design as
+                                        `n_labels`.
+        class_names (list of str):      List of names for corresponding classes. Used for later prediction storage or
+                                        evaluation.
+        image_format (str):             Image format to add at the end of the sample index for image loading. Required
+                                        in DataGenerator.
+    """ # noqa E501
     # Transform selected interface to lower case
     interface = interface.lower()
     # Pass image format if provided
-    if image_format != None : allowed_image_formats = [image_format]
-    else : allowed_image_formats = ACCEPTABLE_IMAGE_FORMATS
+    if image_format is not None:
+        allowed_image_formats = [image_format]
+    else:
+        allowed_image_formats = ACCEPTABLE_IMAGE_FORMATS
     # Verify if provided interface is valid
     if interface not in ["csv", "json", "directory"]:
         raise Exception("Unknown interface code provided.", interface)
@@ -119,9 +124,11 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         ds_loader = io.csv_loader
         additional_parameters = ["ohe_range", "col_sample", "col_class"]
         for para in additional_parameters:
-            if para in kwargs : parameters[para] = kwargs[para]
+            if para in kwargs:
+                parameters[para] = kwargs[para]
     # Identify correct dataset loader and parameters for JSON format
-    elif interface == "json" : ds_loader = io.json_loader
+    elif interface == "json":
+        ds_loader = io.json_loader
     # Identify correct dataset loader and parameters for directory format
     elif interface == "directory":
         ds_loader = io.directory_loader

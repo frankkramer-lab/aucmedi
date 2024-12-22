@@ -19,12 +19,16 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import pickle
-from sklearn.svm import SVC
+
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+from sklearn.svm import SVC
+
+# Internal Libraries
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
+
 
 #-----------------------------------------------------#
 #         Metalearner: Support Vector Machine         #

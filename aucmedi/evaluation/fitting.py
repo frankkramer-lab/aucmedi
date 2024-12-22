@@ -19,15 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Third Party Libraries
 import numpy as np
 import pandas as pd
-import os
-from plotnine import *
+import plotnine as p9
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #              Evaluation - Plot Fitting              #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def evaluate_fitting(train_history,
                      out_path,
                      monitor=["loss"],
@@ -66,7 +66,7 @@ def evaluate_fitting(train_history,
         show (bool):                Option, whether to also display the generated chart.
     """
     # Convert to pandas dataframe
-    hist_prepared = dict([ (k,pd.Series(v)) for k,v in train_history.items() ])
+    hist_prepared = dict([(k, pd.Series(v)) for k, v in train_history.items()])
     dt = pd.DataFrame.from_dict(hist_prepared, orient="columns")
 
     # Identify all selected columns
@@ -93,8 +93,7 @@ def evaluate_fitting(train_history,
                 valid_split = False
                 break
         if valid_split:
-            dt_melted[["prefix", "metric"]] = dt_melted["metric"].str.split(".",
-                                                        expand=True)
+            dt_melted[["prefix", "metric"]] = dt_melted["metric"].str.split(".", expand=True)
 
     # Remove NaN tags
     dt_melted = dt_melted.dropna(axis=0)
@@ -111,8 +110,10 @@ def evaluate_fitting(train_history,
             tl_epochs = filter_tl.groupby(["prefix"])["epoch"].max()
             # compute fine tune epoch update
             group_repeats = filter.groupby(["prefix"]).size()
-            if group_repeats.empty : ft_update = 0
-            else : ft_update = tl_epochs.repeat(group_repeats).to_numpy()
+            if group_repeats.empty:
+                ft_update = 0
+            else:
+                ft_update = tl_epochs.repeat(group_repeats).to_numpy()
         # if no prefix available -> add epochs to all ft phases
         else:
             # identify number of epochs global
@@ -125,7 +126,8 @@ def evaluate_fitting(train_history,
         # update number of epochs
         dt_melted.loc[dt_melted["metric"].str.startswith("ft_"), "epoch"] =\
             filter["epoch"].to_numpy() + ft_update
-    else : tl_epochs = None
+    else:
+        tl_epochs = None
 
     # Remove preprocessed transfer learning tag from metric column
     dt_melted["metric"] = dt_melted["metric"].apply(remove_tag, tag="tl_")
@@ -137,37 +139,43 @@ def evaluate_fitting(train_history,
     dt_melted["metric"] = dt_melted["metric"].apply(remove_tag, tag="val_")
 
     # Plot results via plotnine
-    fig = (ggplot(dt_melted, aes("epoch", "score", color="subset"))
-               + geom_line(size=1)
-               + ggtitle("Fitting Curve during Training Process")
-               + xlab("Epoch")
-               + ylab("Score")
-               + scale_colour_discrete(name="Subset")
-               + theme_bw()
-               + theme(subplots_adjust={'wspace':0.2}))
+    fig = (p9.ggplot(dt_melted, p9.aes("epoch", "score", color="subset"))
+           + p9.geom_line(size=1)
+           + p9.ggtitle("Fitting Curve during Training Process")
+           + p9.xlab("Epoch")
+           + p9.ylab("Score")
+           + p9.scale_color_discrete(name="Subset")
+           + p9.theme_bw()
+           + p9.theme(subplots_adjust={'wspace': 0.2}))
 
     if prefix_split is not None and valid_split:
-        fig += facet_grid("prefix ~ metric")
-    else : fig += facet_wrap("metric", scales="free_y")
+        fig += p9.facet_grid("prefix ~ metric")
+    else:
+        fig += p9.facet_wrap("metric", scales="free_y")
 
     if tl_epochs is not None and valid_split:
         tle_df = tl_epochs.to_frame().reset_index()
-        fig += geom_vline(tle_df, aes(xintercept="epoch"))
+        fig += p9.geom_vline(tle_df, p9.aes(xintercept="epoch"))
     elif tl_epochs is not None and not valid_split:
-        fig += geom_vline(xintercept=tl_epochs)
+        fig += p9.geom_vline(xintercept=tl_epochs)
 
     # Store figure to disk
     filename = "plot.fitting_course"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".png"
     fig.save(filename=filename,
              path=out_path, dpi=200, limitsize=False)
 
-    if show : print(fig)
+    if show:
+        print(fig)
+
 
 #-----------------------------------------------------#
 #                     Subroutines                     #
 #-----------------------------------------------------#
 def remove_tag(x, tag):
-    if x.startswith(tag) : return x[len(tag):]
-    else : return x
+    if x.startswith(tag):
+        return x[len(tag):]
+    else:
+        return x

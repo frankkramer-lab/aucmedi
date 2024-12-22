@@ -19,13 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from albumentations import Compose
+# Python Standard Library
+import warnings
+
+# Third Party Libraries
 import albumentations.augmentations as ai
 import cv2
-import warnings
 import numpy as np
-import random
+from albumentations import Compose
+
 
 #-----------------------------------------------------#
 #              AUCMEDI Image Augmentation             #
@@ -136,7 +138,8 @@ class ImageAugmentation():
             gaussian_blur (bool):           Boolean, whether gaussian blur should be added as data augmentation.
             downscaling (bool):             Boolean, whether downscaling should be added as data augmentation.
             gamma (bool):                   Boolean, whether gamma changes should be added as data augmentation.
-            elastic_transform (bool):       Boolean, whether elastic deformation should be performed as data augmentation.
+            elastic_transform (bool):       Boolean, whether elastic deformation should be performed as data
+                                            augmentation.
 
         !!! warning
             If class variables (attributes) are modified, the internal augmentation operator
@@ -153,7 +156,8 @@ class ImageAugmentation():
             ```
 
         Attributes:
-            refine (bool):                  Boolean, whether clipping to [0,255] and padding/cropping should be performed if outside of range.
+            refine (bool):                  Boolean, whether clipping to [0,255] and padding/cropping should be
+                                            performed if outside of range.
             aug_flip_p (float):             Probability of flipping application if activated. Default=0.5.
             aug_rotate_p (float):           Probability of rotation application if activated. Default=0.5.
             aug_brightness_p (float):       Probability of brightness application if activated. Default=0.5.
@@ -181,7 +185,7 @@ class ImageAugmentation():
         self.aug_hue = hue
         self.aug_compression = compression
         self.aug_gaussianNoise = gaussian_noise
-        self.aug_gaussianBlur= gaussian_blur
+        self.aug_gaussianBlur = gaussian_blur
         self.aug_downscaling = downscaling
         self.aug_gamma = gamma
         self.aug_gridDistortion = grid_distortion
@@ -292,8 +296,7 @@ class ImageAugmentation():
         aug_image = self.operator(image=image)["image"]
         # Perform padding & cropping if image shape changed
         if self.refine and aug_image.shape != org_shape:
-            aug_image = ai.pad(aug_image, org_shape[0], org_shape[1], border_mode=cv2.BORDER_REPLICATE, 
-                                value=0)
+            aug_image = ai.pad(aug_image, org_shape[0], org_shape[1], border_mode=cv2.BORDER_REPLICATE, value=0)
             aug_image = ai.RandomCrop(height=org_shape[0], width=org_shape[1])(image=aug_image)["image"]
         # Perform clipping if image is out of grayscale/RGB encodings
         if self.refine and (np.min(aug_image) < 0 or np.max(aug_image) > 255):

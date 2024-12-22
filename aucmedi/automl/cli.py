@@ -26,10 +26,12 @@ The parameters are summarized in the docs: [Documentation - AutoML - Parameters]
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import argparse
+
+# Third Party Libraries
 import pkg_resources
-import sys
+
 
 #-----------------------------------------------------#
 #                    CLI - General                    #
@@ -51,6 +53,7 @@ def cli_core():
                                        dest="hub")
     # Return parsers
     return parser, subparsers
+
 
 # #-----------------------------------------------------#
 # #                     CLI - YAML                      #
@@ -107,7 +110,7 @@ def cli_training(subparsers):
     ??? info "List of Metalearner"
         - Homogeneous pooling functions: [Aggregate][aucmedi.ensemble.aggregate]
         - Heterogeneous pooling functions: [Metalearner][aucmedi.ensemble.metalearner]
-    """
+    """ # noqa E501
     # Set description for cli training
     desc = """ Pipeline hub for Training via AUCMEDI AutoML """
     # Setup SubParser
@@ -119,34 +122,31 @@ def cli_training(subparsers):
                     type=str,
                     required=False,
                     default="training",
-                    help="Path to the directory containing the images " + \
-                         "(default: '%(default)s')",
+                    help="Path to the directory containing the images (default: '%(default)s')",
                     )
     od.add_argument("--path_modeldir",
                     type=str,
                     required=False,
                     default="model",
-                    help="Path to the output directory in which fitted " + \
-                         "models and metadata are stored " + \
-                         "(default: '%(default)s')",
+                    help="Path to the output directory in which fitted models and metadata are stored "
+                         + "(default: '%(default)s')",
                     )
     od.add_argument("--path_gt",
                     type=str,
                     required=False,
-                    help="Path to the index/class annotation CSV file " + \
-                         "(only required for defining the ground truth via " + \
-                         "'csv' instead of 'directory' interface)",
+                    help="Path to the index/class annotation CSV file "
+                         + "(only required for defining the ground truth via "
+                         + "'csv' instead of 'directory' interface)",
                     )
 
     od.add_argument("--ohe",
                     action="store_true",
                     required=False,
                     default=False,
-                    help="Boolean option whether annotation data is sparse " + \
-                         "categorical or one-hot encoded " + \
-                         "(only required for interface 'csv' and multi-" + \
-                         "label data, " + \
-                         "default: '%(default)s')",
+                    help="Boolean option whether annotation data is sparse "
+                         + "categorical or one-hot encoded "
+                         + "(only required for interface 'csv' and multi-"
+                         + "label data, default: '%(default)s')",
                     )
 
     # Add configuration arguments
@@ -156,64 +156,56 @@ def cli_training(subparsers):
                     required=False,
                     default="standard",
                     choices=["minimal", "standard", "advanced"],
-                    help="Analysis mode for the AutoML training " + \
-                         "(default: '%(default)s')",
+                    help="Analysis mode for the AutoML training (default: '%(default)s')",
                     )
     oc.add_argument("--three_dim",
                     action="store_true",
                     required=False,
                     default=False,
-                    help="Boolean, whether imaging data is 2D or 3D " + \
-                         "(default: '%(default)s')",
+                    help="Boolean, whether imaging data is 2D or 3D (default: '%(default)s')",
                     )
     oc.add_argument("--shape_3D",
                     type=str,
                     required=False,
                     default="128x128x128",
-                    help="Desired input shape of 3D volume for architecture "+ \
-                         "(will be cropped into, " + \
-                         "format: '1x2x3', " + \
-                         "default: '%(default)s')",
+                    help="Desired input shape of 3D volume for architecture (will be cropped into, "
+                         + "format: '1x2x3', default: '%(default)s')",
                     )
     oc.add_argument("--epochs",
                     type=int,
                     required=False,
                     default=500,
-                    help="Number of epochs. A single epoch is defined as " + \
-                         "one iteration through the complete data set " + \
-                         "(default: '%(default)s')",
+                    help="Number of epochs. A single epoch is defined as "
+                         + "one iteration through the complete data set "
+                         + "(default: '%(default)s')",
                     )
     oc.add_argument("--batch_size",
                     type=int,
                     required=False,
                     default=24,
-                    help="Number of samples inside a single batch " + \
-                         "(default: '%(default)s')",
+                    help="Number of samples inside a single batch (default: '%(default)s')",
                     )
     oc.add_argument("--workers",
                     type=int,
                     required=False,
                     default=1,
-                    help="Number of workers/threads which preprocess " + \
-                         "batches during runtime " + \
-                         "(default: '%(default)s')",
+                    help="Number of workers/threads which preprocess batches during runtime (default: '%(default)s')",
                     )
     oc.add_argument("--metalearner",
                     type=str,
                     required=False,
                     default="mean",
-                    help="Key for Metalearner or Aggregate function "+ \
-                         "(default: '%(default)s')",
+                    help="Key for Metalearner or Aggregate function (default: '%(default)s')",
                     )
     oc.add_argument("--architecture",
                     type=str,
                     required=False,
                     default="DenseNet121",
-                    help="Key of single or multiple Architectures " + \
-                         "(multiple Architectures are only supported for " + \
-                         "'analysis=advanced', " + \
-                         "format: 'KEY' or 'KEY,KEY,KEY', " + \
-                         "default: '%(default)s')",
+                    help="Key of single or multiple Architectures "
+                         + "(multiple Architectures are only supported for "
+                         + "'analysis=advanced', "
+                         + "format: 'KEY' or 'KEY,KEY,KEY', "
+                         + "default: '%(default)s')",
                     )
 
     # Add other arguments
@@ -222,6 +214,7 @@ def cli_training(subparsers):
                     "--help",
                     action="help",
                     help="show this help message and exit")
+
 
 #-----------------------------------------------------#
 #                   CLI - Prediction                  #
@@ -243,7 +236,7 @@ def cli_prediction(subparsers):
     ??? info "List of XAI Methods"
         AUCMEDI provides a large library of state-of-the-art and ready-to-use XAI methods:
         [aucmedi.xai.methods][]
-    """
+    """ # noqa E501
     # Set description for cli prediction
     desc = """ Pipeline hub for Inference via AUCMEDI AutoML """
     # Setup SubParser
@@ -257,24 +250,21 @@ def cli_prediction(subparsers):
                     type=str,
                     required=False,
                     default="test",
-                    help="Path to the directory containing the images " + \
-                         "(default: '%(default)s')",
+                    help="Path to the directory containing the images (default: '%(default)s')",
                     )
     od.add_argument("--path_modeldir",
                     type=str,
                     required=False,
                     default="model",
-                    help="Path to the model directory in which fitted " + \
-                         "model weights and metadata are stored " + \
-                         "(default: '%(default)s')",
+                    help="Path to the model directory in which fitted model weights and metadata are stored "
+                         + "(default: '%(default)s')",
                     )
     od.add_argument("--path_pred",
                     type=str,
                     required=False,
                     default="preds.csv",
-                    help="Path to the output file in which predicted csv " + \
-                         "file should be stored " + \
-                         "(default: '%(default)s')",
+                    help="Path to the output file in which predicted csv file should be stored "
+                         + "(default: '%(default)s')",
                     )
 
     # Add configuration arguments
@@ -282,31 +272,27 @@ def cli_prediction(subparsers):
     oc.add_argument("--xai_method",
                     type=str,
                     required=False,
-                    help="Key for XAI method " + \
-                         "(default: '%(default)s')",
+                    help="Key for XAI method (default: '%(default)s')",
                     )
     oc.add_argument("--xai_directory",
                     type=str,
                     required=False,
                     default="xai",
-                    help="Path to the output directory in which predicted " + \
-                         "image xai heatmaps should be stored " + \
-                         "(default: '%(default)s')",
+                    help="Path to the output directory in which predicted "
+                         + "image xai heatmaps should be stored "
+                         + "(default: '%(default)s')",
                     )
     oc.add_argument("--batch_size",
                     type=int,
                     required=False,
                     default=12,
-                    help="Number of samples inside a single batch " + \
-                         "(default: '%(default)s')",
+                    help="Number of samples inside a single batch (default: '%(default)s')",
                     )
     oc.add_argument("--workers",
                     type=int,
                     required=False,
                     default=1,
-                    help="Number of workers/threads which preprocess " + \
-                         "batches during runtime " + \
-                         "(default: '%(default)s')",
+                    help="Number of workers/threads which preprocess batches during runtime (default: '%(default)s')",
                     )
 
     # Add other arguments
@@ -315,6 +301,7 @@ def cli_prediction(subparsers):
                     "--help",
                     action="help",
                     help="show this help message and exit")
+
 
 #-----------------------------------------------------#
 #                   CLI - Evaluation                  #
@@ -330,7 +317,7 @@ def cli_evaluation(subparsers):
     | I/O           | `--path_pred`          | str        | `preds.csv`    | Path to the input file in which predicted csv file is stored. |
     | I/O           | `--path_evaldir`       | str        | `evaluation`   | Path to the directory in which evaluation figures and tables should be stored. |
     | Other         | `--help`               | bool       | `False`        | show this help message and exit. |
-    """
+    """ # noqa E501
     # Set description for cli evaluation
     desc = """ Pipeline hub for Evaluation via AUCMEDI AutoML """
     # Setup SubParser
@@ -344,42 +331,37 @@ def cli_evaluation(subparsers):
                     type=str,
                     required=False,
                     default="training",
-                    help="Path to the directory containing the ground truth" + \
-                         " images " + \
-                         "(default: '%(default)s')",
+                    help="Path to the directory containing the ground truth images (default: '%(default)s')",
                     )
     od.add_argument("--path_gt",
                     type=str,
                     required=False,
-                    help="Path to the index/class annotation CSV file " + \
-                         "(only required for defining the ground truth via " + \
-                         "'csv' instead of 'directory' interface)",
+                    help="Path to the index/class annotation CSV file "
+                         + "(only required for defining the ground truth via "
+                         + "'csv' instead of 'directory' interface)",
                     )
     od.add_argument("--ohe",
                     action="store_true",
                     required=False,
                     default=False,
-                    help="Boolean option whether annotation data is sparse " + \
-                         "categorical or one-hot encoded " + \
-                         "(only required for interface 'csv' and multi-" + \
-                         "label data, " + \
-                         "default: '%(default)s')",
+                    help="Boolean option whether annotation data is sparse "
+                         + "categorical or one-hot encoded "
+                         + "(only required for interface 'csv' and multi-"
+                         + "label data, "
+                         + "default: '%(default)s')",
                     )
     od.add_argument("--path_pred",
                     type=str,
                     required=False,
                     default="preds.csv",
-                    help="Path to the output file in which predicted csv " + \
-                         "file are stored " + \
-                         "(default: '%(default)s')",
+                    help="Path to the output file in which predicted csv file are stored (default: '%(default)s')",
                     )
     od.add_argument("--path_evaldir",
                     type=str,
                     required=False,
                     default="evaluation",
-                    help="Path to the directory in which evaluation " + \
-                         "figures and tables should be stored " + \
-                         "(default: '%(default)s')",
+                    help="Path to the directory in which evaluation figures and tables should be stored "
+                         + "(default: '%(default)s')",
                     )
 
     # Add other arguments

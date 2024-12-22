@@ -19,8 +19,9 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 from abc import ABC, abstractmethod
+
 
 #-----------------------------------------------------#
 #         Abstract Base Class for XAI Methods         #

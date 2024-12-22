@@ -24,9 +24,9 @@
     A Subfunction is a preprocessing method, which is automatically applied on all samples
     if provided to a [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
-    Image preprocessing is defined as a method or technique which modify the image before passing it to the neural network model.
-    The aim of preprocessing methods is to extensively increase performance due to simplification of information.
-    Common preprocessing methods range from intensity value normalization to image resizing.
+    Image preprocessing is defined as a method or technique which modify the image before passing it to the neural
+    network model. The aim of preprocessing methods is to extensively increase performance due to simplification of
+    information. Common preprocessing methods range from intensity value normalization to image resizing.
 
     ???+ info
         The DataGenerator applies the list of Subfunctions **sequentially** on the data set.
@@ -55,7 +55,8 @@
                                   subfunctions=sf_list)            # Pass desired Subfunctions
         ```
 
-    Subfunctions are based on the abstract base class [Subfunction_Base][aucmedi.data_processing.subfunctions.sf_base.Subfunction_Base],
+    Subfunctions are based on the abstract base class
+    [Subfunction_Base][aucmedi.data_processing.subfunctions.sf_base.Subfunction_Base],
     which allow simple integration of custom preprocessing methods.
 """
 #-----------------------------------------------------#
@@ -68,3 +69,14 @@ from aucmedi.data_processing.subfunctions.crop import Crop
 from aucmedi.data_processing.subfunctions.color_constancy import ColorConstancy
 from aucmedi.data_processing.subfunctions.clip import Clip
 from aucmedi.data_processing.subfunctions.chromer import Chromer
+
+
+__all__ = [
+    "Standardize",
+    "Resize",
+    "Padding",
+    "Crop",
+    "ColorConstancy",
+    "Clip",
+    "Chromer"
+]

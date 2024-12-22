@@ -19,10 +19,12 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Third Party Libraries
 import numpy as np
-# Internal libraries/scripts
+
+# Internal Libraries
 from aucmedi.data_processing.subfunctions.sf_base import Subfunction_Base
+
 
 #-----------------------------------------------------#
 #               Subfunction class: Clip               #
@@ -46,7 +48,8 @@ class Clip(Subfunction_Base):
                                             Also possible to pass a list of minimum values if `per_channel=True`.
             max (float or int or list):     Desired maximum value for clipping (if `None`, no upper limit is applied).
                                             Also possible to pass a list of maximum values if `per_channel=True`.
-            per_channel (bool):             Option if clipping should be applied per channel with different clipping ranges.
+            per_channel (bool):             Option if clipping should be applied per channel with different clipping
+                                            ranges.
         """
         self.min = min
         self.max = max
@@ -64,18 +67,16 @@ class Clip(Subfunction_Base):
             image_clipped = image.copy()
             for c in range(0, image.shape[-1]):
                 # Identify minimum to clip
-                if self.min is not None and \
-                    type(self.min) in [list, tuple, np.ndarray]:
+                if self.min is not None and type(self.min) in [list, tuple, np.ndarray]:
                     min = self.min[c]
-                else : min = self.min
+                else:
+                    min = self.min
                 # Identify maximum to clip
-                if self.max is not None and \
-                    type(self.max) in [list, tuple, np.ndarray]:
+                if self.max is not None and type(self.max) in [list, tuple, np.ndarray]:
                     max = self.max[c]
-                else : max = self.max
+                else:
+                    max = self.max
                 # Perform clipping
-                image_clipped[..., c] = np.clip(image[...,c], 
-                                                a_min=min, 
-                                                a_max=max)
+                image_clipped[..., c] = np.clip(image[...,c], a_min=min, a_max=max)
         # Return clipped image
         return image_clipped

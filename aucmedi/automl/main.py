@@ -30,11 +30,13 @@ More information can be found in the docs: [Documentation - AutoML](../../../aut
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import sys
-# Internal libraries
-from aucmedi.automl import *
-from aucmedi.automl.cli import *
+
+# Internal Libraries
+from aucmedi.automl import block_evaluate, block_predict, block_train, parse_cli, parse_yaml
+from aucmedi.automl.cli import cli_core, cli_evaluation, cli_prediction, cli_training
+
 
 #-----------------------------------------------------#
 #                Main Method - Runner                 #
@@ -52,22 +54,26 @@ def main():
     cli_evaluation(subparsers)
 
     # Help page hook for passing no parameters
-    if len(sys.argv)<=1:
+    if len(sys.argv) <= 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
     # Parse arguments
-    else : args = parser.parse_args()
+    else:
+        args = parser.parse_args()
 
     # Call corresponding cli or yaml parser
-    if args.hub == "yaml" : config = parse_yaml(args)
-    else : config = parse_cli(args)
+    if args.hub == "yaml":
+        config = parse_yaml(args)
+    else:
+        config = parse_cli(args)
 
     # Run training pipeline
-    if config["hub"] == "training" : block_train(config)
+    if config["hub"] == "training": block_train(config)
     # Run prediction pipeline
-    if config["hub"] == "prediction" : block_predict(config)
+    if config["hub"] == "prediction": block_predict(config)
     # Run evaluation pipeline
-    if config["hub"] == "evaluation" : block_evaluate(config)
+    if config["hub"] == "evaluation": block_evaluate(config)
+
 
 # Runner for direct script call
 if __name__ == "__main__":

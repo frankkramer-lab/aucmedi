@@ -39,11 +39,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
-from tensorflow import keras
+# Python Standard Library
+
+# Third Party Libraries
 from keras_applications.resnext import ResNeXt101 as BaseModel
-# Internal libraries
+from tensorflow import keras
+
+# Internal Libraries
 from aucmedi.neural_network.architectures import Architecture_Base
+
 
 #-----------------------------------------------------#
 #           Architecture class: ResNeXt101            #
@@ -63,8 +67,10 @@ class ResNeXt101(Architecture_Base):
     #---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "imagenet"
+        else:
+            model_weights = None
 
         # Obtain ResNeXt101 as base model
         base_model = BaseModel(include_top=False, weights=model_weights,

@@ -19,10 +19,13 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
+
+# Third Party Libraries
 import numpy as np
 from PIL import Image
+
 
 #-----------------------------------------------------#
 #             Image Loader for AUCMEDI IO             #
@@ -69,14 +72,18 @@ def image_loader(sample, path_imagedir, image_format=None, grayscale=False,
         **kwargs (dict):            Additional parameters for the sample loader.
     """
     # Get image path
-    if image_format : img_file = sample + "." + image_format
-    else : img_file = sample
+    if image_format:
+        img_file = sample + "." + image_format
+    else:
+        img_file = sample
     path_img = os.path.join(path_imagedir, img_file)
     # Load image via the PIL package
     img_raw = Image.open(path_img)
     # Convert image to grayscale or rgb
-    if grayscale : img_converted = img_raw.convert('LA')
-    else : img_converted = img_raw.convert('RGB')
+    if grayscale:
+        img_converted = img_raw.convert('LA')
+    else:
+        img_converted = img_raw.convert('RGB')
     # Convert image to NumPy
     img = np.asarray(img_converted)
     # Perform additional preprocessing if grayscale image

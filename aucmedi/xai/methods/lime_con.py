@@ -19,11 +19,15 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External Libraries
+# Python Standard Library
+
+# Third Party Libraries
 import numpy as np
 from lime import lime_image
+
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
+
 
 #-----------------------------------------------------#
 #                  LIME: Con Features                 #

@@ -31,10 +31,17 @@ These interfaces are called **internally** via the [input_interface][aucmedi.dat
     |  `"directory"` | [io_directory()][aucmedi.data_processing.io_interfaces.io_directory] | Storing class annotations in subdirectories. |
     |  `"json"`      | [io_json()][aucmedi.data_processing.io_interfaces.io_json]           | Storing class annotations in a JSON file.    |
 
-"""
+""" # noqa E501
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
 from aucmedi.data_processing.io_interfaces.io_csv import csv_loader
 from aucmedi.data_processing.io_interfaces.io_json import json_loader
 from aucmedi.data_processing.io_interfaces.io_directory import directory_loader
+
+
+__all__ = [
+    "csv_loader",
+    "json_loader",
+    "directory_loader"
+]

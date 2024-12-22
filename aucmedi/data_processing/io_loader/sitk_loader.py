@@ -19,17 +19,21 @@
 #-----------------------------------------------------#
 #                   Library imports                   #
 #-----------------------------------------------------#
-# External libraries
+# Python Standard Library
 import os
+
+# Third Party Libraries
 import numpy as np
 import SimpleITK as sitk
+
 
 #-----------------------------------------------------#
 #              SITK Loader for AUCMEDI IO             #
 #-----------------------------------------------------#
 def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
                 resampling=(1.0, 1.0, 1.0), outside_value=0, **kwargs):
-    """ SimpleITK Loader for loading of CT/MRI scans in NIfTI (nii) or Metafile (mha) format within the AUCMEDI pipeline.
+    """ SimpleITK Loader for loading of CT/MRI scans in NIfTI (nii) or Metafile (mha) format within the AUCMEDI
+    pipeline.
 
     The SimpleITK Loader is an IO_loader function, which have to be passed to the
     [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
@@ -73,8 +77,10 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
         **kwargs (dict):            Additional parameters for the sample loader.
     """
     # Get image path
-    if image_format : img_file = sample + "." + image_format
-    else : img_file = sample
+    if image_format:
+        img_file = sample + "." + image_format
+    else:
+        img_file = sample
     path_img = os.path.join(path_imagedir, img_file)
     # Load image via the SimpleITK package
     sample_itk = sitk.ReadImage(path_img)
@@ -101,10 +107,12 @@ def sitk_loader(sample, path_imagedir, image_format=None, grayscale=True,
                                              sample_itk.GetDirection(),
                                              outside_value)
     # Skip resampling if None
-    else : sample_itk_resampled = sample_itk
+    else:
+        sample_itk_resampled = sample_itk
     # Convert to NumPy
     img = sitk.GetArrayFromImage(sample_itk_resampled)
     # Add single channel axis
-    if len(img.shape) == 3 : img = np.expand_dims(img, axis=-1)
+    if len(img.shape) == 3:
+        img = np.expand_dims(img, axis=-1)
     # Return image
     return img

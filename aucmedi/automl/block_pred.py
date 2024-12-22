@@ -133,7 +133,7 @@ def block_predict(config):
         model.load(path_model)
         # Start model inference
         preds = model.predict(prediction_generator=pred_gen)
-    if meta_training["analysis"] == "standard":
+    elif meta_training["analysis"] == "standard":
         # Setup neural network
         if not meta_training["three_dim"]:
             arch_dim = "2D." + meta_training["architecture"]

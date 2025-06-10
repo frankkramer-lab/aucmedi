@@ -105,10 +105,16 @@ class GradCAM(XAImethod_Base):
             heatmap (numpy.ndarray):            Computed Grad-CAM for provided image.
         """
         # Gradient model construction
-        gradModel = tf.keras.models.Model(inputs=[self.model.inputs],
-                         outputs=[self.model.get_layer(self.layerName).output,
-                                  self.model.output])
-        # Compute gradient for desierd class index
+        layer_output = self.model.get_layer(self.layerName).output
+        model_output = self.model.output
+        if isinstance(model_output, list):
+            outputs = [layer_output] + model_output
+        else:
+            outputs = [layer_output, model_output]
+
+        gradModel = tf.keras.models.Model(inputs=self.model.inputs,
+                         outputs=outputs)
+        # Compute gradient for desired class index
         with tf.GradientTape() as tape:
             inputs = tf.cast(image, tf.float32)
             (conv_out, preds) = gradModel(inputs)

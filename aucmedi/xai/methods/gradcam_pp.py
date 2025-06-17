@@ -73,7 +73,7 @@ class GradCAMpp(XAImethod_Base):
         # Iterate over all layers
         for layer in reversed(self.model.layers):
             # Check to see if the layer has a 4D output -> Return layer
-            if len(layer.output.shape) == 4:
+            if len(layer.output.shape) >= 4:
                 return layer.name
         # Otherwise, throw exception
         raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM++.")
@@ -95,7 +95,7 @@ class GradCAMpp(XAImethod_Base):
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap is 2D or 3D -> batch and channel axis will be removed.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM++ for provided image.
@@ -134,7 +134,7 @@ class GradCAMpp(XAImethod_Base):
         # Deep Linearization weighting
         weights = np.maximum(conv_first_grad[0], 0.0)
         deep_linearization_weights = np.sum(weights*alphas, axis=(0,1))
-        heatmap = np.sum(deep_linearization_weights*conv_output[0], axis=2)
+        heatmap = np.sum(deep_linearization_weights*conv_output[0], axis=-1)
 
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)

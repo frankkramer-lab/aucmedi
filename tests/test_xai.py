@@ -29,7 +29,7 @@ import numpy as np
 from aucmedi import *
 from aucmedi.xai import *
 from aucmedi.xai.methods import *
-from aucmedi.data_processing.io_loader import image_loader
+from aucmedi.data_processing.io_loader import image_loader, numpy_loader
 #-----------------------------------------------------#
 #              Unittest: Explainable AI               #
 #-----------------------------------------------------#
@@ -68,6 +68,56 @@ class xaiTEST(unittest.TestCase):
         self.preds = self.model.predict(self.datagen)
         # Initialize testing image
         self.image = self.datagen[0][0][[0]]
+
+        # ----------- 3D TestData -----------
+        self.sampleList_hu_3D = []
+        self.sampleList_rgb_3D = []
+        for i in range(0, 10):
+            img_hu_3D = (np.random.rand(32, 32, 32) * 2000) - 500
+            img_rgb_3D = np.random.rand(32, 32, 32, 3) * 255
+
+            path_hu = os.path.join(self.tmp_data.name, f"vol_hu_{i}.npy")
+            np.save(path_hu, img_hu_3D)
+            self.sampleList_hu_3D.append(f"vol_hu_{i}.npy")
+
+            path_rgb = os.path.join(self.tmp_data.name, f"vol_rgb_{i}.npy")
+            np.save(path_rgb, img_rgb_3D)
+            self.sampleList_rgb_3D.append(f"vol_rgb_{i}.npy")
+
+        self.labels_ohe_hu_3D = np.zeros((10, 4), dtype=np.uint8)
+        self.labels_ohe_rgb_3D = np.zeros((10, 4), dtype=np.uint8)
+        for i in range(10):
+            class_index = np.random.randint(0, 4)
+            self.labels_ohe_hu_3D[i][class_index] = 1
+            self.labels_ohe_rgb_3D[i][class_index] = 1
+
+        self.datagen_hu_3D = DataGenerator(self.sampleList_hu_3D, self.tmp_data.name,
+                                        labels=self.labels_ohe_hu_3D,
+                                        loader=numpy_loader,
+                                        two_dim=False,
+                                        resize=(32, 32, 32), standardize_mode=None,
+                                        grayscale=True, batch_size=3)
+        
+        self.datagen_rgb_3D = DataGenerator(self.sampleList_rgb_3D, self.tmp_data.name,
+                                        labels=self.labels_ohe_rgb_3D, 
+                                        loader=numpy_loader,
+                                        two_dim=False,
+                                        resize=(32, 32, 32), standardize_mode=None,
+                                        grayscale=False, batch_size=3)
+
+        self.model_hu_3D = NeuralNetwork(n_labels=4, channels=1,
+                                      input_shape=(32, 32, 32),
+                                      architecture="3D.Vanilla")
+        
+        self.model_rgb_3D = NeuralNetwork(n_labels=4, channels=3,
+                                      input_shape=(32, 32, 32),
+                                      architecture="3D.Vanilla")
+        
+        self.preds_hu_3D = self.model_hu_3D.predict(self.datagen_hu_3D)
+        self.image_hu_3D = self.datagen_hu_3D[0][0][[0]]
+
+        self.preds_rgb_3D = self.model_rgb_3D.predict(self.datagen_rgb_3D)
+        self.image_rgb_3D = self.datagen_rgb_3D[0][0][[0]]
 
     #-------------------------------------------------#
     #             XAI Functions: Decoder              #
@@ -156,9 +206,26 @@ class xaiTEST(unittest.TestCase):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
             self.assertTrue(np.array_equal(hm.shape, (2,2)))
 
+    def test_XAImethod_GradCam3D_heatmap(self):
+        xai_method_hu = GradCAM(self.model_hu_3D.model)
+        xai_method_rgb = GradCAM(self.model_rgb_3D.model)
+        for i in range(4):
+            hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
+            self.assertTrue(np.array_equal(hm_hu.shape, (2, 2, 2)))
+
+            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            self.assertTrue(np.array_equal(hm_rgb.shape, (2, 2, 2)))
+
     def test_XAImethod_GradCam_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    def test_XAImethod_GradCam3D_decoder(self):
+        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="gradcam")
+        self.assertTrue(np.array_equal(hms_hu.shape, (10, 4, 32, 32, 32)))
+
+        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam")
+        self.assertTrue(np.array_equal(hms_rgb.shape, (10, 4, 32, 32, 32)))
 
     #-------------------------------------------------#
     #             XAI Methods: Grad-Cam++             #
@@ -174,9 +241,28 @@ class xaiTEST(unittest.TestCase):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
             self.assertTrue(np.array_equal(hm.shape, (2,2)))
 
+    def test_XAImethod_GradCamPP3D_heatmap(self):
+        xai_method_hu = GradCAMpp(self.model_hu_3D.model)
+        xai_method_rgb = GradCAMpp(self.model_rgb_3D.model)
+        for i in range(4):
+            hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
+            self.assertTrue(np.array_equal(hm_hu.shape, (2, 2, 2)))
+
+            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            self.assertTrue(np.array_equal(hm_rgb.shape, (2, 2, 2)))
+
     def test_XAImethod_GradCamPP_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam++")
         self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+
+    def test_XAImethod_GradCamPP3D_decoder(self):
+        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="gradcam++")
+        self.assertTrue(np.array_equal(hms_hu.shape, (10, 4, 32, 32, 32)))
+
+        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam++")
+        self.assertTrue(np.array_equal(hms_rgb.shape, (10, 4, 32, 32, 32)))
+
+
 
     #-------------------------------------------------#
     #            XAI Methods: Saliency Maps           #

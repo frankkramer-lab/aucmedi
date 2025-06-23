@@ -125,8 +125,8 @@ class xaiTEST(unittest.TestCase):
     def test_Decoder_argmax_output(self):
         imgs, hms = xai_decoder(self.datagen, self.model, preds=self.preds,
                                 out_path=None)
-        self.assertTrue(np.array_equal(imgs.shape, (10, 32, 32, 3)))
-        self.assertTrue(np.array_equal(hms.shape, (10, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 32, 32)))
 
     def test_Decoder_argmax_visualize(self):
         path_xai = os.path.join(self.tmp_data.name, "xai")
@@ -147,8 +147,8 @@ class xaiTEST(unittest.TestCase):
     def test_Decoder_allclasses_output(self):
         imgs, hms = xai_decoder(self.datagen, self.model, preds=None,
                                 out_path=None)
-        self.assertTrue(np.array_equal(imgs.shape, (10, 32, 32, 3)))
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_Decoder_allclasses_visualize(self):
         path_xai = os.path.join(self.tmp_data.name, "xai")
@@ -218,14 +218,14 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_GradCam_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GradCam3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="gradcam")
-        self.assertTrue(np.array_equal(hms_hu.shape, (10, 4, 32, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam")
-        self.assertTrue(np.array_equal(hms_rgb.shape, (10, 4, 32, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
     #-------------------------------------------------#
     #             XAI Methods: Grad-Cam++             #
@@ -253,14 +253,14 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_GradCamPP_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam++")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GradCamPP3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="gradcam++")
-        self.assertTrue(np.array_equal(hms_hu.shape, (10, 4, 32, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam++")
-        self.assertTrue(np.array_equal(hms_rgb.shape, (10, 4, 32, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
 
 
@@ -280,7 +280,7 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_SaliencyMap_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="saliency")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #       XAI Methods: Guided Backpropagation       #
@@ -298,7 +298,7 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_GuidedBackprop_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="guidedbackprop")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #        XAI Methods: Integrated Gradients        #
@@ -316,7 +316,7 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_IntegratedGradients_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="IntegratedGradients")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #           XAI Methods: Guided Grad-CAM          #
@@ -334,7 +334,7 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_GuidedGradCAM_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="GuidedGradCAM")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #        XAI Methods: Occlusion Sensitivity       #
@@ -352,7 +352,7 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_OcclusionSensitivity_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="OcclusionSensitivity")
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #              XAI Methods: LIME Con              #
@@ -371,7 +371,7 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_LimeCon_decoder(self):
         xai_method = LimeCon(self.model.model, num_samples=10)
         imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     #-------------------------------------------------#
     #              XAI Methods: LIME Pro              #
@@ -390,4 +390,4 @@ class xaiTEST(unittest.TestCase):
     def test_XAImethod_LimePro_decoder(self):
         xai_method = LimePro(self.model.model, num_samples=10)
         imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
-        self.assertTrue(np.array_equal(hms.shape, (10, 4, 32, 32)))
+        self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))

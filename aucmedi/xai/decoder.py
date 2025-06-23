@@ -140,8 +140,8 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
             postprocess_output(sample_list[i], img_org, sample_maps, 
                                n_classes, data_gen, res_img, res_xai, 
                                overlay, out_path, alpha)
-    # Return output directly if no output path is defined (and convert to NumPy)
-    if out_path is None : return np.array(res_img), np.array(res_xai)
+    # Return output directly if no output path is defined
+    if out_path is None : return res_img, res_xai
 
 #-----------------------------------------------------#
 #          Subroutine: Output Postprocessing          #

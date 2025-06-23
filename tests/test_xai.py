@@ -296,9 +296,26 @@ class xaiTEST(unittest.TestCase):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
             self.assertTrue(np.array_equal(hm.shape, (32,32)))
 
+    def test_XAImethod_GuidedBackprop3D_heatmap(self):
+        xai_method_hu = GuidedBackpropagation(self.model_hu_3D.model)
+        xai_method_rgb = GuidedBackpropagation(self.model_rgb_3D.model)
+        for i in range(4):
+            hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
+            self.assertTrue(np.array_equal(hm_hu.shape, (32, 32, 32)))
+
+            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
+
     def test_XAImethod_GuidedBackprop_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="guidedbackprop")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
+
+    def test_XAImethod_GuidedBackprop3D_decoder(self):
+        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="guidedbackprop")
+        self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
+
+        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="guidedbackprop")
+        self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
     #-------------------------------------------------#
     #        XAI Methods: Integrated Gradients        #

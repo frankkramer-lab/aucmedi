@@ -204,8 +204,10 @@ class ImageAugmentation():
         transforms = []
         # Fill transform list
         if self.aug_flip:
-            tf = ai.Flip(p=self.aug_flip_p)
-            transforms.append(tf)
+            tf_horizontal = ai.HorizontalFlip(p=self.aug_flip_p)
+            tf_vertical = ai.VerticalFlip(p=self.aug_flip_p)
+            transforms.append(tf_horizontal)
+            transforms.append(tf_vertical)
         if self.aug_rotate:
             tf = ai.RandomRotate90(p=self.aug_rotate_p)
             transforms.append(tf)
@@ -292,8 +294,8 @@ class ImageAugmentation():
         aug_image = self.operator(image=image)["image"]
         # Perform padding & cropping if image shape changed
         if self.refine and aug_image.shape != org_shape:
-            aug_image = ai.pad(aug_image, org_shape[0], org_shape[1], border_mode=cv2.BORDER_REPLICATE, 
-                                value=0)
+            aug_image = ai.PadIfNeeded(min_height=org_shape[0], min_width=org_shape[1], border_mode=cv2.BORDER_REPLICATE, value=0)(image=aug_image)["image"]
+                                                                         
             aug_image = ai.RandomCrop(height=org_shape[0], width=org_shape[1])(image=aug_image)["image"]
         # Perform clipping if image is out of grayscale/RGB encodings
         if self.refine and (np.min(aug_image) < 0 or np.max(aug_image) > 255):

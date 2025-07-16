@@ -96,7 +96,7 @@ class SaliencyMap(XAImethod_Base):
         # Obtain maximum gradient based on feature map of last conv layer
         gradient = tf.reduce_max(gradient, axis=-1)
         # Convert to NumPy & Remove batch axis
-        heatmap = gradient.numpy()[0,:,:]
+        heatmap = gradient.numpy()[0]
 
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)

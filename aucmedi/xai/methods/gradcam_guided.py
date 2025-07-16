@@ -83,7 +83,7 @@ class GuidedGradCAM(XAImethod_Base):
         The returned heatmap is encoded within a range of [0,1]
 
         ???+ attention
-            The shape of the returned heatmap is 2D -> batch and channel axis will be removed.
+            The shape of the returned heatmap is 2D or 3D -> batch and channel axis will be removed.
 
         Returns:
             heatmap (numpy.ndarray):            Computed Guided Grad-CAM for provided image.

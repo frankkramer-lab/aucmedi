@@ -1,0 +1,81 @@
+<!-- Custom HTML site displayed as the About Us chapter -->
+
+{% extends "page-style.html" %}
+{% block tabs %}
+{{ super() }}
+
+<section class="tx-container-2">
+   <div class="md-grid md-typeset">
+       <div class="tx-hero-about">
+           <div class="tx-hero__content-2">
+               <h1>Development Team</h1>
+               <p>
+                 AUCMEDI is developed and maintained by the chair of IT-Infrastructures for Translational Medical Research of University Augsburg
+                 and the Medical Data Integration Center (Institute for Digital Medicine) of University Hospital Augsburg.
+               </p>
+                 <h3> Lead Author </h3>
+               <p>
+                  Dominik Müller <br>
+                  Email: dominik.mueller@informatik.uni-augsburg.de  <br>
+                  IT-Infrastructure for Translational Medical Research  <br>
+                  University Augsburg  <br>
+                  Bavaria, Germany
+               </p>
+               <h3> Funding </h3>
+              <p>
+                This work is a part of the DIFUTURE project funded by the German Ministry of Education and Research
+                (Bundesministerium für Bildung und Forschung, BMBF).
+                <br>
+                DIFUTURE is one of the four consortia in the Medical Informatics Initiative of Germany which aims at providing data of comprehensive depth
+                and breadth to physicians and to medical researchers.
+
+                <br> <br>
+
+                This work is part of the EKIPRO project which has received funding by the Intramural Resarch Funding of the Faculty of Medicine of the University of Augsburg.
+                <br>
+                EKIPRO studies the clinical gain of explainable artificial intelligence for clinical decision support using the example of prostate carcinoma in pathology.
+              </p>
+                <h3> License </h3>
+               <p>
+                This project is licensed under the GNU GENERAL PUBLIC LICENSE Version 3.
+                See the LICENSE.md file in our GitHub repository for license rights and limitations.
+               </p>
+           </div>
+           <div class="tx-hero__image-2" style="margin-top: 50px">
+               <img
+                       src="../images/UA.jpg"
+                       alt="test"
+                       width="350"
+                       draggable="false"
+                       align="right"
+               >
+               <img
+                       src="../images/UKA.png"
+                       alt="test"
+                       width="350"
+                       draggable="false"
+                       align="right"
+               >
+               <img
+                       src="../images/DIFUTURE.png"
+                       alt="test"
+                       width="250"
+                       draggable="false"
+                       align="right"
+               >
+               <img
+                       src="../images/MII.png"
+                       alt="test"
+                       width="225"
+                       draggable="false"
+                       align="right"
+               >
+           </div>
+       </div>
+   </div>
+</section>
+
+{% endblock %}
+
+{% block content %}
+{% endblock %}

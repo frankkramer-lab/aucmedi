@@ -97,7 +97,7 @@ class Bagging:
         An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
-    def __init__(self, model, k_fold=3):
+    def __init__(self, model, k_fold=3, seed=None):
         """ Initialization function for creating a Bagging object.
 
         Args:
@@ -108,6 +108,7 @@ class Bagging:
         self.model_template = model
         self.k_fold = k_fold
         self.cache_dir = None
+        self.seed = seed
 
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
@@ -149,7 +150,7 @@ class Bagging:
 
         # Apply cross-validaton sampling
         cv_sampling = sampling_kfold(x, y, m, n_splits=self.k_fold,
-                                     stratified=True, iterative=True)
+                                     stratified=True, iterative=True, seed=self.seed)
 
         # Sequentially iterate over all folds
         for i, fold in enumerate(cv_sampling):

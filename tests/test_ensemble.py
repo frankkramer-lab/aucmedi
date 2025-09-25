@@ -214,19 +214,19 @@ class EnsembleTEST(unittest.TestCase):
         target = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                              suffix=".model")
         self.assertTrue(len(os.listdir(target.name))==0)
-        self.assertTrue(len(os.listdir(el.cache_dir.name))==4)
+        self.assertTrue(len(os.listdir(el.cache_dir.name))==5)
         origin = el.cache_dir.name
         # Dump model
         target_dir = os.path.join(target.name, "test")
         el.dump(target_dir)
-        self.assertTrue(len(os.listdir(target_dir))==4)
+        self.assertTrue(len(os.listdir(target_dir))==5)
         self.assertFalse(os.path.exists(origin))
         target_two = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                  suffix=".model")
         target_dir_two = os.path.join(target_two.name, "test")
         el.dump(target_dir_two)
-        self.assertTrue(len(os.listdir(target_dir_two))==4)
-        self.assertTrue(len(os.listdir(target_dir))==4)
+        self.assertTrue(len(os.listdir(target_dir_two))==5)
+        self.assertTrue(len(os.listdir(target_dir))==5)
         self.assertTrue(os.path.exists(target_dir))
 
     def test_Bagging_load(self):

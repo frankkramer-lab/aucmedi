@@ -16,3 +16,6 @@ debug.py
 
 # Visual Studio Code
 .vscode
+
+# Virtual environments
+.venv/

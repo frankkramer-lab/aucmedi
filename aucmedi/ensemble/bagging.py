@@ -26,6 +26,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
+import pandas as pd
 # Internal libraries
 from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.sampling import sampling_kfold
@@ -97,7 +98,7 @@ class Bagging:
         An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
-    def __init__(self, model, k_fold=3):
+    def __init__(self, model, k_fold=3, seed=None):
         """ Initialization function for creating a Bagging object.
 
         Args:
@@ -108,6 +109,7 @@ class Bagging:
         self.model_template = model
         self.k_fold = k_fold
         self.cache_dir = None
+        self.seed = seed
 
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
@@ -149,7 +151,39 @@ class Bagging:
 
         # Apply cross-validaton sampling
         cv_sampling = sampling_kfold(x, y, m, n_splits=self.k_fold,
-                                     stratified=True, iterative=True)
+                                     stratified=True, iterative=True, seed=self.seed)
+        
+        # Save cross-validation sampling in list
+        records = []
+
+        # Sequentially iterate over all folds
+        for i, fold in enumerate(cv_sampling):
+            if len(fold) == 4:
+                train_x, train_y, val_x, val_y = fold
+            else:
+                train_x, train_y, _, val_x, val_y, _ = fold
+
+            # Training data
+            for sample, label in zip(train_x, train_y):
+                records.append({
+                    'fold': i,
+                    'subset': 'train',
+                    'sample': sample,
+                    'label': int(np.argmax(label))
+                })
+
+            # Validation data
+            for sample, label in zip(val_x, val_y):
+                records.append({
+                    'fold': i,
+                    'subset': 'val',
+                    'sample': sample,
+                    'label': int(np.argmax(label))
+                })
+
+        # Save as CSV
+        df = pd.DataFrame(records)
+        df.to_csv(os.path.join(self.cache_dir.name, "kfold_split.csv"), index=False)
 
         # Sequentially iterate over all folds
         for i, fold in enumerate(cv_sampling):

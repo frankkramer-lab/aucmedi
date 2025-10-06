@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,11 +15,11 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" This is the API reference for the AUCMEDI framework.
+# -----------------------------------------------------#
+"""This is the API reference for the AUCMEDI framework.
 
 Build your state-of-the-art medical image classification pipeline with the 3 AUCMEDI pillars:
 
@@ -69,12 +69,14 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     preds = model.predict(test_gen)
     ```
 """
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 from aucmedi.data_processing.io_data import input_interface
-from aucmedi.data_processing.data_generator import DataGenerator
-from aucmedi.data_processing.augmentation import ImageAugmentation, \
-                                                 VolumeAugmentation, \
-                                                 BatchgeneratorsAugmentation
+from aucmedi.data_processing.data_generator_torch import DataGenerator
+from aucmedi.data_processing.augmentation import (
+    ImageAugmentation,
+    VolumeAugmentation,
+    BatchgeneratorsAugmentation,
+)
 from aucmedi.neural_network.model import NeuralNetwork

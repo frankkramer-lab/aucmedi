@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,28 +15,32 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
+#                    Documentation                    #
+# -----------------------------------------------------#
+""" AUCMEDI AutoML configuration parsers. Allows the usage of AUCMEDI's AutoML 
+pipeline with configuration files instead of the commandline arguments."""
+
+
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
-# External libraries
+# -----------------------------------------------------#
+from aucmedi.automl.config_parsers.parser_cli import parse_cli
+from aucmedi.automl.config_parsers.config_file_parser import parse_config_file
+from aucmedi.automl.config_parsers.validation_classes import (
+    BaseConfig,
+    TrainingConfig,
+    PredictionConfig,
+    EvaluationConfig
+)
 
-# Internal libraries
 
-#-----------------------------------------------------#
-#                    Parser - YAML                    #
-#-----------------------------------------------------#
-def parse_yaml(args):
-    """ Internal function for parsing a YAML file to a valid configuration
-    dictionary.
-    """
-    # Extract filepath to YAML configuration file
-
-    # verify existence
-
-    # read yaml file
-
-    # convert variables
-
-    # Return valid configs
-    pass
+__all__ = [
+    "parse_config_file",
+    "parse_cli",
+    "BaseConfig",
+    "TrainingConfig",
+    "PredictionConfig",
+    "EvaluationConfig"
+]

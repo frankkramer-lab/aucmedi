@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,27 +15,29 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 import os
 import tempfile
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
-from pathos.helpers import mp   # instead of 'import multiprocessing as mp'
+from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
+
 # Internal libraries
 from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #              Ensemble Learning: Bagging             #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class Bagging:
-    """ A Bagging class providing functionality for cross-validation based ensemble learning.
+    """A Bagging class providing functionality for cross-validation based ensemble learning.
 
     Homogeneous model ensembles can be defined as multiple models consisting of the same algorithm, hyperparameters,
     or architecture. The Bagging technique is based on improved training dataset sampling and a popular homogeneous
@@ -97,8 +99,9 @@ class Bagging:
         An Analysis on Ensemble Learning optimized Medical Image Classification with Deep Convolutional Neural Networks.
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
     """
+
     def __init__(self, model, k_fold=3):
-        """ Initialization function for creating a Bagging object.
+        """Initialization function for creating a Bagging object.
 
         Args:
             model (NeuralNetwork):         Instance of an AUCMEDI neural network class.
@@ -112,9 +115,16 @@ class Bagging:
         # Set multiprocessing method to spawn
         mp.set_start_method("spawn", force=True)
 
-    def train(self, training_generator, epochs=20, iterations=None,
-              callbacks=[], class_weights=None, transfer_learning=False):
-        """ Training function for the Bagging models which performs a k-fold cross-validation model fitting.
+    def train(
+        self,
+        training_generator,
+        epochs=20,
+        iterations=None,
+        callbacks=[],
+        class_weights=None,
+        transfer_learning=False,
+    ):
+        """Training function for the Bagging models which performs a k-fold cross-validation model fitting.
 
         The training data will be sampled according to a k-fold cross-validation in which a validation
         [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] will be automatically created.
@@ -135,12 +145,15 @@ class Bagging:
         Returns:
             history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
-        temp_dg = training_generator    # Template DataGenerator variable for faster access
-        history_bagging = {}            # Final history dictionary
+        temp_dg = (
+            training_generator  # Template DataGenerator variable for faster access
+        )
+        history_bagging = {}  # Final history dictionary
 
         # Create temporary model directory
-        self.cache_dir = tempfile.TemporaryDirectory(prefix="aucmedi.tmp.",
-                                                     suffix=".bagging")
+        self.cache_dir = tempfile.TemporaryDirectory(
+            prefix="aucmedi.tmp.", suffix=".bagging"
+        )
 
         # Obtain training data
         x = training_generator.samples
@@ -148,8 +161,9 @@ class Bagging:
         m = training_generator.metadata
 
         # Apply cross-validaton sampling
-        cv_sampling = sampling_kfold(x, y, m, n_splits=self.k_fold,
-                                     stratified=True, iterative=True)
+        cv_sampling = sampling_kfold(
+            x, y, m, n_splits=self.k_fold, stratified=True, iterative=True
+        )
 
         # Sequentially iterate over all folds
         for i, fold in enumerate(cv_sampling):
@@ -157,20 +171,24 @@ class Bagging:
             if len(fold) == 4:
                 (train_x, train_y, test_x, test_y) = fold
                 data = (train_x, train_y, None, test_x, test_y, None)
-            else : data = fold
+            else:
+                data = fold
 
             # Create model specific callback list
             callbacks_model = callbacks.copy()
             # Extend Callback list
-            cb_mc = ModelCheckpoint(os.path.join(self.cache_dir.name,
-                                                 "cv_" + str(i) + \
-                                                 ".model.keras"),
-                                    monitor="val_loss", verbose=1,
-                                    save_best_only=True, mode="min")
-            cb_cl = CSVLogger(os.path.join(self.cache_dir.name,
-                                                 "cv_" + str(i) + \
-                                                 ".logs.csv"),
-                              separator=',', append=True)
+            cb_mc = ModelCheckpoint(
+                os.path.join(self.cache_dir.name, "cv_" + str(i) + ".model.keras"),
+                monitor="val_loss",
+                verbose=1,
+                save_best_only=True,
+                mode="min",
+            )
+            cb_cl = CSVLogger(
+                os.path.join(self.cache_dir.name, "cv_" + str(i) + ".logs.csv"),
+                separator=",",
+                append=True,
+            )
             callbacks_model.extend([cb_mc, cb_cl])
 
             # Gather NeuralNetwork parameters
@@ -189,39 +207,45 @@ class Bagging:
             }
 
             # Gather DataGenerator parameters
-            datagen_paras = {"path_imagedir": temp_dg.path_imagedir,
-                             "batch_size": temp_dg.batch_size,
-                             "data_aug": temp_dg.data_aug,
-                             "seed": temp_dg.seed,
-                             "subfunctions": temp_dg.subfunctions,
-                             "shuffle": temp_dg.shuffle,
-                             "standardize_mode": temp_dg.standardize_mode,
-                             "resize": temp_dg.resize,
-                             "grayscale": temp_dg.grayscale,
-                             "prepare_images": temp_dg.prepare_images,
-                             "sample_weights": temp_dg.sample_weights,
-                             "image_format": temp_dg.image_format,
-                             "loader": temp_dg.sample_loader,
-                             "workers": temp_dg.workers,
-                             "kwargs": temp_dg.kwargs
+            datagen_paras = {
+                "path_imagedir": temp_dg.path_imagedir,
+                "batch_size": temp_dg.batch_size,
+                "data_aug": temp_dg.data_aug,
+                "seed": temp_dg.seed,
+                "subfunctions": temp_dg.subfunctions,
+                "shuffle": temp_dg.shuffle,
+                "standardize_mode": temp_dg.standardize_mode,
+                "resize": temp_dg.resize,
+                "grayscale": temp_dg.grayscale,
+                "prepare_images": temp_dg.prepare_images,
+                "sample_weights": temp_dg.sample_weights,
+                "image_format": temp_dg.image_format,
+                "loader": temp_dg.sample_loader,
+                "workers": temp_dg.workers,
+                "kwargs": temp_dg.kwargs,
             }
 
             # Gather training parameters
-            parameters_training = {"epochs": epochs,
-                                   "iterations": iterations,
-                                   "callbacks": callbacks_model,
-                                   "class_weights": class_weights,
-                                   "transfer_learning": transfer_learning
+            parameters_training = {
+                "epochs": epochs,
+                "iterations": iterations,
+                "callbacks": callbacks_model,
+                "class_weights": class_weights,
+                "transfer_learning": transfer_learning,
             }
 
             # Start training process
             process_queue = mp.Queue()
-            process_train = mp.Process(target=__training_process__,
-                                       args=(process_queue,
-                                             model_paras,
-                                             data,
-                                             datagen_paras,
-                                             parameters_training))
+            process_train = mp.Process(
+                target=__training_process__,
+                args=(
+                    process_queue,
+                    model_paras,
+                    data,
+                    datagen_paras,
+                    parameters_training,
+                ),
+            )
             process_train.start()
             process_train.join()
             cv_history = process_queue.get()
@@ -232,9 +256,8 @@ class Bagging:
         # Return Bagging history object
         return history_bagging
 
-    def predict(self, prediction_generator, aggregate="mean",
-                return_ensemble=False):
-        """ Prediction function for the Bagging models.
+    def predict(self, prediction_generator, aggregate="mean", return_ensemble=False):
+        """Prediction function for the Bagging models.
 
         The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
@@ -259,18 +282,24 @@ class Bagging:
                                                     Shape (n_models, n_samples, n_labels).
         """
         # Verify if there is a linked cache dictionary
-        con_tmp = (isinstance(self.cache_dir, tempfile.TemporaryDirectory) and \
-                   os.path.exists(self.cache_dir.name))
-        con_var = (self.cache_dir is not None and \
-                   not isinstance(self.cache_dir, tempfile.TemporaryDirectory) \
-                   and os.path.exists(self.cache_dir))
+        con_tmp = isinstance(
+            self.cache_dir, tempfile.TemporaryDirectory
+        ) and os.path.exists(self.cache_dir.name)
+        con_var = (
+            self.cache_dir is not None
+            and not isinstance(self.cache_dir, tempfile.TemporaryDirectory)
+            and os.path.exists(self.cache_dir)
+        )
         if not con_tmp and not con_var:
-            raise FileNotFoundError("Bagging does not have a valid model cache directory!")
+            raise FileNotFoundError(
+                "Bagging does not have a valid model cache directory!"
+            )
 
         # Initialize aggregate function if required
         if isinstance(aggregate, str) and aggregate in aggregate_dict:
             agg_fun = aggregate_dict[aggregate]()
-        else : agg_fun = aggregate
+        else:
+            agg_fun = aggregate
 
         # Initialize some variables
         temp_dg = prediction_generator
@@ -278,35 +307,36 @@ class Bagging:
         preds_final = []
 
         # Gather DataGenerator parameters
-        datagen_paras = {"samples": temp_dg.samples,
-                         "metadata": temp_dg.metadata,
-                         "path_imagedir": temp_dg.path_imagedir,
-                         "batch_size": temp_dg.batch_size,
-                         "data_aug": temp_dg.data_aug,
-                         "seed": temp_dg.seed,
-                         "subfunctions": temp_dg.subfunctions,
-                         "shuffle": temp_dg.shuffle,
-                         "standardize_mode": temp_dg.standardize_mode,
-                         "resize": temp_dg.resize,
-                         "grayscale": temp_dg.grayscale,
-                         "prepare_images": temp_dg.prepare_images,
-                         "sample_weights": temp_dg.sample_weights,
-                         "image_format": temp_dg.image_format,
-                         "loader": temp_dg.sample_loader,
-                         "workers": temp_dg.workers,
-                         "kwargs": temp_dg.kwargs
+        datagen_paras = {
+            "samples": temp_dg.samples,
+            "metadata": temp_dg.metadata,
+            "path_imagedir": temp_dg.path_imagedir,
+            "batch_size": temp_dg.batch_size,
+            "data_aug": temp_dg.data_aug,
+            "seed": temp_dg.seed,
+            "subfunctions": temp_dg.subfunctions,
+            "shuffle": temp_dg.shuffle,
+            "standardize_mode": temp_dg.standardize_mode,
+            "resize": temp_dg.resize,
+            "grayscale": temp_dg.grayscale,
+            "prepare_images": temp_dg.prepare_images,
+            "sample_weights": temp_dg.sample_weights,
+            "image_format": temp_dg.image_format,
+            "loader": temp_dg.sample_loader,
+            "workers": temp_dg.workers,
+            "kwargs": temp_dg.kwargs,
         }
 
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
             path_model_dir = self.cache_dir.name
-        else : path_model_dir = self.cache_dir
+        else:
+            path_model_dir = self.cache_dir
 
         # Sequentially iterate over all fold models
         for i in range(self.k_fold):
             # Identify path to fitted model
-            path_model = os.path.join(path_model_dir,
-                                      "cv_" + str(i) + ".model.keras")
+            path_model = os.path.join(path_model_dir, "cv_" + str(i) + ".model.keras")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -325,11 +355,10 @@ class Bagging:
 
             # Start inference process for fold i
             process_queue = mp.Queue()
-            process_pred = mp.Process(target=__prediction_process__,
-                                      args=(process_queue,
-                                            model_paras,
-                                            path_model,
-                                            datagen_paras))
+            process_pred = mp.Process(
+                target=__prediction_process__,
+                args=(process_queue, model_paras, path_model, datagen_paras),
+            )
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
@@ -340,19 +369,21 @@ class Bagging:
         # Aggregate predictions
         preds_ensemble = np.array(preds_ensemble)
         for i in range(0, len(temp_dg.samples)):
-            pred_sample = agg_fun.aggregate(preds_ensemble[:,i,:])
+            pred_sample = agg_fun.aggregate(preds_ensemble[:, i, :])
             preds_final.append(pred_sample)
 
         # Convert prediction list to NumPy
         preds_final = np.asarray(preds_final)
 
         # Return ensembled predictions
-        if return_ensemble : return preds_final, preds_ensemble
-        else : return preds_final
+        if return_ensemble:
+            return preds_final, preds_ensemble
+        else:
+            return preds_final
 
     # Dump model to file
     def dump(self, directory_path):
-        """ Store temporary Bagging model directory permanently to disk at desired location.
+        """Store temporary Bagging model directory permanently to disk at desired location.
 
         If the model directory is a provided path which is already persistent on the disk,
         the directory is copied in order to keep original data persistent.
@@ -361,10 +392,11 @@ class Bagging:
             directory_path (str):       Path to store the model directory on disk.
         """
         if self.cache_dir is None:
-            raise FileNotFoundError("Bagging does not have a valid model cache directory!")
+            raise FileNotFoundError(
+                "Bagging does not have a valid model cache directory!"
+            )
         elif isinstance(self.cache_dir, tempfile.TemporaryDirectory):
-            shutil.copytree(self.cache_dir.name, directory_path,
-                            dirs_exist_ok=True)
+            shutil.copytree(self.cache_dir.name, directory_path, dirs_exist_ok=True)
             self.cache_dir.cleanup()
             self.cache_dir = directory_path
         else:
@@ -373,69 +405,75 @@ class Bagging:
 
     # Load model from file
     def load(self, directory_path):
-        """ Load a Bagging model directory which can be used for aggregated inference.
+        """Load a Bagging model directory which can be used for aggregated inference.
 
         Args:
             directory_path (str):       Input path, from which the Bagging models will be loaded.
         """
         # Check directory existence
         if not os.path.exists(directory_path):
-            raise FileNotFoundError("Provided model directory path does not exist!",
-                                    directory_path)
+            raise FileNotFoundError(
+                "Provided model directory path does not exist!", directory_path
+            )
         # Check model existence
         for i in range(self.k_fold):
-            path_model = os.path.join(directory_path,
-                                      "cv_" + str(i) + ".model.keras")
+            path_model = os.path.join(directory_path, "cv_" + str(i) + ".model.keras")
             if not os.path.exists(path_model):
-                raise FileNotFoundError("Bagging model for fold " + str(i) + \
-                                        " does not exist!", path_model)
+                raise FileNotFoundError(
+                    "Bagging model for fold " + str(i) + " does not exist!", path_model
+                )
         # Update model directory
         self.cache_dir = directory_path
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                     Subroutines                     #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     (train_x, train_y, train_m, test_x, test_y, test_m) = data
     # Build training DataGenerator
-    cv_train_gen = DataGenerator(train_x,
-                                 path_imagedir=datagen_paras["path_imagedir"],
-                                 labels=train_y,
-                                 metadata=train_m,
-                                 batch_size=datagen_paras["batch_size"],
-                                 data_aug=datagen_paras["data_aug"],
-                                 seed=datagen_paras["seed"],
-                                 subfunctions=datagen_paras["subfunctions"],
-                                 shuffle=datagen_paras["shuffle"],
-                                 standardize_mode=datagen_paras["standardize_mode"],
-                                 resize=datagen_paras["resize"],
-                                 grayscale=datagen_paras["grayscale"],
-                                 prepare_images=datagen_paras["prepare_images"],
-                                 sample_weights=datagen_paras["sample_weights"],
-                                 image_format=datagen_paras["image_format"],
-                                 loader=datagen_paras["loader"],
-                                 workers=datagen_paras["workers"],
-                                 **datagen_paras["kwargs"])
+    cv_train_gen = DataGenerator(
+        train_x,
+        path_imagedir=datagen_paras["path_imagedir"],
+        labels=train_y,
+        metadata=train_m,
+        batch_size=datagen_paras["batch_size"],
+        data_aug=datagen_paras["data_aug"],
+        seed=datagen_paras["seed"],
+        subfunctions=datagen_paras["subfunctions"],
+        shuffle=datagen_paras["shuffle"],
+        standardize_mode=datagen_paras["standardize_mode"],
+        resize=datagen_paras["resize"],
+        grayscale=datagen_paras["grayscale"],
+        prepare_images=datagen_paras["prepare_images"],
+        sample_weights=datagen_paras["sample_weights"],
+        image_format=datagen_paras["image_format"],
+        loader=datagen_paras["loader"],
+        num_workers=datagen_paras["workers"],
+        **datagen_paras["kwargs"]
+    )
     # Build validation DataGenerator
-    cv_val_gen = DataGenerator(test_x,
-                               path_imagedir=datagen_paras["path_imagedir"],
-                               labels=test_y,
-                               metadata=test_m,
-                               batch_size=datagen_paras["batch_size"],
-                               data_aug=None,
-                               seed=datagen_paras["seed"],
-                               subfunctions=datagen_paras["subfunctions"],
-                               shuffle=False,
-                               standardize_mode=datagen_paras["standardize_mode"],
-                               resize=datagen_paras["resize"],
-                               grayscale=datagen_paras["grayscale"],
-                               prepare_images=datagen_paras["prepare_images"],
-                               sample_weights=datagen_paras["sample_weights"],
-                               image_format=datagen_paras["image_format"],
-                               loader=datagen_paras["loader"],
-                               workers=datagen_paras["workers"],
-                               **datagen_paras["kwargs"])
+    cv_val_gen = DataGenerator(
+        test_x,
+        path_imagedir=datagen_paras["path_imagedir"],
+        labels=test_y,
+        metadata=test_m,
+        batch_size=datagen_paras["batch_size"],
+        data_aug=None,
+        seed=datagen_paras["seed"],
+        subfunctions=datagen_paras["subfunctions"],
+        shuffle=False,
+        standardize_mode=datagen_paras["standardize_mode"],
+        resize=datagen_paras["resize"],
+        grayscale=datagen_paras["grayscale"],
+        prepare_images=datagen_paras["prepare_images"],
+        sample_weights=datagen_paras["sample_weights"],
+        image_format=datagen_paras["image_format"],
+        loader=datagen_paras["loader"],
+        num_workers=datagen_paras["workers"],
+        **datagen_paras["kwargs"]
+    )
     # Create NeuralNetwork
     model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
@@ -443,27 +481,30 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     # Store result in cache (which will be returned by the process queue)
     queue.put(cv_history)
 
+
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, datagen_paras):
     # Create inference DataGenerator
-    cv_pred_gen = DataGenerator(datagen_paras["samples"],
-                                path_imagedir=datagen_paras["path_imagedir"],
-                                labels=None,
-                                metadata=datagen_paras["metadata"],
-                                batch_size=datagen_paras["batch_size"],
-                                data_aug=datagen_paras["data_aug"],
-                                seed=datagen_paras["seed"],
-                                subfunctions=datagen_paras["subfunctions"],
-                                shuffle=datagen_paras["shuffle"],
-                                standardize_mode=datagen_paras["standardize_mode"],
-                                resize=datagen_paras["resize"],
-                                grayscale=datagen_paras["grayscale"],
-                                prepare_images=datagen_paras["prepare_images"],
-                                sample_weights=datagen_paras["sample_weights"],
-                                image_format=datagen_paras["image_format"],
-                                loader=datagen_paras["loader"],
-                                workers=datagen_paras["workers"],
-                                **datagen_paras["kwargs"])
+    cv_pred_gen = DataGenerator(
+        datagen_paras["samples"],
+        path_imagedir=datagen_paras["path_imagedir"],
+        labels=None,
+        metadata=datagen_paras["metadata"],
+        batch_size=datagen_paras["batch_size"],
+        data_aug=datagen_paras["data_aug"],
+        seed=datagen_paras["seed"],
+        subfunctions=datagen_paras["subfunctions"],
+        shuffle=datagen_paras["shuffle"],
+        standardize_mode=datagen_paras["standardize_mode"],
+        resize=datagen_paras["resize"],
+        grayscale=datagen_paras["grayscale"],
+        prepare_images=datagen_paras["prepare_images"],
+        sample_weights=datagen_paras["sample_weights"],
+        image_format=datagen_paras["image_format"],
+        loader=datagen_paras["loader"],
+        num_workers=datagen_paras["workers"],
+        **datagen_paras["kwargs"]
+    )
     # Create NeuralNetwork
     model = NeuralNetwork(**model_paras)
     # Load model weights from disk

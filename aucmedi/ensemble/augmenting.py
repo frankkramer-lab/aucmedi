@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,22 +15,24 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 import numpy as np
+
 # Internal libraries
 from aucmedi import ImageAugmentation, VolumeAugmentation, DataGenerator
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.data_processing.io_loader import image_loader
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #       Ensemble Learning: Inference Augmenting       #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean"):
-    """ Inference Augmenting function for automatically augmenting unknown images for prediction.
+    """Inference Augmenting function for automatically augmenting unknown images for prediction.
 
     The predictions of the augmented images are aggregated via the provided Aggregate function.
 
@@ -83,48 +85,72 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:
         agg_fun = aggregate_dict[aggregate]()
-    else : agg_fun = aggregate
+    else:
+        agg_fun = aggregate
 
     # Initialize image augmentation if none provided (only flip, rotate)
     if prediction_generator.data_aug is None and len(model.input_shape) == 3:
-        data_aug = ImageAugmentation(flip=True, rotate=True, scale=False,
-                                     brightness=False, contrast=False,
-                                     saturation=False, hue=False, crop=False,
-                                     grid_distortion=False, compression=False,
-                                     gamma=False, gaussian_noise=False,
-                                     gaussian_blur=False, downscaling=False,
-                                     elastic_transform=False)
+        data_aug = ImageAugmentation(
+            flip=True,
+            rotate=True,
+            scale=False,
+            brightness=False,
+            contrast=False,
+            saturation=False,
+            hue=False,
+            crop=False,
+            grid_distortion=False,
+            compression=False,
+            gamma=False,
+            gaussian_noise=False,
+            gaussian_blur=False,
+            downscaling=False,
+            elastic_transform=False,
+        )
     elif prediction_generator.data_aug is None and len(model.input_shape) == 4:
-        data_aug = VolumeAugmentation(flip=True, rotate=True, scale=False,
-                                      brightness=False, contrast=False,
-                                      saturation=False, hue=False, crop=False,
-                                      grid_distortion=False, compression=False,
-                                      gamma=False, gaussian_noise=False,
-                                      gaussian_blur=False, downscaling=False,
-                                      elastic_transform=False)
-    else : data_aug = prediction_generator.data_aug
+        data_aug = VolumeAugmentation(
+            flip=True,
+            rotate=True,
+            scale=False,
+            brightness=False,
+            contrast=False,
+            saturation=False,
+            hue=False,
+            crop=False,
+            grid_distortion=False,
+            compression=False,
+            gamma=False,
+            gaussian_noise=False,
+            gaussian_blur=False,
+            downscaling=False,
+            elastic_transform=False,
+        )
+    else:
+        data_aug = prediction_generator.data_aug
     # Multiply sample list for prediction according to number of cycles
     samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 
     # Re-initialize DataGenerator for inference
-    aug_gen = DataGenerator(samples_aug,
-                            path_imagedir=prediction_generator.path_imagedir,
-                            labels=None,
-                            metadata=prediction_generator.metadata,
-                            batch_size=prediction_generator.batch_size,
-                            data_aug=data_aug,
-                            seed=prediction_generator.seed,
-                            subfunctions=prediction_generator.subfunctions,
-                            shuffle=False,
-                            standardize_mode=prediction_generator.standardize_mode,
-                            resize=prediction_generator.resize,
-                            grayscale=prediction_generator.grayscale,
-                            prepare_images=prediction_generator.prepare_images,
-                            sample_weights=None,
-                            image_format=prediction_generator.image_format,
-                            loader=prediction_generator.sample_loader,
-                            workers=prediction_generator.workers,
-                            **prediction_generator.kwargs)
+    aug_gen = DataGenerator(
+        samples_aug,
+        path_imagedir=prediction_generator.path_imagedir,
+        labels=None,
+        metadata=prediction_generator.metadata,
+        batch_size=prediction_generator.batch_size,
+        data_aug=data_aug,
+        seed=prediction_generator.seed,
+        subfunctions=prediction_generator.subfunctions,
+        shuffle=False,
+        standardize_mode=prediction_generator.standardize_mode,
+        resize=prediction_generator.resize,
+        grayscale=prediction_generator.grayscale,
+        prepare_images=prediction_generator.prepare_images,
+        sample_weights=None,
+        image_format=prediction_generator.image_format,
+        loader=prediction_generator.sample_loader,
+        num_workers=prediction_generator.workers,
+        **prediction_generator.kwargs
+    )
 
     # Compute predictions with provided model
     preds_all = model.predict(aug_gen)
@@ -133,8 +159,8 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     preds_ensembled = []
     for i in range(0, len(prediction_generator.samples)):
         # Identify subset for a single sample
-        j = i*n_cycles
-        subset = preds_all[j:j+n_cycles]
+        j = i * n_cycles
+        subset = preds_all[j : j + n_cycles]
         # Aggregate predictions
         pred_sample = agg_fun.aggregate(subset)
         # Add prediction to prediction list

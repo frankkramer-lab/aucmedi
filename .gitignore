@@ -19,3 +19,9 @@ debug.py
 
 # Virtual environments
 .venv/
+
+# Created model artifacts
+model/
+
+# Pictures
+*.png

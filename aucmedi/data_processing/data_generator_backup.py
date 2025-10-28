@@ -139,11 +139,14 @@ class DataGenerator(Dataset):
         metadata=None,
         image_format=None,
         subfunctions=[],
+        batch_size=32,
         resize=(224, 224),
         standardize_mode="z-score",
         data_aug=None,
+        shuffle=False,
         grayscale=False,
         sample_weights=None,
+        num_workers=1,
         prepare_images=False,
         loader=image_loader,
         seed=None,
@@ -185,11 +188,13 @@ class DataGenerator(Dataset):
             image_format (str):                 Image format to add at the end of the sample index for image loading.
                                                 Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
             subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
+            batch_size (int):                   Number of samples inside a single batch.
             resize (tuple of int):              Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
             standardize_mode (str):             Standardization modus in which image intensity values are scaled.
                                                 Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
             data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation techniques.
                                                 If `None` is provided, no augmentation will be performed.
+            shuffle (bool):                     Boolean, whether dataset should be shuffled.
             grayscale (bool):                   Boolean, whether images are grayscale or RGB.
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
@@ -216,6 +221,14 @@ class DataGenerator(Dataset):
         self.standardize_mode = standardize_mode
         self.resize = resize
         self.seed = seed
+        self.n = len(samples)
+        self.index_array = None
+        self.batch_size = batch_size if batch_size is not None else 1
+        self.shuffle = shuffle
+        self.num_workers = num_workers if num_workers is not None else 0
+
+        self.max_iterations = (self.n + self.batch_size - 1) // self.batch_size
+        self.iterations = self.max_iterations
 
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
@@ -266,43 +279,78 @@ class DataGenerator(Dataset):
             self.prepare_dir = self.prepare_dir_object.name
 
             # Preprocess image for each index - Sequential
-            for i in range(0, len(samples)):
-                self.preprocess_image(
-                    index=i,
-                    prepared_image=False,
-                    run_resize=True,
-                    run_aug=False,
-                    run_standardize=False,
-                    dump_pickle=True,
-                )
+            if self.num_workers == 0 or self.num_workers == 1:
+                for i in range(0, len(samples)):
+                    self.preprocess_image(
+                        index=i,
+                        prepared_image=False,
+                        run_resize=True,
+                        run_aug=False,
+                        run_standardize=False,
+                        dump_pickle=True,
+                    )
+            # Preprocess image for each index - Multi-threading
+            else:
+                with ThreadPool(self.num_workers) as pool:
+                    index_array = list(range(0, len(samples)))
+                    mp_params = zip(
+                        index_array,
+                        repeat(False),
+                        repeat(True),
+                        repeat(False),
+                        repeat(False),
+                        repeat(True),
+                    )
+                    pool.starmap(self.preprocess_image, mp_params)
             print("A directory for image preparation was created:", self.prepare_dir)
 
-    def __len__(self):
-        return len(self.samples)
-
     # -----------------------------------------------------#
-    #              Sample Generation Function             #
+    #              Batch Generation Function              #
     # -----------------------------------------------------#
+    """ Internal function for batch generation given a list of random selected samples. """
 
-    def __getitem__(self, index: int):
-        """Return a single preprocessed sample (and optional label/metadata/sample_weight)."""
-        # Preprocess / load the image
-        img = self.preprocess_image(index=index, prepared_image=self.prepare_images)
-
-        # Build input (include metadata if available)
-        if self.metadata is not None:
-            input_item = (img, self.metadata[index])
-        else:
-            input_item = img
-
-        # Assemble return tuple similar to batch output structure
-        result = (input_item,)
+    def _get_batches_of_transformed_samples(self, index_array):
+        # Initialize Batch stack
+        batch_stack = ([],)
         if self.labels is not None:
-            result += (self.labels[index],)
+            batch_stack += ([],)
         if self.sample_weights is not None:
-            result += (self.sample_weights[index],)
+            batch_stack += ([],)
 
-        return result
+        # Process image for each index - Sequential
+        if self.num_workers == 0 or self.num_workers == 1:
+            for i in index_array:
+                batch_img = self.preprocess_image(
+                    index=i, prepared_image=self.prepare_images
+                )
+                batch_stack[0].append(batch_img)
+        # Process image for each index - Multi-threading
+        else:
+            with ThreadPool(self.num_workers) as pool:
+                mp_params = zip(index_array, repeat(self.prepare_images))
+                batches_img = pool.starmap(self.preprocess_image, mp_params)
+            batch_stack[0].extend(batches_img)
+
+        # Add classification to batch if available
+        if self.labels is not None:
+            batch_stack[1].extend(self.labels[index_array])
+        # Add sample weight to batch if available
+        if self.sample_weights is not None:
+            batch_stack[2].extend(self.sample_weights[index_array])
+
+        # Stack images and optional metadata together into a batch
+        input_stack = np.stack(batch_stack[0], axis=0)
+        if self.metadata is not None:
+            input_stack = (input_stack, self.metadata[index_array])
+        batch = (input_stack,)
+        # Stack classifications together into a batch if available
+        if self.labels is not None:
+            batch += (np.stack(batch_stack[1], axis=0),)
+        # Stack sample weights together into a batch if available
+        if self.sample_weights is not None:
+            batch += (np.stack(batch_stack[2], axis=0),)
+        # Return generated Batch
+        return batch
 
     # -----------------------------------------------------#
     #                 Image Preprocessing                 #
@@ -367,3 +415,58 @@ class DataGenerator(Dataset):
         # Return preprocessed image
         else:
             return img
+
+    # -----------------------------------------------------#
+    #              Sample Generation Function             #
+    # -----------------------------------------------------#
+    """ Internal function for calling the batch generation process. """
+
+    def __getitem__(self, raw_idx):
+        # Obtain the index based on the passed index offset to allow repetition
+        idx = raw_idx % self.max_iterations
+        # Build index array for the start
+        if self.index_array is None:
+            self.__set_index_array__()
+        # Select samples for next batch
+        index_array = self.index_array[
+            self.batch_size * idx : self.batch_size * (idx + 1)
+        ]
+        # Generate batch
+        return self._get_batches_of_transformed_samples(index_array)
+
+    # -----------------------------------------------------#
+    #                 Generator Functions                 #
+    # -----------------------------------------------------#
+    """ Internal function for identifying the generator length. """
+
+    def __len__(self):
+        return self.iterations
+
+    """ Configuration function for fixing the number of iterations. """
+
+    def set_length(self, iterations):
+        self.iterations = iterations
+
+    """ Configuration function for reseting the number of iterations. """
+
+    def reset_length(self):
+        self.iterations = self.max_iterations
+
+    """ Internal function for initializing and shuffling the index array. """
+
+    def __set_index_array__(self):
+        # Generate index array
+        self.index_array = np.arange(self.n)
+        # Shuffle if needed
+        if self.shuffle:
+            # Update seed for repeated permutation of the index_array
+            if self.seed is not None:
+                np.random.seed(self.seed + self.seed_walk)
+                self.seed_walk += 1
+            # Permutate index array
+            self.index_array = np.random.permutation(self.n)
+
+    """ Internal function at the end of an epoch. """
+
+    def on_epoch_end(self):
+        self.__set_index_array__()

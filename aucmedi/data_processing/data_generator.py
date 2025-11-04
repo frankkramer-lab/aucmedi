@@ -20,6 +20,7 @@
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
+import torch
 from torch.utils.data import Dataset
 import numpy as np
 from multiprocessing.pool import ThreadPool
@@ -289,18 +290,24 @@ class DataGenerator(Dataset):
         # Preprocess / load the image
         img = self.preprocess_image(index=index, prepared_image=self.prepare_images)
 
+        # Convert numpy array to torch tensor
+        img = torch.from_numpy(img).float()
+
         # Build input (include metadata if available)
         if self.metadata is not None:
-            input_item = (img, self.metadata[index])
+            metadata = torch.from_numpy(self.metadata[index]).float()
+            input_item = (img, metadata)
         else:
             input_item = img
 
         # Assemble return tuple similar to batch output structure
         result = (input_item,)
         if self.labels is not None:
-            result += (self.labels[index],)
+            label = torch.from_numpy(self.labels[index]).float()
+            result += (label,)
         if self.sample_weights is not None:
-            result += (self.sample_weights[index],)
+            weight = torch.tensor(self.sample_weights[index], dtype=torch.float)
+            result += (weight,)
 
         return result
 

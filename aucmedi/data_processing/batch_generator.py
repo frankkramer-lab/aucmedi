@@ -36,7 +36,7 @@ from aucmedi.data_processing.subfunctions import Standardize, Resize
 # -----------------------------------------------------#
 #                 Torch Data Generator                #
 # -----------------------------------------------------#
-class DataGenerator(Dataset):
+class BatchGenerator(Dataset):
     """Infinite Data Generator which automatically creates batches from a list of samples.
 
     The created batches are model ready. This generator can be supplied directly
@@ -146,7 +146,7 @@ class DataGenerator(Dataset):
         shuffle=False,
         grayscale=False,
         sample_weights=None,
-        num_workers=1,
+        threads=1,
         prepare_images=False,
         loader=image_loader,
         seed=None,
@@ -225,7 +225,7 @@ class DataGenerator(Dataset):
         self.index_array = None
         self.batch_size = batch_size if batch_size is not None else 1
         self.shuffle = shuffle
-        self.num_workers = num_workers if num_workers is not None else 0
+        self.threads = threads if threads is not None else 0
 
         self.max_iterations = (self.n + self.batch_size - 1) // self.batch_size
         self.iterations = self.max_iterations
@@ -279,7 +279,7 @@ class DataGenerator(Dataset):
             self.prepare_dir = self.prepare_dir_object.name
 
             # Preprocess image for each index - Sequential
-            if self.num_workers == 0 or self.num_workers == 1:
+            if self.threads == 0 or self.threads == 1:
                 for i in range(0, len(samples)):
                     self.preprocess_image(
                         index=i,
@@ -291,7 +291,7 @@ class DataGenerator(Dataset):
                     )
             # Preprocess image for each index - Multi-threading
             else:
-                with ThreadPool(self.num_workers) as pool:
+                with ThreadPool(self.threads) as pool:
                     index_array = list(range(0, len(samples)))
                     mp_params = zip(
                         index_array,
@@ -318,7 +318,7 @@ class DataGenerator(Dataset):
             batch_stack += ([],)
 
         # Process image for each index - Sequential
-        if self.num_workers == 0 or self.num_workers == 1:
+        if self.threads == 0 or self.threads == 1:
             for i in index_array:
                 batch_img = self.preprocess_image(
                     index=i, prepared_image=self.prepare_images
@@ -326,7 +326,7 @@ class DataGenerator(Dataset):
                 batch_stack[0].append(batch_img)
         # Process image for each index - Multi-threading
         else:
-            with ThreadPool(self.num_workers) as pool:
+            with ThreadPool(self.threads) as pool:
                 mp_params = zip(index_array, repeat(self.prepare_images))
                 batches_img = pool.starmap(self.preprocess_image, mp_params)
             batch_stack[0].extend(batches_img)

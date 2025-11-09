@@ -23,6 +23,7 @@
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import torch
+import warnings
 
 from aucmedi.data_processing.batch_generator import BatchGenerator
 
@@ -33,7 +34,7 @@ def _passthrough_collate(batch):
 
     This function must be defined at module level so it is picklable by multiprocessing.
     """
-    return batch[0]
+    return batch[0]  # Return the single item in the list
 
 
 # ------------------------------------------------------------------#
@@ -91,18 +92,26 @@ class WrapperLoader(DataLoader):
         self.shuffle = batch_generator.shuffle
 
         # Extract relevant kwargs for DataLoader
+        self.num_workers = kwargs.pop("num_workers", 0)
+        if self.num_workers <= 1:
+            self.num_workers = 0  # Force single-threaded operation
+        else:
+            self.prefetch_factor = kwargs.pop("prefetch_factor", 2)
         self.pin_memory = kwargs.pop("pin_memory", False)
         self.timeout = kwargs.pop("timeout", 0)
         self.worker_init_fn = kwargs.pop("worker_init_fn", None)
         self.multiprocessing_context = kwargs.pop("multiprocessing_context", None)
         self.generator = kwargs.pop("generator", None)
-        self.prefetch_factor = kwargs.pop("prefetch_factor", 2)
         self.persistent_workers = kwargs.pop("persistent_workers", False)
         self.pin_memory_device = kwargs.pop("pin_memory_device", "cuda")
         # Extract collate_fn if provided
         collate_fn = kwargs.pop("collate_fn", None)
-
-        # If no custom collate_fn provided by user, use the picklable module-level passthrough
+        if collate_fn is not None:
+            # Alert user that their collate_fn will be ignored
+            warnings.warn(
+                "Custom collate_fn is ignored because BatchGenerator already returns full batches"
+            )
+        # Use the picklable module-level passthrough regardless of user input
         collate_fn = _passthrough_collate
 
         # Initialize PyTorch DataLoader with batch_size=None to avoid re-batching.
@@ -115,10 +124,10 @@ class WrapperLoader(DataLoader):
             collate_fn=collate_fn,
             pin_memory=self.pin_memory,
             timeout=self.timeout,
+            num_workers=self.num_workers,
             worker_init_fn=self.worker_init_fn,
             multiprocessing_context=self.multiprocessing_context,
             generator=self.generator,
-            prefetch_factor=self.prefetch_factor,
             persistent_workers=self.persistent_workers,
             pin_memory_device=self.pin_memory_device,
         )

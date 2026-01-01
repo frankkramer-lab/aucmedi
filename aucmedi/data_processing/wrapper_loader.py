@@ -51,14 +51,6 @@ def _to_torch(obj):
     if isinstance(obj, np.ndarray):
         # Convert to contiguous array then to torch
         tensor = torch.from_numpy(np.ascontiguousarray(obj)).float()
-        # For 4D image tensors in NHWC format (batch, height, width, channels),
-        # transpose to NCHW format (batch, channels, height, width) for PyTorch
-        if tensor.dim() == 4:
-            tensor = tensor.permute(0, 3, 1, 2)
-        # For 5D volume tensors in NDHWC format (batch, depth, height, width, channels),
-        # transpose to NCDHW format (batch, channels, depth, height, width) for PyTorch
-        elif tensor.dim() == 5:
-            tensor = tensor.permute(0, 4, 1, 2, 3)
         return tensor
     # List/tuple -> recursively convert and preserve type
     if isinstance(obj, list):

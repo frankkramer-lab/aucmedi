@@ -408,6 +408,16 @@ class NeuralNetwork:
                 x = x.to(self.device)
                 y = y.to(self.device)
 
+                # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
+                if (
+                    x.dim() == 4
+                ):  # 2D: (batch, height, width, channels) -> (batch, channels, height, width)
+                    x = x.permute(0, 3, 1, 2)
+                elif (
+                    x.dim() == 5
+                ):  # 3D: (batch, depth, height, width, channels) -> (batch, channels, depth, height, width)
+                    x = x.permute(0, 4, 1, 2, 3)
+
                 self.optimizer.zero_grad()
                 outputs = self.model(x)
                 loss = self.loss(outputs, y)
@@ -443,6 +453,16 @@ class NeuralNetwork:
 
                         x_val = x_val.to(self.device)
                         y_val = y_val.to(self.device)
+
+                        # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
+                        if (
+                            x_val.dim() == 4
+                        ):  # 2D: (batch, height, width, channels) -> (batch, channels, height, width)
+                            x_val = x_val.permute(0, 3, 1, 2)
+                        elif (
+                            x_val.dim() == 5
+                        ):  # 3D: (batch, depth, height, width, channels) -> (batch, channels, depth, height, width)
+                            x_val = x_val.permute(0, 4, 1, 2, 3)
 
                         val_outputs = self.model(x_val)
                         val_batch_loss = self.loss(val_outputs, y_val)
@@ -484,6 +504,17 @@ class NeuralNetwork:
                     x = x.float()
 
                 x = x.to(self.device)
+
+                # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
+                if (
+                    x.dim() == 4
+                ):  # 2D: (batch, height, width, channels) -> (batch, channels, height, width)
+                    x = x.permute(0, 3, 1, 2)
+                elif (
+                    x.dim() == 5
+                ):  # 3D: (batch, depth, height, width, channels) -> (batch, channels, depth, height, width)
+                    x = x.permute(0, 4, 1, 2, 3)
+
                 outputs = self.model(x)
                 preds = outputs.cpu().numpy()
                 all_preds.append(preds)

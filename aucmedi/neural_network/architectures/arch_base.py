@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,18 +15,19 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 from abc import ABC, abstractmethod
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #     Abstract Interface for an Architecture class    #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class Architecture_Base(ABC):
-    """ An abstract base class for an Architecture class.
+    """An abstract base class for an Architecture class.
 
     This class provides functionality for running the create_model function,
     which returns a [tensorflow.keras model](https://www.tensorflow.org/api_docs/python/tf/keras/Model).
@@ -66,13 +67,19 @@ class Architecture_Base(ABC):
         | `__init__()`        | Object creation function.                      |
         | `create_model()`    | Creating and returning the architecture model. |
     """
-    #---------------------------------------------#
+
+    # ---------------------------------------------#
     #                Initialization               #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     @abstractmethod
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        """ Functions which will be called during the Architecture object creation.
+    def __init__(
+        self,
+        classification_head,
+        channels,
+        input_shape=(224, 224),
+        pretrained_weights=False,
+    ):
+        """Functions which will be called during the Architecture object creation.
 
         This function can be used to pass variables and options in the Architecture instance.
 
@@ -90,12 +97,12 @@ class Architecture_Base(ABC):
         self.input = input_shape + (channels,)
         self.pretrained_weights = pretrained_weights
 
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     @abstractmethod
     def create_model(self):
-        """ Create the deep learning or convolutional neural network model.
+        """Create the deep learning or convolutional neural network model.
 
         This function will be called inside the AUCMEDI model class and have to return a functional
         Keras model. The model itself should be created here or in a subfunction called
@@ -106,5 +113,19 @@ class Architecture_Base(ABC):
 
         Returns:
             model (tf.keras model):            A Keras model.
+        """
+        return None
+
+    @abstractmethod
+    def output_shape(self):
+        """Return the output shape of the architecture before the classification head.
+
+        This function will be called inside the AUCMEDI model class to determine the input shape
+        for building the classification head.
+
+        Returns:
+            output_shape (tuple):            A tuple representing the output shape (height, width, channels)
+                                             for image architectures or (depth, height, width, channels)
+                                             for volume architectures.
         """
         return None

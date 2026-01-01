@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,22 +15,26 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import load_model
-from tensorflow.keras.optimizers import Adam
+import torch
+from torch.optim import Adam
 import numpy as np
-# Internal libraries/scripts
-from aucmedi.neural_network.architectures import architecture_dict, \
-                                                 supported_standardize_mode, \
-                                                 Classifier
 
-#-----------------------------------------------------#
+# Internal libraries/scripts
+from aucmedi.neural_network.architectures import (
+    architecture_dict,
+    supported_standardize_mode,
+    Classifier,
+)
+
+
+# -----------------------------------------------------#
 #            Neural Network (model) class             #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Class which represents the Neural Network
 class NeuralNetwork:
     """ Neural Network class providing functionality for handling all model methods.
@@ -134,12 +138,23 @@ class NeuralNetwork:
                               standardize_mode=my_model.meta_standardize)  # "torch"
         ```
     """
-    def __init__(self, n_labels, channels, input_shape=None, architecture=None,
-                 pretrained_weights=False, loss="categorical_crossentropy",
-                 metrics=["categorical_accuracy"], activation_output="softmax",
-                 fcl_dropout=True, meta_variables=None, learning_rate=0.0001,
-                 verbose=1):
-        """ Initialization function for creating a Neural Network (model) object.
+
+    def __init__(
+        self,
+        n_labels,
+        channels,
+        input_shape=None,
+        architecture=None,
+        pretrained_weights=False,
+        loss=None,
+        metrics=None,
+        activation_output="softmax",
+        fcl_dropout=True,
+        meta_variables=None,
+        learning_rate=0.0001,
+        verbose=1,
+    ):
+        """Initialization function for creating a Neural Network (model) object.
 
         Args:
             n_labels (int):                         Number of classes/labels (important for the last layer).
@@ -152,16 +167,13 @@ class NeuralNetwork:
                                                     A string has to begin with either '3D.' or '2D' depending on the classification task.
                                                     By default, a 2D Vanilla Model is used as architecture.
             pretrained_weights (bool):              Option whether to utilize pretrained weights e.g. from ImageNet.
-            loss (Metric Function):                 The metric function which is used as loss for training.
-                                                    Any Metric Function defined in Keras, in aucmedi.neural_network.loss_functions or any custom
-                                                    metric function, which follows the Keras metric guidelines, can be used.
-            metrics (list of Metric Functions):     List of one or multiple Metric Functions, which will be shown during training.
-                                                    Any Metric Function defined in Keras or any custom metric function, which follows the Keras
-                                                    metric guidelines, can be used.
+            loss (Metric Function):                 The loss function which is used for training.
+                                                    Any loss function defined in PyTorch or aucmedi.neural_network.loss_functions can be used.
+            metrics (list of Metric Functions):     List of one or multiple metric functions for evaluation.
+                                                    Any metric function defined in PyTorch or custom functions can be used.
             activation_output (str):                Activation function which should be used in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-                                                    Based on [https://www.tensorflow.org/api_docs/python/tf/keras/activations](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
-            fcl_dropout (bool):                     Option whether to utilize an additional Dense & Dropout layer in the classification head
+            fcl_dropout (bool):                     Option whether to utilize an additional Linear & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
                                                     If `None`is provided, no metadata integration block will be added to the classification head
@@ -184,22 +196,26 @@ class NeuralNetwork:
         # Cache parameters
         self.n_labels = n_labels
         self.channels = channels
-        self.loss = loss
-        self.metrics = metrics
+        self.loss = loss if loss is not None else torch.nn.CrossEntropyLoss()
+        self.metrics = metrics if metrics is not None else []
         self.learning_rate = learning_rate
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
         self.meta_variables = meta_variables
         self.verbose = verbose
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Assemble architecture parameters
-        arch_paras = {"channels":channels,
-                      "pretrained_weights": pretrained_weights}
-        if input_shape is not None : arch_paras["input_shape"] = input_shape
+        arch_paras = {"channels": channels, "pretrained_weights": pretrained_weights}
+        if input_shape is not None:
+            arch_paras["input_shape"] = input_shape
         # Assemble classifier parameters
-        classifier_paras = {"n_labels": n_labels, "fcl_dropout": fcl_dropout,
-                            "activation_output": activation_output}
+        classifier_paras = {
+            "n_labels": n_labels,
+            "fcl_dropout": fcl_dropout,
+            "activation_output": activation_output,
+        }
         if meta_variables is not None:
             classifier_paras["meta_variables"] = meta_variables
         # Initialize classifier for the classification head
@@ -217,35 +233,49 @@ class NeuralNetwork:
             self.architecture = architecture
             self.meta_standardize = None
 
-        # Build model utilizing the selected architecture
-        self.model = self.architecture.create_model()
-
-        # Compile model
-        self.model.compile(optimizer=Adam(learning_rate=learning_rate),
-                           loss=self.loss, metrics=self.metrics)
-
         # Obtain final input shape
-        self.input_shape = self.architecture.input          # e.g. (224, 224, 3)
-        self.meta_input = self.architecture.input[:-1]      # e.g. (224, 224) -> for DataGenerator
-        # Cache starting weights
-        self.initialization_weights = self.model.get_weights()
+        self.input_shape = self.architecture.input  # e.g. (224, 224, 3)
+        self.meta_input = self.architecture.input[
+            :-1
+        ]  # e.g. (224, 224) -> for DataGenerator
 
-    #---------------------------------------------#
+        # Build model utilizing the selected architecture
+        self.model_base = self.architecture.create_model()
+        # Add classification head via Classifier
+        self.model = self.architecture.classifier.build(model_base=self.model_base)
+
+        # Move model to device
+        self.model = self.model.to(self.device)
+
+        # Initialize optimizer
+        self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
+
+        # Cache starting weights
+        self.initialization_weights = [p.data.clone() for p in self.model.parameters()]
+
+    # ---------------------------------------------#
     #               Class Variables               #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     # Transfer Learning configurations
     tf_epochs = 10
     tf_lr_start = 1e-4
     tf_lr_end = 1e-5
 
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #                  Training                   #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     # Training the Neural Network model
-    def train(self, training_generator, validation_generator=None, epochs=20,
-              iterations=None, callbacks=[], class_weights=None,
-              transfer_learning=False):
-        """ Fitting function for the Neural Network model performing a training process.
+    def train(
+        self,
+        training_generator,
+        validation_generator=None,
+        epochs=20,
+        iterations=None,
+        callbacks=[],
+        class_weights=None,
+        transfer_learning=False,
+    ):
+        """Fitting function for the Neural Network model performing a training process.
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
@@ -256,8 +286,8 @@ class NeuralNetwork:
         The first one with frozen base model layers and a high learning rate,
         whereas the second one with unfrozen layers and a small learning rate.
 
-        ??? info "Keras History Objects for Transfer Learning"
-            For the transfer learning training, two Keras history objects will be created.
+        ??? info "PyTorch History Objects for Transfer Learning"
+            For the transfer learning training, two history dictionaries will be created.
 
             However, in order to provide consistency with the single training without transfer learning,
             only a single history dictionary will be returned.
@@ -279,69 +309,160 @@ class NeuralNetwork:
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 5 epochs will be trained.
 
         Returns:
-            history (dict):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary which contains several logs.
         """
         # Adjust number of iterations in training DataGenerator to allow repitition
-        if iterations is not None : training_generator.set_length(iterations)
+        if iterations is not None:
+            training_generator.set_length(iterations)
         # Running a standard training process
         if not transfer_learning:
-            # Run training process with the Keras fit function
-            history = self.model.fit(training_generator,
-                                     validation_data=validation_generator,
-                                     callbacks=callbacks, epochs=epochs,
-                                     steps_per_epoch=iterations,
-                                     class_weight=class_weights,
-                                     verbose=self.verbose)
-            # Return logged history object
-            history_out = history.history
+            history_out = self._train_epoch(
+                training_generator,
+                validation_generator,
+                epochs,
+                iterations,
+                class_weights,
+            )
         # Running a transfer learning training process
         else:
-            # Freeze all base model layers (all layers after "avg_pool")
-            lever = False
-            for layer in reversed(self.model.layers):
-                if not lever and layer.name == "avg_pool" : lever = True
-                elif lever : layer.trainable = False
-            # Compile model with high learning rate
-            self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_start),
-                               loss=self.loss, metrics=self.metrics)
+            # Freeze base model layers
+            for name, param in self.model.named_parameters():
+                if "avg_pool" not in name and "head" not in name:
+                    param.requires_grad = False
+
+            # Set high learning rate for initial training
+            self.optimizer = Adam(
+                filter(lambda p: p.requires_grad, self.model.parameters()),
+                lr=self.tf_lr_start,
+            )
+
             # Run first training with frozen layers
-            history_start = self.model.fit(training_generator,
-                                           validation_data=validation_generator,
-                                           callbacks=callbacks,
-                                           epochs=self.tf_epochs,
-                                           steps_per_epoch=iterations,
-                                           class_weight=class_weights,
-                                           verbose=self.verbose)
+            history_start = self._train_epoch(
+                training_generator,
+                validation_generator,
+                self.tf_epochs,
+                iterations,
+                class_weights,
+            )
+
             # Unfreeze base model layers again
-            for layer in self.model.layers:
-                layer.trainable = True
-            # Compile model with lower learning rate
-            self.model.compile(optimizer=Adam(learning_rate=self.tf_lr_end),
-                               loss=self.loss, metrics=self.metrics)
-            # Run second training with unfrozed layers
-            history_end = self.model.fit(training_generator,
-                                         validation_data=validation_generator,
-                                         callbacks=callbacks, epochs=epochs,
-                                         initial_epoch=self.tf_epochs,
-                                         steps_per_epoch=iterations,
-                                         class_weight=class_weights,
-                                         verbose=self.verbose)
-            # Combine logged history objects
-            hs = {"tl_" + k: v for k, v in history_start.history.items()}       # prefix : tl for transfer learning
-            he = {"ft_" + k: v for k, v in history_end.history.items()}         # prefix : ft for fine tuning
-            history = {**hs, **he}
-            # Return combined history objects
-            history_out = history
+            for param in self.model.parameters():
+                param.requires_grad = True
+
+            # Set lower learning rate for fine-tuning
+            self.optimizer = Adam(self.model.parameters(), lr=self.tf_lr_end)
+
+            # Run second training with unfrozen layers
+            history_end = self._train_epoch(
+                training_generator,
+                validation_generator,
+                epochs,
+                iterations,
+                class_weights,
+            )
+
+            # Combine history dictionaries
+            hs = {"tl_" + k: v for k, v in history_start.items()}
+            he = {"ft_" + k: v for k, v in history_end.items()}
+            history_out = {**hs, **he}
+
         # Reset number of iterations of the training DataGenerator
-        if iterations is not None : training_generator.reset_length()
+        if iterations is not None:
+            training_generator.reset_length()
         # Return fitting history
         return history_out
 
-    #---------------------------------------------#
+    def _train_epoch(
+        self,
+        training_generator,
+        validation_generator,
+        epochs,
+        iterations,
+        class_weights,
+    ):
+        """Internal function for training for a number of epochs."""
+        history = {
+            "loss": [],
+            "val_loss": [],
+        }
+
+        for epoch in range(epochs):
+            self.model.train()
+            epoch_loss = 0.0
+            batch_count = 0
+
+            # Training loop
+            for batch_idx, (x, y) in enumerate(training_generator):
+                if iterations is not None and batch_idx >= iterations:
+                    break
+
+                # Convert to torch tensors if numpy arrays
+                if isinstance(x, np.ndarray):
+                    x = torch.from_numpy(x).float()
+                if isinstance(y, np.ndarray):
+                    y = torch.from_numpy(y).float()
+                else:
+                    x = x.float()
+                    y = y.float()
+
+                x = x.to(self.device)
+                y = y.to(self.device)
+
+                self.optimizer.zero_grad()
+                outputs = self.model(x)
+                loss = self.loss(outputs, y)
+
+                loss.backward()
+                self.optimizer.step()
+
+                epoch_loss += loss.item()
+                batch_count += 1
+
+            avg_loss = epoch_loss / batch_count
+            history["loss"].append(avg_loss)
+
+            if self.verbose:
+                print(f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}")
+
+            # Validation loop
+            if validation_generator is not None:
+                self.model.eval()
+                val_loss = 0.0
+                val_batch_count = 0
+
+                with torch.no_grad():
+                    for x_val, y_val in validation_generator:
+                        # Convert to torch tensors if numpy arrays
+                        if isinstance(x_val, np.ndarray):
+                            x_val = torch.from_numpy(x_val).float()
+                        if isinstance(y_val, np.ndarray):
+                            y_val = torch.from_numpy(y_val).long()
+                        else:
+                            x_val = x_val.float()
+                            y_val = y_val.long()
+
+                        x_val = x_val.to(self.device)
+                        y_val = y_val.to(self.device)
+
+                        val_outputs = self.model(x_val)
+                        val_batch_loss = self.loss(val_outputs, y_val)
+
+                        val_loss += val_batch_loss.item()
+                        val_batch_count += 1
+
+                avg_val_loss = val_loss / val_batch_count
+                history["val_loss"].append(avg_val_loss)
+
+                if self.verbose:
+                    print(f"  Val Loss: {avg_val_loss:.4f}")
+
+        return history
+
+    # ---------------------------------------------#
     #                 Prediction                  #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     def predict(self, prediction_generator):
-        """ Prediction function for the Neural Network model.
+        """Prediction function for the Neural Network model.
 
         The fitted model will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
@@ -351,49 +472,54 @@ class NeuralNetwork:
         Returns:
             preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
         """
-        # Run inference process with the Keras predict function
-        preds = self.model.predict(prediction_generator,
-                                   verbose=self.verbose)
-        # Output predictions results
-        return preds
+        self.model.eval()
+        all_preds = []
 
-    #---------------------------------------------#
+        with torch.no_grad():
+            for x, _ in prediction_generator:
+                # Convert to torch tensors if numpy arrays
+                if isinstance(x, np.ndarray):
+                    x = torch.from_numpy(x).float()
+                else:
+                    x = x.float()
+
+                x = x.to(self.device)
+                outputs = self.model(x)
+                preds = outputs.cpu().numpy()
+                all_preds.append(preds)
+
+        # Concatenate all predictions
+        all_preds = np.concatenate(all_preds, axis=0)
+        return all_preds
+
+    # ---------------------------------------------#
     #               Model Management              #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     # Re-initialize model weights
     def reset_weights(self):
-        """ Re-initialize weights of the neural network model.
+        """Re-initialize weights of the neural network model.
 
         Useful for training multiple models with the same NeuralNetwork object.
         """
-        self.model.set_weights(self.initialization_weights)
+        for p, init_p in zip(self.model.parameters(), self.initialization_weights):
+            p.data.copy_(init_p)
 
     # Dump model to file
     def dump(self, file_path):
-        """ Store model to disk.
+        """Store model to disk.
 
-        Recommended to utilize the file format ".keras".
+        Recommended to utilize the file format ".pt" or ".pth".
 
         Args:
             file_path (str):    Path to store the model on disk.
         """
-        self.model.save(file_path)
+        torch.save(self.model.state_dict(), file_path)
 
     # Load model from file
-    def load(self, file_path, custom_objects={}):
-        """ Load neural network model and its weights from a file.
-
-        After loading, the model will be compiled.
-
-        If loading a model in ".keras" format, it is not necessary to define any custom_objects.
+    def load(self, file_path):
+        """Load neural network model and its weights from a file.
 
         Args:
-            file_path (str):            Input path, from which the model will be loaded.
-            custom_objects (dict):      Dictionary of custom objects for compiling
-                                        (e.g. non-TensorFlow based loss functions or architectures).
+            file_path (str):    Input path, from which the model will be loaded.
         """
-        # Create model input path
-        self.model = load_model(file_path, custom_objects, compile=False)
-        # Compile model
-        self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
-                           loss=self.loss, metrics=self.metrics)
+        self.model.load_state_dict(torch.load(file_path, map_location=self.device))

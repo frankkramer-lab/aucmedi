@@ -50,7 +50,16 @@ def _to_torch(obj):
     # NumPy array -> convert to float tensor (float32)
     if isinstance(obj, np.ndarray):
         # Convert to contiguous array then to torch
-        return torch.from_numpy(np.ascontiguousarray(obj)).float()
+        tensor = torch.from_numpy(np.ascontiguousarray(obj)).float()
+        # For 4D image tensors in NHWC format (batch, height, width, channels),
+        # transpose to NCHW format (batch, channels, height, width) for PyTorch
+        if tensor.dim() == 4:
+            tensor = tensor.permute(0, 3, 1, 2)
+        # For 5D volume tensors in NDHWC format (batch, depth, height, width, channels),
+        # transpose to NCDHW format (batch, channels, depth, height, width) for PyTorch
+        elif tensor.dim() == 5:
+            tensor = tensor.permute(0, 4, 1, 2, 3)
+        return tensor
     # List/tuple -> recursively convert and preserve type
     if isinstance(obj, list):
         return [_to_torch(x) for x in obj]
@@ -141,12 +150,13 @@ class WrapperLoader(DataLoader):
     def __iter__(self):
         """Iterate over underlying BatchGenerator and yield full batches.
 
-        Convert returned numpy-based batches to torch.Tensor objects so that
-        Keras' torch_data_loader_adapter can call .cpu() on elements.
+        Convert numpy-based batches to torch tensors for PyTorch compatibility.
         """
         for i in range(len(self.batch_generator)):
             batch = self.batch_generator[i]
-            yield _to_torch(batch)
+            # Convert numpy arrays to torch tensors
+            batch = _to_torch(batch)
+            yield batch
 
     def __len__(self):
         """Return number of iterations (batches) per epoch."""

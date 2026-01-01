@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,19 +15,20 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.models import Model
-from tensorflow.keras import Input, layers
+import torch
+import torch.nn as nn
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                 Classification Head                 #
-#-----------------------------------------------------#
-class Classifier:
-    """ A powerful interface for all types of image classifications.
+# -----------------------------------------------------#
+class Classifier(nn.Module):
+    """A powerful interface for all types of image classifications.
 
     This class will be created automatically inside the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class.
 
@@ -40,7 +41,7 @@ class Classifier:
 
     This class provides functionality for building a classification head for an
     [Architecture][aucmedi.neural_network.architectures]
-    ([tensorflow.keras model](https://www.tensorflow.org/api_docs/python/tf/keras/Model)).
+    ([torch.nn.Module](https://pytorch.org/docs/stable/nn.html)).
     A initialized classifier interface is passed to an architecture class.
     The `build()` function of the classification head is called in the `create_model()`
     function of the architecture.
@@ -48,15 +49,15 @@ class Classifier:
     !!! info "Structure of the AUCMEDI Classification Head"
         | Layer                         | Description                                                      |
         | ----------------------------- | ---------------------------------------------------------------- |
-        | GlobalAveragePooling          | Pooling from Architecture Output to a single spatial dimensions. |
-        | Dense(units=512)              | Optional dense & dropout layer if `fcl_dropout=True`.            |
-        | Dropout(0.3)                  | Optional dense & dropout layer if `fcl_dropout=True`.            |
+        | AdaptiveAvgPool               | Pooling from Architecture Output to a single spatial dimensions. |
+        | Linear(512)                   | Optional linear & dropout layer if `fcl_dropout=True`.            |
+        | Dropout(0.3)                  | Optional linear & dropout layer if `fcl_dropout=True`.            |
         | Concatenate()                 | Optional appending of metadata to classification head.           |
-        | Dense(units=512)              | Optional dense & dropout layer if metadata is present.           |
-        | Dropout(0.3)                  | Optional dense & dropout layer if metadata is present.           |
-        | Dense(units=256)              | Optional dense & dropout layer if metadata is present.           |
-        | Dropout(0.3)                  | Optional dense & dropout layer if metadata is present.           |
-        | Dense(units=n_labels)         | Dense layer to the number of labels (classes).                   |
+        | Linear(512)                   | Optional linear & dropout layer if metadata is present.           |
+        | Dropout(0.3)                  | Optional linear & dropout layer if metadata is present.           |
+        | Linear(256)                   | Optional linear & dropout layer if metadata is present.           |
+        | Dropout(0.3)                  | Optional linear & dropout layer if metadata is present.           |
+        | Linear(n_labels)              | Linear layer to the number of labels (classes).                   |
         | Activation(activation_output) | Activation function corresponding to classification type.        |
 
     ???+ note "Classification Types"
@@ -105,85 +106,132 @@ class Classifier:
                               standardize_mode=my_model.meta_standardize)  # "torch"
         ```
     """
-    #---------------------------------------------#
+
+    # ---------------------------------------------#
     #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, n_labels, activation_output="softmax",
-                 meta_variables=None, fcl_dropout=True):
-        """ Initialization function for creating a Classifier object.
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        n_labels,
+        activation_output="softmax",
+        meta_variables=None,
+        fcl_dropout=True,
+    ):
+        """Initialization function for creating a Classifier object.
 
-        The fully connected layer and dropout option (`fcl_dropout`) utilizes a 512 unit Dense layer with 30% Dropout.
+        The fully connected layer and dropout option (`fcl_dropout`) utilizes a 512 unit Linear layer with 30% Dropout.
 
-        Modi for activation_output: Check out [TensorFlow.Keras doc on activation functions](https://www.tensorflow.org/api_docs/python/tf/keras/activations).
+        Modi for activation_output: Check out [PyTorch doc on activation functions](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity).
 
         Args:
             n_labels (int):                 Number of classes/labels (important for the last layer of classification head).
             activation_output (str):        Activation function which is used in the last classification layer.
             meta_variables (int):           Number of metadata variables, which should be included in the classification head.
                                             If `None`is provided, no metadata integration block will be added to the classification head.
-            fcl_dropout (bool):             Option whether to utilize a Dense & Dropout layer before the last classification layer.
+            fcl_dropout (bool):             Option whether to utilize a Linear & Dropout layer before the last classification layer.
         """
+        super(Classifier, self).__init__()
         self.n_labels = n_labels
         self.activation_output = activation_output
         self.meta_variables = meta_variables
         self.fcl_dropout = fcl_dropout
 
-    #---------------------------------------------#
+        # Define activation
+        if self.activation_output == "softmax":
+            self.activation = nn.Softmax(dim=1)
+        elif self.activation_output == "sigmoid":
+            self.activation = nn.Sigmoid()
+        else:
+            raise ValueError("Unsupported activation_output")
+
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
-    def build(self, model_input, model_output):
-        """ Internal function which appends the classification head.
+    # ---------------------------------------------#
+    def build(self, model_base):
+        """Internal function which appends the classification head.
 
         This function will be called from inside an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
-        and must return a functional Keras model.
-        The `build()` function will append a classification head to the provided Keras model.
+        and must return a functional PyTorch model.
+        The `build()` function will append a classification head to the provided PyTorch model.
 
         Args:
-            model_input (tf.keras layer):       Input layer of the model.
-            model_output (tf.keras layer):      Output layer of the model.
+            model_base (torch.nn.Module):    Base model/feature extractor that has an output_shape() method.
 
         Returns:
-            model (tf.keras model):             A functional Keras model.
+            model (torch.nn.Module):         A PyTorch module.
         """
-        # Apply GlobalAveragePooling to obtain a single spatial dimensions
-        if len(model_output.shape) == 4:            # for 2D architectures
-            model_head = layers.GlobalAveragePooling2D(name="avg_pool")(model_output)
-        elif len(model_output.shape) == 5:          # for 3D architectures
-            model_head = layers.GlobalAveragePooling3D(name="avg_pool")(model_output)
-        # if not model output shape 4 or 5 -> it is already GlobalAveragePooled to 2 dim
-        else : model_head = model_output
+        # Get output shape from model_base (architecture)
+        # output_shape() returns (height, width, channels) for 2D or (depth, height, width, channels) for 3D
+        arch_output_shape = model_base.output_shape()
+        # Convert to channel dimension to get number of feature maps
+        num_channels = arch_output_shape[-1]
 
-        # Apply optional dense & dropout layer
+        layers_list = []
+
+        # Apply AdaptiveAvgPool to obtain single spatial dimension
+        # This is flexible and works for any number of spatial dimensions
+        if (
+            len(arch_output_shape) == 3
+        ):  # for 2D architectures (height, width, channels)
+            layers_list.append(nn.AdaptiveAvgPool2d(1))
+            layers_list.append(nn.Flatten())
+        elif (
+            len(arch_output_shape) == 4
+        ):  # for 3D architectures (depth, height, width, channels)
+            layers_list.append(nn.AdaptiveAvgPool3d(1))
+            layers_list.append(nn.Flatten())
+        else:
+            layers_list.append(nn.Flatten())
+
+        # After adaptive pooling, the feature dimension is just the number of channels
+        pooled_feature_dim = num_channels
+
+        # Apply optional linear & dropout layer
         if self.fcl_dropout:
-            model_head = layers.Dense(units=512)(model_head)
-            model_head = layers.Dropout(0.3)(model_head)
+            layers_list.append(nn.Linear(pooled_feature_dim, 512))
+            layers_list.append(nn.Dropout(0.3))
+            current_dim = 512
+        else:
+            current_dim = pooled_feature_dim
 
         # Apply metadata integration block
         if self.meta_variables is not None:
-            # Define metadata input
-            model_meta = Input(shape=(self.meta_variables,))
-
-            # Integrate metadata into classification had
-            model_head = layers.concatenate([model_head, model_meta])
-
-            # Apply additional densely-connected NN layers
-            model_head = layers.Dense(units=512, activation="relu")(model_head)
-            model_head = layers.Dropout(0.3)(model_head)
-            model_head = layers.Dense(units=256, activation="relu")(model_head)
-            model_head = layers.Dropout(0.3)(model_head)
+            layers_list.append(nn.Linear(current_dim + self.meta_variables, 512))
+            layers_list.append(nn.ReLU())
+            layers_list.append(nn.Dropout(0.3))
+            layers_list.append(nn.Linear(512, 256))
+            layers_list.append(nn.ReLU())
+            layers_list.append(nn.Dropout(0.3))
+            current_dim = 256
 
         # Apply classifier
-        model_head = layers.Dense(self.n_labels, name="preds")(model_head)
-        # Apply activation output according to classification type
-        model_head = layers.Activation(self.activation_output, name="probs")(model_head)
+        layers_list.append(nn.Linear(current_dim, self.n_labels))
+        layers_list.append(self.activation)
 
-        # Obtain input layer
+        # Create nn.Sequential for the head
+        head = nn.Sequential(*layers_list)
+
+        # For metadata, we need a custom module to handle concatenation
+        # TODO: Properly integrate metadata with base model features before classification head
         if self.meta_variables is not None:
-            input_layer = [model_input, model_meta]
-        else : input_layer = model_input
+            raise NotImplementedError(
+                "Metadata integration is not yet implemented. "
+                "Metadata should be concatenated with base model features, not appended after classification head."
+            )
 
-        # Create tf.keras model
-        model = Model(inputs=input_layer, outputs=model_head)
+        class Classifier_Model(nn.Module):
+            def __init__(self, base, head):
+                super().__init__()
+                self.base = base
+                self.head = head
+
+            def forward(self, x):
+                x = self.base(x)
+                # Head handles pooling and flattening
+                x = self.head(x)
+                return x
+
+        model = Classifier_Model(model_base, head)
 
         # Return ready-to-use classifier model
         return model

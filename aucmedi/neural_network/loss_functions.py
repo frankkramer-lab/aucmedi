@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,20 +15,20 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 import numpy as np
-from tensorflow.keras import backend as K
-import tensorflow as tf
+import torch
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                 Focal Loss - Binary                 #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def binary_focal_loss(alpha=0.25, gamma=2.0):
-    """ Binary form of focal loss computation.
+    """Binary form of focal loss computation.
 
     FL(p_t) = -alpha * (1 - p_t)**gamma * log(p_t)
     where p = sigmoid(x), p_t = p or 1 - p depending on if the label is 1 or 0, respectively.
@@ -56,38 +56,38 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
         gamma (float):      Tunable focusing parameter (γ ≥ 0).
 
     Returns:
-        loss (Loss Function):               A TensorFlow compatible loss function. This object can be
+        loss (Loss Function):               A PyTorch compatible loss function. This object can be
                                             passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
     """
+
     def binary_focal_loss_fixed(y_true, y_pred):
-        y_true = tf.cast(y_true, tf.float32)
+        y_true = y_true.float()
         # Define epsilon so that the back-propagation will not result in NaN for 0 divisor case
-        epsilon = K.epsilon()
-        # Add the epsilon to prediction value
-        # y_pred = y_pred + epsilon
-        # Clip the prediciton value
-        y_pred = K.clip(y_pred, epsilon, 1.0 - epsilon)
+        epsilon = 1e-7
+        # Clip the prediction value
+        y_pred = torch.clamp(y_pred, epsilon, 1.0 - epsilon)
         # Calculate p_t
-        p_t = tf.where(K.equal(y_true, 1), y_pred, 1 - y_pred)
+        p_t = torch.where(y_true == 1, y_pred, 1 - y_pred)
         # Calculate alpha_t
-        alpha_factor = K.ones_like(y_true) * alpha
-        alpha_t = tf.where(K.equal(y_true, 1), alpha_factor, 1 - alpha_factor)
+        alpha_factor = torch.ones_like(y_true) * alpha
+        alpha_t = torch.where(y_true == 1, alpha_factor, 1 - alpha_factor)
         # Calculate cross entropy
-        cross_entropy = -K.log(p_t)
-        weight = alpha_t * K.pow((1 - p_t), gamma)
+        cross_entropy = -torch.log(p_t)
+        weight = alpha_t * torch.pow((1 - p_t), gamma)
         # Calculate focal loss
         loss = weight * cross_entropy
         # Sum the losses in mini_batch
-        loss = K.mean(K.sum(loss, axis=1))
+        loss = torch.mean(torch.sum(loss, dim=1))
         return loss
 
     return binary_focal_loss_fixed
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #              Focal Loss - Categorical               #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def categorical_focal_loss(alpha, gamma=2.0):
-    """ Softmax version of focal loss.
+    """Softmax version of focal loss.
 
     When there is a skew between different categories/labels in your data set,
     you can try to apply this function as a loss.
@@ -132,34 +132,34 @@ def categorical_focal_loss(alpha, gamma=2.0):
         gamma (float):              Focusing parameter for modulating factor (1-p).
 
     Returns:
-        loss (Loss Function):               A TensorFlow compatible loss function. This object can be
+        loss (Loss Function):               A PyTorch compatible loss function. This object can be
                                             passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
     """
-    alpha = np.array(alpha, dtype=np.float32)
+    alpha = torch.tensor(alpha, dtype=torch.float32)
 
     def categorical_focal_loss_fixed(y_true, y_pred):
-        y_true = tf.cast(y_true, tf.float32)
+        y_true = y_true.float()
         # Clip the prediction value to prevent NaN's and Inf's
-        epsilon = K.epsilon()
-        y_pred = K.clip(y_pred, epsilon, 1. - epsilon)
+        epsilon = 1e-7
+        y_pred = torch.clamp(y_pred, epsilon, 1.0 - epsilon)
 
         # Calculate Cross Entropy
-        cross_entropy = -y_true * K.log(y_pred)
+        cross_entropy = -y_true * torch.log(y_pred)
 
         # Calculate Focal Loss
-        loss = alpha * K.pow(1 - y_pred, gamma) * cross_entropy
+        loss = alpha * torch.pow(1 - y_pred, gamma) * cross_entropy
 
         # Compute mean loss in mini_batch
-        return K.mean(K.sum(loss, axis=-1))
+        return torch.mean(torch.sum(loss, dim=-1))
 
     return categorical_focal_loss_fixed
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #               Focal Loss - Multilabel               #
-#-----------------------------------------------------#
-def multilabel_focal_loss(class_weights, gamma=2.0,
-                          class_sparsity_coefficient=1.0):
-    """ Focal loss for multi-label classification.
+# -----------------------------------------------------#
+def multilabel_focal_loss(class_weights, gamma=2.0, class_sparsity_coefficient=1.0):
+    """Focal loss for multi-label classification.
 
     ??? example
         ```python
@@ -191,36 +191,38 @@ def multilabel_focal_loss(class_weights, gamma=2.0,
         class_sparsity_coefficient (float): The weight of True labels over False labels. Useful
                                             if True labels are sparse. Default value (1.0).
     Returns:
-        loss (Loss Function):               A TensorFlow compatible loss function. This object can be
+        loss (Loss Function):               A PyTorch compatible loss function. This object can be
                                             passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
     """
-    class_weights = K.constant(class_weights, tf.float32)
-    gamma = K.constant(gamma, tf.float32)
-    class_sparsity_coefficient = K.constant(class_sparsity_coefficient,
-                                            tf.float32)
+    class_weights = torch.tensor(class_weights, dtype=torch.float32)
+    gamma = torch.tensor(gamma, dtype=torch.float32)
+    class_sparsity_coefficient = torch.tensor(
+        class_sparsity_coefficient, dtype=torch.float32
+    )
 
     def focal_loss_function(y_true, y_pred):
-        y_true = tf.cast(y_true, tf.float32)
+        y_true = y_true.float()
 
         predictions_0 = (1.0 - y_true) * y_pred
         predictions_1 = y_true * y_pred
 
-        cross_entropy_0 = (1.0 - y_true) * (-K.log(K.clip(1.0 - predictions_0,
-                                K.epsilon(), 1.0 - K.epsilon())))
-        cross_entropy_1 = y_true *(class_sparsity_coefficient * -K.log(K.clip(
-                                predictions_1, K.epsilon(), 1.0 - K.epsilon())))
+        cross_entropy_0 = (1.0 - y_true) * (
+            -torch.log(torch.clamp(1.0 - predictions_0, 1e-7, 1.0 - 1e-7))
+        )
+        cross_entropy_1 = y_true * (
+            class_sparsity_coefficient
+            * -torch.log(torch.clamp(predictions_1, 1e-7, 1.0 - 1e-7))
+        )
 
         cross_entropy = cross_entropy_1 + cross_entropy_0
         class_weighted_cross_entropy = cross_entropy * class_weights
 
-        weight_1 = K.pow(K.clip(1.0 - predictions_1,
-                                K.epsilon(), 1.0 - K.epsilon()), gamma)
-        weight_0 = K.pow(K.clip(predictions_0, K.epsilon(),
-                                1.0 - K.epsilon()), gamma)
+        weight_1 = torch.pow(torch.clamp(1.0 - predictions_1, 1e-7, 1.0 - 1e-7), gamma)
+        weight_0 = torch.pow(torch.clamp(predictions_0, 1e-7, 1.0 - 1e-7), gamma)
 
         weight = weight_0 + weight_1
         focal_loss_tensor = weight * class_weighted_cross_entropy
 
-        return K.mean(focal_loss_tensor, axis=1)
+        return torch.mean(focal_loss_tensor, dim=1)
 
     return focal_loss_function

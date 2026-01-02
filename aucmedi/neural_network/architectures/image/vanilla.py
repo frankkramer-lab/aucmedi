@@ -36,7 +36,6 @@ No intensive hardware requirements, which makes it ideal for debugging.
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-import torch
 from torch import nn
 
 # Internal libraries

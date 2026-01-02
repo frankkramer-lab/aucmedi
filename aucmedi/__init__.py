@@ -74,6 +74,8 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
 # -----------------------------------------------------#
 from aucmedi.data_processing.io_data import input_interface
 from aucmedi.data_processing.data_generator import DataGenerator
+from aucmedi.data_processing.batch_generator import BatchGenerator
+from aucmedi.data_processing.wrapper_loader import WrapperLoader
 from aucmedi.data_processing.augmentation import (
     ImageAugmentation,
     VolumeAugmentation,

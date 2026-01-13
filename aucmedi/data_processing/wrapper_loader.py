@@ -91,6 +91,9 @@ class WrapperLoader(DataLoader):
         self.dataset = batch_generator
         self.batch_size = batch_generator.batch_size
         self.shuffle = batch_generator.shuffle
+        self.has_labels = batch_generator.has_labels
+        self.has_metadata = batch_generator.has_metadata
+        self.has_sample_weights = batch_generator.has_sample_weights
 
         # Extract relevant kwargs for DataLoader
         self.num_workers = kwargs.pop("num_workers", 0)

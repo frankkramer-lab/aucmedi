@@ -208,8 +208,11 @@ class BatchGenerator(Dataset):
         # Cache class variables
         self.samples = samples
         self.labels = labels
+        self.has_labels = labels is not None
         self.metadata = metadata
+        self.has_metadata = metadata is not None
         self.sample_weights = sample_weights
+        self.has_sample_weights = sample_weights is not None
         self.prepare_images = prepare_images
         self.sample_loader = loader
         self.kwargs = kwargs

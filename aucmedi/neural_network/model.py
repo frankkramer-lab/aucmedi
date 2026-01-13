@@ -22,6 +22,7 @@
 # External libraries
 import torch
 from torch.optim import Adam
+from torch.utils.data import Dataset, DataLoader
 import numpy as np
 
 # Internal libraries/scripts
@@ -447,6 +448,11 @@ class NeuralNetwork:
             "loss": [],
             "val_loss": [],
         }
+        # Check that generator is a torch DataLoader
+        if not isinstance(training_generator, DataLoader):
+            raise ValueError(
+                "training_generator must be an instance of torch.utils.data.DataLoader"
+            )
 
         # Cache generator flags to avoid repeated getattr() calls in hot loop
         train_has_labels = getattr(training_generator, "has_labels", True)
@@ -459,6 +465,11 @@ class NeuralNetwork:
         val_has_metadata = None
         val_has_sample_weights = None
         if validation_generator is not None:
+            # Check that generator is a torch DataLoader
+            if not isinstance(validation_generator, DataLoader):
+                raise ValueError(
+                    "validation_generator must be an instance of torch.utils.data.DataLoader"
+                )
             val_has_labels = getattr(validation_generator, "has_labels", True)
             val_has_metadata = getattr(validation_generator, "has_metadata", False)
             val_has_sample_weights = getattr(

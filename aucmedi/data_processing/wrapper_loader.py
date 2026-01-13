@@ -26,6 +26,78 @@ import torch
 import warnings
 
 from aucmedi.data_processing.batch_generator import BatchGenerator
+from aucmedi.data_processing.io_loader.image_loader import image_loader
+
+
+def create_batch_loader(
+    samples,
+    path_imagedir,
+    labels=None,
+    metadata=None,
+    image_format=None,
+    subfunctions=[],
+    batch_size=32,
+    resize=(224, 224),
+    standardize_mode="z-score",
+    data_aug=None,
+    shuffle=False,
+    grayscale=False,
+    sample_weights=None,
+    threads=1,
+    prepare_images=False,
+    loader=image_loader,
+    seed=None,
+    num_workers=0,
+    **kwargs
+):
+    """Creates a BatchGenerator with specified parameters and wraps it in a DataLoader.
+    Args:
+        samples (list of str):              List of sample/index encoded as Strings.
+        path_imagedir (str):                Path to the directory containing the images.
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding.
+        metadata (numpy.ndarray):           NumPy Array with additional metadata.
+        image_format (str):                 Image format to add at the end of the sample index for image loading.
+        subfunctions (List of Subfunctions):List of Subfunctions class instances.
+        batch_size (int):                   Number of samples inside a single batch.
+        resize (tuple of int):              Resizing shape consisting of a X and Y size.
+        standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+        data_aug (Augmentation Interface):  Data Augmentation class instance.
+        shuffle (bool):                     Boolean, whether dataset should be shuffled.
+        grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+        sample_weights (list of float):     List of weights for samples.
+        threads (int):                      Number of workers for image preprocessing.
+        prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk
+                                            before training.
+        loader (io_loader function):        Function for loading samples/images from disk.
+        seed (int):                         Seed to ensure reproducibility for random function.
+        num_workers (int):                  Number of workers for DataLoader.
+        **kwargs (dict):                    Additional parameters for the sample loader.
+    Returns:
+        WrapperLoader: A DataLoader wrapping the BatchGenerator.
+    """
+    # Initialize BatchGenerator
+    batch_gen = BatchGenerator(
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        batch_size=batch_size,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        shuffle=shuffle,
+        grayscale=grayscale,
+        sample_weights=sample_weights,
+        threads=threads,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+    )
+    # Initialize WrapperLoader
+    wrapper_loader = WrapperLoader(batch_gen, num_workers=num_workers, **kwargs)
+    return wrapper_loader
 
 
 # Picklable passthrough collate function used when the Dataset already returns full batches.

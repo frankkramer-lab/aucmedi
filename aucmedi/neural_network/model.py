@@ -235,8 +235,8 @@ class NeuralNetwork:
             self.arch_standardize = None
 
         # Obtain final input shape
-        self.input_shape = self.architecture.input  # e.g. (224, 224, 3)
-        self.arch_resolution = self.architecture.input[
+        self.input_shape = self.architecture.input_shape  # e.g. (224, 224, 3)
+        self.arch_resolution = self.architecture.input_shape[
             :-1
         ]  # e.g. (224, 224) -> for DataGenerator
 

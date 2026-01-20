@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,11 +15,11 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the ConvNeXt Base architecture.
+# -----------------------------------------------------#
+"""The classification variant of the ConvNeXt Base architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
@@ -42,44 +42,58 @@ Recommended alternative `Input_shape` is 384x384 pixels.
     <br>
     [https://arxiv.org/abs/2201.03545](https://arxiv.org/abs/2201.03545)
 """
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications.convnext import ConvNeXtBase as BaseModel
+# from tensorflow.keras.applications.convnext import ConvNeXtBase as BaseModel
+from torchvision.models import convnext_base as BaseModel
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #          Architecture class: ConvNeXtBase           #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class ConvNeXtBase(Architecture_Base):
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        classification_head,
+        channels,
+        input_shape=(224, 224),
+        pretrained_weights=False,
+    ):
         self.classifier = classification_head
         self.input = input_shape + (channels,)
         self.pretrained_weights = pretrained_weights
 
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "DEFAULT"  # "imagenet"
+        else:
+            model_weights = None
 
         # Obtain ResNet50 as base model
+        base_model = BaseModel(weights=model_weights)
+        """
         base_model = BaseModel(include_top=False, weights=model_weights,
                                input_tensor=None, input_shape=self.input,
                                pooling=None)
+                               """
         top_model = base_model.output
 
         # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
+        model = self.classifier.build(
+            model_input=base_model.input, model_output=top_model
+        )
 
         # Return created model
         return model

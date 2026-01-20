@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,43 +15,49 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
+# ==============================================================================#
 # Abstract Base Class for Architectures
 from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Architectures                    #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.volume.vanilla import Vanilla
+
 # DenseNet
 from aucmedi.neural_network.architectures.volume.densenet121 import DenseNet121
 from aucmedi.neural_network.architectures.volume.densenet169 import DenseNet169
 from aucmedi.neural_network.architectures.volume.densenet201 import DenseNet201
+
 # ResNet
 from aucmedi.neural_network.architectures.volume.resnet18 import ResNet18
 from aucmedi.neural_network.architectures.volume.resnet34 import ResNet34
 from aucmedi.neural_network.architectures.volume.resnet50 import ResNet50
 from aucmedi.neural_network.architectures.volume.resnet101 import ResNet101
 from aucmedi.neural_network.architectures.volume.resnet152 import ResNet152
+
 # ResNeXt
 from aucmedi.neural_network.architectures.volume.resnext50 import ResNeXt50
 from aucmedi.neural_network.architectures.volume.resnext101 import ResNeXt101
+
 # MobileNet
 from aucmedi.neural_network.architectures.volume.mobilenet import MobileNet
 from aucmedi.neural_network.architectures.volume.mobilenetv2 import MobileNetV2
+
 # VGG
 from aucmedi.neural_network.architectures.volume.vgg16 import VGG16
 from aucmedi.neural_network.architectures.volume.vgg19 import VGG19
+
 # ConvNeXt
 from aucmedi.neural_network.architectures.volume.convnext_tiny import ConvNeXtTiny
 from aucmedi.neural_network.architectures.volume.convnext_small import ConvNeXtSmall
 from aucmedi.neural_network.architectures.volume.convnext_base import ConvNeXtBase
 from aucmedi.neural_network.architectures.volume.convnext_large import ConvNeXtLarge
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Architecture Dictionary
 architecture_dict = {
     "Vanilla": Vanilla,
@@ -119,9 +125,9 @@ architecture_dict = {
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #       Meta Information of Architecture Classes      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Utilized standardize mode of architectures required for Transfer Learning
 supported_standardize_mode = {
     "Vanilla": "z-score",
@@ -158,7 +164,7 @@ supported_standardize_mode = {
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.meta_input,                  # (64, 64, 64)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
 
         ```python title="Manual via supported_standardize_mode import"

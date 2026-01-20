@@ -53,12 +53,12 @@ class Vanilla(nn.Module, Architecture_Base):
         self,
         classification_head,
         channels,
-        input_shape=(224, 224),
+        input_resolution=(224, 224),
         pretrained_weights=False,
     ):
         super(Vanilla, self).__init__()
         self.classifier = classification_head
-        self.input = input_shape + (channels,)
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
         self.channels = channels
 
@@ -87,7 +87,7 @@ class Vanilla(nn.Module, Architecture_Base):
 
     def output_shape(self):
         # Calculate output shape after 4x conv + maxpool layers
-        h, w, c = self.input
+        h, w, c = self.input_shape
         for _ in range(4):
             h = (h + 1) // 2  # MaxPool with pool_size=2
             w = (w + 1) // 2

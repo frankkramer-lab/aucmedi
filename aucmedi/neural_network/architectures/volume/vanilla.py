@@ -53,12 +53,12 @@ class Vanilla(nn.Module, Architecture_Base):
         self,
         classification_head,
         channels,
-        input_shape=(128, 128, 128),
+        input_resolution=(128, 128, 128),
         pretrained_weights=False,
     ):
         super(Vanilla, self).__init__()
         self.classifier = classification_head
-        self.input = input_shape + (channels,)
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
 
         # Build convolutional layers
@@ -86,7 +86,7 @@ class Vanilla(nn.Module, Architecture_Base):
 
     def output_shape(self):
         # Calculate output shape after 4x conv + maxpool layers
-        d, h, w, c = self.input
+        d, h, w, c = self.input_shape
         for _ in range(4):
             d = (d + 1) // 2  # MaxPool with pool_size=2
             h = (h + 1) // 2
@@ -111,40 +111,3 @@ class Vanilla(nn.Module, Architecture_Base):
         x = self.pool4(x)
 
         return x
-
-
-"""
-    # ---------------------------------------------#
-    #                Create Model                 #
-    # ---------------------------------------------#
-    def create_model(self):
-        # Initialize input
-        model_input = Input(shape=self.input)
-
-        # Add 4x convolutional layers with increasing filters
-        model_base = Conv3D(
-            filters=32, kernel_size=3, padding="same", activation="relu"
-        )(model_input)
-        model_base = MaxPooling3D(pool_size=2)(model_base)
-
-        model_base = Conv3D(
-            filters=64, kernel_size=3, padding="same", activation="relu"
-        )(model_base)
-        model_base = MaxPooling3D(pool_size=2)(model_base)
-
-        model_base = Conv3D(
-            filters=128, kernel_size=3, padding="same", activation="relu"
-        )(model_base)
-        model_base = MaxPooling3D(pool_size=2)(model_base)
-
-        model_base = Conv3D(
-            filters=256, kernel_size=3, padding="same", activation="relu"
-        )(model_base)
-        model_base = MaxPooling3D(pool_size=2)(model_base)
-
-        # Add classification head
-        model = self.classifier.build(model_input=model_input, model_output=model_base)
-
-        # Return created model
-        return model
-"""

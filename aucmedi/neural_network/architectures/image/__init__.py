@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,19 +15,21 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
+# ==============================================================================#
 # Abstract Base Class for Architectures
 from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Architectures                    #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.image.vanilla import Vanilla
+
 # DenseNet
 from aucmedi.neural_network.architectures.image.densenet121 import DenseNet121
 from aucmedi.neural_network.architectures.image.densenet169 import DenseNet169
 from aucmedi.neural_network.architectures.image.densenet201 import DenseNet201
+
 # EfficientNet
 from aucmedi.neural_network.architectures.image.efficientnetb0 import EfficientNetB0
 from aucmedi.neural_network.architectures.image.efficientnetb1 import EfficientNetB1
@@ -37,29 +39,40 @@ from aucmedi.neural_network.architectures.image.efficientnetb4 import EfficientN
 from aucmedi.neural_network.architectures.image.efficientnetb5 import EfficientNetB5
 from aucmedi.neural_network.architectures.image.efficientnetb6 import EfficientNetB6
 from aucmedi.neural_network.architectures.image.efficientnetb7 import EfficientNetB7
+
 # InceptionResNet
-from aucmedi.neural_network.architectures.image.inceptionresnetv2 import InceptionResNetV2
+from aucmedi.neural_network.architectures.image.inceptionresnetv2 import (
+    InceptionResNetV2,
+)
+
 # InceptionV3
 from aucmedi.neural_network.architectures.image.inceptionv3 import InceptionV3
+
 # ResNet
 from aucmedi.neural_network.architectures.image.resnet50 import ResNet50
 from aucmedi.neural_network.architectures.image.resnet101 import ResNet101
 from aucmedi.neural_network.architectures.image.resnet152 import ResNet152
+
 # ResNetv2
 from aucmedi.neural_network.architectures.image.resnet50v2 import ResNet50V2
 from aucmedi.neural_network.architectures.image.resnet101v2 import ResNet101V2
 from aucmedi.neural_network.architectures.image.resnet152v2 import ResNet152V2
+
 # MobileNet
 from aucmedi.neural_network.architectures.image.mobilenet import MobileNet
 from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
+
 # NasNet
 from aucmedi.neural_network.architectures.image.nasnetlarge import NASNetLarge
 from aucmedi.neural_network.architectures.image.nasnetmobile import NASNetMobile
+
 # VGG
 from aucmedi.neural_network.architectures.image.vgg16 import VGG16
 from aucmedi.neural_network.architectures.image.vgg19 import VGG19
+
 # Xception
 from aucmedi.neural_network.architectures.image.xception import Xception
+
 # Vision Transformer (ViT)
 # from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
 # from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
@@ -71,9 +84,9 @@ from aucmedi.neural_network.architectures.image.convnext_tiny import ConvNeXtTin
 from aucmedi.neural_network.architectures.image.convnext_small import ConvNeXtSmall
 from aucmedi.neural_network.architectures.image.convnext_large import ConvNeXtLarge
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Architecture Dictionary
 architecture_dict = {
     "Vanilla": Vanilla,
@@ -158,9 +171,9 @@ architecture_dict = {
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #       Meta Information of Architecture Classes      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Utilized standardize mode of architectures required for Transfer Learning
 supported_standardize_mode = {
     "Vanilla": "z-score",
@@ -213,7 +226,7 @@ supported_standardize_mode = {
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.meta_input,                  # (224, 224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
 
         ```python title="Manual via supported_standardize_mode import"

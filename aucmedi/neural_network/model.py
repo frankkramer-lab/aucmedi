@@ -55,11 +55,11 @@ class NeuralNetwork:
         model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
         # Do some training
         datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
-                                      resize=model.meta_input, standardize_mode=model.meta_standardize)
+                                      resize=model.arch_resolution, standardize_mode=model.arch_standardize)
         model.train(datagen_train, epochs=50)
         # Do some predictions
         datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
-                                     resize=model.meta_input, standardize_mode=model.meta_standardize)
+                                     resize=model.arch_resolution, standardize_mode=model.arch_standardize)
         preds = model.predict(datagen_test)
         ```
 
@@ -100,8 +100,8 @@ class NeuralNetwork:
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
-                              resize=my_model.meta_input,                  # (224,224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              resize=my_model.arch_resolution,                  # (224,224)
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
 
         ```python title="Manual way"
@@ -131,12 +131,12 @@ class NeuralNetwork:
         my_metadata = np.random.rand(len(samples), 10)
 
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
-                                  meta_variables=10)
+                                  n_meta_variables=10)
 
         my_dg = DataGenerator(samples, "images_dir/",
                               labels=None, metadata=my_metadata,
-                              resize=my_model.meta_input,                  # (224,224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              resize=my_model.arch_resolution,                  # (224,224)
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
     """
 
@@ -151,7 +151,7 @@ class NeuralNetwork:
         metrics=None,
         activation_output="softmax",
         fcl_dropout=True,
-        meta_variables=None,
+        n_meta_variables=None,
         learning_rate=0.0001,
         verbose=1,
     ):
@@ -176,7 +176,7 @@ class NeuralNetwork:
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             fcl_dropout (bool):                     Option whether to utilize an additional Linear & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-            meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
+            n_meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
                                                     If `None`is provided, no metadata integration block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
@@ -190,8 +190,8 @@ class NeuralNetwork:
             tf_epochs (int, default=5):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
             tf_lr_start (float, default=1e-4):      Transfer Learning configuration: Starting learning rate for frozen layer fitting.
             tf_lr_end (float, default=1e-5):        Transfer Learning configuration: Starting learning rate after layer unfreezing.
-            meta_input (tuple of int):              Meta variable: Input shape of architecture which can be passed to a DataGenerator. For example: (224, 224).
-            meta_standardize (str):                 Meta variable: Recommended standardize_mode of architecture which can be passed to a DataGenerator.
+            arch_resolution (tuple of int):              Meta variable: Input shape of architecture which can be passed to a DataGenerator. For example: (224, 224).
+            arch_standardize (str):                 Meta variable: Recommended standardize_mode of architecture which can be passed to a DataGenerator.
                                                     For example: "torch".
         """
         # Cache parameters
@@ -203,7 +203,7 @@ class NeuralNetwork:
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
-        self.meta_variables = meta_variables
+        self.n_meta_variables = n_meta_variables
         self.verbose = verbose
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -217,26 +217,26 @@ class NeuralNetwork:
             "fcl_dropout": fcl_dropout,
             "activation_output": activation_output,
         }
-        if meta_variables is not None:
-            classifier_paras["meta_variables"] = meta_variables
+        if n_meta_variables is not None:
+            classifier_paras["meta_variables"] = n_meta_variables
         # Initialize classifier for the classification head
         arch_paras["classification_head"] = Classifier(**classifier_paras)
         # Initialize architecture if None provided
         if architecture is None:
             self.architecture = architecture_dict["2D.Vanilla"](**arch_paras)
-            self.meta_standardize = "z-score"
+            self.arch_standardize = "z-score"
         # Initialize passed architecture from aucmedi library
         elif isinstance(architecture, str) and architecture in architecture_dict:
             self.architecture = architecture_dict[architecture](**arch_paras)
-            self.meta_standardize = supported_standardize_mode[architecture]
+            self.arch_standardize = supported_standardize_mode[architecture]
         # Initialize passed architecture as parameter
         else:
             self.architecture = architecture
-            self.meta_standardize = None
+            self.arch_standardize = None
 
         # Obtain final input shape
         self.input_shape = self.architecture.input  # e.g. (224, 224, 3)
-        self.meta_input = self.architecture.input[
+        self.arch_resolution = self.architecture.input[
             :-1
         ]  # e.g. (224, 224) -> for DataGenerator
 
@@ -531,10 +531,10 @@ class NeuralNetwork:
                         if isinstance(x_val, np.ndarray):
                             x_val = torch.from_numpy(x_val).float()
                         if isinstance(y_val, np.ndarray):
-                            y_val = torch.from_numpy(y_val).long()
+                            y_val = torch.from_numpy(y_val).float()
                         else:
                             x_val = x_val.float()
-                            y_val = y_val.long()
+                            y_val = y_val.float()
 
                         val_outputs = self.model(x_val)
                         val_batch_loss = self.loss(val_outputs, y_val)

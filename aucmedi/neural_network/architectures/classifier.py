@@ -98,12 +98,12 @@ class Classifier(nn.Module):
         my_metadata = np.random.rand(len(samples), 10)
 
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
-                                  meta_variables=10)
+                                  n_meta_variables=10)
 
         my_dg = DataGenerator(samples, "images_dir/",
                               labels=None, metadata=my_metadata,
                               resize=my_model.meta_input,                  # (224,224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
     """
 
@@ -114,7 +114,7 @@ class Classifier(nn.Module):
         self,
         n_labels,
         activation_output="softmax",
-        meta_variables=None,
+        n_meta_variables=None,
         fcl_dropout=True,
     ):
         """Initialization function for creating a Classifier object.
@@ -126,14 +126,14 @@ class Classifier(nn.Module):
         Args:
             n_labels (int):                 Number of classes/labels (important for the last layer of classification head).
             activation_output (str):        Activation function which is used in the last classification layer.
-            meta_variables (int):           Number of metadata variables, which should be included in the classification head.
+            n_meta_variables (int):           Number of metadata variables, which should be included in the classification head.
                                             If `None`is provided, no metadata integration block will be added to the classification head.
             fcl_dropout (bool):             Option whether to utilize a Linear & Dropout layer before the last classification layer.
         """
         super(Classifier, self).__init__()
         self.n_labels = n_labels
         self.activation_output = activation_output
-        self.meta_variables = meta_variables
+        self.n_meta_variables = n_meta_variables
         self.fcl_dropout = fcl_dropout
 
         # Define activation
@@ -198,8 +198,8 @@ class Classifier(nn.Module):
         # Apply metadata integration block
         meta_layers = []
         meta = None
-        if self.meta_variables is not None:
-            meta_layers.append(nn.Linear(current_dim + self.meta_variables, 512))
+        if self.n_meta_variables is not None:
+            meta_layers.append(nn.Linear(current_dim + self.n_meta_variables, 512))
             meta_layers.append(nn.ReLU())
             meta_layers.append(nn.Dropout(0.3))
             meta_layers.append(nn.Linear(512, 256))

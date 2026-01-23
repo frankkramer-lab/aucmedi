@@ -243,7 +243,7 @@ class NeuralNetwork:
         # Build model utilizing the selected architecture
         self.model_base = self.architecture.create_model()
         # output_shape() returns (height, width, channels) for 2D or (depth, height, width, channels) for 3D
-        arch_output_shape = self.architecture.output_shape()
+        arch_output_shape = self.architecture.get_output_shape()
         # Add classification head via Classifier
         self.model = self.architecture.classifier.build(
             model_base=self.model_base, arch_output_shape=arch_output_shape

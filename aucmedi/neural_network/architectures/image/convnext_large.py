@@ -75,7 +75,7 @@ class ConvNeXtLarge(Architecture_Base):
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
-    def output_shape(self):
+    def get_output_shape(self):
         # ConvNeXt Large has a fixed 32x downsampling ratio
         # Output channels are always 1536 for the large model
         h_out = self.input_shape[0] // 32

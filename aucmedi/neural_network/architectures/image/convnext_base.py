@@ -50,6 +50,7 @@ Recommended alternative `Input_shape` is 384x384 pixels.
 import torch
 from torchvision.models import convnext_base as BaseModel
 from torchvision.models import ConvNeXt_Base_Weights
+import torchvision.transforms as transforms_module
 
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -75,19 +76,36 @@ class ConvNeXtBase(Architecture_Base):
         self.channels = channels
 
     # ---------------------------------------------#
-    #                Create Model                 #
+    #         Architecture Attributes              #
     # ---------------------------------------------#
-    def output_shape(self):
+
+    def get_output_shape(self):
         # ConvNeXt Base has a fixed 32x downsampling ratio
         # Output channels are always 1024 for the base model
         h_out = self.input_shape[0] // 32
         w_out = self.input_shape[1] // 32
         return (h_out, w_out, 1024)
 
-    def preprocess(self):
+    def get_preprocess(self):
         # https://docs.pytorch.org/vision/stable/models.html
         weights = ConvNeXt_Base_Weights.DEFAULT
-        return weights.transforms()
+        # Get all transforms and extract only normalization (skip resize)
+        # The full pipeline includes: Resize, CenterCrop, ToImage, ToDtype, Normalize
+        all_transforms = weights.transforms()
+
+        # Rebuild with only the normalization part (skip Resize and CenterCrop)
+        normalize_transform = transforms_module.Compose(
+            [
+                transforms_module.ToImage(),
+                transforms_module.ToDtype(torch.float32, scale=True),
+                all_transforms.transforms[-1],  # Get the Normalize transform (last one)
+            ]
+        )
+        return normalize_transform
+
+    # ---------------------------------------------#
+    #                Create Model                 #
+    # ---------------------------------------------#
 
     def create_model(self):
         # Get pretrained image weights from imagenet if desired

@@ -61,7 +61,7 @@ which allow simple integration of custom preprocessing methods.
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
-from aucmedi.data_processing.subfunctions.standardize_torch import Standardize
+from aucmedi.data_processing.subfunctions.standardize import Standardize
 from aucmedi.data_processing.subfunctions.resize import Resize
 from aucmedi.data_processing.subfunctions.padding import Padding
 from aucmedi.data_processing.subfunctions.crop import Crop

@@ -117,7 +117,7 @@ class Architecture_Base(ABC):
         return None
 
     @abstractmethod
-    def output_shape(self):
+    def get_output_shape(self):
         """Return the output shape of the architecture before the classification head.
 
         This function will be called inside the AUCMEDI model class to determine the input shape

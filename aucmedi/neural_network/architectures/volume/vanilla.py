@@ -84,7 +84,7 @@ class Vanilla(nn.Module, Architecture_Base):
     def create_model(self):
         return self
 
-    def output_shape(self):
+    def get_output_shape(self):
         # Calculate output shape after 4x conv + maxpool layers
         d, h, w, c = self.input_shape
         for _ in range(4):

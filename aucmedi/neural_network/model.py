@@ -70,9 +70,9 @@ class NeuralNetwork:
         # 3D architecture for multi-label classification (sigmoid activation)
         my_model_b = NeuralNetwork(n_labels=8, channels=3, architecture="3D.ResNet50",
                                     activation_output="sigmoid")
-        # 2D architecture with custom input_shape
+        # 2D architecture with custom input_resolution
         my_model_c = NeuralNetwork(n_labels=8, channels=3, architecture="2D.Xception",
-                                    input_shape=(512,512))
+                                    input_resolution=(512,512))
         ```
 
     ??? note "List of implemented Architectures"
@@ -112,7 +112,7 @@ class NeuralNetwork:
         classification_head = Classifier(n_labels=4, activation_output="softmax")
         my_arch = architecture_dict["3D.DenseNet121"](classification_head,
                                                       channels=1,
-                                                      input_shape=(128,128,128))
+                                                      input_resolution=(128,128,128))
 
         my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
 
@@ -144,7 +144,7 @@ class NeuralNetwork:
         self,
         n_labels,
         channels,
-        input_shape=None,
+        input_resolution=None,
         architecture=None,
         pretrained_weights=False,
         loss=None,
@@ -160,8 +160,8 @@ class NeuralNetwork:
         Args:
             n_labels (int):                         Number of classes/labels (important for the last layer).
             channels (int):                         Number of channels. Grayscale:1 or RGB:3.
-            input_shape (tuple):                    Input shape of the batch imaging data (including channel axis).
-                                                    If None is provided, the default input_shape for the architecture is selected
+            input_resolution (tuple):                    Input shape of the batch imaging data (including channel axis).
+                                                    If None is provided, the default input_resolution for the architecture is selected
                                                     from the architecture dictionary.
             architecture (str or Architecture):     Key (str) or instance of a neural network model Architecture class instance.
                                                     If a string is provided, the corresponding architecture is selected from the architecture dictionary.
@@ -209,8 +209,8 @@ class NeuralNetwork:
 
         # Assemble architecture parameters
         arch_paras = {"channels": channels, "pretrained_weights": pretrained_weights}
-        if input_shape is not None:
-            arch_paras["input_shape"] = input_shape
+        if input_resolution is not None:
+            arch_paras["input_resolution"] = input_resolution
         # Assemble classifier parameters
         classifier_paras = {
             "n_labels": n_labels,
@@ -242,8 +242,12 @@ class NeuralNetwork:
 
         # Build model utilizing the selected architecture
         self.model_base = self.architecture.create_model()
+        # output_shape() returns (height, width, channels) for 2D or (depth, height, width, channels) for 3D
+        arch_output_shape = self.architecture.output_shape()
         # Add classification head via Classifier
-        self.model = self.architecture.classifier.build(model_base=self.model_base)
+        self.model = self.architecture.classifier.build(
+            model_base=self.model_base, arch_output_shape=arch_output_shape
+        )
 
         # Move model to device
         self.model = self.model.to(self.device)

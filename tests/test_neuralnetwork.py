@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,30 +15,33 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
-#External libraries
+# -----------------------------------------------------#
+# External libraries
 import unittest
 import tempfile
 import os
 from PIL import Image
 import numpy as np
-#Internal libraries
+
+# Internal libraries
 from aucmedi import *
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #              Unittest: NeuralNetwork               #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class NeuralNetworkTEST(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
         # Initialize temporary directory
-        self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                                    suffix=".data")
+        self.tmp_data = tempfile.TemporaryDirectory(
+            prefix="tmp.aucmedi.", suffix=".data"
+        )
 
         # Create RGB data
         self.sampleList_rgb = []
@@ -57,55 +60,58 @@ class NeuralNetworkTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create RGB Data Generator
-        self.datagen = DataGenerator(self.sampleList_rgb,
-                                     self.tmp_data.name,
-                                     labels=self.labels_ohe,
-                                     resize=(32, 32),
-                                     shuffle=True,
-                                     grayscale=False, batch_size=3)
+        self.datagen = DataGenerator(
+            self.sampleList_rgb,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=(32, 32),
+            shuffle=True,
+            grayscale=False,
+            batch_size=3,
+        )
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #                  Model Training                 #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_training_pure(self):
-        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32, 32))
-        hist = model.train(training_generator=self.datagen,
-                           epochs=3)
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(training_generator=self.datagen, epochs=3)
         self.assertTrue("loss" in hist)
 
     def test_training_iterations(self):
-        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32, 32))
-        hist = model.train(training_generator=self.datagen,
-                           epochs=5, iterations=10)
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(training_generator=self.datagen, epochs=5, iterations=10)
         self.assertTrue("loss" in hist)
         self.assertTrue(len(hist["loss"]) == 5)
 
-        hist = model.train(training_generator=self.datagen,
-                           epochs=3, iterations=2)
+        hist = model.train(training_generator=self.datagen, epochs=3, iterations=2)
         self.assertTrue("loss" in hist)
         self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_validation(self):
-        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32, 32))
-        hist = model.train(training_generator=self.datagen,
-                           validation_generator=self.datagen,
-                           epochs=4)
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(
+            training_generator=self.datagen, validation_generator=self.datagen, epochs=4
+        )
         self.assertTrue("loss" in hist and "val_loss" in hist)
 
     def test_training_transferlearning(self):
-        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
         model.tf_epochs = 2
-        hist = model.train(training_generator=self.datagen,
-                           validation_generator=self.datagen,
-                           epochs=3, transfer_learning=True)
+        hist = model.train(
+            training_generator=self.datagen,
+            validation_generator=self.datagen,
+            epochs=3,
+            transfer_learning=True,
+        )
         self.assertTrue("tl_loss" in hist and "tl_val_loss" in hist)
         self.assertTrue("ft_loss" in hist and "ft_val_loss" in hist)
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #                 Model Inference                 #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_predict(self):
-        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
         preds = model.predict(self.datagen)
         self.assertTrue(preds.shape == (10, 4))
         for i in range(0, 10):

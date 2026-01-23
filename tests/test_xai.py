@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,32 +15,36 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
-#External libraries
+# -----------------------------------------------------#
+# External libraries
 import unittest
 import tempfile
 import os
 from PIL import Image
 import numpy as np
-#Internal libraries
+
+# Internal libraries
 from aucmedi import *
 from aucmedi.xai import *
 from aucmedi.xai.methods import *
 from aucmedi.data_processing.io_loader import image_loader, numpy_loader
-#-----------------------------------------------------#
+
+
+# -----------------------------------------------------#
 #              Unittest: Explainable AI               #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class xaiTEST(unittest.TestCase):
     # Setup AUCMEDI pipeline
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
         # Initialize temporary directory
-        self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                                    suffix=".data")
+        self.tmp_data = tempfile.TemporaryDirectory(
+            prefix="tmp.aucmedi.", suffix=".data"
+        )
         # Create RGB data
         self.sampleList = []
         for i in range(0, 10):
@@ -57,13 +61,19 @@ class xaiTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create Data Generator
-        self.datagen = DataGenerator(self.sampleList,  self.tmp_data.name,
-                                     labels=self.labels_ohe, resize=None,
-                                     standardize_mode=None,
-                                     grayscale=False, batch_size=3)
+        self.datagen = DataGenerator(
+            self.sampleList,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=None,
+            standardize_mode=None,
+            grayscale=False,
+            batch_size=3,
+        )
         # Create Neural Network model
-        self.model = NeuralNetwork(n_labels=4, channels=3, input_shape=(32,32),
-                                    architecture="2D.Vanilla")
+        self.model = NeuralNetwork(
+            n_labels=4, channels=3, input_resolution=(32, 32), architecture="2D.Vanilla"
+        )
         # Compute predictions
         self.preds = self.model.predict(self.datagen)
         # Initialize testing image
@@ -91,40 +101,57 @@ class xaiTEST(unittest.TestCase):
             self.labels_ohe_hu_3D[i][class_index] = 1
             self.labels_ohe_rgb_3D[i][class_index] = 1
 
-        self.datagen_hu_3D = DataGenerator(self.sampleList_hu_3D, self.tmp_data.name,
-                                        labels=self.labels_ohe_hu_3D,
-                                        loader=numpy_loader,
-                                        two_dim=False,
-                                        resize=(32, 32, 32), standardize_mode=None,
-                                        grayscale=True, batch_size=3)
-        
-        self.datagen_rgb_3D = DataGenerator(self.sampleList_rgb_3D, self.tmp_data.name,
-                                        labels=self.labels_ohe_rgb_3D, 
-                                        loader=numpy_loader,
-                                        two_dim=False,
-                                        resize=(32, 32, 32), standardize_mode=None,
-                                        grayscale=False, batch_size=3)
+        self.datagen_hu_3D = DataGenerator(
+            self.sampleList_hu_3D,
+            self.tmp_data.name,
+            labels=self.labels_ohe_hu_3D,
+            loader=numpy_loader,
+            two_dim=False,
+            resize=(32, 32, 32),
+            standardize_mode=None,
+            grayscale=True,
+            batch_size=3,
+        )
 
-        self.model_hu_3D = NeuralNetwork(n_labels=4, channels=1,
-                                      input_shape=(32, 32, 32),
-                                      architecture="3D.Vanilla")
-        
-        self.model_rgb_3D = NeuralNetwork(n_labels=4, channels=3,
-                                      input_shape=(32, 32, 32),
-                                      architecture="3D.Vanilla")
-        
+        self.datagen_rgb_3D = DataGenerator(
+            self.sampleList_rgb_3D,
+            self.tmp_data.name,
+            labels=self.labels_ohe_rgb_3D,
+            loader=numpy_loader,
+            two_dim=False,
+            resize=(32, 32, 32),
+            standardize_mode=None,
+            grayscale=False,
+            batch_size=3,
+        )
+
+        self.model_hu_3D = NeuralNetwork(
+            n_labels=4,
+            channels=1,
+            input_resolution=(32, 32, 32),
+            architecture="3D.Vanilla",
+        )
+
+        self.model_rgb_3D = NeuralNetwork(
+            n_labels=4,
+            channels=3,
+            input_resolution=(32, 32, 32),
+            architecture="3D.Vanilla",
+        )
+
         self.preds_hu_3D = self.model_hu_3D.predict(self.datagen_hu_3D)
         self.image_hu_3D = self.datagen_hu_3D[0][0][[0]]
 
         self.preds_rgb_3D = self.model_rgb_3D.predict(self.datagen_rgb_3D)
         self.image_rgb_3D = self.datagen_rgb_3D[0][0][[0]]
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #             XAI Functions: Decoder              #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_Decoder_argmax_output(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, preds=self.preds,
-                                out_path=None)
+        imgs, hms = xai_decoder(
+            self.datagen, self.model, preds=self.preds, out_path=None
+        )
         self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 32, 32)))
 
@@ -132,21 +159,25 @@ class xaiTEST(unittest.TestCase):
         path_xai = os.path.join(self.tmp_data.name, "xai")
         xai_decoder(self.datagen, self.model, preds=self.preds, out_path=path_xai)
         for i in range(0, len(self.sampleList)):
-            path_xai_file = os.path.join(os.path.join(self.tmp_data.name, "xai"),
-                                         self.sampleList[i])
+            path_xai_file = os.path.join(
+                os.path.join(self.tmp_data.name, "xai"), self.sampleList[i]
+            )
             self.assertTrue(os.path.exists(path_xai_file))
-            img = image_loader(sample=self.sampleList[i],
-                               path_imagedir=self.tmp_data.name,
-                               image_format=self.datagen.image_format)
-            hm = image_loader(sample=self.sampleList[i],
-                              path_imagedir=os.path.join(self.tmp_data.name, "xai"),
-                              image_format=self.datagen.image_format)
+            img = image_loader(
+                sample=self.sampleList[i],
+                path_imagedir=self.tmp_data.name,
+                image_format=self.datagen.image_format,
+            )
+            hm = image_loader(
+                sample=self.sampleList[i],
+                path_imagedir=os.path.join(self.tmp_data.name, "xai"),
+                image_format=self.datagen.image_format,
+            )
             self.assertTrue(np.array_equal(img.shape, hm.shape))
             self.assertFalse(np.array_equal(img, hm))
 
     def test_Decoder_allclasses_output(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, preds=None,
-                                out_path=None)
+        imgs, hms = xai_decoder(self.datagen, self.model, preds=None, out_path=None)
         self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
@@ -157,19 +188,22 @@ class xaiTEST(unittest.TestCase):
             sample = self.sampleList[i]
             for c in range(0, 4):
                 xai_file = sample[:-4] + ".class_" + str(c) + sample[-4:]
-                img = image_loader(sample=self.sampleList[i],
-                                   path_imagedir=self.tmp_data.name,
-                                   image_format=self.datagen.image_format)
-                hm = image_loader(sample=xai_file,
-                                  path_imagedir=os.path.join(self.tmp_data.name, "xai"),
-                                  image_format=self.datagen.image_format)
+                img = image_loader(
+                    sample=self.sampleList[i],
+                    path_imagedir=self.tmp_data.name,
+                    image_format=self.datagen.image_format,
+                )
+                hm = image_loader(
+                    sample=xai_file,
+                    path_imagedir=os.path.join(self.tmp_data.name, "xai"),
+                    image_format=self.datagen.image_format,
+                )
                 self.assertTrue(np.array_equal(img.shape, hm.shape))
                 self.assertFalse(np.array_equal(img, hm))
 
     def test_Decoder_directoryInterface(self):
         # Create imaging data with subdirectories
-        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                               suffix=".data")
+        tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.", suffix=".data")
         for i in range(0, 5):
             os.mkdir(os.path.join(tmp_data.name, "class_" + str(i)))
         # Fill subdirectories with images
@@ -183,18 +217,27 @@ class xaiTEST(unittest.TestCase):
         ds = input_interface(interface="directory", path_imagedir=tmp_data.name)
         (index_list, _, nclasses, _, _) = ds
         # Create Data Generator
-        datagen = DataGenerator(index_list,  tmp_data.name,
-                                labels=None, resize=None,
-                                grayscale=False, batch_size=3)
+        datagen = DataGenerator(
+            index_list,
+            tmp_data.name,
+            labels=None,
+            resize=None,
+            grayscale=False,
+            batch_size=3,
+        )
         # Create Neural Network model
-        model = NeuralNetwork(n_labels=nclasses, channels=3, input_shape=(32,32),
-                              architecture="2D.Vanilla")
+        model = NeuralNetwork(
+            n_labels=nclasses,
+            channels=3,
+            input_resolution=(32, 32),
+            architecture="2D.Vanilla",
+        )
         path_xai = os.path.join(tmp_data.name, "xai_directory")
         xai_decoder(datagen, model, preds=None, out_path=path_xai)
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #              XAI Methods: Grad-Cam              #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_GradCam_init(self):
         GradCAM(self.model.model)
         xai_dict["gradcam"](self.model.model)
@@ -204,7 +247,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GradCAM(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (2,2)))
+            self.assertTrue(np.array_equal(hm.shape, (2, 2)))
 
     def test_XAImethod_GradCam3D_heatmap(self):
         xai_method_hu = GradCAM(self.model_hu_3D.model)
@@ -213,7 +256,9 @@ class xaiTEST(unittest.TestCase):
             hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
             self.assertTrue(np.array_equal(hm_hu.shape, (2, 2, 2)))
 
-            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            hm_rgb = xai_method_rgb.compute_heatmap(
+                image=self.image_rgb_3D, class_index=i
+            )
             self.assertTrue(np.array_equal(hm_rgb.shape, (2, 2, 2)))
 
     def test_XAImethod_GradCam_decoder(self):
@@ -221,15 +266,19 @@ class xaiTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GradCam3D_decoder(self):
-        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="gradcam")
+        imgs_hu, hms_hu = xai_decoder(
+            self.datagen_hu_3D, self.model_hu_3D, method="gradcam"
+        )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
-        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam")
+        imgs_rgb, hms_rgb = xai_decoder(
+            self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam"
+        )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #             XAI Methods: Grad-Cam++             #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_GradCamPP_init(self):
         GradCAMpp(self.model.model)
         xai_dict["gradcam++"](self.model.model)
@@ -239,7 +288,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GradCAMpp(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (2,2)))
+            self.assertTrue(np.array_equal(hm.shape, (2, 2)))
 
     def test_XAImethod_GradCamPP3D_heatmap(self):
         xai_method_hu = GradCAMpp(self.model_hu_3D.model)
@@ -248,7 +297,9 @@ class xaiTEST(unittest.TestCase):
             hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
             self.assertTrue(np.array_equal(hm_hu.shape, (2, 2, 2)))
 
-            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            hm_rgb = xai_method_rgb.compute_heatmap(
+                image=self.image_rgb_3D, class_index=i
+            )
             self.assertTrue(np.array_equal(hm_rgb.shape, (2, 2, 2)))
 
     def test_XAImethod_GradCamPP_decoder(self):
@@ -256,17 +307,19 @@ class xaiTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GradCamPP3D_decoder(self):
-        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="gradcam++")
+        imgs_hu, hms_hu = xai_decoder(
+            self.datagen_hu_3D, self.model_hu_3D, method="gradcam++"
+        )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
-        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam++")
+        imgs_rgb, hms_rgb = xai_decoder(
+            self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam++"
+        )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
-
-
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #            XAI Methods: Saliency Maps           #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_SaliencyMap_init(self):
         SaliencyMap(self.model.model)
         xai_dict["saliency"](self.model.model)
@@ -276,7 +329,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = SaliencyMap(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_SaliencyMap3D_heatmap(self):
         xai_method_hu = SaliencyMap(self.model_hu_3D.model)
@@ -285,7 +338,9 @@ class xaiTEST(unittest.TestCase):
             hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
             self.assertTrue(np.array_equal(hm_hu.shape, (32, 32, 32)))
 
-            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            hm_rgb = xai_method_rgb.compute_heatmap(
+                image=self.image_rgb_3D, class_index=i
+            )
             self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
 
     def test_XAImethod_SaliencyMap_decoder(self):
@@ -293,15 +348,19 @@ class xaiTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_SaliencyMap3D_decoder(self):
-        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="saliency")
+        imgs_hu, hms_hu = xai_decoder(
+            self.datagen_hu_3D, self.model_hu_3D, method="saliency"
+        )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
-        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="saliency")
+        imgs_rgb, hms_rgb = xai_decoder(
+            self.datagen_rgb_3D, self.model_rgb_3D, method="saliency"
+        )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #       XAI Methods: Guided Backpropagation       #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_GuidedBackprop_init(self):
         GuidedBackpropagation(self.model.model)
         xai_dict["guidedbackprop"](self.model.model)
@@ -311,7 +370,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GuidedBackpropagation(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_GuidedBackprop3D_heatmap(self):
         xai_method_hu = GuidedBackpropagation(self.model_hu_3D.model)
@@ -320,7 +379,9 @@ class xaiTEST(unittest.TestCase):
             hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
             self.assertTrue(np.array_equal(hm_hu.shape, (32, 32, 32)))
 
-            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            hm_rgb = xai_method_rgb.compute_heatmap(
+                image=self.image_rgb_3D, class_index=i
+            )
             self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
 
     def test_XAImethod_GuidedBackprop_decoder(self):
@@ -328,15 +389,19 @@ class xaiTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GuidedBackprop3D_decoder(self):
-        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="guidedbackprop")
+        imgs_hu, hms_hu = xai_decoder(
+            self.datagen_hu_3D, self.model_hu_3D, method="guidedbackprop"
+        )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
-        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="guidedbackprop")
+        imgs_rgb, hms_rgb = xai_decoder(
+            self.datagen_rgb_3D, self.model_rgb_3D, method="guidedbackprop"
+        )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #        XAI Methods: Integrated Gradients        #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_IntegratedGradients_init(self):
         IntegratedGradients(self.model.model)
         xai_dict["IntegratedGradients"](self.model.model)
@@ -346,15 +411,15 @@ class xaiTEST(unittest.TestCase):
         xai_method = IntegratedGradients(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_IntegratedGradients_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="IntegratedGradients")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #           XAI Methods: Guided Grad-CAM          #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_GuidedGradCAM_init(self):
         GuidedGradCAM(self.model.model)
         xai_dict["GuidedGradCAM"](self.model.model)
@@ -364,7 +429,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = GuidedGradCAM(self.model.model)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_GuidedGradCAM3D_heatmap(self):
         xai_method_hu = GuidedGradCAM(self.model_hu_3D.model)
@@ -373,7 +438,9 @@ class xaiTEST(unittest.TestCase):
             hm_hu = xai_method_hu.compute_heatmap(image=self.image_hu_3D, class_index=i)
             self.assertTrue(np.array_equal(hm_hu.shape, (32, 32, 32)))
 
-            hm_rgb = xai_method_rgb.compute_heatmap(image=self.image_rgb_3D, class_index=i)
+            hm_rgb = xai_method_rgb.compute_heatmap(
+                image=self.image_rgb_3D, class_index=i
+            )
             self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
 
     def test_XAImethod_GuidedGradCAM_decoder(self):
@@ -381,15 +448,19 @@ class xaiTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GuidedGradCAM3D_decoder(self):
-        imgs_hu, hms_hu = xai_decoder(self.datagen_hu_3D, self.model_hu_3D, method="GuidedGradCAM")
+        imgs_hu, hms_hu = xai_decoder(
+            self.datagen_hu_3D, self.model_hu_3D, method="GuidedGradCAM"
+        )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
-        imgs_rgb, hms_rgb = xai_decoder(self.datagen_rgb_3D, self.model_rgb_3D, method="GuidedGradCAM")
+        imgs_rgb, hms_rgb = xai_decoder(
+            self.datagen_rgb_3D, self.model_rgb_3D, method="GuidedGradCAM"
+        )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #        XAI Methods: Occlusion Sensitivity       #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_OcclusionSensitivity_init(self):
         OcclusionSensitivity(self.model.model, patch_size=16)
         xai_dict["OcclusionSensitivity"](self.model.model)
@@ -399,15 +470,15 @@ class xaiTEST(unittest.TestCase):
         xai_method = OcclusionSensitivity(self.model.model, patch_size=16)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_OcclusionSensitivity_decoder(self):
         imgs, hms = xai_decoder(self.datagen, self.model, method="OcclusionSensitivity")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #              XAI Methods: LIME Con              #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_LimeCon_init(self):
         LimeCon(self.model.model, num_samples=10)
         xai_dict["LimeCon"](self.model.model)
@@ -417,16 +488,16 @@ class xaiTEST(unittest.TestCase):
         xai_method = LimeCon(self.model.model, num_samples=10)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_LimeCon_decoder(self):
         xai_method = LimeCon(self.model.model, num_samples=10)
         imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #              XAI Methods: LIME Pro              #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_XAImethod_LimePro_init(self):
         LimePro(self.model.model, num_samples=10)
         xai_dict["LimePro"](self.model.model)
@@ -436,7 +507,7 @@ class xaiTEST(unittest.TestCase):
         xai_method = LimePro(self.model.model, num_samples=10)
         for i in range(4):
             hm = xai_method.compute_heatmap(image=self.image, class_index=i)
-            self.assertTrue(np.array_equal(hm.shape, (32,32)))
+            self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_LimePro_decoder(self):
         xai_method = LimePro(self.model.model, num_samples=10)

@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,31 +15,34 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
-#External libraries
+# -----------------------------------------------------#
+# External libraries
 import unittest
 import tempfile
 import os
 from PIL import Image
 import numpy as np
-#Internal libraries
+
+# Internal libraries
 from aucmedi.neural_network.loss_functions import *
 from aucmedi import *
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #               Unittest: Loss Functions              #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class LossfunctionsTEST(unittest.TestCase):
     # Create random imaging and classification data
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
         # Initialize temporary directory
-        self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                                    suffix=".data")
+        self.tmp_data = tempfile.TemporaryDirectory(
+            prefix="tmp.aucmedi.", suffix=".data"
+        )
         # Create data
         self.sampleList = []
         for i in range(0, 1):
@@ -56,43 +59,53 @@ class LossfunctionsTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
         # Create Data Generator
-        self.datagen = DataGenerator(self.sampleList, self.tmp_data.name,
-                                     labels=self.labels_ohe, 
-                                     resize=(32, 32),
-                                     grayscale=False, batch_size=1)
+        self.datagen = DataGenerator(
+            self.sampleList,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=(32, 32),
+            grayscale=False,
+            batch_size=1,
+        )
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #          Keras Categorical Crossentropy         #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_Keras(self):
-        model = NeuralNetwork(n_labels=4, channels=3,
-                               loss="categorical_crossentropy", 
-                               input_shape=(32, 32))
+        model = NeuralNetwork(
+            n_labels=4,
+            channels=3,
+            loss="categorical_crossentropy",
+            input_resolution=(32, 32),
+        )
         model.train(self.datagen, epochs=1)
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #                Focal Loss: Binary               #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_FocalLoss_binary(self):
         lf = binary_focal_loss(alpha=0.25, gamma=2)
-        model = NeuralNetwork(n_labels=4, channels=3, loss=lf, 
-                                input_shape=(32, 32))
+        model = NeuralNetwork(
+            n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
+        )
         model.train(self.datagen, epochs=1)
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #             Focal Loss: Categorical             #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_FocalLoss_categorical(self):
         lf = categorical_focal_loss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
-        model = NeuralNetwork(n_labels=4, channels=3, loss=lf, 
-                                input_shape=(32, 32))
+        model = NeuralNetwork(
+            n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
+        )
         model.train(self.datagen, epochs=1)
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #             Focal Loss: Multi-Label             #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_FocalLoss_multilabel(self):
         lf = multilabel_focal_loss(class_weights=[0.25, 0.25, 0.5, 4.0], gamma=2)
-        model = NeuralNetwork(n_labels=4, channels=3, loss=lf, 
-                                input_shape=(32, 32))
+        model = NeuralNetwork(
+            n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
+        )
         model.train(self.datagen, epochs=1)

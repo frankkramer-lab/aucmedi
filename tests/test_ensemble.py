@@ -68,10 +68,13 @@ class EnsembleTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
         # Initialize model
         self.model2D = NeuralNetwork(
-            n_labels=2, channels=3, architecture="2D.Vanilla", input_shape=(16, 16)
+            n_labels=2, channels=3, architecture="2D.Vanilla", input_resolution=(16, 16)
         )
         self.model3D = NeuralNetwork(
-            n_labels=2, channels=1, architecture="3D.Vanilla", input_shape=(16, 16, 16)
+            n_labels=2,
+            channels=1,
+            architecture="3D.Vanilla",
+            input_resolution=(16, 16, 16),
         )
 
     # -------------------------------------------------#

@@ -96,7 +96,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="3D.Vanilla", input_shape=(32, 32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="3D.Vanilla",
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -116,7 +119,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.DenseNet121",
-            input_shape=(64, 64, 64),
+            input_resolution=(64, 64, 64),
         )
         try:
             model.model.summary()
@@ -136,7 +139,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.DenseNet169",
-            input_shape=(64, 64, 64),
+            input_resolution=(64, 64, 64),
         )
         try:
             model.model.summary()
@@ -156,7 +159,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.DenseNet201",
-            input_shape=(64, 64, 64),
+            input_resolution=(64, 64, 64),
         )
         try:
             model.model.summary()
@@ -173,7 +176,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="3D.ResNet18", input_shape=(32, 32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="3D.ResNet18",
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -190,7 +196,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="3D.ResNet34", input_shape=(32, 32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="3D.ResNet34",
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -207,7 +216,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="3D.ResNet50", input_shape=(32, 32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="3D.ResNet50",
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -227,7 +239,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ResNet101",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -247,7 +259,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ResNet152",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -267,7 +279,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ResNeXt50",
-            input_shape=(64, 64, 64),
+            input_resolution=(64, 64, 64),
         )
         try:
             model.model.summary()
@@ -287,7 +299,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ResNeXt101",
-            input_shape=(64, 64, 64),
+            input_resolution=(64, 64, 64),
         )
         try:
             model.model.summary()
@@ -304,7 +316,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="3D.VGG16", input_shape=(32, 32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="3D.VGG16",
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -321,7 +336,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_HU)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="3D.VGG19", input_shape=(32, 32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="3D.VGG19",
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -341,7 +359,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.MobileNet",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -361,7 +379,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.MobileNetV2",
-            input_shape=(64, 64, 64),
+            input_resolution=(64, 64, 64),
         )
         try:
             model.model.summary()
@@ -383,7 +401,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ConvNeXtBase",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -405,7 +423,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ConvNeXtTiny",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -427,7 +445,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ConvNeXtSmall",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()
@@ -449,7 +467,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="3D.ConvNeXtLarge",
-            input_shape=(32, 32, 32),
+            input_resolution=(32, 32, 32),
         )
         try:
             model.model.summary()

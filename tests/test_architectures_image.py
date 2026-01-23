@@ -104,7 +104,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.Vanilla", input_shape=(32, 32)
+            n_labels=4, channels=3, architecture="2D.Vanilla", input_resolution=(32, 32)
         )
         try:
             model.model.summary()
@@ -124,7 +124,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ResNet50", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNet50",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -144,7 +147,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ResNet101", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNet101",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -164,7 +170,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ResNet152", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNet152",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -184,7 +193,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ResNet50V2", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNet50V2",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -204,7 +216,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ResNet101V2", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNet101V2",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -224,7 +239,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ResNet152V2", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNet152V2",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -244,7 +262,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.DenseNet121", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.DenseNet121",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -264,7 +285,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.DenseNet169", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.DenseNet169",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -284,7 +308,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.DenseNet201", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.DenseNet201",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -307,7 +334,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB0",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -330,7 +357,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB1",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -353,7 +380,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB2",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -376,7 +403,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB3",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -399,7 +426,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB4",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -422,7 +449,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB5",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -445,7 +472,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB6",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -468,7 +495,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.EfficientNetB7",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -488,7 +515,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.MobileNet", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.MobileNet",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -508,7 +538,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.MobileNetV2", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.MobileNetV2",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -528,7 +561,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.NASNetMobile", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.NASNetMobile",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -548,7 +584,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.NASNetLarge", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.NASNetLarge",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -577,7 +616,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.InceptionResNetV2",
-            input_shape=(75, 75),
+            input_resolution=(75, 75),
         )
         try:
             model.model.summary()
@@ -601,7 +640,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.InceptionV3", input_shape=(75, 75)
+            n_labels=4,
+            channels=3,
+            architecture="2D.InceptionV3",
+            input_resolution=(75, 75),
         )
         try:
             model.model.summary()
@@ -623,7 +665,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.VGG16", input_shape=(32, 32)
+            n_labels=4, channels=3, architecture="2D.VGG16", input_resolution=(32, 32)
         )
         try:
             model.model.summary()
@@ -643,7 +685,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.VGG19", input_shape=(32, 32)
+            n_labels=4, channels=3, architecture="2D.VGG19", input_resolution=(32, 32)
         )
         try:
             model.model.summary()
@@ -665,7 +707,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.Xception", input_shape=(71, 71)
+            n_labels=4,
+            channels=3,
+            architecture="2D.Xception",
+            input_resolution=(71, 71),
         )
         try:
             model.model.summary()
@@ -756,14 +801,21 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: ConvNeXtBase           #
     # -------------------------------------------------#
     def test_ConvNeXtBase(self):
-        arch = ConvNeXtBase(Classifier(n_labels=4), channels=1, input_shape=(32, 32))
+        arch = ConvNeXtBase(
+            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
+        )
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.datagen_GRAY)
-        arch = ConvNeXtBase(Classifier(n_labels=4), channels=3, input_shape=(32, 32))
+        arch = ConvNeXtBase(
+            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
+        )
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ConvNeXtBase", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ConvNeXtBase",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -783,7 +835,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.datagen_RGB)
         model = NeuralNetwork(
-            n_labels=4, channels=3, architecture="2D.ConvNeXtTiny", input_shape=(32, 32)
+            n_labels=4,
+            channels=3,
+            architecture="2D.ConvNeXtTiny",
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -806,7 +861,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.ConvNeXtSmall",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()
@@ -829,7 +884,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             n_labels=4,
             channels=3,
             architecture="2D.ConvNeXtLarge",
-            input_shape=(32, 32),
+            input_resolution=(32, 32),
         )
         try:
             model.model.summary()

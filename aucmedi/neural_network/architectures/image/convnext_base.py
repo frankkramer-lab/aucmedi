@@ -47,7 +47,9 @@ Recommended alternative `Input_shape` is 384x384 pixels.
 # -----------------------------------------------------#
 # External libraries
 # from tensorflow.keras.applications.convnext import ConvNeXtBase as BaseModel
+import torch
 from torchvision.models import convnext_base as BaseModel
+from torchvision.models import ConvNeXt_Base_Weights
 
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -64,36 +66,48 @@ class ConvNeXtBase(Architecture_Base):
         self,
         classification_head,
         channels,
-        input_shape=(224, 224),
+        input_resolution=(224, 224),
         pretrained_weights=False,
     ):
         self.classifier = classification_head
-        self.input = input_shape + (channels,)
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
 
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
+    def output_shape(self):
+        # ConvNeXt Base has a fixed 32x downsampling ratio
+        # Output channels are always 1024 for the base model
+        h_out = self.input_shape[0] // 32
+        w_out = self.input_shape[1] // 32
+        return (h_out, w_out, 1024)
+
+    def preprocess(self):
+        # https://docs.pytorch.org/vision/stable/models.html
+        weights = ConvNeXt_Base_Weights.DEFAULT
+        return weights.transforms()
+
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
         if self.pretrained_weights:
-            model_weights = "DEFAULT"  # "imagenet"
+            model_weights = "DEFAULT"
         else:
             model_weights = None
 
         # Obtain ResNet50 as base model
-        base_model = BaseModel(weights=model_weights)
+        full_model = BaseModel(weights=model_weights)
+        base_model = full_model.features
         """
         base_model = BaseModel(include_top=False, weights=model_weights,
                                input_tensor=None, input_shape=self.input,
                                pooling=None)
-                               """
         top_model = base_model.output
 
         # Add classification head
         model = self.classifier.build(
             model_input=base_model.input, model_output=top_model
         )
-
-        # Return created model
-        return model
+        """
+        return base_model

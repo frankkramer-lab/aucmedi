@@ -147,7 +147,7 @@ class Classifier(nn.Module):
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
-    def build(self, model_base):
+    def build(self, model_base, arch_output_shape):
         """Internal function which appends the classification head.
 
         This function will be called from inside an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
@@ -160,9 +160,6 @@ class Classifier(nn.Module):
         Returns:
             model (torch.nn.Module):         A PyTorch module.
         """
-        # Get output shape from model_base (architecture)
-        # output_shape() returns (height, width, channels) for 2D or (depth, height, width, channels) for 3D
-        arch_output_shape = model_base.output_shape()
         # Convert to channel dimension to get number of feature maps
         num_channels = arch_output_shape[-1]
 

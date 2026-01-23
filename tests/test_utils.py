@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,33 +15,36 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
-#External libraries
+# -----------------------------------------------------#
+# External libraries
 import unittest
 import numpy as np
 from PIL import Image
 import tempfile
 import os
 from tensorflow.keras.callbacks import CSVLogger
-#Internal libraries
+
+# Internal libraries
 from aucmedi.utils.callbacks import *
 from aucmedi.utils.visualizer import *
 from aucmedi import *
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                  Unittest: Utility                  #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class UtilityTEST(unittest.TestCase):
     # Create random imaging data
     @classmethod
     def setUpClass(self):
         np.random.seed(1234)
         # Initialize temporary directory
-        self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                                    suffix=".data")
+        self.tmp_data = tempfile.TemporaryDirectory(
+            prefix="tmp.aucmedi.", suffix=".data"
+        )
         # Create Grayscale data for 2D
         self.img_gray_2D = np.random.rand(16, 16, 1) * 255
         # Create RGB data for 2D
@@ -68,25 +71,32 @@ class UtilityTEST(unittest.TestCase):
         # Create xai heatmap
         self.heatmap = np.random.rand(16, 16)
         # Create RGB Data Generator
-        self.datagen = DataGenerator(self.sampleList_rgb_2D,
-                                     self.tmp_data.name,
-                                     labels=self.labels_ohe,
-                                     resize=(16, 16),
-                                     grayscale=False, batch_size=1)
+        self.datagen = DataGenerator(
+            self.sampleList_rgb_2D,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=(16, 16),
+            grayscale=False,
+            batch_size=1,
+        )
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #             Callbacks: CSV2history              #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_Callbacks_csv2history(self):
-        self.tmp_data = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                                    suffix=".model")
+        self.tmp_data = tempfile.TemporaryDirectory(
+            prefix="tmp.aucmedi.", suffix=".model"
+        )
         path_csv = os.path.join(self.tmp_data.name, "testing.csv")
         csvlog = CSVLogger(path_csv)
 
-        model = NeuralNetwork(n_labels=4, channels=3, input_shape=(16,16))
-        hist_returned = model.train(training_generator=self.datagen,
-                                    validation_generator=self.datagen,
-                                    epochs=3, callbacks=[csvlog])
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(16, 16))
+        hist_returned = model.train(
+            training_generator=self.datagen,
+            validation_generator=self.datagen,
+            epochs=3,
+            callbacks=[csvlog],
+        )
 
         hist_loaded = csv_to_history(path_csv)
         del hist_loaded["epoch"]
@@ -95,9 +105,9 @@ class UtilityTEST(unittest.TestCase):
             self.assertTrue(key in hist_returned and key in hist_loaded)
             self.assertTrue(len(hist_returned[key]) == len(hist_loaded[key]))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #                Visualizer: Image                #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_Visualizer_Image_grayscale(self):
         # PNG
         path_out = os.path.join(self.tmp_data.name, "viz.image.2D.gray.png")
@@ -126,9 +136,9 @@ class UtilityTEST(unittest.TestCase):
         visualize_image(self.img_rgb_2D, out_path=path_out)
         self.assertTrue(os.path.exists(path_out))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #                Visualizer: Volume               #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_Visualizer_Volume_grayscale(self):
         # NumPy
         path_out = os.path.join(self.tmp_data.name, "viz.volume.gray.npy")
@@ -183,77 +193,83 @@ class UtilityTEST(unittest.TestCase):
         visualize_volume(self.img_rgb_3D, out_path=path_out)
         self.assertTrue(os.path.exists(path_out))
 
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     #             Visualizer: XAI Heatmap             #
-    #-------------------------------------------------#
+    # -------------------------------------------------#
     def test_Visualizer_Heatmap_2D_grayscale(self):
         # Default
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.gray.png")
-        visualize_heatmap(self.img_gray_2D, self.heatmap, 
-                          overlay=True, out_path=path_xai)
+        visualize_heatmap(
+            self.img_gray_2D, self.heatmap, overlay=True, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
         os.remove(path_xai)
         self.assertTrue(not os.path.exists(path_xai))
         # With Overlay
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.gray.png")
-        visualize_heatmap(self.img_gray_2D, self.heatmap, 
-                          overlay=False, out_path=path_xai)
+        visualize_heatmap(
+            self.img_gray_2D, self.heatmap, overlay=False, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
 
     def test_Visualizer_Heatmap_2D_rgb(self):
         # Default
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.rgb.png")
-        visualize_heatmap(self.img_rgb_2D, self.heatmap, 
-                          overlay=True, out_path=path_xai)
+        visualize_heatmap(
+            self.img_rgb_2D, self.heatmap, overlay=True, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
         os.remove(path_xai)
         self.assertTrue(not os.path.exists(path_xai))
         # With Overlay
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.2D.rgb.png")
-        visualize_heatmap(self.img_rgb_2D, self.heatmap, 
-                          overlay=False, out_path=path_xai)
+        visualize_heatmap(
+            self.img_rgb_2D, self.heatmap, overlay=False, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
 
     def test_Visualizer_Heatmap_3D_gray(self):
         # Default
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.gray.npy")
-        visualize_heatmap(self.img_gray_3D, self.heatmap, 
-                          overlay=True, out_path=path_xai)
+        visualize_heatmap(
+            self.img_gray_3D, self.heatmap, overlay=True, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
         os.remove(path_xai)
         self.assertTrue(not os.path.exists(path_xai))
         # With Overlay
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.gray.npy")
-        visualize_heatmap(self.img_gray_3D, self.heatmap, 
-                          overlay=False, out_path=path_xai)
+        visualize_heatmap(
+            self.img_gray_3D, self.heatmap, overlay=False, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
 
     def test_Visualizer_Heatmap_3D_rgb(self):
         # Default
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.rgb.npy")
-        visualize_heatmap(self.img_rgb_3D, self.heatmap, 
-                          overlay=True, out_path=path_xai)
+        visualize_heatmap(
+            self.img_rgb_3D, self.heatmap, overlay=True, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
         os.remove(path_xai)
         self.assertTrue(not os.path.exists(path_xai))
         # With Overlay
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.rgb.npy")
-        visualize_heatmap(self.img_rgb_3D, self.heatmap, 
-                          overlay=False, out_path=path_xai)
+        visualize_heatmap(
+            self.img_rgb_3D, self.heatmap, overlay=False, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
 
     def test_Visualizer_Heatmap_3D_hu(self):
         # Default
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.hu.npy")
-        visualize_heatmap(self.img_hu_3D, self.heatmap, 
-                          overlay=True, out_path=path_xai)
+        visualize_heatmap(self.img_hu_3D, self.heatmap, overlay=True, out_path=path_xai)
         self.assertTrue(os.path.exists(path_xai))
         os.remove(path_xai)
         self.assertTrue(not os.path.exists(path_xai))
         # With Overlay
         path_xai = os.path.join(self.tmp_data.name, "viz.heatmap.3D.hu.npy")
-        visualize_heatmap(self.img_hu_3D, self.heatmap, 
-                          overlay=False, out_path=path_xai)
+        visualize_heatmap(
+            self.img_hu_3D, self.heatmap, overlay=False, out_path=path_xai
+        )
         self.assertTrue(os.path.exists(path_xai))
-
-

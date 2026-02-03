@@ -88,20 +88,9 @@ class ConvNeXtBase(Architecture_Base):
 
     def get_preprocess(self):
         # https://docs.pytorch.org/vision/stable/models.html
+        # Return the weights transforms which include all preprocessing
         weights = ConvNeXt_Base_Weights.DEFAULT
-        # Get all transforms and extract only normalization (skip resize)
-        # The full pipeline includes: Resize, CenterCrop, ToImage, ToDtype, Normalize
-        all_transforms = weights.transforms()
-
-        # Rebuild with only the normalization part (skip Resize and CenterCrop)
-        normalize_transform = transforms_module.Compose(
-            [
-                transforms_module.ToImage(),
-                transforms_module.ToDtype(torch.float32, scale=True),
-                all_transforms.transforms[-1],  # Get the Normalize transform (last one)
-            ]
-        )
-        return normalize_transform
+        return weights.transforms()
 
     # ---------------------------------------------#
     #                Create Model                 #

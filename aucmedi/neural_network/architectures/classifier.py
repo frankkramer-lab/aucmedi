@@ -137,7 +137,9 @@ class Classifier(nn.Module):
         self.fcl_dropout = fcl_dropout
 
         # Define activation
-        if self.activation_output == "softmax":
+        if self.activation_output is None or self.activation_output == "None":
+            self.activation = nn.Identity()
+        elif self.activation_output == "softmax":
             self.activation = nn.Softmax(dim=1)
         elif self.activation_output == "sigmoid":
             self.activation = nn.Sigmoid()

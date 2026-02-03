@@ -218,7 +218,7 @@ class NeuralNetwork:
             "activation_output": activation_output,
         }
         if n_meta_variables is not None:
-            classifier_paras["meta_variables"] = n_meta_variables
+            classifier_paras["n_meta_variables"] = n_meta_variables
         # Initialize classifier for the classification head
         arch_paras["classification_head"] = Classifier(**classifier_paras)
         # Initialize architecture if None provided
@@ -311,7 +311,9 @@ class NeuralNetwork:
             y = torch.from_numpy(y).float()
         else:
             x = x.float()
-            y = y.float()
+        if y.ndim > 1:
+            y = torch.argmax(y, dim=1)
+        y = y.long()
 
         x = x.to(self.device)
         y = y.to(self.device)
@@ -486,6 +488,7 @@ class NeuralNetwork:
             batch_count = 0
 
             # Training loop
+            self.model.train(True)
             for batch_idx, out in enumerate(training_generator):
                 if iterations is not None and batch_idx >= iterations:
                     break
@@ -500,12 +503,12 @@ class NeuralNetwork:
 
                 self.optimizer.zero_grad()
                 outputs = self.model(x, metadata)
-                loss = self.loss(outputs, y)
+                batch_loss = self.loss(outputs, y)
 
-                loss.backward()
+                batch_loss.backward()
                 self.optimizer.step()
 
-                epoch_loss += loss.item()
+                epoch_loss += batch_loss.item()
                 batch_count += 1
 
             avg_loss = epoch_loss / batch_count
@@ -516,9 +519,9 @@ class NeuralNetwork:
 
             # Validation loop
             if validation_generator is not None:
-                self.model.eval()
                 val_loss = 0.0
                 val_batch_count = 0
+                self.model.eval()
 
                 with torch.no_grad():
                     for out_val in validation_generator:
@@ -531,16 +534,8 @@ class NeuralNetwork:
                                 val_has_sample_weights,
                             )
                         )
-                        # Convert to torch tensors if numpy arrays
-                        if isinstance(x_val, np.ndarray):
-                            x_val = torch.from_numpy(x_val).float()
-                        if isinstance(y_val, np.ndarray):
-                            y_val = torch.from_numpy(y_val).float()
-                        else:
-                            x_val = x_val.float()
-                            y_val = y_val.float()
 
-                        val_outputs = self.model(x_val)
+                        val_outputs = self.model(x_val, metadata_val)
                         val_batch_loss = self.loss(val_outputs, y_val)
 
                         val_loss += val_batch_loss.item()
@@ -551,7 +546,6 @@ class NeuralNetwork:
 
                 if self.verbose:
                     print(f"  Val Loss: {avg_val_loss:.4f}")
-
         return history
 
     # ---------------------------------------------#

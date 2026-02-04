@@ -22,11 +22,30 @@
 # External libraries
 import numpy as np
 import torch
+import torch.nn as nn
 
 
 # -----------------------------------------------------#
 #                 Focal Loss - Binary                 #
 # -----------------------------------------------------#
+class BinaryFocalLoss(nn.Module):
+    def __init__(self, alpha=0.25, gamma=2.0):
+        super(BinaryFocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, y_pred, y_true):
+        # Expected input: y_true shape (batch_size, 1) and y_pred shape (batch_size, 1)
+        # Verify shapes
+        if y_pred.shape != y_true.shape:
+            raise ValueError(
+                f"Shape mismatch: y_pred shape {y_pred.shape} and y_true shape {y_true.shape} must be the same."
+            )
+
+        loss = binary_focal_loss(alpha=self.alpha, gamma=self.gamma)(y_true, y_pred)
+        return loss
+
+
 def binary_focal_loss(alpha=0.25, gamma=2.0):
     """Binary form of focal loss computation.
 
@@ -86,6 +105,20 @@ def binary_focal_loss(alpha=0.25, gamma=2.0):
 # -----------------------------------------------------#
 #              Focal Loss - Categorical               #
 # -----------------------------------------------------#
+class CategoricalFocalLoss(nn.Module):
+    def __init__(self, alpha, gamma=2.0):
+        super(CategoricalFocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+
+    def forward(self, y_pred, y_true):
+        # Expected input: y_true shape (batch_size, n_classes) and y_pred shape (batch_size, n_classes)
+        loss = categorical_focal_loss(alpha=self.alpha, gamma=self.gamma)(
+            y_true, y_pred
+        )
+        return loss
+
+
 def categorical_focal_loss(alpha, gamma=2.0):
     """Softmax version of focal loss.
 
@@ -110,7 +143,7 @@ def categorical_focal_loss(alpha, gamma=2.0):
         cw_loss, cw_fit = compute_class_weights(class_ohe)
 
         from aucmedi.neural_network.loss_functions import *
-        my_loss = categorical_focal_loss(alpha=cw_loss)
+        my_loss = CategoricalFocalLoss(alpha=cw_loss)
 
         model = NeuralNetwork(n_labels=6, channels=3, loss=my_loss)
         ```
@@ -139,6 +172,8 @@ def categorical_focal_loss(alpha, gamma=2.0):
 
     def categorical_focal_loss_fixed(y_true, y_pred):
         y_true = y_true.float()
+        # Move alpha to the same device as y_pred
+        alpha_device = alpha.to(y_pred.device)
         # Clip the prediction value to prevent NaN's and Inf's
         epsilon = 1e-7
         y_pred = torch.clamp(y_pred, epsilon, 1.0 - epsilon)
@@ -147,7 +182,7 @@ def categorical_focal_loss(alpha, gamma=2.0):
         cross_entropy = -y_true * torch.log(y_pred)
 
         # Calculate Focal Loss
-        loss = alpha * torch.pow(1 - y_pred, gamma) * cross_entropy
+        loss = alpha_device * torch.pow(1 - y_pred, gamma) * cross_entropy
 
         # Compute mean loss in mini_batch
         return torch.mean(torch.sum(loss, dim=-1))

@@ -311,9 +311,10 @@ class NeuralNetwork:
             y = torch.from_numpy(y).float()
         else:
             x = x.float()
-        if y.ndim > 1:
-            y = torch.argmax(y, dim=1)
-        y = y.long()
+        # uncomment if needed to convert OHE to class indices
+        # if y.ndim > 1:
+        #    y = torch.argmax(y, dim=1)
+        # y = y.long()
 
         x = x.to(self.device)
         y = y.to(self.device)

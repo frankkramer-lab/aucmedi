@@ -210,7 +210,7 @@ class Classifier(nn.Module):
         # Apply classifier
         class_layers = []
         class_layers.append(nn.Linear(current_dim, self.n_labels))
-        class_layers.append(self.activation)
+        # TODO: class_layers.append(self.activation)
 
         # Create nn.Sequential for the head
         class_head = nn.Sequential(*class_layers)

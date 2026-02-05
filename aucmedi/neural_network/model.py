@@ -583,6 +583,13 @@ class NeuralNetwork:
                     pred_has_sample_weights,
                 )
                 outputs = self.model(x, metadata)
+                # TODO: Apply supported activation function to predictions
+                if self.activation_output == "softmax":
+                    outputs = torch.nn.functional.softmax(outputs, dim=1)
+                elif self.activation_output == "sigmoid":
+                    outputs = torch.sigmoid(outputs)
+                else:
+                    pass  # No activation applied, raw logits returned
                 preds = outputs.cpu().numpy()
                 all_preds.append(preds)
 

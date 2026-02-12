@@ -94,8 +94,8 @@ class FocalLoss(nn.Module):
             alpha_t = alpha.gather(0, target_idx)
             ce_loss = alpha_t.unsqueeze(1) * ce_loss
         else:
-            # TODO: Implement scalar alpha for multi-class if needed (not common, usually per-class weights are used)
-            alpha_t
+            alpha_t = self.alpha
+            ce_loss = alpha_t * ce_loss
 
         # Apply focal loss weight
         loss = focal_weight.unsqueeze(1) * ce_loss
@@ -112,6 +112,7 @@ class FocalLoss(nn.Module):
         probs = torch.sigmoid(inputs)
 
         # Compute binary cross entropy
+        # https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.binary_cross_entropy_with_logits.html
         bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
 
         # Compute focal weight
@@ -121,9 +122,11 @@ class FocalLoss(nn.Module):
         # Apply alpha if provided
         if isinstance(self.alpha, torch.Tensor):
             # Interpret alpha as class weights
+            # TODO: Use pos_weight of BCEWithLogitsLoss instead
             alpha_t = self.alpha.to(inputs.device)
             bce_loss = alpha_t * bce_loss
         else:
+            # Interpret as class_sparsity_coefficient
             alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
             bce_loss = alpha_t * bce_loss
 

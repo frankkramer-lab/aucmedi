@@ -1,279 +1,138 @@
-# ==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
-#                University of Augsburg                                        #
-#                                                                              #
-#  This program is free software: you can redistribute it and/or modify        #
-#  it under the terms of the GNU General Public License as published by        #
-#  the Free Software Foundation, either version 3 of the License, or           #
-#  (at your option) any later version.                                         #
-#                                                                              #
-#  This program is distributed in the hope that it will be useful,             #
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
-#  GNU General Public License for more details.                                #
-#                                                                              #
-#  You should have received a copy of the GNU General Public License           #
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-# ==============================================================================#
-# -----------------------------------------------------#
-#                   Library imports                   #
-# -----------------------------------------------------#
-# External libraries
-import numpy as np
+# Taken from https://github.com/itakurah/focal-loss-pytorch/blob/main/focal_loss.py and adapted
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
-# -----------------------------------------------------#
-#                 Focal Loss - Binary                 #
-# -----------------------------------------------------#
-class BinaryFocalLoss(nn.Module):
-    def __init__(self, alpha=0.25, gamma=2.0):
-        super(BinaryFocalLoss, self).__init__()
-        self.alpha = alpha
+class FocalLoss(nn.Module):
+    def __init__(self, gamma=2.0, alpha=0.25, reduction="mean", task_type="binary"):
+        """
+        Unified Focal Loss class for binary, multi-class, and multi-label classification tasks.
+        :param gamma: Focusing parameter, controls the strength of the modulating factor (1 - p_t)^gamma
+        :param alpha: Balancing factor, can be a scalar or a tensor for class-wise weights. If None, no class balancing is used.
+        :param reduction: Specifies the reduction method: 'none' | 'mean' | 'sum'
+        :param task_type: Specifies the type of task: 'binary', 'multi-class', or 'multi-label'
+        :param num_classes: Number of classes (only required for multi-class classification)
+        """
+        super(FocalLoss, self).__init__()
         self.gamma = gamma
+        self.reduction = reduction
+        self.task_type = task_type
+        if isinstance(alpha, (list, tuple)) or (
+            hasattr(alpha, "__iter__") and not isinstance(alpha, torch.Tensor)
+        ):
+            self.alpha = torch.Tensor(alpha)
+        else:
+            self.alpha = alpha
 
-    def forward(self, y_pred, y_true):
-        # Expected input: y_true shape (batch_size, 1) and y_pred shape (batch_size, 1)
-        # Verify shapes
-        if y_pred.shape != y_true.shape:
+    def forward(self, inputs, targets):
+        """
+        Forward pass to compute the Focal Loss based on the specified task type.
+        :param inputs: Predictions (logits) from the model.
+                       Shape:
+                         - binary/multi-label: (batch_size, num_classes)
+                         - multi-class: (batch_size, num_classes)
+        :param targets: Ground truth labels.
+                        Shape:
+                         - binary: (batch_size,)
+                         - multi-label: (batch_size, num_classes)
+                         - multi-class: (batch_size, num_classes) one-hot encoded
+        """
+        if self.task_type == "binary":
+            return self.binary_focal_loss(inputs, targets)
+        elif self.task_type == "multi-class":
+            return self.multi_class_focal_loss(inputs, targets)
+        elif self.task_type == "multi-label":
+            return self.multi_label_focal_loss(inputs, targets)
+        else:
             raise ValueError(
-                f"Shape mismatch: y_pred shape {y_pred.shape} and y_true shape {y_true.shape} must be the same."
+                f"Unsupported task_type '{self.task_type}'. Use 'binary', 'multi-class', or 'multi-label'."
             )
 
-        loss = binary_focal_loss(alpha=self.alpha, gamma=self.gamma)(y_true, y_pred)
+    def binary_focal_loss(self, inputs, targets):
+        """Focal loss for binary classification."""
+        probs = torch.sigmoid(inputs)
+        targets = targets.float()
+
+        # Compute binary cross entropy
+        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+
+        # Compute focal weight
+        p_t = probs * targets + (1 - probs) * (1 - targets)
+        focal_weight = (1 - p_t) ** self.gamma
+
+        # Apply alpha
+        alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
+        bce_loss = alpha_t * bce_loss
+
+        # Apply focal loss weighting
+        loss = focal_weight * bce_loss
+
+        if self.reduction == "mean":
+            return loss.mean()
+        elif self.reduction == "sum":
+            return loss.sum()
         return loss
 
+    def multi_class_focal_loss(self, inputs, targets):
+        """Focal loss for multi-class classification."""
+        alpha = self.alpha.to(inputs.device)
 
-def binary_focal_loss(alpha=0.25, gamma=2.0):
-    """Binary form of focal loss computation.
+        # Convert logits to probabilities with softmax
+        probs = F.softmax(inputs, dim=1)
 
-    FL(p_t) = -alpha * (1 - p_t)**gamma * log(p_t)
-    where p = sigmoid(x), p_t = p or 1 - p depending on if the label is 1 or 0, respectively.
+        # Compute cross-entropy for each class
+        ce_loss = -targets * torch.log(probs)
 
-    ??? example
-        ```python
-        from aucmedi.neural_network.loss_functions import *
-        my_loss = binary_focal_loss(alpha=0.75)
+        # Compute focal weight
+        p_t = torch.sum(probs * targets, dim=1)  # p_t for each sample
+        focal_weight = (1 - p_t) ** self.gamma
 
-        model = NeuralNetwork(n_labels=1, channels=3, loss=my_loss)
-        ```
+        # Apply alpha (per-class weighting)
+        if isinstance(alpha, torch.Tensor):
+            target_idx = targets.argmax(dim=1).long().to(inputs.device)
+            alpha_t = alpha.gather(0, target_idx)
+            ce_loss = alpha_t.unsqueeze(1) * ce_loss
+        else:
+            # TODO: Implement scalar alpha for multi-class if needed (not common, usually per-class weights are used)
+            alpha_t
 
-    ??? abstract "Reference - Implementation"
-        Author: Umberto Griffo <br>
-        GitHub: [https://github.com/umbertogriffo](https://github.com/umbertogriffo) <br>
-        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras) <br>
+        # Apply focal loss weight
+        loss = focal_weight.unsqueeze(1) * ce_loss
 
-    ??? abstract "Reference - Publication"
-        Focal Loss for Dense Object Detection (Aug 2017) <br>
-        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár <br>
-        [https://arxiv.org/abs/1708.02002](https://arxiv.org/abs/1708.02002)
-
-    Args:
-        alpha (float):      Class weight for positive class.
-        gamma (float):      Tunable focusing parameter (γ ≥ 0).
-
-    Returns:
-        loss (Loss Function):               A PyTorch compatible loss function. This object can be
-                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
-    """
-
-    def binary_focal_loss_fixed(y_true, y_pred):
-        y_true = y_true.float()
-        # Define epsilon so that the back-propagation will not result in NaN for 0 divisor case
-        epsilon = 1e-7
-        # Clip the prediction value
-        y_pred = torch.clamp(y_pred, epsilon, 1.0 - epsilon)
-        # Calculate p_t
-        p_t = torch.where(y_true == 1, y_pred, 1 - y_pred)
-        # Calculate alpha_t
-        alpha_factor = torch.ones_like(y_true) * alpha
-        alpha_t = torch.where(y_true == 1, alpha_factor, 1 - alpha_factor)
-        # Calculate cross entropy
-        cross_entropy = -torch.log(p_t)
-        weight = alpha_t * torch.pow((1 - p_t), gamma)
-        # Calculate focal loss
-        loss = weight * cross_entropy
-        # Sum the losses in mini_batch
-        loss = torch.mean(torch.sum(loss, dim=1))
+        loss = loss.sum(dim=1)  # Sum over classes for each sample
+        if self.reduction == "mean":
+            return loss.mean()
+        elif self.reduction == "sum":
+            return loss.sum()
         return loss
 
-    return binary_focal_loss_fixed
+    def multi_label_focal_loss(self, inputs, targets):
+        """Focal loss for multi-label classification."""
+        probs = torch.sigmoid(inputs)
 
+        # Compute binary cross entropy
+        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
 
-# -----------------------------------------------------#
-#              Focal Loss - Categorical               #
-# -----------------------------------------------------#
-class CategoricalFocalLoss(nn.Module):
-    def __init__(self, alpha, gamma=2.0):
-        super(CategoricalFocalLoss, self).__init__()
-        self.alpha = alpha
-        self.gamma = gamma
+        # Compute focal weight
+        p_t = probs * targets + (1 - probs) * (1 - targets)
+        focal_weight = (1 - p_t) ** self.gamma
 
-    def forward(self, y_pred, y_true):
-        # Expected input: y_true shape (batch_size, n_classes) and y_pred shape (batch_size, n_classes)
-        loss = categorical_focal_loss(alpha=self.alpha, gamma=self.gamma)(
-            y_true, y_pred
-        )
+        # Apply alpha if provided
+        if isinstance(self.alpha, torch.Tensor):
+            # Interpret alpha as class weights
+            alpha_t = self.alpha.to(inputs.device)
+            bce_loss = alpha_t * bce_loss
+        else:
+            alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
+            bce_loss = alpha_t * bce_loss
+
+        # Apply focal loss weight
+        loss = focal_weight * bce_loss
+
+        loss = loss.sum(dim=1)  # Sum over classes for each sample
+        if self.reduction == "mean":
+            return loss.mean()
+        elif self.reduction == "sum":
+            return loss.sum()
         return loss
-
-
-def categorical_focal_loss(alpha, gamma=2.0):
-    """Softmax version of focal loss.
-
-    When there is a skew between different categories/labels in your data set,
-    you can try to apply this function as a loss.
-
-    ```
-           m
-      FL = ∑  -alpha * (1 - p_o,c)^gamma * y_o,c * log(p_o,c)
-          c=1
-
-      where m = number of classes, c = class and o = observation
-    ```
-
-    The `class_weights_list` obtained from [compute_class_weights][aucmedi.utils.class_weights.compute_class_weights]
-    can be provided as parameter `alpha`.
-
-    ??? example
-        ```python
-        # Compute class weights
-        from aucmedi.utils.class_weights import compute_class_weights
-        cw_loss, cw_fit = compute_class_weights(class_ohe)
-
-        from aucmedi.neural_network.loss_functions import *
-        my_loss = CategoricalFocalLoss(alpha=cw_loss)
-
-        model = NeuralNetwork(n_labels=6, channels=3, loss=my_loss)
-        ```
-
-    ??? abstract "Reference - Implementation"
-        Author: Umberto Griffo <br>
-        GitHub: [https://github.com/umbertogriffo](https://github.com/umbertogriffo) <br>
-        Source: [https://github.com/umbertogriffo/focal-loss-keras](https://github.com/umbertogriffo/focal-loss-keras) <br>
-
-    ??? abstract "Reference - Publication"
-        Focal Loss for Dense Object Detection (Aug 2017) <br>
-        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár <br>
-        [https://arxiv.org/abs/1708.02002](https://arxiv.org/abs/1708.02002)
-
-    Args:
-        alpha (list of float):      The same as weighing factor in balanced cross entropy.
-                                    Alpha is used to specify the weight of different categories/labels,
-                                    the size of the array needs to be consistent with the number of classes.
-        gamma (float):              Focusing parameter for modulating factor (1-p).
-
-    Returns:
-        loss (Loss Function):               A PyTorch compatible loss function. This object can be
-                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
-    """
-    alpha = torch.tensor(alpha, dtype=torch.float32)
-
-    def categorical_focal_loss_fixed(y_true, y_pred):
-        y_true = y_true.float()
-        # Move alpha to the same device as y_pred
-        alpha_device = alpha.to(y_pred.device)
-        # Clip the prediction value to prevent NaN's and Inf's
-        epsilon = 1e-7
-        y_pred = torch.clamp(y_pred, epsilon, 1.0 - epsilon)
-
-        # Calculate Cross Entropy
-        cross_entropy = -y_true * torch.log(y_pred)
-
-        # Calculate Focal Loss
-        loss = alpha_device * torch.pow(1 - y_pred, gamma) * cross_entropy
-
-        # Compute mean loss in mini_batch
-        return torch.mean(torch.sum(loss, dim=-1))
-
-    return categorical_focal_loss_fixed
-
-
-# -----------------------------------------------------#
-#               Focal Loss - Multilabel               #
-# -----------------------------------------------------#
-class MultilabelFocalLoss(nn.Module):
-    def __init__(self, class_weights, gamma=2.0, class_sparsity_coefficient=1.0):
-        super(MultilabelFocalLoss, self).__init__()
-        self.class_weights = class_weights
-        self.gamma = gamma
-        self.class_sparsity_coefficient = class_sparsity_coefficient
-
-    def forward(self, y_pred, y_true):
-        loss = multilabel_focal_loss(
-            class_weights=self.class_weights,
-            gamma=self.gamma,
-            class_sparsity_coefficient=self.class_sparsity_coefficient,
-        )(y_true, y_pred)
-        return loss
-
-
-def multilabel_focal_loss(class_weights, gamma=2.0, class_sparsity_coefficient=1.0):
-    """Focal loss for multi-label classification.
-
-    ??? example
-        ```python
-        # Compute class weights
-        from aucmedi.utils.class_weights import compute_class_weights
-        class_weights = compute_multilabel_weights(class_ohe)
-
-        from aucmedi.neural_network.loss_functions import *
-        my_loss = multilabel_focal_loss(class_weights=class_weights)
-
-        model = NeuralNetwork(n_labels=6, channels=3, loss=my_loss,
-                               activation_output="sigmoid")
-        ```
-
-    ??? abstract "Reference - Implementation"
-        Author: Sushant Tripathy <br>
-        LinkedIn: [https://www.linkedin.com/in/sushanttripathy/](https://www.linkedin.com/in/sushanttripathy/) <br>
-        Source: [https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py](https://github.com/sushanttripathy/Keras_loss_functions/blob/master/focal_loss.py) <br>
-
-    ??? abstract "Reference - Publication"
-        Focal Loss for Dense Object Detection (Aug 2017) <br>
-        Authors: Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, Piotr Dollár  <br>
-        [https://arxiv.org/abs/1708.02002](https://arxiv.org/abs/1708.02002) <br>
-
-    Args:
-        class_weights (list of float):      Non-zero, positive class-weights. This is used instead
-                                            of alpha parameter.
-        gamma (float):                      The Gamma parameter in Focal Loss. Default value (2.0).
-        class_sparsity_coefficient (float): The weight of True labels over False labels. Useful
-                                            if True labels are sparse. Default value (1.0).
-    Returns:
-        loss (Loss Function):               A PyTorch compatible loss function. This object can be
-                                            passed to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] `loss` parameter.
-    """
-    class_weights = torch.tensor(class_weights, dtype=torch.float32)
-    gamma = torch.tensor(gamma, dtype=torch.float32)
-    class_sparsity_coefficient = torch.tensor(
-        class_sparsity_coefficient, dtype=torch.float32
-    )
-
-    def focal_loss_function(y_true, y_pred):
-        y_true = y_true.float()
-
-        predictions_0 = (1.0 - y_true) * y_pred
-        predictions_1 = y_true * y_pred
-
-        cross_entropy_0 = (1.0 - y_true) * (
-            -torch.log(torch.clamp(1.0 - predictions_0, 1e-7, 1.0 - 1e-7))
-        )
-        cross_entropy_1 = y_true * (
-            class_sparsity_coefficient
-            * -torch.log(torch.clamp(predictions_1, 1e-7, 1.0 - 1e-7))
-        )
-
-        cross_entropy = cross_entropy_1 + cross_entropy_0
-        class_weighted_cross_entropy = cross_entropy * class_weights
-
-        weight_1 = torch.pow(torch.clamp(1.0 - predictions_1, 1e-7, 1.0 - 1e-7), gamma)
-        weight_0 = torch.pow(torch.clamp(predictions_0, 1e-7, 1.0 - 1e-7), gamma)
-
-        weight = weight_0 + weight_1
-        focal_loss_tensor = weight * class_weighted_cross_entropy
-
-        return torch.mean(focal_loss_tensor, dim=1)
-
-    return focal_loss_function

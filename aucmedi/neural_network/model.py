@@ -21,6 +21,7 @@
 # -----------------------------------------------------#
 # External libraries
 import torch
+from torch import nn
 from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
@@ -197,7 +198,11 @@ class NeuralNetwork:
         # Cache parameters
         self.n_labels = n_labels
         self.channels = channels
-        self.loss = loss if loss is not None else torch.nn.CrossEntropyLoss()
+        self.loss = (
+            loss
+            if loss is not None and isinstance(loss, nn.Module)
+            else torch.nn.CrossEntropyLoss()
+        )
         self.metrics = metrics if metrics is not None else []
         self.learning_rate = learning_rate
         self.pretrained_weights = pretrained_weights

@@ -113,7 +113,6 @@ class Classifier(nn.Module):
     def __init__(
         self,
         n_labels,
-        activation_output="softmax",
         n_meta_variables=None,
         fcl_dropout=True,
     ):
@@ -125,26 +124,14 @@ class Classifier(nn.Module):
 
         Args:
             n_labels (int):                 Number of classes/labels (important for the last layer of classification head).
-            activation_output (str):        Activation function which is used in the last classification layer.
             n_meta_variables (int):           Number of metadata variables, which should be included in the classification head.
                                             If `None`is provided, no metadata integration block will be added to the classification head.
             fcl_dropout (bool):             Option whether to utilize a Linear & Dropout layer before the last classification layer.
         """
         super(Classifier, self).__init__()
         self.n_labels = n_labels
-        self.activation_output = activation_output
         self.n_meta_variables = n_meta_variables
         self.fcl_dropout = fcl_dropout
-
-        # Define activation
-        if self.activation_output is None or self.activation_output == "None":
-            self.activation = nn.Identity()
-        elif self.activation_output == "softmax":
-            self.activation = nn.Softmax(dim=1)
-        elif self.activation_output == "sigmoid":
-            self.activation = nn.Sigmoid()
-        else:
-            raise ValueError("Unsupported activation_output")
 
     # ---------------------------------------------#
     #                Create Model                 #
@@ -157,10 +144,11 @@ class Classifier(nn.Module):
         The `build()` function will append a classification head to the provided PyTorch model.
 
         Args:
-            model_base (torch.nn.Module):    Base model/feature extractor that has an output_shape() method.
+            model_base (torch.nn.Module):    Base model/feature extractor
+            arch_output_shape (tuple):       Output shape of the architecture before the classification head.
 
         Returns:
-            model (torch.nn.Module):         A PyTorch module.
+            model (torch.nn.Module):         A PyTorch module for classification
         """
         # Convert to channel dimension to get number of feature maps
         num_channels = arch_output_shape[-1]
@@ -210,7 +198,6 @@ class Classifier(nn.Module):
         # Apply classifier
         class_layers = []
         class_layers.append(nn.Linear(current_dim, self.n_labels))
-        # TODO: class_layers.append(self.activation)
 
         # Create nn.Sequential for the head
         class_head = nn.Sequential(*class_layers)

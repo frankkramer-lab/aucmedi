@@ -215,7 +215,6 @@ class NeuralNetwork:
         classifier_paras = {
             "n_labels": n_labels,
             "fcl_dropout": fcl_dropout,
-            "activation_output": activation_output,
         }
         if n_meta_variables is not None:
             classifier_paras["n_meta_variables"] = n_meta_variables
@@ -583,7 +582,6 @@ class NeuralNetwork:
                     pred_has_sample_weights,
                 )
                 outputs = self.model(x, metadata)
-                # TODO: Apply supported activation function to predictions
                 if self.activation_output == "softmax":
                     outputs = torch.nn.functional.softmax(outputs, dim=1)
                 elif self.activation_output == "sigmoid":

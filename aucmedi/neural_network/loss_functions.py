@@ -193,6 +193,22 @@ def categorical_focal_loss(alpha, gamma=2.0):
 # -----------------------------------------------------#
 #               Focal Loss - Multilabel               #
 # -----------------------------------------------------#
+class MultilabelFocalLoss(nn.Module):
+    def __init__(self, class_weights, gamma=2.0, class_sparsity_coefficient=1.0):
+        super(MultilabelFocalLoss, self).__init__()
+        self.class_weights = class_weights
+        self.gamma = gamma
+        self.class_sparsity_coefficient = class_sparsity_coefficient
+
+    def forward(self, y_pred, y_true):
+        loss = multilabel_focal_loss(
+            class_weights=self.class_weights,
+            gamma=self.gamma,
+            class_sparsity_coefficient=self.class_sparsity_coefficient,
+        )(y_true, y_pred)
+        return loss
+
+
 def multilabel_focal_loss(class_weights, gamma=2.0, class_sparsity_coefficient=1.0):
     """Focal loss for multi-label classification.
 

@@ -50,7 +50,7 @@ class BinaryFocalLoss(nn.Module):
 
 
 class MultiClassFocalLoss(nn.Module):
-    def __init__(self, gamma=2.0, alpha=0.25, reduction="mean"):
+    def __init__(self, gamma=2.0, alpha=1.0, reduction="mean"):
         """
         Focal Loss class for multi-class classification tasks.
         :param gamma: Focusing parameter, controls the strength of the modulating factor (1 - p_t)^gamma
@@ -110,28 +110,32 @@ class MultiLabelFocalLoss(nn.Module):
     def __init__(
         self,
         gamma=2.0,
-        class_weights=None,
-        class_sparsity_coefficient=None,
         alpha=None,
+        class_sparsity_coefficient=None,
         reduction="mean",
     ):
         """
         Focal Loss class for multi-label classification tasks.
         :param gamma: Focusing parameter, controls the strength of the modulating factor (1 - p_t)^gamma
-        :param alpha: Balancing factor, can be a scalar or a tensor for class-wise weights. If None, no class balancing is used.
+        :param alpha: Balancing factor, should be a tensor for class-wise weights. If None, no class balancing is used.
+        :param class_sparsity_coefficient: Optional factor that is multiplied with the loss for positive samples.
         :param reduction: Specifies the reduction method: 'none' | 'mean' | 'sum'
         """
         super(MultiLabelFocalLoss, self).__init__()
         self.gamma = gamma
         self.reduction = reduction
-        self.alpha = alpha
-        if isinstance(class_weights, (list, tuple)) or (
-            hasattr(class_weights, "__iter__")
-            and not isinstance(class_weights, torch.Tensor)
+        if isinstance(alpha, (list, tuple)) or (
+            hasattr(alpha, "__iter__") and not isinstance(alpha, torch.Tensor)
         ):
-            self.class_weights = torch.Tensor(class_weights)
+            self.class_alphas = torch.Tensor(alpha)
+        elif isinstance(alpha, torch.Tensor):
+            self.class_alphas = alpha
+        elif alpha is None:
+            self.class_alphas = None
         else:
-            self.class_weights = None
+            raise ValueError(
+                "class_weights must be a list, tuple, or tensor of class weights."
+            )
         self.class_sparsity_coefficient = class_sparsity_coefficient
 
     def forward(self, inputs, targets):
@@ -152,25 +156,24 @@ class MultiLabelFocalLoss(nn.Module):
         focal_weight = (1 - p_t) ** self.gamma
 
         # Apply alpha if provided
-        if self.class_weights is not None:
+        if self.class_alphas is not None:
             # TODO: Use pos_weight of BCEWithLogitsLoss instead
-            weights = self.class_weights.to(inputs.device)
+            weights = self.class_alphas.to(inputs.device)
             bce_loss = weights * bce_loss
-        if self.alpha is not None:
-            # Interpret as class_sparsity_coefficient
-            alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
-            bce_loss = alpha_t * bce_loss
         if self.class_sparsity_coefficient is not None:
             # Interpret as class_sparsity_coefficient
-            sparse_t = self.class_sparsity_coefficient * targets
+            sparse_t = self.class_sparsity_coefficient * targets + (1 - targets)
             bce_loss = sparse_t * bce_loss
 
         # Apply focal loss weight
         loss = focal_weight * bce_loss
 
-        loss = loss.sum(dim=1)  # Sum over classes for each sample
+        # Sum over classes for each sample
         if self.reduction == "mean":
             return loss.mean()
         elif self.reduction == "sum":
             return loss.sum()
+        elif self.reduction == "sum_mean":
+            loss = loss.sum(dim=1)
+            return loss.mean()
         return loss

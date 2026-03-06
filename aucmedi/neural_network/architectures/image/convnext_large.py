@@ -24,8 +24,8 @@
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "2D.ConvNeXtLarge"         |
-| Input_shape              | (384x384)                  |
-| Standardization          | None                       |
+| Input_shape              | (384, 384)                 |
+| Standardization          | "torch"                   |
 
 Recommended alternative `Input_shape` is 224x224 pixels.
 
@@ -34,7 +34,7 @@ Recommended alternative `Input_shape` is 224x224 pixels.
      Standardization is applied inside the architecture.
 
 ???+ abstract "Reference - Implementation"
-    [https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext](https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_large.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_large.html) <br>
 
 ???+ abstract "Reference - Publication"
     Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell, Saining Xie.
@@ -48,6 +48,8 @@ Recommended alternative `Input_shape` is 224x224 pixels.
 # External libraries
 import torch
 from torchvision.models import convnext_large as BaseModel
+from torchvision.models import ConvNeXt_Large_Weights
+import torchvision.transforms as transforms_module
 
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -58,29 +60,38 @@ from aucmedi.neural_network.architectures import Architecture_Base
 # -----------------------------------------------------#
 class ConvNeXtLarge(Architecture_Base):
     # ---------------------------------------------#
-    #                Initialization               #
+    #                Initialization                #
     # ---------------------------------------------#
     def __init__(
         self,
-        classification_head,
         channels,
         input_resolution=(224, 224),
         pretrained_weights=False,
     ):
-        self.classifier = classification_head
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
         self.channels = channels
 
     # ---------------------------------------------#
-    #                Create Model                 #
+    #         Architecture Attributes              #
     # ---------------------------------------------#
+
     def get_output_shape(self):
         # ConvNeXt Large has a fixed 32x downsampling ratio
         # Output channels are always 1536 for the large model
         h_out = self.input_shape[0] // 32
         w_out = self.input_shape[1] // 32
         return (h_out, w_out, 1536)
+
+    def get_preprocess(self):
+        # https://docs.pytorch.org/vision/stable/models.html
+        # Return the weights transforms which include all preprocessing
+        weights = ConvNeXt_Large_Weights.DEFAULT
+        return weights.transforms()
+
+    # ---------------------------------------------#
+    #                Create Model                  #
+    # ---------------------------------------------#
 
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
@@ -89,7 +100,7 @@ class ConvNeXtLarge(Architecture_Base):
         else:
             model_weights = None
 
-        # Obtain ResNet50 as base model
+        # Obtain base model (omit classification head)
         full_model = BaseModel(weights=model_weights)
         base_model = full_model.features
         return base_model

@@ -223,8 +223,6 @@ class NeuralNetwork:
         }
         if n_meta_variables is not None:
             classifier_paras["n_meta_variables"] = n_meta_variables
-        # Initialize classifier for the classification head
-        arch_paras["classification_head"] = Classifier(**classifier_paras)
         # Initialize architecture if None provided
         if architecture is None:
             self.architecture = architecture_dict["2D.Vanilla"](**arch_paras)
@@ -248,8 +246,11 @@ class NeuralNetwork:
         self.model_base = self.architecture.create_model()
         # output_shape() returns (height, width, channels) for 2D or (depth, height, width, channels) for 3D
         arch_output_shape = self.architecture.get_output_shape()
+
+        # Initialize classifier
+        classifier = Classifier(**classifier_paras)
         # Add classification head via Classifier
-        self.model = self.architecture.classifier.build(
+        self.model = classifier.build(
             model_base=self.model_base, arch_output_shape=arch_output_shape
         )
 

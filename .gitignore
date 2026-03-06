@@ -25,3 +25,6 @@ model/
 
 # Pictures
 *.png
+
+# output
+output/

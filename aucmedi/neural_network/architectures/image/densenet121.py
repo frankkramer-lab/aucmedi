@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,11 +15,11 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the DenseNet121 architecture.
+# -----------------------------------------------------#
+"""The classification variant of the DenseNet121 architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
@@ -28,7 +28,7 @@
 | Standardization          | "torch"                    |
 
 ???+ abstract "Reference - Implementation"
-    [https://keras.io/applications/#densenet](https://keras.io/applications/#densenet) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.densenet121.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.densenet121.html) <br>
 
 ???+ abstract "Reference - Publication"
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger. 25 Aug 2016.
@@ -36,44 +36,62 @@
     <br>
     [https://arxiv.org/abs/1608.06993](https://arxiv.org/abs/1608.06993)
 """
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import DenseNet121 as BaseModel
+from torchvision.models import densenet121 as BaseModel
+from torchvision.models import DenseNet121_Weights
+import torchvision.transforms as transforms_module
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
-#           Architecture class: DenseNet121           #
-#-----------------------------------------------------#
-class DenseNet121(Architecture_Base):
-    #---------------------------------------------#
-    #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
-        self.pretrained_weights = pretrained_weights
 
-    #---------------------------------------------#
+# -----------------------------------------------------#
+#           Architecture class: DenseNet121           #
+# -----------------------------------------------------#
+class DenseNet121(Architecture_Base):
+    # ---------------------------------------------#
+    #                Initialization               #
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        channels,
+        input_resolution=(224, 224),
+        pretrained_weights=False,
+    ):
+        self.input_shape = input_resolution + (channels,)
+        self.pretrained_weights = pretrained_weights
+        self.channels = channels
+
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+
+    def get_output_shape(self):
+        # DenseNet reduces spatial resolution by a factor of 32
+        # Output channels are 1024 for DenseNet121
+        h_out = self.input_shape[0] // 32
+        w_out = self.input_shape[1] // 32
+        return (h_out, w_out, 1024)
+
+    def get_preprocess(self):
+        weights = DenseNet121_Weights.DEFAULT
+        return weights.transforms()
+
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
+
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "DEFAULT"
+        else:
+            model_weights = None
 
-        # Obtain DenseNet121 as base model
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
-
-        # Return created model
-        return model
+        # Obtain base model (omit classification head)
+        full_model = BaseModel(weights=model_weights)
+        base_model = full_model.features
+        return base_model

@@ -51,13 +51,11 @@ class Vanilla(nn.Module, Architecture_Base):
     # ---------------------------------------------#
     def __init__(
         self,
-        classification_head,
         channels,
         input_resolution=(224, 224),
         pretrained_weights=False,
     ):
         super(Vanilla, self).__init__()
-        self.classifier = classification_head
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
         self.channels = channels

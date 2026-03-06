@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 # ==============================================================================#
 # -----------------------------------------------------#
-#                    Documentation                    #
+#                    Documentation                     #
 # -----------------------------------------------------#
 """The classification variant of the ConvNeXt Base architecture.
 
@@ -25,16 +25,12 @@
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "2D.ConvNeXtBase"          |
 | Input_shape              | (224, 224)                 |
-| Standardization          | None                       |
+| Standardization          | "torch"                    |
 
 Recommended alternative `Input_shape` is 384x384 pixels.
 
-!!! warning
-     ConvNeXt models expect their inputs to be float or uint8 tensors of pixels with values in the [0-255] range.
-     Standardization is applied inside the architecture.
-
 ???+ abstract "Reference - Implementation"
-    [https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext](https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_base.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_base.html) <br>
 
 ???+ abstract "Reference - Publication"
     Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell, Saining Xie.
@@ -43,11 +39,9 @@ Recommended alternative `Input_shape` is 384x384 pixels.
     [https://arxiv.org/abs/2201.03545](https://arxiv.org/abs/2201.03545)
 """
 # -----------------------------------------------------#
-#                   Library imports                   #
+#                   Library imports                    #
 # -----------------------------------------------------#
 # External libraries
-# from tensorflow.keras.applications.convnext import ConvNeXtBase as BaseModel
-import torch
 from torchvision.models import convnext_base as BaseModel
 from torchvision.models import ConvNeXt_Base_Weights
 import torchvision.transforms as transforms_module
@@ -57,20 +51,18 @@ from aucmedi.neural_network.architectures import Architecture_Base
 
 
 # -----------------------------------------------------#
-#          Architecture class: ConvNeXtBase           #
+#          Architecture class: ConvNeXtBase            #
 # -----------------------------------------------------#
 class ConvNeXtBase(Architecture_Base):
     # ---------------------------------------------#
-    #                Initialization               #
+    #                Initialization                #
     # ---------------------------------------------#
     def __init__(
         self,
-        classification_head,
         channels,
         input_resolution=(224, 224),
         pretrained_weights=False,
     ):
-        self.classifier = classification_head
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
         self.channels = channels
@@ -93,7 +85,7 @@ class ConvNeXtBase(Architecture_Base):
         return weights.transforms()
 
     # ---------------------------------------------#
-    #                Create Model                 #
+    #                Create Model                  #
     # ---------------------------------------------#
 
     def create_model(self):
@@ -103,18 +95,7 @@ class ConvNeXtBase(Architecture_Base):
         else:
             model_weights = None
 
-        # Obtain ResNet50 as base model
+        # Obtain base model (omit classification head)
         full_model = BaseModel(weights=model_weights)
         base_model = full_model.features
-        """
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(
-            model_input=base_model.input, model_output=top_model
-        )
-        """
         return base_model

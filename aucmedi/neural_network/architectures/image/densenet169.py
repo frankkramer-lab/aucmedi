@@ -70,11 +70,38 @@ class DenseNet169(Architecture_Base):
     # ---------------------------------------------#
 
     def get_output_shape(self):
-        # DenseNet reduces spatial resolution by a factor of 32
-        # Output channels are 1664 for DenseNet169
-        h_out = self.input_shape[0] // 32
-        w_out = self.input_shape[1] // 32
-        return (h_out, w_out, 1664)
+        # Hybrid: fast-path for common size, otherwise compute via non-
+        # pretrained forward pass and cache the result.
+        if hasattr(self, "_cached_output_shape") and self._cached_output_shape:
+            return self._cached_output_shape
+
+        common = {(224, 224): (7, 7, 1664)}
+        res = (self.input_shape[0], self.input_shape[1])
+        if res in common:
+            self._cached_output_shape = common[res]
+            return self._cached_output_shape
+
+        import torch
+
+        full_model = BaseModel(weights=None)
+        base_model = getattr(full_model, "features", None)
+        if base_model is None:
+            modules = list(full_model.children())[:-1]
+            base_model = torch.nn.Sequential(*modules)
+        base_model = base_model.cpu()
+        base_model.eval()
+        with torch.no_grad():
+            x = torch.zeros(1, self.channels, self.input_shape[0], self.input_shape[1])
+            out = base_model(x)
+
+        if isinstance(out, dict):
+            out = next(v for v in out.values() if hasattr(v, "ndim"))
+
+        h_out = int(out.shape[2])
+        w_out = int(out.shape[3])
+        c_out = int(out.shape[1])
+        self._cached_output_shape = (h_out, w_out, c_out)
+        return self._cached_output_shape
 
     def get_preprocess(self):
         weights = DenseNet169_Weights.DEFAULT

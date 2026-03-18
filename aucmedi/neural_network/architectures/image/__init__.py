@@ -40,11 +40,6 @@ from aucmedi.neural_network.architectures.image.efficientnetb5 import EfficientN
 from aucmedi.neural_network.architectures.image.efficientnetb6 import EfficientNetB6
 from aucmedi.neural_network.architectures.image.efficientnetb7 import EfficientNetB7
 
-# InceptionResNet
-from aucmedi.neural_network.architectures.image.inceptionresnetv2 import (
-    InceptionResNetV2,
-)
-
 # InceptionV3
 from aucmedi.neural_network.architectures.image.inceptionv3 import InceptionV3
 
@@ -53,31 +48,44 @@ from aucmedi.neural_network.architectures.image.resnet50 import ResNet50
 from aucmedi.neural_network.architectures.image.resnet101 import ResNet101
 from aucmedi.neural_network.architectures.image.resnet152 import ResNet152
 
-# ResNetv2
-from aucmedi.neural_network.architectures.image.resnet50v2 import ResNet50V2
-from aucmedi.neural_network.architectures.image.resnet101v2 import ResNet101V2
-from aucmedi.neural_network.architectures.image.resnet152v2 import ResNet152V2
 
-# MobileNet
-from aucmedi.neural_network.architectures.image.mobilenet import MobileNet
-from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
+# ResNeXt
+from aucmedi.neural_network.architectures.image.resnext50 import ResNeXt50
+from aucmedi.neural_network.architectures.image.resnext101 import ResNeXt101
 
-# NasNet
-from aucmedi.neural_network.architectures.image.nasnetlarge import NASNetLarge
-from aucmedi.neural_network.architectures.image.nasnetmobile import NASNetMobile
 
 # VGG
 from aucmedi.neural_network.architectures.image.vgg16 import VGG16
 from aucmedi.neural_network.architectures.image.vgg19 import VGG19
 
-# Xception
-from aucmedi.neural_network.architectures.image.xception import Xception
-
 # Vision Transformer (ViT)
-# from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
-# from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
-# from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
-# from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
+from aucmedi.neural_network.architectures.image.vit_b16 import ViT_B16
+from aucmedi.neural_network.architectures.image.vit_b32 import ViT_B32
+from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
+from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
+
+# MobileNet
+from aucmedi.neural_network.architectures.unsupported.mobilenet import MobileNet
+
+from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
+
+# ResNetv2
+from aucmedi.neural_network.architectures.unsupported.resnet50v2 import ResNet50V2
+from aucmedi.neural_network.architectures.unsupported.resnet101v2 import ResNet101V2
+from aucmedi.neural_network.architectures.unsupported.resnet152v2 import ResNet152V2
+
+# NasNet
+from aucmedi.neural_network.architectures.unsupported.nasnetlarge import NASNetLarge
+from aucmedi.neural_network.architectures.unsupported.nasnetmobile import NASNetMobile
+
+# Xception
+from aucmedi.neural_network.architectures.unsupported.xception import Xception
+
+# InceptionResNet
+from aucmedi.neural_network.architectures.unsupported.inceptionresnetv2 import (
+    InceptionResNetV2,
+)
+
 # ConvNeXt
 from aucmedi.neural_network.architectures.image.convnext_base import ConvNeXtBase
 from aucmedi.neural_network.architectures.image.convnext_tiny import ConvNeXtTiny
@@ -116,10 +124,10 @@ architecture_dict = {
     "VGG16": VGG16,
     "VGG19": VGG19,
     "Xception": Xception,
-    # "ViT_B16": ViT_B16,
-    # "ViT_B32": ViT_B32,
-    # "ViT_L16": ViT_L16,
-    # "ViT_L32": ViT_L32,
+    "ViT_B16": ViT_B16,
+    "ViT_B32": ViT_B32,
+    "ViT_L16": ViT_L16,
+    "ViT_L32": ViT_L32,
     "ConvNeXtBase": ConvNeXtBase,
     "ConvNeXtTiny": ConvNeXtTiny,
     "ConvNeXtSmall": ConvNeXtSmall,
@@ -177,9 +185,9 @@ architectures = list(architecture_dict.keys())
 # Utilized standardize mode of architectures required for Transfer Learning
 supported_standardize_mode = {
     "Vanilla": "z-score",
-    "ResNet50": "caffe",
-    "ResNet101": "caffe",
-    "ResNet152": "caffe",
+    "ResNet50": "torch",
+    "ResNet101": "torch",
+    "ResNet152": "torch",
     "ResNet50V2": "tf",
     "ResNet101V2": "tf",
     "ResNet152V2": "tf",
@@ -200,13 +208,13 @@ supported_standardize_mode = {
     "MobileNetV2": "torch",
     "NASNetMobile": "tf",
     "NASNetLarge": "tf",
-    "VGG16": "caffe",
-    "VGG19": "caffe",
+    "VGG16": "torch",
+    "VGG19": "torch",
     "Xception": "tf",
-    # "ViT_B16": "tf",
-    # "ViT_B32": "tf",
-    # "ViT_L16": "tf",
-    # "ViT_L32": "tf",
+    "ViT_B16": "torch",
+    "ViT_B32": "torch",
+    "ViT_L16": "torch",
+    "ViT_L32": "torch",
     "ConvNeXtBase": "torch",
     "ConvNeXtTiny": "torch",
     "ConvNeXtSmall": "torch",

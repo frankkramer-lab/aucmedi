@@ -72,10 +72,31 @@ class EfficientNetB0(Architecture_Base):
     # ---------------------------------------------#
 
     def get_output_shape(self):
-        # EfficientNet B0 output channels are 1280
-        h_out = self.input_shape[0] // 32
-        w_out = self.input_shape[1] // 32
-        return (h_out, w_out, 1280)
+        # Hybrid: fast-path for common size, otherwise compute via non-
+        # pretrained forward pass and cache.
+        if hasattr(self, "_cached_output_shape") and self._cached_output_shape:
+            return self._cached_output_shape
+
+        common = {(224, 224): (7, 7, 1280)}
+        res = (self.input_shape[0], self.input_shape[1])
+        if res in common:
+            self._cached_output_shape = common[res]
+            return self._cached_output_shape
+
+        import torch
+        full_model = BaseModel(weights=None)
+        base_model = full_model.features
+        base_model = base_model.cpu()
+        base_model.eval()
+        with torch.no_grad():
+            x = torch.zeros(1, self.channels, self.input_shape[0], self.input_shape[1])
+            out = base_model(x)
+
+        h_out = int(out.shape[2])
+        w_out = int(out.shape[3])
+        c_out = int(out.shape[1])
+        self._cached_output_shape = (h_out, w_out, c_out)
+        return self._cached_output_shape
 
     def get_preprocess(self):
         weights = EfficientNet_B0_Weights.DEFAULT

@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,20 +15,23 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the ResNet152 architecture.
+# -----------------------------------------------------#
+"""The classification variant of the ResNet152 architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "2D.ResNet152"             |
 | Input_shape              | (224, 224)                 |
-| Standardization          | "caffe"                    |
+| Standardization          | "torch"                    |
+
+Choose pretrained weights via the torchvision `ResNet152_Weights` enum and use
+the `get_preprocess()` helper to obtain the correct preprocessing transforms.
 
 ???+ abstract "Reference - Implementation"
-    [https://keras.io/api/applications/resnet/](https://keras.io/api/applications/resnet/) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.resnet152.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.resnet152.html) <br>
 
 ???+ abstract "Reference - Publication"
     Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. 10 Dec 2015.
@@ -36,44 +39,79 @@
     <br>
     [https://arxiv.org/abs/1512.03385](https://arxiv.org/abs/1512.03385)
 """
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications.resnet import ResNet152 as BaseModel
+from torchvision.models import resnet152 as BaseModel
+from torchvision.models import ResNet152_Weights
+import torch.nn as nn
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #            Architecture class: ResNet152            #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class ResNet152(Architecture_Base):
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
+    # ---------------------------------------------#
+    def __init__(self, channels, input_resolution=(224, 224), pretrained_weights=False):
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
 
-    #---------------------------------------------#
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+    def get_output_shape(self):
+        # ResNet final convolutional output channels are 2048
+        # Hybrid: fast-path for common sizes, otherwise run a single
+        # non-pretrained forward pass and cache the result.
+        if hasattr(self, "_cached_output_shape") and self._cached_output_shape:
+            return self._cached_output_shape
+
+        common = {(224, 224): (7, 7, 2048)}
+        res = (self.input_shape[0], self.input_shape[1])
+        if res in common:
+            self._cached_output_shape = common[res]
+            return self._cached_output_shape
+
+        import torch
+
+        full_model = BaseModel(weights=None)
+        modules = list(full_model.children())[:-2]
+        base_model = torch.nn.Sequential(*modules)
+        base_model = base_model.cpu()
+        base_model.eval()
+        with torch.no_grad():
+            x = torch.zeros(1, self.channels, self.input_shape[0], self.input_shape[1])
+            out = base_model(x)
+
+        if isinstance(out, dict):
+            out = next(v for v in out.values() if hasattr(v, "ndim"))
+
+        h_out = int(out.shape[2])
+        w_out = int(out.shape[3])
+        c_out = int(out.shape[1])
+        self._cached_output_shape = (h_out, w_out, c_out)
+        return self._cached_output_shape
+
+    def get_preprocess(self):
+        weights = ResNet152_Weights.DEFAULT
+        return weights.transforms()
+
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     def create_model(self):
-        # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            weights_arg = ResNet152_Weights.DEFAULT
+        else:
+            weights_arg = None
 
-        # Obtain ResNet152 as base model
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
-
-        # Return created model
-        return model
+        full_model = BaseModel(weights=weights_arg)
+        base_model = nn.Sequential(*(list(full_model.children())[:-2]))
+        return base_model

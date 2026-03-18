@@ -145,10 +145,10 @@ supported_standardize_mode = {
     "MobileNetV2": "tf",
     "VGG16": "caffe",
     "VGG19": "caffe",
-    "ConvNeXtTiny": None,
-    "ConvNeXtSmall": None,
-    "ConvNeXtBase": None,
-    "ConvNeXtLarge": None,
+    "ConvNeXtTiny": "torch",
+    "ConvNeXtSmall": "torch",
+    "ConvNeXtBase": "torch",
+    "ConvNeXtLarge": "torch",
 }
 """ Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 3D Architectures Methods in AUCMEDI.
 

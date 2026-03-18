@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,20 +15,22 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the EfficientNetB5 architecture.
+# -----------------------------------------------------#
+"""The classification variant of the EfficientNetB5 architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "2D.EfficientNetB5"        |
 | Input_shape              | (456, 456)                 |
-| Standardization          | "caffe"                    |
+| Standardization          | "torch"                   |
+
+Recommended input shapes: 224, 240, 288, 300, 380, 456, 528, 600
 
 ???+ abstract "Reference - Implementation"
-    [https://keras.io/api/applications/efficientnet/](https://keras.io/api/applications/efficientnet/) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.efficientnet_b5.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.efficientnet_b5.html) <br>
 
 ???+ abstract "Reference - Publication"
     Mingxing Tan, Quoc V. Le. 28 May 2019.
@@ -36,44 +38,87 @@
     <br>
     [https://arxiv.org/abs/1905.11946](https://arxiv.org/abs/1905.11946)
 """
-#-----------------------------------------------------#
-#                   Library imports                   #
-#-----------------------------------------------------#
+# ---------------------------------------------#
+#                   Library imports              #
+# ---------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import EfficientNetB5 as BaseModel
+from torchvision.models import efficientnet_b5 as BaseModel
+from torchvision.models import EfficientNet_B5_Weights
+import torchvision.transforms as transforms_module
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #          Architecture class: EfficientNetB5         #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class EfficientNetB5(Architecture_Base):
-    #---------------------------------------------#
-    #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(456, 456),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
+    # ---------------------------------------------#
+    #                Initialization                #
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        channels,
+        input_resolution=(456, 456),
+        pretrained_weights=False,
+    ):
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
 
-    #---------------------------------------------#
-    #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+
+    def get_output_shape(self):
+        # Hybrid: fast-path for common size, otherwise compute via non-
+        # pretrained forward pass and cache.
+        if hasattr(self, "_cached_output_shape") and self._cached_output_shape:
+            return self._cached_output_shape
+
+        common = {(224, 224): (7, 7, 2048)}
+        res = (self.input_shape[0], self.input_shape[1])
+        if res in common:
+            self._cached_output_shape = common[res]
+            return self._cached_output_shape
+
+        import torch
+
+        full_model = BaseModel(weights=None)
+        base_model = getattr(full_model, "features", None)
+        if base_model is None:
+            modules = list(full_model.children())[:-1]
+            base_model = torch.nn.Sequential(*modules)
+        base_model = base_model.cpu()
+        base_model.eval()
+        with torch.no_grad():
+            x = torch.zeros(1, self.channels, self.input_shape[0], self.input_shape[1])
+            out = base_model(x)
+
+        if isinstance(out, dict):
+            out = next(v for v in out.values() if hasattr(v, "ndim"))
+
+        h_out = int(out.shape[2])
+        w_out = int(out.shape[3])
+        c_out = int(out.shape[1])
+        self._cached_output_shape = (h_out, w_out, c_out)
+        return self._cached_output_shape
+
+    def get_preprocess(self):
+        weights = EfficientNet_B5_Weights.DEFAULT
+        return weights.transforms()
+
+    # ---------------------------------------------#
+    #                Create Model                  #
+    # ---------------------------------------------#
+
     def create_model(self):
-        # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "DEFAULT"
+        else:
+            model_weights = None
 
-        # Obtain EfficientNet as base model
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
-
-        # Return created model
-        return model
+        full_model = BaseModel(weights=model_weights)
+        base_model = full_model.features
+        return base_model

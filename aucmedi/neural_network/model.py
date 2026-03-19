@@ -72,7 +72,7 @@ class NeuralNetwork:
         my_model_b = NeuralNetwork(n_labels=8, channels=3, architecture="3D.ResNet50",
                                     activation_output="sigmoid")
         # 2D architecture with custom input_resolution
-        my_model_c = NeuralNetwork(n_labels=8, channels=3, architecture="2D.Xception",
+        my_model_c = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ConvNeXtBase",
                                     input_resolution=(512,512))
         ```
 
@@ -102,7 +102,7 @@ class NeuralNetwork:
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.arch_resolution,                  # (224,224)
-                              standardize_mode=my_model.arch_standardize)  # "torch"
+                              standardize_mode=my_model.arch_standardize)       # "torch"
         ```
 
         ```python title="Manual way"
@@ -110,8 +110,7 @@ class NeuralNetwork:
                                                          architecture_dict, \
                                                          supported_standardize_mode
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = architecture_dict["3D.DenseNet121"](classification_head,
+        my_arch = architecture_dict["3D.DenseNet121"](n_labels=4,
                                                       channels=1,
                                                       input_resolution=(128,128,128))
 
@@ -137,7 +136,7 @@ class NeuralNetwork:
         my_dg = DataGenerator(samples, "images_dir/",
                               labels=None, metadata=my_metadata,
                               resize=my_model.arch_resolution,                  # (224,224)
-                              standardize_mode=my_model.arch_standardize)  # "torch"
+                              standardize_mode=my_model.arch_standardize)       # "torch"
         ```
     """
 
@@ -161,7 +160,7 @@ class NeuralNetwork:
         Args:
             n_labels (int):                         Number of classes/labels (important for the last layer).
             channels (int):                         Number of channels. Grayscale:1 or RGB:3.
-            input_resolution (tuple):                    Input shape of the batch imaging data (including channel axis).
+            input_resolution (tuple):               Input resolution of the batch imaging data (excluding channel axis).
                                                     If None is provided, the default input_resolution for the architecture is selected
                                                     from the architecture dictionary.
             architecture (str or Architecture):     Key (str) or instance of a neural network model Architecture class instance.
@@ -191,7 +190,7 @@ class NeuralNetwork:
             tf_epochs (int, default=5):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
             tf_lr_start (float, default=1e-4):      Transfer Learning configuration: Starting learning rate for frozen layer fitting.
             tf_lr_end (float, default=1e-5):        Transfer Learning configuration: Starting learning rate after layer unfreezing.
-            arch_resolution (tuple of int):              Meta variable: Input shape of architecture which can be passed to a DataGenerator. For example: (224, 224).
+            arch_resolution (tuple of int):         Meta variable: Input resolution of architecture which can be passed to a DataGenerator. For example: (224, 224).
             arch_standardize (str):                 Meta variable: Recommended standardize_mode of architecture which can be passed to a DataGenerator.
                                                     For example: "torch".
         """

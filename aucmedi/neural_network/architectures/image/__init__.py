@@ -25,6 +25,12 @@ from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.image.vanilla import Vanilla
 
+# ConvNeXt
+from aucmedi.neural_network.architectures.image.convnext_base import ConvNeXtBase
+from aucmedi.neural_network.architectures.image.convnext_tiny import ConvNeXtTiny
+from aucmedi.neural_network.architectures.image.convnext_small import ConvNeXtSmall
+from aucmedi.neural_network.architectures.image.convnext_large import ConvNeXtLarge
+
 # DenseNet
 from aucmedi.neural_network.architectures.image.densenet121 import DenseNet121
 from aucmedi.neural_network.architectures.image.densenet169 import DenseNet169
@@ -48,11 +54,9 @@ from aucmedi.neural_network.architectures.image.resnet50 import ResNet50
 from aucmedi.neural_network.architectures.image.resnet101 import ResNet101
 from aucmedi.neural_network.architectures.image.resnet152 import ResNet152
 
-
 # ResNeXt
 from aucmedi.neural_network.architectures.image.resnext50 import ResNeXt50
 from aucmedi.neural_network.architectures.image.resnext101 import ResNeXt101
-
 
 # VGG
 from aucmedi.neural_network.architectures.image.vgg16 import VGG16
@@ -65,9 +69,10 @@ from aucmedi.neural_network.architectures.image.vit_l16 import ViT_L16
 from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
 
 # MobileNet
-from aucmedi.neural_network.architectures.unsupported.mobilenet import MobileNet
-
 from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
+
+# UNSUPPORTED
+from aucmedi.neural_network.architectures.unsupported.mobilenet import MobileNet
 
 # ResNetv2
 from aucmedi.neural_network.architectures.unsupported.resnet50v2 import ResNet50V2
@@ -85,12 +90,6 @@ from aucmedi.neural_network.architectures.unsupported.xception import Xception
 from aucmedi.neural_network.architectures.unsupported.inceptionresnetv2 import (
     InceptionResNetV2,
 )
-
-# ConvNeXt
-from aucmedi.neural_network.architectures.image.convnext_base import ConvNeXtBase
-from aucmedi.neural_network.architectures.image.convnext_tiny import ConvNeXtTiny
-from aucmedi.neural_network.architectures.image.convnext_small import ConvNeXtSmall
-from aucmedi.neural_network.architectures.image.convnext_large import ConvNeXtLarge
 
 # -----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
@@ -139,15 +138,15 @@ architecture_dict = {
 
     ???+ example "Example"
         ```python title="Recommended via NeuralNetwork class"
-        my_model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.Xception",
-                                  input_shape(512, 512), activation_output="softmax")
+        my_model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ConvNeXtBase",
+                                  input_shape=(512, 512), activation_output="softmax")
         ```
 
         ```python title="Manual via architecture_dict import"
         from aucmedi.neural_network.architectures import Classifier, architecture_dict
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = architecture_dict["2D.Xception"](classification_head,
+        classification_head = Classifier(n_labels=4)
+        my_arch = architecture_dict["2D.ConvNeXtBase"](classification_head,
                                                    channels=3, input_shape=(512,512))
 
         my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
@@ -155,10 +154,10 @@ architecture_dict = {
 
         ```python title="Manual via module import"
         from aucmedi.neural_network.architectures import Classifier
-        from aucmedi.neural_network.architectures.image import Xception
+        from aucmedi.neural_network.architectures.image import ConvNeXtBase
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = Xception(classification_head,
+        classification_head = Classifier(n_labels=4)
+        my_arch = ConvNeXtBase(classification_head,
                                         channels=3, input_shape=(512,512))
 
         my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)

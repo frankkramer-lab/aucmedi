@@ -112,14 +112,14 @@ class MultiLabelFocalLoss(nn.Module):
         gamma=2.0,
         alpha=None,
         class_sparsity_coefficient=None,
-        reduction="mean",
+        reduction="sum_mean",
     ):
         """
         Focal Loss class for multi-label classification tasks.
         :param gamma: Focusing parameter, controls the strength of the modulating factor (1 - p_t)^gamma
         :param alpha: Balancing factor, should be a tensor for class-wise weights. If None, no class balancing is used.
         :param class_sparsity_coefficient: Optional factor that is multiplied with the loss for positive samples.
-        :param reduction: Specifies the reduction method: 'none' | 'mean' | 'sum'
+        :param reduction: Specifies the reduction method: 'none' | 'mean' | 'sum' | 'sum_mean'
         """
         super(MultiLabelFocalLoss, self).__init__()
         self.gamma = gamma

@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,79 +15,85 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
-from tensorflow.keras.callbacks import EarlyStopping
-import pandas as pd
+# -----------------------------------------------------#
+import logging
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                   Custom Callbacks                  #
-#-----------------------------------------------------#
-class ThresholdEarlyStopping(EarlyStopping):
-    """ Changed baseline to act as a real baseline.
+# -----------------------------------------------------#
+class EarlyStopping:
+    def __init__(self, patience=3, monitor="val_loss"):
+        self.patience = patience
+        self.monitor = monitor
+        self.counter = 0
+        self.best_loss = None
 
-    The number of patience epochs are only counted when baseline loss is achieved.
+    def on_epoch_end(self, epoch=None, logs=None):
+        # Get the latest value of the monitored metric
+        current_loss = logs[self.monitor][-1]
+        if self.best_loss is None or current_loss < self.best_loss:
+            self.best_loss = current_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                logging.info("Early stopping triggered on epoch %d.", epoch)
+                return True
+        return False
 
-    ??? abstract "Reference - Implementation"
-        Author:   JBSnorro <br>
-        Source:   https://stackoverflow.com/questions/53500047/stop-training-in-keras-when-accuracy-is-already-1-0  <br>
-    """
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
+
+class ThresholdEarlyStopping:
+    def __init__(self, patience=3, baseline=0.0, monitor="val_loss"):
+        self.patience = patience
+        self.monitor = monitor
+        self.counter = 0
+        self.best_loss = None
+        self.baseline = baseline
         self.baseline_attained = False
 
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_end(self, epoch=None, logs=None):
+        current_loss = logs[self.monitor][-1]  # Get the latest
         if not self.baseline_attained:
-            current = self.get_monitor_value(logs)
-            if current is None:
-                return
-            if self.monitor_op(current, self.baseline):
-                if self.verbose > 0:
-                    print('Baseline attained.')
+            if current_loss <= self.baseline:
+                logging.info("Baseline attained at epoch %d.", epoch)
                 self.baseline_attained = True
             else:
-                return
-        super(ThresholdEarlyStopping, self).on_epoch_end(epoch, logs)
+                return False  # Don't start counting patience until baseline is attained
 
-class MinEpochEarlyStopping(EarlyStopping):
-    """ Changed baseline to act as a real baseline.
+        if self.best_loss is None or current_loss < self.best_loss:
+            self.best_loss = current_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                logging.info("Early stopping triggered on epoch %d.", epoch)
+                return True
+        return False
 
-    The number of patience epochs are only counted when baseline loss is achieved.
 
-    ??? abstract "Reference - Implementation"
-        Author:   McLawrence  <br>
-        Source:   https://stackoverflow.com/questions/46287403/is-there-a-way-to-implement-early-stopping-in-keras-only-after-the-first-say-1  <br>
-    """
-    def __init__(self, monitor='val_loss', min_delta=0, patience=0, verbose=0,
-                 mode='auto', start_epoch = 100): # add argument for starting epoch
-        super(MinEpochEarlyStopping, self).__init__()
-        self.start_epoch = start_epoch
+class MinEpochEarlyStopping:
+    def __init__(self, patience=3, min_epoch=5, monitor="val_loss"):
+        self.patience = patience
+        self.monitor = monitor
+        self.counter = 0
+        self.best_loss = None
+        self.min_epoch = min_epoch
 
-    def on_epoch_end(self, epoch, logs=None):
-        if epoch > self.start_epoch:
-            super(MinEpochEarlyStopping, self).on_epoch_end(epoch, logs)
+    def on_epoch_end(self, epoch=None, logs=None):
+        if epoch < self.min_epoch:
+            return False  # Don't start counting patience until minimum epoch is reached
 
-#-----------------------------------------------------#
-#                    Callback Utils                   #
-#-----------------------------------------------------#
-def csv_to_history(input_path):
-    """ Utility function for reading a CSV file from the
-    [CSVLogger](https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/CSVLogger)
-    Callback and return a History dictionary object.
-
-    Can be utilized in order to pass returned dictionary object to the
-    [evaluate_fitting()][aucmedi.evaluation.fitting] function of the AUCMEDI
-    [evaluation][aucmedi.evaluation] submodule.
-
-    Args:
-        input_path (str):           Path to a CSV file generated by a CSVLogger Callback.
-
-    Returns:
-        history (dict):       A history dictionary from a Keras history object which contains several logs.
-    """
-    # Read logging data
-    dt = pd.read_csv(input_path, sep=",")
-    # Parse to dict and return results
-    return dt.to_dict(orient="list")
+        current_loss = logs[self.monitor][-1]  # Get the latest
+        if self.best_loss is None or current_loss < self.best_loss:
+            self.best_loss = current_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                logging.info("Early stopping triggered on epoch %d.", epoch)
+                return True
+        return False

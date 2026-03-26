@@ -20,6 +20,8 @@
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
+from time import time
+
 import torch
 from torch import nn
 from torch.optim import Adam
@@ -270,74 +272,10 @@ class NeuralNetwork:
     tf_lr_start = 1e-4
     tf_lr_end = 1e-5
 
-    def unravel_generator_output(
-        self,
-        generator_output,
-        has_labels=True,
-        has_metadata=False,
-        has_sample_weights=False,
-    ):
-        """Internal function to unravel the output of a DataGenerator
-        and permute its shape as necessary.
-
-        Args:
-            generator_output (tuple):    Output of a DataGenerator batch.
-
-        Returns:
-            x (torch.Tensor):            Input data tensor.
-            y (torch.Tensor):            Label data tensor.
-            metadata (torch.Tensor or None):   Metadata tensor if present, else None.
-            sample_weights (torch.Tensor or None): Sample weights tensor if present, else None.
-        """
-        # Unravel generator output
-        if has_sample_weights:
-            data, y, sample_weights = generator_output
-            if sample_weights is not None and isinstance(sample_weights, np.ndarray):
-                sample_weights = torch.from_numpy(sample_weights).float()
-                sample_weights = sample_weights.to(self.device)
-        else:
-            data, y = generator_output
-            sample_weights = None
-
-        # Handle metadata case where data is a tuple (x, metadata)
-        if has_metadata:
-            x, metadata = data
-            if isinstance(metadata, np.ndarray):
-                metadata = torch.from_numpy(metadata).float()
-            metadata = metadata.to(self.device)
-        else:
-            x = data
-            metadata = None
-        # Convert to torch tensors if numpy arrays
-        if isinstance(x, np.ndarray):
-            x = torch.from_numpy(x).float()
-        if isinstance(y, np.ndarray):
-            y = torch.from_numpy(y).float()
-        else:
-            x = x.float()
-        # uncomment if needed to convert OHE to class indices
-        # if y.ndim > 1:
-        #    y = torch.argmax(y, dim=1)
-        # y = y.long()
-
-        x = x.to(self.device)
-        y = y.to(self.device)
-
-        # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
-        if (
-            x.dim() == 4
-        ):  # 2D: (batch, height, width, channels) -> (batch, channels, height, width)
-            x = x.permute(0, 3, 1, 2)
-        elif (
-            x.dim() == 5
-        ):  # 3D: (batch, depth, height, width, channels) -> (batch, channels, depth, height, width)
-            x = x.permute(0, 4, 1, 2, 3)
-
-        return x, y, metadata, sample_weights
-
     # ---------------------------------------------#
     #                  Training                   #
     # ---------------------------------------------#
+
     # Training the Neural Network model
     def train(
         self,
@@ -346,6 +284,7 @@ class NeuralNetwork:
         epochs=20,
         iterations=None,
         callbacks=[],
+        early_stopping_callback=None,
         class_weights=None,
         transfer_learning=False,
     ):
@@ -360,7 +299,7 @@ class NeuralNetwork:
         The first one with frozen base model layers and a high learning rate,
         whereas the second one with unfrozen layers and a small learning rate.
 
-        ??? info "PyTorch History Objects for Transfer Learning"
+        ??? info "History for Transfer Learning"
             For the transfer learning training, two history dictionaries will be created.
 
             However, in order to provide consistency with the single training without transfer learning,
@@ -377,7 +316,7 @@ class NeuralNetwork:
             validation_generator (DataGenerator):   A data generator which will be used for validation.
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
-            iterations (int):                       Number of iterations (batches) in a single epoch.
+            iterations (int):                       Number of iterations (batches) in a single epoch. If None is provided, the number of iterations is determined by the length of the training_generator.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 5 epochs will be trained.
@@ -396,6 +335,8 @@ class NeuralNetwork:
                 epochs,
                 iterations,
                 class_weights,
+                callbacks=callbacks,
+                early_stopping_callback=early_stopping_callback,
             )
         # Running a transfer learning training process
         else:
@@ -417,6 +358,8 @@ class NeuralNetwork:
                 self.tf_epochs,
                 iterations,
                 class_weights,
+                callbacks=callbacks,
+                early_stopping_callback=early_stopping_callback,
             )
 
             # Unfreeze base model layers again
@@ -433,6 +376,8 @@ class NeuralNetwork:
                 epochs,
                 iterations,
                 class_weights,
+                callbacks=callbacks,
+                early_stopping_callback=early_stopping_callback,
             )
 
             # Combine history dictionaries
@@ -453,11 +398,14 @@ class NeuralNetwork:
         epochs,
         iterations,
         class_weights,
+        callbacks=[],
+        early_stopping_callback=None,
     ):
         """Internal function for training for a number of epochs."""
         history = {
             "loss": [],
             "val_loss": [],
+            "epoch_time": [],
         }
         # Check that generator is a torch DataLoader
         if not isinstance(training_generator, DataLoader):
@@ -488,19 +436,19 @@ class NeuralNetwork:
             )
 
         for epoch in range(epochs):
-            self.model.train()
             epoch_loss = 0.0
             batch_count = 0
 
             # Training loop
             self.model.train(True)
-            for batch_idx, out in enumerate(training_generator):
+            self.epoch_start_time = time()
+            for batch_idx, train_gen_output in enumerate(training_generator):
                 if iterations is not None and batch_idx >= iterations:
                     break
 
                 # Unravel generator output
                 x, y, metadata, sample_weights = self.unravel_generator_output(
-                    out,
+                    train_gen_output,
                     train_has_labels,
                     train_has_metadata,
                     train_has_sample_weights,
@@ -519,21 +467,19 @@ class NeuralNetwork:
             avg_loss = epoch_loss / batch_count
             history["loss"].append(avg_loss)
 
-            if self.verbose:
-                print(f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}")
-
             # Validation loop
+            avg_val_loss = None  # Provide smth for print-out
             if validation_generator is not None:
                 val_loss = 0.0
                 val_batch_count = 0
-                self.model.eval()
+                self.model.train(False)
 
                 with torch.no_grad():
-                    for out_val in validation_generator:
+                    for val_gen_output in validation_generator:
                         # Unravel generator output
                         x_val, y_val, metadata_val, sample_weights_val = (
                             self.unravel_generator_output(
-                                out_val,
+                                val_gen_output,
                                 val_has_labels,
                                 val_has_metadata,
                                 val_has_sample_weights,
@@ -548,10 +494,89 @@ class NeuralNetwork:
 
                 avg_val_loss = val_loss / val_batch_count
                 history["val_loss"].append(avg_val_loss)
-
-                if self.verbose:
-                    print(f"  Val Loss: {avg_val_loss:.4f}")
+            ELAPSED_TIME = time() - self.epoch_start_time
+            history["epoch_time"].append(ELAPSED_TIME)
+            if self.verbose:
+                print(
+                    f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f},  Val Loss: {avg_val_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
+                )
+            for callback in callbacks:
+                print(callback.on_epoch_end(epoch, logs=history))
+            if (
+                early_stopping_callback is not None
+                and early_stopping_callback.on_epoch_end(epoch, logs=history)
+            ):
+                print(f"Early stopping triggered at epoch {epoch + 1}.")
+                break
         return history
+
+    def unravel_generator_output(
+        self,
+        generator_output,
+        has_labels=True,
+        has_metadata=False,
+        has_sample_weights=False,
+    ):
+        """Internal function to unravel the output of a DataGenerator
+        and permute its shape as necessary.
+
+        Args:
+            generator_output (tuple):    Output of a DataGenerator batch.
+
+        Returns:
+            x (torch.Tensor):            Input data tensor.
+            y (torch.Tensor):            Label data tensor.
+            metadata (torch.Tensor or None):   Metadata tensor if present, else None.
+            sample_weights (torch.Tensor or None): Sample weights tensor if present, else None.
+        """
+        # Unravel generator output
+        if has_labels:
+            if has_sample_weights:
+                data, y, sample_weights = generator_output
+                if sample_weights is not None and isinstance(
+                    sample_weights, np.ndarray
+                ):
+                    sample_weights = torch.from_numpy(sample_weights).float()
+                    sample_weights = sample_weights.to(self.device)
+            else:
+                data, y = generator_output
+                sample_weights = None
+        else:
+            data = generator_output
+            y = None
+            sample_weights = None
+
+        # Handle metadata case where data is a tuple (x, metadata)
+        if has_metadata:
+            x, metadata = data
+            if isinstance(metadata, np.ndarray):
+                metadata = torch.from_numpy(metadata).float()
+            metadata = metadata.to(self.device)
+        else:
+            x = data
+            metadata = None
+        # Convert to torch tensors if numpy arrays
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x).float()
+        if isinstance(y, np.ndarray):
+            y = torch.from_numpy(y).float()
+        else:
+            x = x.float()
+
+        x = x.to(self.device)
+        y = y.to(self.device)
+
+        # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
+        if (
+            x.dim() == 4
+        ):  # 2D: (batch, height, width, channels) -> (batch, channels, height, width)
+            x = x.permute(0, 3, 1, 2)
+        elif (
+            x.dim() == 5
+        ):  # 3D: (batch, depth, height, width, channels) -> (batch, channels, depth, height, width)
+            x = x.permute(0, 4, 1, 2, 3)
+
+        return x, y, metadata, sample_weights
 
     # ---------------------------------------------#
     #                 Prediction                  #

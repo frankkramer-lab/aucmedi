@@ -26,6 +26,13 @@ import logging
 #                   Custom Callbacks                  #
 # -----------------------------------------------------#
 class EarlyStopping:
+    """
+    Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).
+    :param patience: Number of epochs with no improvement after which training will be stopped.
+    :param monitor: Metric within training log to be monitored (e.g., 'val_loss').
+    :return: True if training should be stopped, False otherwise.
+    """
+
     def __init__(self, patience=3, monitor="val_loss"):
         self.patience = patience
         self.monitor = monitor
@@ -47,6 +54,14 @@ class EarlyStopping:
 
 
 class ThresholdEarlyStopping:
+    """Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).
+    The number of patience epochs are only counted when baseline loss is achieved.
+    :param patience: Number of epochs with no improvement after which training will be stopped.
+    :param baseline: Baseline value for the monitored metric. Patience counting starts only after this baseline is attained.
+    :param monitor: Metric within training log to be monitored (e.g., 'val_loss').
+    :return: True if training should be stopped, False otherwise.
+    """
+
     def __init__(self, patience=3, baseline=0.0, monitor="val_loss"):
         self.patience = patience
         self.monitor = monitor
@@ -76,6 +91,14 @@ class ThresholdEarlyStopping:
 
 
 class MinEpochEarlyStopping:
+    """Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).
+    The number of patience epochs are only counted after a specified minimum epoch is reached.
+    :param patience: Number of epochs with no improvement after which training will be stopped.
+    :param min_epoch: Minimum epoch after which patience counting starts.
+    :param monitor: Metric within training log to be monitored (e.g., 'val_loss').
+    :return: True if training should be stopped, False otherwise.
+    """
+
     def __init__(self, patience=3, min_epoch=5, monitor="val_loss"):
         self.patience = patience
         self.monitor = monitor

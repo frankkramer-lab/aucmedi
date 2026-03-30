@@ -268,6 +268,7 @@ class NeuralNetwork:
     #               Class Variables               #
     # ---------------------------------------------#
     # Transfer Learning configurations
+    # TODO: train params
     tf_epochs = 10
     tf_lr_start = 1e-4
     tf_lr_end = 1e-5
@@ -319,7 +320,7 @@ class NeuralNetwork:
             iterations (int):                       Number of iterations (batches) in a single epoch. If None is provided, the number of iterations is determined by the length of the training_generator.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
-            transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 5 epochs will be trained.
+            transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 10 epochs will be trained.
 
         Returns:
             history (dict):                   A history dictionary which contains several logs.

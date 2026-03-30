@@ -1,4 +1,4 @@
-# ==============================================================================#
+#==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,17 +15,17 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-# ==============================================================================#
-# -----------------------------------------------------#
+#==============================================================================#
+#-----------------------------------------------------#
 #                    Documentation                    #
-# -----------------------------------------------------#
-"""The classification variant of the VGG16 architecture.
+#-----------------------------------------------------#
+""" The classification variant of the ResNeXt101 architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
-| Key in architecture_dict | "3D.VGG16"                 |
+| Key in architecture_dict | "3D.ResNeXt101"            |
 | Input_shape              | (64, 64, 64)               |
-| Standardization          | "caffe"                    |
+| Standardization          | "grayscale"                |
 
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
@@ -33,44 +33,50 @@
     [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
 
 ???+ abstract "Reference - Publication"
-    Karen Simonyan, Andrew Zisserman. 04 Sep 2014.
-    Very Deep Convolutional Networks for Large-Scale Image Recognition.
+    Saining Xie, Ross Girshick, Piotr Dollár, Zhuowen Tu, Kaiming He. 16 Nov 2016.
+    Aggregated Residual Transformations for Deep Neural Networks.
     <br>
-    [https://arxiv.org/abs/1409.1556](https://arxiv.org/abs/1409.1556)
+    [https://arxiv.org/abs/1611.05431](https://arxiv.org/abs/1611.05431)
 """
-# -----------------------------------------------------#
+#-----------------------------------------------------#
 #                   Library imports                   #
-# -----------------------------------------------------#
+#-----------------------------------------------------#
 # External libraries
-from timm_3d import create_model
-from torch import nn
-
+from classification_models_3D.tfkeras import Classifiers
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-
-# -----------------------------------------------------#
-#              Architecture class: VGG16              #
-# -----------------------------------------------------#
-class VGG16(Architecture_Base):
-    # ---------------------------------------------#
+#-----------------------------------------------------#
+#           Architecture class: ResNeXt101            #
+#-----------------------------------------------------#
+class ResNeXt101(Architecture_Base):
+    #---------------------------------------------#
     #                Initialization               #
-    # ---------------------------------------------#
-    def __init__(
-        self, channels, input_resolution=(64, 64, 64), pretrained_weights=False
-    ):
-        self.input_shape = input_resolution + (channels,)
+    #---------------------------------------------#
+    def __init__(self, classification_head, channels, input_shape=(64, 64, 64),
+                 pretrained_weights=False):
+        self.classifier = classification_head
+        self.input = input_shape + (channels,)
         self.pretrained_weights = pretrained_weights
 
-    # ---------------------------------------------#
+    #---------------------------------------------#
     #                Create Model                 #
-    # ---------------------------------------------#
+    #---------------------------------------------#
     def create_model(self):
-        # Create model
-        full_model = create_model(
-            "vgg16", pretrained=self.pretrained_weights, num_classes=0, global_pool=""
-        )
+        # Get pretrained image weights from imagenet if desired
+        if self.pretrained_weights : model_weights = "imagenet"
+        else : model_weights = None
 
-        base_model = full_model.features
+        # Obtain ResNeXt101 as base model
+        BaseModel, preprocess_input = Classifiers.get("resnext101")
+        base_model = BaseModel(include_top=False, weights=model_weights,
+                               input_tensor=None, input_shape=self.input,
+                               pooling=None)
+        top_model = base_model.output
+
+        # Add classification head
+        model = self.classifier.build(model_input=base_model.input,
+                                      model_output=top_model)
+
         # Return created model
-        return base_model
+        return model

@@ -154,7 +154,6 @@ class NeuralNetwork:
         activation_output="softmax",
         fcl_dropout=True,
         n_meta_variables=None,
-        learning_rate=0.0001,
         verbose=1,
     ):
         """Initialization function for creating a Neural Network (model) object.
@@ -174,8 +173,7 @@ class NeuralNetwork:
                                                     Any loss function defined in PyTorch or aucmedi.neural_network.loss_functions can be used.
             metrics (list of Metric Functions):     List of one or multiple metric functions for evaluation.
                                                     Any metric function defined in PyTorch or custom functions can be used.
-            activation_output (str):                Activation function which should be used in the classification head
-                                                    ([Classifier][aucmedi.neural_network.architectures.classifier]).
+            activation_output (str):                Activation function which is used during prediction.
             fcl_dropout (bool):                     Option whether to utilize an additional Linear & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             n_meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
@@ -205,7 +203,6 @@ class NeuralNetwork:
             else torch.nn.CrossEntropyLoss()
         )
         self.metrics = metrics if metrics is not None else []
-        self.learning_rate = learning_rate
         self.pretrained_weights = pretrained_weights
         self.activation_output = activation_output
         self.fcl_dropout = fcl_dropout
@@ -258,20 +255,8 @@ class NeuralNetwork:
         # Move model to device
         self.model = self.model.to(self.device)
 
-        # Initialize optimizer
-        self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
-
         # Cache starting weights
         self.initialization_weights = [p.data.clone() for p in self.model.parameters()]
-
-    # ---------------------------------------------#
-    #               Class Variables               #
-    # ---------------------------------------------#
-    # Transfer Learning configurations
-    # TODO: train params
-    tf_epochs = 10
-    tf_lr_start = 1e-4
-    tf_lr_end = 1e-5
 
     # ---------------------------------------------#
     #                  Training                   #
@@ -282,12 +267,15 @@ class NeuralNetwork:
         self,
         training_generator,
         validation_generator=None,
-        epochs=20,
         iterations=None,
+        epochs=20,
+        learning_rate=0.0001,
+        transfer_learning=False,
+        tf_epochs=10,
+        fine_tuning_lr=None,
         callbacks=[],
         early_stopping_callback=None,
         class_weights=None,
-        transfer_learning=False,
     ):
         """Fitting function for the Neural Network model performing a training process.
 
@@ -315,16 +303,26 @@ class NeuralNetwork:
         Args:
             training_generator (DataGenerator):     A data generator which will be used for training.
             validation_generator (DataGenerator):   A data generator which will be used for validation.
-            epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
-                                                    the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch. If None is provided, the number of iterations is determined by the length of the training_generator.
-            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+            epochs (int):                           Total number of epochs (includes transfer learning). A single epoch is defined as one iteration through
+                                                    the complete data set.
+            learning_rate (float):                  Learning rate that is passed to the optimizer
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 10 epochs will be trained.
+            tf_epochs (int):                        Number of epochs used in transfer learning
+            fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
+            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
+            early_stopping_callback (Callback Class): An early stopping callback checked after every epoch that terminates training if condition is met
+            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
 
         Returns:
             history (dict):                   A history dictionary which contains several logs.
         """
+        if fine_tuning_lr is None:
+            fine_tuning_lr = 0.1 * learning_rate
+
+        # Initialize optimizer
+        self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
+
         # Adjust number of iterations in training DataGenerator to allow repitition
         if iterations is not None:
             training_generator.set_length(iterations)
@@ -349,14 +347,14 @@ class NeuralNetwork:
             # Set high learning rate for initial training
             self.optimizer = Adam(
                 filter(lambda p: p.requires_grad, self.model.parameters()),
-                lr=self.tf_lr_start,
+                lr=learning_rate,
             )
 
             # Run first training with frozen layers
             history_start = self._train_epoch(
                 training_generator,
                 validation_generator,
-                self.tf_epochs,
+                tf_epochs,
                 iterations,
                 class_weights,
                 callbacks=callbacks,
@@ -368,13 +366,14 @@ class NeuralNetwork:
                 param.requires_grad = True
 
             # Set lower learning rate for fine-tuning
-            self.optimizer = Adam(self.model.parameters(), lr=self.tf_lr_end)
+            self.optimizer = Adam(self.model.parameters(), lr=fine_tuning_lr)
+            ft_epochs = epochs - tf_epochs
 
             # Run second training with unfrozen layers
             history_end = self._train_epoch(
                 training_generator,
                 validation_generator,
-                epochs,
+                ft_epochs,
                 iterations,
                 class_weights,
                 callbacks=callbacks,

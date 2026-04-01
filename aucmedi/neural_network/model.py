@@ -308,7 +308,7 @@ class NeuralNetwork:
                                                     the complete data set.
             learning_rate (float):                  Learning rate that is passed to the optimizer
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 10 epochs will be trained.
-            tf_epochs (int):                        Number of epochs used in transfer learning
+            tf_epochs (int):                        Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
             fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             early_stopping_callback (Callback Class): An early stopping callback checked after every epoch that terminates training if condition is met
@@ -497,9 +497,15 @@ class NeuralNetwork:
             ELAPSED_TIME = time() - self.epoch_start_time
             history["epoch_time"].append(ELAPSED_TIME)
             if self.verbose:
-                print(
-                    f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f},  Val Loss: {avg_val_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
-                )
+                if avg_val_loss is not None:
+                    print(
+                        f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f},  Val Loss: {avg_val_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
+                    )
+                else:
+                    print(
+                        f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
+                    )
+
             for callback in callbacks:
                 print(callback.on_epoch_end(epoch, logs=history))
             if (

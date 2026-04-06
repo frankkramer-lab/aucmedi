@@ -271,7 +271,7 @@ class NeuralNetwork:
         epochs=20,
         learning_rate=0.0001,
         transfer_learning=False,
-        tf_epochs=10,
+        transfer_epochs=10,
         fine_tuning_lr=None,
         callbacks=[],
         early_stopping_callback=None,
@@ -308,7 +308,7 @@ class NeuralNetwork:
                                                     the complete data set.
             learning_rate (float):                  Learning rate that is passed to the optimizer
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 10 epochs will be trained.
-            tf_epochs (int):                        Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
+            transfer_epochs (int):                        Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
             fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             early_stopping_callback (Callback Class): An early stopping callback checked after every epoch that terminates training if condition is met
@@ -354,7 +354,7 @@ class NeuralNetwork:
             history_start = self._train_epoch(
                 training_generator,
                 validation_generator,
-                tf_epochs,
+                transfer_epochs,
                 iterations,
                 class_weights,
                 callbacks=callbacks,
@@ -367,7 +367,7 @@ class NeuralNetwork:
 
             # Set lower learning rate for fine-tuning
             self.optimizer = Adam(self.model.parameters(), lr=fine_tuning_lr)
-            ft_epochs = epochs - tf_epochs
+            ft_epochs = epochs - transfer_epochs
 
             # Run second training with unfrozen layers
             history_end = self._train_epoch(

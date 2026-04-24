@@ -24,7 +24,40 @@ import logging
 
 # -----------------------------------------------------#
 #                   Custom Callbacks                  #
-# -----------------------------------------------------#
+# -----------------------------------------------------#\
+class ReduceLROnPlateau:
+    """
+    Custom learning rate scheduler that reduces the learning rate by a factor if a specified metric does not improve for a given number of epochs (patience).
+    :param patience: Number of epochs with no improvement after which learning rate will be reduced.
+    :param factor: Factor by which the learning rate will be reduced. new_lr = lr * factor.
+    :param monitor: Metric within training log to be monitored (e.g., 'val_loss').
+    :return: New learning rate if it was reduced, otherwise None.
+    """
+
+    def __init__(self, patience=3, factor=0.1, monitor="val_loss"):
+        self.patience = patience
+        self.factor = factor
+        self.monitor = monitor
+        self.counter = 0
+        self.best_loss = None
+
+    def on_epoch_end(self, epoch=None, logs=None, lr=None):
+        # Get the latest value of the monitored metric
+        current_loss = logs[self.monitor][-1]
+        if self.best_loss is None or current_loss < self.best_loss:
+            self.best_loss = current_loss
+            self.counter = 0
+        else:
+            self.counter += 1
+            if self.counter >= self.patience:
+                new_lr = lr * self.factor  # Reduce learning rate by factor
+                logging.info(
+                    "Learning rate reduced to %.6f on epoch %d.", new_lr, epoch
+                )
+                return new_lr
+        return None
+
+
 class EarlyStopping:
     """
     Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).

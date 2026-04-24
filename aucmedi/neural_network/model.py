@@ -275,6 +275,7 @@ class NeuralNetwork:
         fine_tuning_lr=None,
         callbacks=[],
         early_stopping_callback=None,
+        lr_scheduler_callback=None,
         class_weights=None,
     ):
         """Fitting function for the Neural Network model performing a training process.
@@ -312,6 +313,7 @@ class NeuralNetwork:
             fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             early_stopping_callback (Callback Class): An early stopping callback checked after every epoch that terminates training if condition is met
+            lr_scheduler_callback (Callback Class): A learning rate scheduler callback checked after every epoch that adjusts the learning rate if condition is met
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
 
         Returns:
@@ -336,6 +338,7 @@ class NeuralNetwork:
                 class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
+                lr_scheduler_callback=lr_scheduler_callback,
             )
         # Running a transfer learning training process
         else:
@@ -359,6 +362,7 @@ class NeuralNetwork:
                 class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
+                lr_scheduler_callback=None,  # No LR scheduler in transfer learning phase
             )
 
             # Unfreeze base model layers again
@@ -378,6 +382,7 @@ class NeuralNetwork:
                 class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
+                lr_scheduler_callback=lr_scheduler_callback,
             )
 
             # Combine history dictionaries
@@ -400,6 +405,7 @@ class NeuralNetwork:
         class_weights,
         callbacks=[],
         early_stopping_callback=None,
+        lr_scheduler_callback=None,
     ):
         """Internal function for training for a number of epochs."""
         history = {
@@ -505,9 +511,18 @@ class NeuralNetwork:
                     print(
                         f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
                     )
-
             for callback in callbacks:
                 print(callback.on_epoch_end(epoch, logs=history))
+            if lr_scheduler_callback is not None:
+                # Derive current learning rate from optimizer
+                current_lr = self.optimizer.param_groups[0]["lr"]
+
+                new_lr = lr_scheduler_callback.on_epoch_end(
+                    epoch, logs=history, lr=current_lr
+                )
+                if new_lr is not None:
+                    for param_group in self.optimizer.param_groups:
+                        param_group["lr"] = new_lr
             if (
                 early_stopping_callback is not None
                 and early_stopping_callback.on_epoch_end(epoch, logs=history)
@@ -561,6 +576,7 @@ class NeuralNetwork:
         else:
             x = data
             metadata = None
+
         # Convert to torch tensors if numpy arrays
         if isinstance(x, np.ndarray):
             x = torch.from_numpy(x).float()

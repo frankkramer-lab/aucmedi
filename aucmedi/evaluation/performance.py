@@ -189,13 +189,13 @@ def evalby_confusion_matrix(
     # Generate confusion matrix
     fig = (
         ggplot(dt, aes(x="pd", y="gt", fill="score"))
-        + geom_tile(color="white", linewidth=1.5)
+        + geom_tile(color="white", size=1.5)
         + geom_text(aes(label="score"), color="black")
         + ggtitle("Performance Evaluation: Confusion Matrix")
         + xlab("Prediction")
         + ylab("Ground Truth")
         + scale_fill_gradient(low="white", high="royalblue", limits=(0, 100))
-        + guides(fill=guide_colorbar(title="%", barwidth=10, barheight=50))
+        + guides(fill=guide_colorbar(title="%"))
         + theme_bw()
         + theme(
             axis_text_x=element_text(rotation=45, va="top", ha="right"),

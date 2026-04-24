@@ -42,8 +42,29 @@ class ReduceLROnPlateau:
         self.best_loss = None
 
     def on_epoch_end(self, epoch=None, logs=None, lr=None):
-        # Get the latest value of the monitored metric
-        current_loss = logs[self.monitor][-1]
+        # Safely get the latest value of the monitored metric
+        if logs is None:
+            logging.debug("ReduceLROnPlateau: logs is None on epoch %s.", epoch)
+            return None
+        if self.monitor not in logs:
+            logging.debug(
+                "ReduceLROnPlateau: monitor '%s' not in logs on epoch %s.",
+                self.monitor,
+                epoch,
+            )
+            return None
+        vals = logs[self.monitor]
+        if isinstance(vals, (list, tuple)):
+            if len(vals) == 0:
+                logging.debug(
+                    "ReduceLROnPlateau: empty list for '%s' on epoch %s.",
+                    self.monitor,
+                    epoch,
+                )
+                return None
+            current_loss = vals[-1]
+        else:
+            current_loss = vals
         if self.best_loss is None or current_loss < self.best_loss:
             self.best_loss = current_loss
             self.counter = 0
@@ -73,8 +94,30 @@ class EarlyStopping:
         self.best_loss = None
 
     def on_epoch_end(self, epoch=None, logs=None):
-        # Get the latest value of the monitored metric
-        current_loss = logs[self.monitor][-1]
+        # Safely get the latest value of the monitored metric
+        if logs is None:
+            logging.debug("EarlyStopping: logs is None on epoch %s.", epoch)
+            return False
+        if self.monitor not in logs:
+            logging.debug(
+                "EarlyStopping: monitor '%s' not in logs on epoch %s.",
+                self.monitor,
+                epoch,
+            )
+            return False
+        vals = logs[self.monitor]
+        if isinstance(vals, (list, tuple)):
+            if len(vals) == 0:
+                logging.debug(
+                    "EarlyStopping: empty list for '%s' on epoch %s.",
+                    self.monitor,
+                    epoch,
+                )
+                return False
+            current_loss = vals[-1]
+        else:
+            current_loss = vals
+
         if self.best_loss is None or current_loss < self.best_loss:
             self.best_loss = current_loss
             self.counter = 0
@@ -104,7 +147,30 @@ class ThresholdEarlyStopping:
         self.baseline_attained = False
 
     def on_epoch_end(self, epoch=None, logs=None):
-        current_loss = logs[self.monitor][-1]  # Get the latest
+        # Safely get the latest value of the monitored metric
+        if logs is None:
+            logging.debug("ThresholdEarlyStopping: logs is None on epoch %s.", epoch)
+            return False
+        if self.monitor not in logs:
+            logging.debug(
+                "ThresholdEarlyStopping: monitor '%s' not in logs on epoch %s.",
+                self.monitor,
+                epoch,
+            )
+            return False
+        vals = logs[self.monitor]
+        if isinstance(vals, (list, tuple)):
+            if len(vals) == 0:
+                logging.debug(
+                    "ThresholdEarlyStopping: empty list for '%s' on epoch %s.",
+                    self.monitor,
+                    epoch,
+                )
+                return False
+            current_loss = vals[-1]
+        else:
+            current_loss = vals
+
         if not self.baseline_attained:
             if current_loss <= self.baseline:
                 logging.info("Baseline attained at epoch %d.", epoch)
@@ -142,8 +208,30 @@ class MinEpochEarlyStopping:
     def on_epoch_end(self, epoch=None, logs=None):
         if epoch < self.min_epoch:
             return False  # Don't start counting patience until minimum epoch is reached
+        # Safely get the latest value of the monitored metric
+        if logs is None:
+            logging.debug("MinEpochEarlyStopping: logs is None on epoch %s.", epoch)
+            return False
+        if self.monitor not in logs:
+            logging.debug(
+                "MinEpochEarlyStopping: monitor '%s' not in logs on epoch %s.",
+                self.monitor,
+                epoch,
+            )
+            return False
+        vals = logs[self.monitor]
+        if isinstance(vals, (list, tuple)):
+            if len(vals) == 0:
+                logging.debug(
+                    "MinEpochEarlyStopping: empty list for '%s' on epoch %s.",
+                    self.monitor,
+                    epoch,
+                )
+                return False
+            current_loss = vals[-1]
+        else:
+            current_loss = vals
 
-        current_loss = logs[self.monitor][-1]  # Get the latest
         if self.best_loss is None or current_loss < self.best_loss:
             self.best_loss = current_loss
             self.counter = 0

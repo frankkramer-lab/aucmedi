@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,28 +15,49 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 import os
+import numpy as np
+
 # Internal libraries
 import aucmedi.data_processing.io_interfaces as io
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Static Variables                  #
-#-----------------------------------------------------#
-ACCEPTABLE_IMAGE_FORMATS = ["jpeg", "jpg", "tif", "tiff", "png", "bmp", "gif",
-                            "npy", "nii", "gz", "mha"]
+# -----------------------------------------------------#
+ACCEPTABLE_IMAGE_FORMATS = [
+    "jpeg",
+    "jpg",
+    "tif",
+    "tiff",
+    "png",
+    "bmp",
+    "gif",
+    "npy",
+    "nii",
+    "gz",
+    "mha",
+]
 """ List of accepted image formats. """
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #             Input Interface for AUCMEDI             #
-#-----------------------------------------------------#
-def input_interface(interface, path_imagedir, path_data=None, training=True,
-                    ohe=False, image_format=None, **kwargs):
-    """ Data Input Interface for all automatically extract various information of dataset structures.
+# -----------------------------------------------------#
+def input_interface(
+    interface,
+    path_imagedir,
+    path_data=None,
+    training=True,
+    ohe=False,
+    image_format=None,
+    **kwargs
+):
+    """Data Input Interface for all automatically extract various information of dataset structures.
 
     Different image file structures and annotation information are processed by
     corresponding format interfaces. These extracted information can be parsed to the
@@ -100,8 +121,10 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
     # Transform selected interface to lower case
     interface = interface.lower()
     # Pass image format if provided
-    if image_format != None : allowed_image_formats = [image_format]
-    else : allowed_image_formats = ACCEPTABLE_IMAGE_FORMATS
+    if image_format != None:
+        allowed_image_formats = [image_format]
+    else:
+        allowed_image_formats = ACCEPTABLE_IMAGE_FORMATS
     # Verify if provided interface is valid
     if interface not in ["csv", "json", "directory"]:
         raise Exception("Unknown interface code provided.", interface)
@@ -110,18 +133,23 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         raise Exception("No annotation file provided for CSV/JSON interface!")
 
     # Initialize parameter dictionary
-    parameters = {"path_data": path_data,
-                  "path_imagedir": path_imagedir,
-                  "allowed_image_formats": allowed_image_formats,
-                  "training": training, "ohe": ohe}
+    parameters = {
+        "path_data": path_data,
+        "path_imagedir": path_imagedir,
+        "allowed_image_formats": allowed_image_formats,
+        "training": training,
+        "ohe": ohe,
+    }
     # Identify correct dataset loader and parameters for CSV format
     if interface == "csv":
         ds_loader = io.csv_loader
         additional_parameters = ["ohe_range", "col_sample", "col_class"]
         for para in additional_parameters:
-            if para in kwargs : parameters[para] = kwargs[para]
+            if para in kwargs:
+                parameters[para] = kwargs[para]
     # Identify correct dataset loader and parameters for JSON format
-    elif interface == "json" : ds_loader = io.json_loader
+    elif interface == "json":
+        ds_loader = io.json_loader
     # Identify correct dataset loader and parameters for directory format
     elif interface == "directory":
         ds_loader = io.directory_loader
@@ -129,4 +157,12 @@ def input_interface(interface, path_imagedir, path_data=None, training=True,
         del parameters["path_data"]
 
     # Load the dataset with the selected format interface and return results
-    return ds_loader(**parameters)
+    results = ds_loader(**parameters)
+    # if training check that all classes are represented in the dataset
+    if training:
+        # check that no column in class_ohe is empty
+        if np.any(np.sum(results[1], axis=0) == 0):
+            raise Exception(
+                "Not all classes are represented in the dataset! Please check your dataset and annotation file."
+            )
+    return results

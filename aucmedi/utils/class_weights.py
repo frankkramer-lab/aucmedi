@@ -59,18 +59,15 @@ def compute_class_weights(ohe_array, method="balanced"):
         class_weights_list (numpy.ndarray):     Class weight list which can be feeded to a loss function.
         class_weights_dict (dict):              Class weight dictionary.
     """
-    # To prevent non-representeded classes from disappearing
-    # add one sample for each class to the ohe array
-    ohe_array = np.vstack([ohe_array, np.eye(ohe_array.shape[1])])
     # Obtain sparse categorical array and number of classes
     class_array = np.argmax(ohe_array, axis=-1)
-    n_classes = np.arange(ohe_array.shape[1])
+    n_classes = np.unique(class_array)
     # Compute class weights with scikit learn
     class_weights_list = compute_class_weight(
         class_weight=method, classes=n_classes, y=class_array
     )
     # Convert class weight array to dictionary
-    class_weights_dict = dict(zip(n_classes, class_weights_list))
+    class_weights_dict = dict(enumerate(class_weights_list))
     # Return resulting class weights as list and dictionary
     return class_weights_list, class_weights_dict
 

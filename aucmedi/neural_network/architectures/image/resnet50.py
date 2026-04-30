@@ -38,6 +38,7 @@ Choose pretrained weights "IMAGENET1K_V1" for the standard ResNet50 pretrained o
     <br>
     [https://arxiv.org/abs/1512.03385](https://arxiv.org/abs/1512.03385)
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
@@ -78,10 +79,9 @@ class ResNet50(Architecture_Base):
             self._cached_output_shape = common[res]
             return self._cached_output_shape
 
-        # Fallback: run a non-pretrained base model to compute actual shape
         import torch
-        from torchvision.models import resnet50 as BaseModel
 
+        # Fallback: run a non-pretrained base model to compute actual shape
         full_model = BaseModel(weights=None)
         base_model = nn.Sequential(*(list(full_model.children())[:-2]))
         base_model = base_model.cpu()

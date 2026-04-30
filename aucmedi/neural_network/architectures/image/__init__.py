@@ -71,26 +71,6 @@ from aucmedi.neural_network.architectures.image.vit_l32 import ViT_L32
 # MobileNet
 from aucmedi.neural_network.architectures.image.mobilenetv2 import MobileNetV2
 
-# UNSUPPORTED
-from aucmedi.neural_network.architectures.unsupported.mobilenet import MobileNet
-
-# ResNetv2
-from aucmedi.neural_network.architectures.unsupported.resnet50v2 import ResNet50V2
-from aucmedi.neural_network.architectures.unsupported.resnet101v2 import ResNet101V2
-from aucmedi.neural_network.architectures.unsupported.resnet152v2 import ResNet152V2
-
-# NasNet
-from aucmedi.neural_network.architectures.unsupported.nasnetlarge import NASNetLarge
-from aucmedi.neural_network.architectures.unsupported.nasnetmobile import NASNetMobile
-
-# Xception
-from aucmedi.neural_network.architectures.unsupported.xception import Xception
-
-# InceptionResNet
-from aucmedi.neural_network.architectures.unsupported.inceptionresnetv2 import (
-    InceptionResNetV2,
-)
-
 # -----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
 # -----------------------------------------------------#
@@ -100,9 +80,6 @@ architecture_dict = {
     "ResNet50": ResNet50,
     "ResNet101": ResNet101,
     "ResNet152": ResNet152,
-    "ResNet50V2": ResNet50V2,
-    "ResNet101V2": ResNet101V2,
-    "ResNet152V2": ResNet152V2,
     "DenseNet121": DenseNet121,
     "DenseNet169": DenseNet169,
     "DenseNet201": DenseNet201,
@@ -114,15 +91,10 @@ architecture_dict = {
     "EfficientNetB5": EfficientNetB5,
     "EfficientNetB6": EfficientNetB6,
     "EfficientNetB7": EfficientNetB7,
-    "InceptionResNetV2": InceptionResNetV2,
     "InceptionV3": InceptionV3,
-    "MobileNet": MobileNet,
     "MobileNetV2": MobileNetV2,
-    "NASNetMobile": NASNetMobile,
-    "NASNetLarge": NASNetLarge,
     "VGG16": VGG16,
     "VGG19": VGG19,
-    "Xception": Xception,
     "ViT_B16": ViT_B16,
     "ViT_B32": ViT_B32,
     "ViT_L16": ViT_L16,
@@ -187,9 +159,6 @@ supported_standardize_mode = {
     "ResNet50": "torch",
     "ResNet101": "torch",
     "ResNet152": "torch",
-    "ResNet50V2": "tf",
-    "ResNet101V2": "tf",
-    "ResNet152V2": "tf",
     "DenseNet121": "torch",
     "DenseNet169": "torch",
     "DenseNet201": "torch",
@@ -201,15 +170,10 @@ supported_standardize_mode = {
     "EfficientNetB5": "torch",
     "EfficientNetB6": "torch",
     "EfficientNetB7": "torch",
-    "InceptionResNetV2": "tf",
     "InceptionV3": "torch",
-    "MobileNet": "tf",
     "MobileNetV2": "torch",
-    "NASNetMobile": "tf",
-    "NASNetLarge": "tf",
     "VGG16": "torch",
     "VGG19": "torch",
-    "Xception": "tf",
     "ViT_B16": "torch",
     "ViT_B32": "torch",
     "ViT_L16": "torch",

@@ -25,6 +25,7 @@ from time import time
 import torch
 from torch import nn
 from torch.optim import Adam
+from torch.optim import lr_scheduler
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 
@@ -276,6 +277,7 @@ class NeuralNetwork:
         callbacks=[],
         early_stopping_callback=None,
         lr_scheduler_callback=None,
+        scheduler=None,
         class_weights=None,
     ):
         """Fitting function for the Neural Network model performing a training process.
@@ -314,6 +316,7 @@ class NeuralNetwork:
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             early_stopping_callback (Callback Class): An early stopping callback checked after every epoch that terminates training if condition is met
             lr_scheduler_callback (Callback Class): A learning rate scheduler callback checked after every epoch that adjusts the learning rate if condition is met
+            scheduler (torch.optim.lr_scheduler):   A PyTorch learning rate scheduler class to be initialized. If None is provided, no learning rate scheduler is used.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
 
         Returns:
@@ -324,11 +327,22 @@ class NeuralNetwork:
 
         # Initialize optimizer
         self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
+        self.lr_scheduler = None
+        self.lr_scheduler_with_fb = None
+        if scheduler is not None:
+            # Check if scheduler is a ReduceLROnPlateau which requires feedback
+            if scheduler == lr_scheduler.ReduceLROnPlateau:
+                # For ReduceLROnPlateau, we need to pass feedback to the scheduler step function
+                self.lr_scheduler_with_fb = scheduler(self.optimizer)
+            else:
+                # Initialize learning rate scheduler
+                self.lr_scheduler = scheduler(self.optimizer)
 
-        # Adjust number of iterations in training DataGenerator to allow repitition
+        # Adjust number of iterations in training DataGenerator to allow repetition
         if iterations is not None:
             training_generator.set_length(iterations)
-        # Running a standard training process
+
+        ### Running a STANDARD training process
         if not transfer_learning:
             history_out = self._train_epoch(
                 training_generator,
@@ -340,7 +354,8 @@ class NeuralNetwork:
                 early_stopping_callback=early_stopping_callback,
                 lr_scheduler_callback=lr_scheduler_callback,
             )
-        # Running a transfer learning training process
+
+        ### Running a TRANSFER LEARNING training process
         else:
             # Freeze base model layers
             for name, param in self.model.named_parameters():
@@ -352,7 +367,14 @@ class NeuralNetwork:
                 filter(lambda p: p.requires_grad, self.model.parameters()),
                 lr=learning_rate,
             )
-
+            if scheduler is not None:
+                # Check if scheduler is a ReduceLROnPlateau which requires feedback
+                if scheduler == lr_scheduler.ReduceLROnPlateau:
+                    # For ReduceLROnPlateau, we need to pass feedback to the scheduler step function
+                    self.lr_scheduler_with_fb = scheduler(self.optimizer)
+                else:
+                    # Initialize learning rate scheduler
+                    self.lr_scheduler = scheduler(self.optimizer)
             # Run first training with frozen layers
             history_start = self._train_epoch(
                 training_generator,
@@ -371,6 +393,13 @@ class NeuralNetwork:
 
             # Set lower learning rate for fine-tuning
             self.optimizer = Adam(self.model.parameters(), lr=fine_tuning_lr)
+            if scheduler is not None:
+                if scheduler == lr_scheduler.ReduceLROnPlateau:
+                    # For ReduceLROnPlateau, we need to pass feedback to the scheduler step function
+                    self.lr_scheduler_with_fb = scheduler(self.optimizer)
+                else:
+                    # Initialize learning rate scheduler
+                    self.lr_scheduler = scheduler(self.optimizer)
             ft_epochs = epochs - transfer_epochs
 
             # Run second training with unfrozen layers
@@ -451,7 +480,6 @@ class NeuralNetwork:
             for batch_idx, train_gen_output in enumerate(training_generator):
                 if iterations is not None and batch_idx >= iterations:
                     break
-
                 # Unravel generator output
                 x, y, metadata, sample_weights = self.unravel_generator_output(
                     train_gen_output,
@@ -459,14 +487,10 @@ class NeuralNetwork:
                     train_has_metadata,
                     train_has_sample_weights,
                 )
-
                 self.optimizer.zero_grad()
                 outputs = self.model(x, metadata)
                 batch_loss = self.loss(outputs, y)
-
                 batch_loss.backward()
-                self.optimizer.step()
-
                 epoch_loss += batch_loss.item()
                 batch_count += 1
 
@@ -483,23 +507,29 @@ class NeuralNetwork:
                 with torch.no_grad():
                     for val_gen_output in validation_generator:
                         # Unravel generator output
-                        x_val, y_val, metadata_val, sample_weights_val = (
-                            self.unravel_generator_output(
-                                val_gen_output,
-                                val_has_labels,
-                                val_has_metadata,
-                                val_has_sample_weights,
-                            )
+                        x_val, y_val, metadata_val, _ = self.unravel_generator_output(
+                            val_gen_output,
+                            val_has_labels,
+                            val_has_metadata,
+                            val_has_sample_weights,
                         )
-
                         val_outputs = self.model(x_val, metadata_val)
                         val_batch_loss = self.loss(val_outputs, y_val)
-
                         val_loss += val_batch_loss.item()
                         val_batch_count += 1
 
                 avg_val_loss = val_loss / val_batch_count
                 history["val_loss"].append(avg_val_loss)
+
+            # Update learning rate scheduler if provided
+            if self.lr_scheduler_with_fb is not None and avg_val_loss is not None:
+                self.lr_scheduler_with_fb.step(avg_val_loss)
+            elif self.lr_scheduler is not None:
+                self.lr_scheduler.step()
+            else:
+                self.optimizer.step()
+
+            # Logging
             ELAPSED_TIME = time() - self.epoch_start_time
             history["epoch_time"].append(ELAPSED_TIME)
             if self.verbose:
@@ -511,6 +541,8 @@ class NeuralNetwork:
                     print(
                         f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
                     )
+
+            # Callbacks
             for callback in callbacks:
                 print(callback.on_epoch_end(epoch, logs=history))
             if lr_scheduler_callback is not None:

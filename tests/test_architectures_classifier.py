@@ -30,7 +30,6 @@ import numpy as np
 from aucmedi import *
 from aucmedi.neural_network.architectures import Classifier
 from aucmedi.neural_network.architectures.image import Vanilla
-from tensorflow.keras import Input
 
 
 # -----------------------------------------------------#
@@ -69,7 +68,7 @@ class ClassifierTEST(unittest.TestCase):
             self.metadata[i][class_index] = 1
 
         # Create Data Generator
-        self.datagen = DataGenerator(
+        self.dataloader = create_batch_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -79,7 +78,7 @@ class ClassifierTEST(unittest.TestCase):
         )
 
         # Create Data Generator with Metadata
-        self.datagen_meta = DataGenerator(
+        self.dataloader_meta = create_batch_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -93,9 +92,7 @@ class ClassifierTEST(unittest.TestCase):
     #           Initialization Functionality          #
     # -------------------------------------------------#
     def test_create(self):
-        classification_head = Classifier(
-            n_labels=20, fcl_dropout=True, activation_output="softmax"
-        )
+        classification_head = Classifier(n_labels=20, fcl_dropout=True)
         self.assertIsInstance(classification_head, Classifier)
 
     # -------------------------------------------------#
@@ -108,7 +105,7 @@ class ClassifierTEST(unittest.TestCase):
             input_resolution=(32, 32),
             activation_output="softmax",
         )
-        preds = model.predict(self.datagen)
+        preds = model.predict(self.dataloader)
         self.assertTrue(np.sum(preds[0]) > 0.99 and np.sum(preds[0]) < 1.01)
 
     # -------------------------------------------------#
@@ -121,7 +118,7 @@ class ClassifierTEST(unittest.TestCase):
             input_resolution=(32, 32),
             activation_output="sigmoid",
         )
-        preds = model.predict(self.datagen)
+        preds = model.predict(self.dataloader)
         self.assertTrue(np.sum(preds[0]) > 5)
 
     # -------------------------------------------------#
@@ -135,20 +132,17 @@ class ClassifierTEST(unittest.TestCase):
             activation_output="softmax",
             n_meta_variables=10,
         )
-        preds = model.predict(self.datagen_meta)
+        preds = model.predict(self.dataloader_meta)
         self.assertTrue(np.sum(preds[0]) > 0.99 and np.sum(preds[0]) < 1.01)
 
     # -------------------------------------------------#
     #          Architecture Interoperability          #
     # -------------------------------------------------#
-    def test_interoperability(self):
-        classification_head = Classifier(
-            n_labels=20, fcl_dropout=True, activation_output="softmax"
-        )
-        arch = Vanilla(classification_head, channels=3, input_resolution=(32, 32))
+    def test_architecture(self):
+        arch = Vanilla(channels=3, input_resolution=(32, 32))
         model = arch.create_model()
         try:
-            model.summary()
+            print(model)
         except:
             raise Exception()
 
@@ -156,15 +150,14 @@ class ClassifierTEST(unittest.TestCase):
     #                  Functionality                  #
     # -------------------------------------------------#
     def test_functionality_base(self):
-        classification_head = Classifier(
-            n_labels=20, fcl_dropout=True, activation_output="softmax"
-        )
-        model_input = Input(shape=(32, 32, 3))
+        arch = Vanilla(channels=3, input_resolution=(32, 32))
+        model = arch.create_model()
+        classification_head = Classifier(n_labels=20, fcl_dropout=True)
         model = classification_head.build(
-            model_input=model_input, model_output=model_input
+            model_base=model, arch_output_shape=model.get_output_shape()
         )
         try:
-            model.summary()
+            print(model)
         except:
             raise Exception()
 
@@ -172,17 +165,17 @@ class ClassifierTEST(unittest.TestCase):
     #             Functionality - Metadata            #
     # -------------------------------------------------#
     def test_functionality_metadata(self):
+        arch = Vanilla(channels=3, input_resolution=(32, 32))
+        model = arch.create_model()
         classification_head = Classifier(
             n_labels=20,
             fcl_dropout=True,
-            activation_output="softmax",
             n_meta_variables=10,
         )
-        model_input = Input(shape=(32, 32, 3))
         model = classification_head.build(
-            model_input=model_input, model_output=model_input
+            model_base=model, arch_output_shape=model.get_output_shape()
         )
         try:
-            model.summary()
+            print(model)
         except:
             raise Exception()

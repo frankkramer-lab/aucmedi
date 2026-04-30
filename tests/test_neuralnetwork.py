@@ -60,7 +60,7 @@ class NeuralNetworkTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create RGB Data Generator
-        self.datagen = DataGenerator(
+        self.dataloader = create_batch_loader(
             self.sampleList_rgb,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -68,6 +68,7 @@ class NeuralNetworkTEST(unittest.TestCase):
             shuffle=True,
             grayscale=False,
             batch_size=3,
+            num_workers=0,
         )
 
     # -------------------------------------------------#
@@ -75,23 +76,25 @@ class NeuralNetworkTEST(unittest.TestCase):
     # -------------------------------------------------#
     def test_training_pure(self):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
-        hist = model.train(training_generator=self.datagen, epochs=3)
+        hist = model.train(training_generator=self.dataloader, epochs=3)
         self.assertTrue("loss" in hist)
 
     def test_training_iterations(self):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
-        hist = model.train(training_generator=self.datagen, epochs=5, iterations=10)
+        hist = model.train(training_generator=self.dataloader, epochs=5, iterations=10)
         self.assertTrue("loss" in hist)
         self.assertTrue(len(hist["loss"]) == 5)
 
-        hist = model.train(training_generator=self.datagen, epochs=3, iterations=2)
+        hist = model.train(training_generator=self.dataloader, epochs=3, iterations=2)
         self.assertTrue("loss" in hist)
         self.assertTrue(len(hist["loss"]) == 3)
 
     def test_training_validation(self):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
         hist = model.train(
-            training_generator=self.datagen, validation_generator=self.datagen, epochs=4
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=4,
         )
         self.assertTrue("loss" in hist and "val_loss" in hist)
 
@@ -99,8 +102,8 @@ class NeuralNetworkTEST(unittest.TestCase):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
         model.tf_epochs = 2
         hist = model.train(
-            training_generator=self.datagen,
-            validation_generator=self.datagen,
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
             epochs=3,
             transfer_learning=True,
         )
@@ -112,7 +115,7 @@ class NeuralNetworkTEST(unittest.TestCase):
     # -------------------------------------------------#
     def test_predict(self):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
-        preds = model.predict(self.datagen)
+        preds = model.predict(self.dataloader)
         self.assertTrue(preds.shape == (10, 4))
         for i in range(0, 10):
             self.assertTrue(np.sum(preds[i]) >= 0.99 and np.sum(preds[i]) <= 1.01)

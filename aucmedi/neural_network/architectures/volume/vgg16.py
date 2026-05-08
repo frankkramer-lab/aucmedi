@@ -38,6 +38,7 @@
     <br>
     [https://arxiv.org/abs/1409.1556](https://arxiv.org/abs/1409.1556)
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
@@ -57,10 +58,21 @@ class VGG16(Architecture_Base):
     #                Initialization               #
     # ---------------------------------------------#
     def __init__(
-        self, channels, input_resolution=(64, 64, 64), pretrained_weights=False
+        self, channels=3, input_resolution=(64, 64, 64), pretrained_weights=False
     ):
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
+
+    def get_output_shape(self):
+        # VGG16 has a fixed 32x downsampling ratio
+        output_shape = (
+            self.input_shape[0] // 32,
+            self.input_shape[1] // 32,
+            self.input_shape[2] // 32,
+            512,  # VGG16 has a fixed output channel dimension of 512
+        )
+        return output_shape
 
     # ---------------------------------------------#
     #                Create Model                 #
@@ -68,7 +80,11 @@ class VGG16(Architecture_Base):
     def create_model(self):
         # Create model
         full_model = create_model(
-            "vgg16", pretrained=self.pretrained_weights, num_classes=0, global_pool=""
+            "vgg16",
+            pretrained=self.pretrained_weights,
+            in_chans=self.input_shape[-1],
+            num_classes=0,
+            global_pool="",
         )
 
         base_model = full_model.features

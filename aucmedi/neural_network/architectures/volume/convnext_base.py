@@ -24,7 +24,7 @@
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "3D.ConvNeXtBase"          |
-| Input_shape              | (64, 64, 64)               |
+| Input_shape              | (64, 64, 64, 3)            |
 | Standardization          | None                       |
 
 !!! warning
@@ -32,9 +32,9 @@
      Standardization is applied inside the architecture.
 
 ???+ abstract "Reference - Implementation"
-    Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
+    Solovyev. (2022). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
+    [https://github.com/ZFTurbo/timm_3d](https://github.com/ZFTurbo/timm_3d) <br>
 
 ???+ abstract "Reference - Publication"
     Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell, Saining Xie.
@@ -42,6 +42,7 @@
     <br>
     [https://arxiv.org/abs/2201.03545](https://arxiv.org/abs/2201.03545)
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
@@ -65,11 +66,9 @@ class ConvNeXtBase(Architecture_Base):
         channels,
         input_resolution=(64, 64, 64),
         pretrained_weights=False,
-        preprocessing=True,
     ):
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
-        self.preprocessing = preprocessing
 
     def get_output_shape(self):
         # ConvNeXt Base has a fixed 32x downsampling ratio

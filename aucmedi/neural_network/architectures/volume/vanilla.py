@@ -32,6 +32,7 @@ No intensive hardware requirements, which makes it ideal for debugging.
 ???+ abstract "Reference - Implementation"
     [https://github.com/wanghsinwei/isic-2019/](https://github.com/wanghsinwei/isic-2019/) <br>
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
@@ -51,13 +52,14 @@ class Vanilla(nn.Module, Architecture_Base):
     # ---------------------------------------------#
     def __init__(
         self,
-        channels,
+        channels=3,
         input_resolution=(128, 128, 128),
         pretrained_weights=False,
     ):
         super(Vanilla, self).__init__()
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
 
         # Build convolutional layers
         self.conv1 = nn.Conv3d(channels, 32, kernel_size=3, padding=1)

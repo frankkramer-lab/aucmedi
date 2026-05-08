@@ -111,28 +111,23 @@ architecture_dict = {
     ???+ example "Example"
         ```python title="Recommended via NeuralNetwork class"
         my_model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ConvNeXtBase",
-                                  input_shape=(512, 512), activation_output="softmax")
+                                  input_resolution=(512, 512), activation_output="softmax")
         ```
 
         ```python title="Manual via architecture_dict import"
-        from aucmedi.neural_network.architectures import Classifier, architecture_dict
+        from aucmedi.neural_network.architectures import architecture_dict
 
-        classification_head = Classifier(n_labels=4)
-        my_arch = architecture_dict["2D.ConvNeXtBase"](classification_head,
-                                                   channels=3, input_shape=(512,512))
+        my_arch = architecture_dict["2D.ConvNeXtBase"](channels=3, input_resolution=(512,512))
 
-        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=4, channels=3, architecture=my_arch)
         ```
 
         ```python title="Manual via module import"
-        from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.image import ConvNeXtBase
 
-        classification_head = Classifier(n_labels=4)
-        my_arch = ConvNeXtBase(classification_head,
-                                        channels=3, input_shape=(512,512))
+        my_arch = ConvNeXtBase(channels=3, input_resolution=(512,512))
 
-        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=4, channels=3, architecture=my_arch)
         ```
 
     ???+ warning

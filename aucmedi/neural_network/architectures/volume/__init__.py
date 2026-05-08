@@ -42,7 +42,6 @@ from aucmedi.neural_network.architectures.volume.resnext50 import ResNeXt50
 from aucmedi.neural_network.architectures.volume.resnext101 import ResNeXt101
 
 # MobileNet
-from aucmedi.neural_network.architectures.volume.mobilenet import MobileNet
 from aucmedi.neural_network.architectures.volume.mobilenetv2 import MobileNetV2
 
 # VGG
@@ -71,7 +70,6 @@ architecture_dict = {
     "ResNet152": ResNet152,
     "ResNeXt50": ResNeXt50,
     "ResNeXt101": ResNeXt101,
-    "MobileNet": MobileNet,
     "MobileNetV2": MobileNetV2,
     "VGG16": VGG16,
     "VGG19": VGG19,
@@ -87,27 +85,22 @@ architecture_dict = {
     ???+ example "Example"
         ```python title="Recommended via NeuralNetwork class"
         my_model = NeuralNetwork(n_labels=4, channels=1, architecture="3D.ResNet50",
-                                  input_shape(128,128,128), activation_output="softmax")
+                                  input_resolution=(128,128,128), activation_output="softmax")
         ```
 
         ```python title="Manual via architecture_dict import"
-        from aucmedi.neural_network.architectures import Classifier, architecture_dict
+        from aucmedi.neural_network.architectures import architecture_dict
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = architecture_dict["3D.ResNet50"](classification_head,
-                                                   channels=1, input_shape=(128,128,128))
-        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
+        my_arch = architecture_dict["3D.ResNet50"](channels=1, input_resolution=(128,128,128))
+        my_model = NeuralNetwork(n_labels=4, channels=1, architecture=my_arch, activation_output="softmax")
         ```
 
         ```python title="Manual via module import"
-        from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.volume import ResNet50
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = ResNet50(classification_head,
-                                        channels=1, input_shape=(128,128,128))
+        my_arch = ResNet50(channels=1, input_resolution=(128,128,128))
 
-        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=4, channels=1, architecture=my_arch, activation_output="softmax")
         ```
 
     ???+ warning
@@ -141,7 +134,6 @@ supported_standardize_mode = {
     "ResNet152": "grayscale",
     "ResNeXt50": "grayscale",
     "ResNeXt101": "grayscale",
-    "MobileNet": "tf",
     "MobileNetV2": "tf",
     "VGG16": "caffe",
     "VGG19": "caffe",

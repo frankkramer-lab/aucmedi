@@ -441,6 +441,7 @@ class NeuralNetwork:
             "loss": [],
             "val_loss": [],
             "epoch_time": [],
+            "learning_rate": [],
         }
         # Check that generator is a torch DataLoader
         if not isinstance(training_generator, DataLoader):
@@ -521,17 +522,20 @@ class NeuralNetwork:
                 avg_val_loss = val_loss / val_batch_count
                 history["val_loss"].append(avg_val_loss)
 
+            self.optimizer.step()
+            current_lr = self.optimizer.param_groups[0]["lr"]
             # Update learning rate scheduler if provided
             if self.lr_scheduler_with_fb is not None and avg_val_loss is not None:
                 self.lr_scheduler_with_fb.step(avg_val_loss)
+                current_lr = self.optimizer.param_groups[0]["lr"]
             elif self.lr_scheduler is not None:
                 self.lr_scheduler.step()
-            else:
-                self.optimizer.step()
+                current_lr = self.optimizer.param_groups[0]["lr"]
 
             # Logging
             ELAPSED_TIME = time() - self.epoch_start_time
             history["epoch_time"].append(ELAPSED_TIME)
+            history["learning_rate"].append(current_lr)
             if self.verbose:
                 if avg_val_loss is not None:
                     print(

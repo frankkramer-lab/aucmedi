@@ -43,6 +43,7 @@ class BatchGenerator(Dataset):
     to a [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] train() & predict()
     function (also compatible to tensorflow.keras.model fit() & predict() function).
 
+    # TODO: Update to Batchgenerator and Wrapperloader stack
     The DataGenerator is the second of the three pillars of AUCMEDI.
 
     ??? info "Pillars of AUCMEDI"
@@ -70,8 +71,8 @@ class BatchGenerator(Dataset):
             path_imagedir="images_dir/",
             image_format=image_format,
             labels=class_ohe[:100],
-            resize=model.meta_input,
-            standardize_mode=model.meta_standardize
+            resize=model.arch_resolution,
+            standardize_mode=model.arch_standardize
         )
 
         model.train(datagen_train, epochs=50)
@@ -82,8 +83,8 @@ class BatchGenerator(Dataset):
             path_imagedir="images_dir/",
             image_format=image_format,
             labels=None,
-            resize=model.meta_input,
-            standardize_mode=model.meta_standardize
+            resize=model.arch_resolution,
+            standardize_mode=model.arch_standardize
         )
 
         preds = model.predict(datagen_test)
@@ -104,11 +105,12 @@ class BatchGenerator(Dataset):
     ???+ warning
         When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
         by the `input_interface()` and the `resize` & `standardize_mode` parameters provided by the
-        `NeuralNetwork` class attributes `meta_input` & `meta_standardize`.
+        `NeuralNetwork` class attributes `arch_resolution` & `arch_standardize`.
 
         It assures, that the samples contain the expected file extension, input shape and standardization.
 
     ???+ abstract "Build on top of the library"
+        # TODO: Update to pytorch
         Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"
@@ -123,8 +125,8 @@ class BatchGenerator(Dataset):
 
         my_dg = DataGenerator(samples, "images_dir/",
                               labels=None, metadata=my_metadata,
-                              resize=my_model.meta_input,                  # (224,224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              resize=my_model.arch_resolution,                  # (224,224)
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
     """
 

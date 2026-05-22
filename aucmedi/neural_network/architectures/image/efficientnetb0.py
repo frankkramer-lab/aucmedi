@@ -38,11 +38,14 @@ Recommended input shapes: 224, 240, 288, 300, 380, 456, 528, 600
     <br>
     [https://arxiv.org/abs/1905.11946](https://arxiv.org/abs/1905.11946)
 """
+
 # ---------------------------------------------#
 #                   Library imports              #
 # ---------------------------------------------#
 # External libraries
-from torchvision.models import efficientnet_b0 as BaseModel
+import torch
+from torch import nn
+from torchvision.models import efficientnet_b0 as TorchvisionModel
 from torchvision.models import EfficientNet_B0_Weights
 import torchvision.transforms as transforms_module
 
@@ -84,8 +87,11 @@ class EfficientNetB0(Architecture_Base):
             return self._cached_output_shape
 
         import torch
-        full_model = BaseModel(weights=None)
+
+        full_model = TorchvisionModel(weights=None)
         base_model = full_model.features
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         base_model = base_model.cpu()
         base_model.eval()
         with torch.no_grad():
@@ -105,6 +111,33 @@ class EfficientNetB0(Architecture_Base):
     # ---------------------------------------------#
     #                Create Model                  #
     # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If input channels differ from 3, replace the first convolutional layer.
+        if self.channels == 3:
+            return model
+
+        first_conv = model[0][0]  # Access the first convolutional layer
+
+        if first_conv is None:
+            return model
+
+        new_conv = nn.Conv2d(
+            self.channels,
+            first_conv.out_channels,
+            kernel_size=first_conv.kernel_size,
+            stride=first_conv.stride,
+            padding=first_conv.padding,
+            bias=(first_conv.bias is not None),
+        )
+        with torch.no_grad():
+            orig_w = first_conv.weight.data
+            avg = orig_w.mean(dim=1, keepdim=True)
+            new_conv.weight.data = avg.repeat(1, self.channels, 1, 1)
+            if first_conv.bias is not None:
+                new_conv.bias.data = first_conv.bias.data.clone()
+
+        model[0][0] = new_conv
+        return model
 
     def create_model(self):
         if self.pretrained_weights:
@@ -112,6 +145,8 @@ class EfficientNetB0(Architecture_Base):
         else:
             model_weights = None
 
-        full_model = BaseModel(weights=model_weights)
+        full_model = TorchvisionModel(weights=model_weights)
         base_model = full_model.features
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         return base_model

@@ -234,6 +234,14 @@ class NeuralNetwork:
         else:
             self.architecture = architecture
             self.arch_standardize = None
+        # Use "z-score" standarization as Fallback if the number of channels is not 3 (e.g. for non-RGB images)
+        if (self.architecture.input_shape[-1] != 3) and (
+            self.arch_standardize in ["torch", "tf", "caffe"]
+        ):
+            print(
+                f"Warning: The architecture {self.architecture.__class__.__name__} is designed for 3-channel RGB images. Your input has {self.architecture.input_shape[-1]} channels. The recommended standardization mode for this architecture is '{self.arch_standardize}', which is not suitable for non-RGB images. Therefore, the standardization mode will be set to 'z-score' as a fallback."
+            )
+            self.arch_standardize = "z-score"
 
         # Obtain final input shape
         self.input_shape = self.architecture.input_shape  # e.g. (224, 224, 3)

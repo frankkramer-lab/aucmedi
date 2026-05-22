@@ -36,11 +36,13 @@
     <br>
     [https://arxiv.org/abs/1512.00567](https://arxiv.org/abs/1512.00567)
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-from torchvision.models import inception_v3 as BaseModel
+import torch
+from torchvision.models import inception_v3 as TorchvisionModel
 from torchvision.models import Inception_V3_Weights
 from torchvision.models.feature_extraction import create_feature_extractor
 import torch.nn as nn
@@ -60,6 +62,12 @@ class InceptionV3(Architecture_Base):
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
         self.channels = channels
+        # The InceptionV3 architecture is designed for 299x299 inputs, so we will upsample smaller inputs in the create_model method.
+        # throw warning if input resolution is smaller than 299x299, as this may lead to increased memory usage and slower training
+        if input_resolution[0] < 299 or input_resolution[1] < 299:
+            print(
+                f"Warning: InceptionV3 is designed for input resolution of at least 299x299. Your input resolution is {input_resolution}. The model will upsample inputs to 299x299, which may lead to increased memory usage and slower training."
+            )
 
     # ---------------------------------------------#
     #         Architecture Attributes             #
@@ -74,25 +82,25 @@ class InceptionV3(Architecture_Base):
         if hasattr(self, "_cached_output_shape") and self._cached_output_shape:
             return self._cached_output_shape
 
-        # fast-path for the two most common sizes
-        common = {(224, 224): (5, 5, 2048), (299, 299): (8, 8, 2048)}
+        # fast-path for the most common sizes
+        common = {(299, 299): (8, 8, 2048)}
         res = (self.input_shape[0], self.input_shape[1])
         if res in common:
             self._cached_output_shape = common[res]
             return self._cached_output_shape
 
         # fallback: build a non-pretrained model and run a single forward on CPU
-        import torch
-
-        full_model = BaseModel(weights=None, aux_logits=False)
+        full_model = TorchvisionModel(weights=None, aux_logits=False)
         return_nodes = {"Mixed_7c": "features"}
         extractor = create_feature_extractor(full_model, return_nodes=return_nodes)
+        if self.channels != 3:
+            extractor = self.rechannel_first_layer(extractor)
         extractor = extractor.cpu()
         extractor.eval()
         with torch.no_grad():
-            x = torch.zeros(
-                1, self.input_shape[2], self.input_shape[0], self.input_shape[1]
-            )
+            h = max(self.input_shape[0], 299)
+            w = max(self.input_shape[1], 299)
+            x = torch.zeros(1, self.input_shape[2], h, w)
             out = extractor(x)
 
         out_t = out["features"] if isinstance(out, dict) else out
@@ -110,6 +118,30 @@ class InceptionV3(Architecture_Base):
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # InceptionV3's first conv layer is named Conv2d_1a_3x3.conv
+        conv1 = model.Conv2d_1a_3x3.conv
+        new_conv1 = nn.Conv2d(
+            self.channels,
+            conv1.out_channels,
+            kernel_size=conv1.kernel_size,
+            stride=conv1.stride,
+            padding=conv1.padding,
+            bias=conv1.bias is not None,
+        )
+        with torch.no_grad():
+            if self.channels == 1:
+                new_conv1.weight.copy_(conv1.weight.sum(dim=1, keepdim=True))
+            else:
+                new_conv1.weight.copy_(
+                    conv1.weight.repeat(1, self.channels // 3 + 1, 1, 1)[
+                        :, : self.channels
+                    ]
+                )
+            if conv1.bias is not None:
+                new_conv1.bias.copy_(conv1.bias)
+        model.Conv2d_1a_3x3.conv = new_conv1
+        return model
 
     def create_model(self):
         if self.pretrained_weights:
@@ -118,11 +150,13 @@ class InceptionV3(Architecture_Base):
         else:
             weights_arg = None
 
-        full_model = BaseModel(weights=weights_arg, aux_logits=False)
+        full_model = TorchvisionModel(weights=weights_arg, aux_logits=False)
 
         # Create a feature extractor that returns the last mixed block
         return_nodes = {"Mixed_7c": "features"}
         feat_extractor = create_feature_extractor(full_model, return_nodes=return_nodes)
+        if self.channels != 3:
+            feat_extractor = self.rechannel_first_layer(feat_extractor)
 
         class _FeatureWrapper(nn.Module):
             def __init__(self, extractor):
@@ -131,7 +165,17 @@ class InceptionV3(Architecture_Base):
 
             def forward(self, x):
                 out = self.extractor(x)
-                # extractor returns a dict with key 'features'
                 return out["features"]
 
-        return _FeatureWrapper(feat_extractor)
+        base_model = _FeatureWrapper(feat_extractor)
+
+        # If the user provides smaller inputs than the model was designed for,
+        # upsample to the recommended minimum to avoid kernel > input errors.
+        min_size = 299
+        if self.input_shape[0] < min_size or self.input_shape[1] < min_size:
+            up = nn.Upsample(
+                size=(min_size, min_size), mode="bilinear", align_corners=False
+            )
+            base_model = nn.Sequential(up, base_model)
+
+        return base_model

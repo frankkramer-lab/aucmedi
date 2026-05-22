@@ -74,11 +74,12 @@ the `get_preprocess()` helper to obtain the correct preprocessing transforms.
     }
     ```
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-from torchvision.models import vit_b_16 as BaseModel
+from torchvision.models import vit_b_16 as TorchvisionModel
 from torchvision.models import ViT_B_16_Weights
 import torch
 import torch.nn as nn
@@ -124,7 +125,7 @@ class ViT_B16(Architecture_Base):
         # VisionTransformer expects a single image_size (square); use max
         target_size = max(target_h, target_w)
 
-        full_model = BaseModel(weights=weights_arg, image_size=target_size)
+        full_model = TorchvisionModel(weights=weights_arg, image_size=target_size)
         # remove classification head
         try:
             full_model.heads = nn.Identity()

@@ -74,11 +74,12 @@ the `get_preprocess()` helper to obtain the correct preprocessing transforms.
     }
     ```
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-from torchvision.models import vit_b_32 as BaseModel
+from torchvision.models import vit_b_32 as TorchvisionModel
 from torchvision.models import ViT_B_32_Weights
 import torch
 import torch.nn as nn
@@ -114,7 +115,7 @@ class ViT_B32(Architecture_Base):
         target_w = ((w_in + patch_size - 1) // patch_size) * patch_size
         target_size = max(target_h, target_w)
 
-        full_model = BaseModel(weights=weights_arg, image_size=target_size)
+        full_model = TorchvisionModel(weights=weights_arg, image_size=target_size)
         try:
             full_model.heads = nn.Identity()
         except Exception:

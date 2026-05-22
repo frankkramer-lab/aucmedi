@@ -44,7 +44,8 @@ the `get_preprocess()` helper to obtain the correct preprocessing transforms.
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-from torchvision.models import resnet101 as BaseModel
+import torch
+from torchvision.models import resnet101 as TorchvisionModel
 from torchvision.models import ResNet101_Weights
 import torch.nn as nn
 
@@ -82,10 +83,12 @@ class ResNet101(Architecture_Base):
 
         import torch
 
-        full_model = BaseModel(weights=None)
+        full_model = TorchvisionModel(weights=None)
         # remove classifier
         modules = list(full_model.children())[:-2]
         base_model = torch.nn.Sequential(*modules)
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         base_model = base_model.cpu()
         base_model.eval()
         with torch.no_grad():
@@ -108,12 +111,42 @@ class ResNet101(Architecture_Base):
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If input channels differ from 3, replace the first convolutional layer.
+        if self.channels == 3:
+            return model
+
+        first_conv = model[0]  # Access the first convolutional layer
+
+        if first_conv is None:
+            return model
+
+        new_conv = nn.Conv2d(
+            self.channels,
+            first_conv.out_channels,
+            kernel_size=first_conv.kernel_size,
+            stride=first_conv.stride,
+            padding=first_conv.padding,
+            bias=(first_conv.bias is not None),
+        )
+        with torch.no_grad():
+            orig_w = first_conv.weight.data
+            avg = orig_w.mean(dim=1, keepdim=True)
+            new_conv.weight.data = avg.repeat(1, self.channels, 1, 1)
+            if first_conv.bias is not None:
+                new_conv.bias.data = first_conv.bias.data.clone()
+
+        model[0] = new_conv
+        return model
+
     def create_model(self):
         if self.pretrained_weights:
             weights_arg = ResNet101_Weights.DEFAULT
         else:
             weights_arg = None
 
-        full_model = BaseModel(weights=weights_arg)
+        full_model = TorchvisionModel(weights=weights_arg)
         base_model = nn.Sequential(*(list(full_model.children())[:-2]))
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         return base_model

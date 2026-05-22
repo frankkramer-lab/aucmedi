@@ -27,6 +27,7 @@ from PIL import Image
 import numpy as np
 
 # Internal libraries
+from aucmedi import NeuralNetwork
 from aucmedi.neural_network.architectures.image import *
 from aucmedi.neural_network.architectures import (
     supported_standardize_mode as sdm_global,
@@ -183,40 +184,59 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.assertTrue(sdm_global["2D.ResNet152"] == "torch")
 
     # -------------------------------------------------#
-    #             Architecture: ResNet50V2            #
+    #              Architecture: ResNeXt50             #
     # -------------------------------------------------#
-    def test_ResNet50V2(self):
-        arch = ResNet50V2(Classifier(n_labels=4), channels=1, input_resolution=(32, 32))
+    def test_ResNeXt50(self):
+        arch = ResNeXt50(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = ResNet50V2(Classifier(n_labels=4), channels=3, input_resolution=(32, 32))
+        arch = ResNeXt50(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
-            architecture="2D.ResNet50V2",
+            architecture="2D.ResNeXt50",
             input_resolution=(32, 32),
         )
         try:
             print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNet50V2"] == "torch")
-        self.assertTrue(sdm_global["2D.ResNet50V2"] == "torch")
+        self.assertTrue(supported_standardize_mode["ResNeXt50"] == "torch")
+        self.assertTrue(sdm_global["2D.ResNeXt50"] == "torch")
+
+    # -------------------------------------------------#
+    #              Architecture: ResNeXt101            #
+    # -------------------------------------------------#
+    def test_ResNeXt101(self):
+        arch = ResNeXt101(channels=1, input_resolution=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
+        model.predict(self.dataloader_GRAY)
+        arch = ResNeXt101(channels=3, input_resolution=(32, 32))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
+        model.predict(self.dataloader_RGB)
+        model = NeuralNetwork(
+            n_labels=4,
+            channels=3,
+            architecture="2D.ResNeXt101",
+            input_resolution=(32, 32),
+        )
+        try:
+            print(model.model)
+        except:
+            raise Exception()
+        self.assertTrue(supported_standardize_mode["ResNeXt101"] == "torch")
+        self.assertTrue(sdm_global["2D.ResNeXt101"] == "torch")
 
     # -------------------------------------------------#
     #            Architecture: DenseNet121            #
     # -------------------------------------------------#
     def test_DenseNet121(self):
-        arch = DenseNet121(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = DenseNet121(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = DenseNet121(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = DenseNet121(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -236,14 +256,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: DenseNet169            #
     # -------------------------------------------------#
     def test_DenseNet169(self):
-        arch = DenseNet169(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = DenseNet169(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = DenseNet169(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = DenseNet169(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -263,14 +279,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: DenseNet201            #
     # -------------------------------------------------#
     def test_DenseNet201(self):
-        arch = DenseNet201(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = DenseNet201(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = DenseNet201(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = DenseNet201(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -290,14 +302,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB0          #
     # -------------------------------------------------#
     def test_EfficientNetB0(self):
-        arch = EfficientNetB0(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB0(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB0(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB0(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -317,14 +325,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB1          #
     # -------------------------------------------------#
     def test_EfficientNetB1(self):
-        arch = EfficientNetB1(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB1(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB1(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB1(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -344,14 +348,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB2          #
     # -------------------------------------------------#
     def test_EfficientNetB2(self):
-        arch = EfficientNetB2(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB2(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB2(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB2(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -371,14 +371,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB3          #
     # -------------------------------------------------#
     def test_EfficientNetB3(self):
-        arch = EfficientNetB3(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB3(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB3(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB3(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -398,14 +394,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB4          #
     # -------------------------------------------------#
     def test_EfficientNetB4(self):
-        arch = EfficientNetB4(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB4(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB4(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB4(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -425,14 +417,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB5          #
     # -------------------------------------------------#
     def test_EfficientNetB5(self):
-        arch = EfficientNetB5(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB5(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB5(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB5(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -452,14 +440,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB6          #
     # -------------------------------------------------#
     def test_EfficientNetB6(self):
-        arch = EfficientNetB6(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB6(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB6(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB6(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -479,14 +463,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #           Architecture: EfficientNetB7          #
     # -------------------------------------------------#
     def test_EfficientNetB7(self):
-        arch = EfficientNetB7(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB7(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = EfficientNetB7(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = EfficientNetB7(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -506,14 +486,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: MobileNetV2            #
     # -------------------------------------------------#
     def test_MobileNetV2(self):
-        arch = MobileNetV2(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = MobileNetV2(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = MobileNetV2(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = MobileNetV2(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -530,50 +506,15 @@ class ArchitecturesImageTEST(unittest.TestCase):
         self.assertTrue(sdm_global["2D.MobileNetV2"] == "torch")
 
     # -------------------------------------------------#
-    #         Architecture: InceptionResNetV2         #
-    # -------------------------------------------------#
-    def test_InceptionResNetV2(self):
-        self.dataloader_GRAY.sf_resize = Resize(shape=(75, 75))
-        self.dataloader_RGB.sf_resize = Resize(shape=(75, 75))
-        arch = InceptionResNetV2(
-            Classifier(n_labels=4), channels=1, input_resolution=(75, 75)
-        )
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.dataloader_GRAY)
-        arch = InceptionResNetV2(
-            Classifier(n_labels=4), channels=3, input_resolution=(75, 75)
-        )
-        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
-        model.predict(self.dataloader_RGB)
-        model = NeuralNetwork(
-            n_labels=4,
-            channels=3,
-            architecture="2D.InceptionResNetV2",
-            input_resolution=(75, 75),
-        )
-        try:
-            print(model.model)
-        except:
-            raise Exception()
-        self.assertTrue(supported_standardize_mode["InceptionResNetV2"] == "torch")
-        self.assertTrue(sdm_global["2D.InceptionResNetV2"] == "torch")
-        self.dataloader_GRAY.sf_resize = Resize(shape=(32, 32))
-        self.dataloader_RGB.sf_resize = Resize(shape=(32, 32))
-
-    # -------------------------------------------------#
     #            Architecture: InceptionV3            #
     # -------------------------------------------------#
     def test_InceptionV3(self):
         self.dataloader_GRAY.sf_resize = Resize(shape=(75, 75))
         self.dataloader_RGB.sf_resize = Resize(shape=(75, 75))
-        arch = InceptionV3(
-            Classifier(n_labels=4), channels=1, input_resolution=(75, 75)
-        )
+        arch = InceptionV3(channels=1, input_resolution=(75, 75))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = InceptionV3(
-            Classifier(n_labels=4), channels=3, input_resolution=(75, 75)
-        )
+        arch = InceptionV3(channels=3, input_resolution=(75, 75))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -595,10 +536,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #               Architecture: VGG16               #
     # -------------------------------------------------#
     def test_VGG16(self):
-        arch = VGG16(Classifier(n_labels=4), channels=1, input_resolution=(32, 32))
+        arch = VGG16(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = VGG16(Classifier(n_labels=4), channels=3, input_resolution=(32, 32))
+        arch = VGG16(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -615,10 +556,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #               Architecture: VGG19               #
     # -------------------------------------------------#
     def test_VGG19(self):
-        arch = VGG19(Classifier(n_labels=4), channels=1, input_resolution=(32, 32))
+        arch = VGG19(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = VGG19(Classifier(n_labels=4), channels=3, input_resolution=(32, 32))
+        arch = VGG19(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -635,20 +576,25 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #              Architecture: ViT B16              #
     # -------------------------------------------------#
     # Functionality and Interoperability testing deactived due to too intensive RAM requirements
-    # def test_ViT_B16(self):
-    # self.dataloader_RGB.sf_resize = Resize(shape=(224, 224))
-    # arch = ViT_B16(Classifier(n_labels=4), channels=3,
-    #                             input_resolution=(224, 224))
-    # model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
-    # model.predict(self.dataloader_RGB)
-    # model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ViT_B16",
-    #                        input_resolution=(224, 224))
-    # try : print(model.model)
-    # except : raise Exception()
-    # self.assertTrue(supported_standardize_mode["ViT_B16"] == "torch")
-    # self.assertTrue(sdm_global["2D.ViT_B16"] == "torch")
-    # self.assertTrue("2D.ViT_B16" in architecture_dict)
-    # self.dataloader_RGB.sf_resize = Resize(shape=(32, 32))
+    def test_ViT_B16(self):
+        self.dataloader_RGB.sf_resize = Resize(shape=(224, 224))
+        arch = ViT_B16(channels=3, input_resolution=(224, 224))
+        model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
+        model.predict(self.dataloader_RGB)
+        model = NeuralNetwork(
+            n_labels=4,
+            channels=3,
+            architecture="2D.ViT_B16",
+            input_resolution=(224, 224),
+        )
+        try:
+            print(model.model)
+        except:
+            raise Exception()
+        self.assertTrue(supported_standardize_mode["ViT_B16"] == "torch")
+        self.assertTrue(sdm_global["2D.ViT_B16"] == "torch")
+        self.assertTrue("2D.ViT_B16" in architecture_dict)
+        self.dataloader_RGB.sf_resize = Resize(shape=(32, 32))
 
     # -------------------------------------------------#
     #              Architecture: ViT B32              #
@@ -656,8 +602,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
     # Functionality and Interoperability testing deactived due to too intensive RAM requirements
     # def test_ViT_B32(self):
     # self.dataloader_RGB.sf_resize = Resize(shape=(224, 224))
-    # arch = ViT_B32(Classifier(n_labels=4), channels=3,
-    #                             input_resolution=(224, 224))
+    # arch = ViT_B32(channels=3, input_resolution=(224, 224))
     # model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
     # model.predict(self.dataloader_RGB)
     # model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ViT_B32",
@@ -675,8 +620,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
     # Functionality and Interoperability testing deactived due to too intensive RAM requirements
     # def test_ViT_L16(self):
     # self.dataloader_RGB.sf_resize = Resize(shape=(384, 384))
-    # arch = ViT_L16(Classifier(n_labels=4), channels=3,
-    #                             input_resolution=(384, 384))
+    # arch = ViT_L16(channels=3, input_resolution=(384, 384))
     # model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
     # model.predict(self.dataloader_RGB)
     # model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ViT_L16",
@@ -694,8 +638,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
     # Functionality and Interoperability testing deactived due to too intensive RAM requirements
     # def test_ViT_L32(self):
     # self.dataloader_RGB.sf_resize = Resize(shape=(384, 384))
-    # arch = ViT_L32(Classifier(n_labels=4), channels=3,
-    #                             input_resolution=(384, 384))
+    # arch = ViT_L32(channels=3, input_resolution=(384, 384))
     # model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
     # model.predict(self.dataloader_RGB)
     # model = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ViT_L32",
@@ -711,14 +654,10 @@ class ArchitecturesImageTEST(unittest.TestCase):
     #            Architecture: ConvNeXtBase           #
     # -------------------------------------------------#
     def test_ConvNeXtBase(self):
-        arch = ConvNeXtBase(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtBase(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = ConvNeXtBase(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtBase(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -731,21 +670,17 @@ class ArchitecturesImageTEST(unittest.TestCase):
             print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtBase"] == None)
-        self.assertTrue(sdm_global["2D.ConvNeXtBase"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtBase"] == "torch")
+        self.assertTrue(sdm_global["2D.ConvNeXtBase"] == "torch")
 
     # -------------------------------------------------#
     #            Architecture: ConvNeXtTiny           #
     # -------------------------------------------------#
     def test_ConvNeXtTiny(self):
-        arch = ConvNeXtTiny(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtTiny(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = ConvNeXtTiny(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtTiny(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -758,21 +693,17 @@ class ArchitecturesImageTEST(unittest.TestCase):
             print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtTiny"] == None)
-        self.assertTrue(sdm_global["2D.ConvNeXtTiny"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtTiny"] == "torch")
+        self.assertTrue(sdm_global["2D.ConvNeXtTiny"] == "torch")
 
     # -------------------------------------------------#
     #           Architecture: ConvNeXtSmall           #
     # -------------------------------------------------#
     def test_ConvNeXtSmall(self):
-        arch = ConvNeXtSmall(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtSmall(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = ConvNeXtSmall(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtSmall(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -785,21 +716,17 @@ class ArchitecturesImageTEST(unittest.TestCase):
             print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtSmall"] == None)
-        self.assertTrue(sdm_global["2D.ConvNeXtSmall"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtSmall"] == "torch")
+        self.assertTrue(sdm_global["2D.ConvNeXtSmall"] == "torch")
 
     # -------------------------------------------------#
     #           Architecture: ConvNeXtLarge           #
     # -------------------------------------------------#
     def test_ConvNeXtLarge(self):
-        arch = ConvNeXtLarge(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtLarge(channels=1, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
         model.predict(self.dataloader_GRAY)
-        arch = ConvNeXtLarge(
-            Classifier(n_labels=4), channels=3, input_resolution=(32, 32)
-        )
+        arch = ConvNeXtLarge(channels=3, input_resolution=(32, 32))
         model = NeuralNetwork(n_labels=4, channels=3, architecture=arch)
         model.predict(self.dataloader_RGB)
         model = NeuralNetwork(
@@ -812,5 +739,5 @@ class ArchitecturesImageTEST(unittest.TestCase):
             print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtLarge"] == None)
-        self.assertTrue(sdm_global["2D.ConvNeXtLarge"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtLarge"] == "torch")
+        self.assertTrue(sdm_global["2D.ConvNeXtLarge"] == "torch")

@@ -39,11 +39,13 @@ the `get_preprocess()` helper to obtain the correct preprocessing transforms.
     <br>
     [https://arxiv.org/abs/1611.05431](https://arxiv.org/abs/1611.05431)
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-from torchvision.models import resnext50_32x4d as BaseModel
+import torch
+from torchvision.models import resnext50_32x4d as TorchvisionModel
 from torchvision.models import ResNeXt50_32X4D_Weights
 import torch.nn as nn
 
@@ -60,6 +62,9 @@ class ResNeXt50(Architecture_Base):
         self.pretrained_weights = pretrained_weights
         self.channels = channels
 
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
     def get_output_shape(self):
         # Hybrid approach: fast-path for common sizes, otherwise compute by
         # running a non-pretrained forward pass and cache the result.
@@ -72,10 +77,10 @@ class ResNeXt50(Architecture_Base):
             self._cached_output_shape = common[res]
             return self._cached_output_shape
 
-        import torch
-
-        full_model = BaseModel(weights=None)
+        full_model = TorchvisionModel(weights=None)
         base_model = nn.Sequential(*(list(full_model.children())[:-2]))
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         base_model = base_model.cpu()
         base_model.eval()
         with torch.no_grad():
@@ -92,12 +97,45 @@ class ResNeXt50(Architecture_Base):
         weights = ResNeXt50_32X4D_Weights.DEFAULT
         return weights.transforms()
 
+    # ---------------------------------------------#
+    #                Create Model                 #
+    # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If input channels differ from 3, replace the first convolutional layer.
+        if self.channels == 3:
+            return model
+
+        first_conv = model[0]  # Access the first convolutional layer
+
+        if first_conv is None:
+            return model
+
+        new_conv = nn.Conv2d(
+            self.channels,
+            first_conv.out_channels,
+            kernel_size=first_conv.kernel_size,
+            stride=first_conv.stride,
+            padding=first_conv.padding,
+            bias=(first_conv.bias is not None),
+        )
+        with torch.no_grad():
+            orig_w = first_conv.weight.data
+            avg = orig_w.mean(dim=1, keepdim=True)
+            new_conv.weight.data = avg.repeat(1, self.channels, 1, 1)
+            if first_conv.bias is not None:
+                new_conv.bias.data = first_conv.bias.data.clone()
+
+        model[0] = new_conv
+        return model
+
     def create_model(self):
         if self.pretrained_weights:
             weights_arg = ResNeXt50_32X4D_Weights.DEFAULT
         else:
             weights_arg = None
 
-        full_model = BaseModel(weights=weights_arg)
+        full_model = TorchvisionModel(weights=weights_arg)
         base_model = nn.Sequential(*(list(full_model.children())[:-2]))
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         return base_model

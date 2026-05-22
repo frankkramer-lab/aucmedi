@@ -38,13 +38,14 @@ Recommended alternative `Input_shape` is 384x384 pixels.
     <br>
     [https://arxiv.org/abs/2201.03545](https://arxiv.org/abs/2201.03545)
 """
+
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
-from torchvision.models import convnext_tiny as BaseModel
+from torch import nn
+from torchvision.models import convnext_tiny as TorchvisionModel
 from torchvision.models import ConvNeXt_Tiny_Weights
-import torchvision.transforms as transforms_module
 
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -59,7 +60,7 @@ class ConvNeXtTiny(Architecture_Base):
     # ---------------------------------------------#
     def __init__(
         self,
-        channels,
+        channels=3,
         input_resolution=(224, 224),
         pretrained_weights=False,
     ):
@@ -86,6 +87,30 @@ class ConvNeXtTiny(Architecture_Base):
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If the number of input channels is not 3, we need to rechannel the first layer
+        if self.channels == 3:
+            return model
+        first_layer = model[0][0]  # Access the first convolutional layer
+        # Extract the first conv layer's parameters
+        num_filters = model[0][0].out_channels
+        kernel_size = model[0][0].kernel_size
+        stride = model[0][0].stride
+        padding = model[0][0].padding
+        # initialize a new convolutional layer
+        new_first_layer = nn.Conv2d(
+            self.channels,
+            num_filters,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+        )
+        # Initialize the new conv1 layer's weights by averaging the pretrained weights across the channel dimension
+        original_weights = model[0][0].weight.data.mean(dim=1, keepdim=True)
+        # Expand the averaged weights to the number of input channels of the new dataset
+        new_first_layer.weight.data = original_weights.repeat(1, self.channels, 1, 1)
+        model[0][0] = new_first_layer
+        return model
 
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
@@ -95,6 +120,8 @@ class ConvNeXtTiny(Architecture_Base):
             model_weights = None
 
         # Obtain base model (omit classification head)
-        full_model = BaseModel(weights=model_weights)
+        full_model = TorchvisionModel(weights=model_weights)
         base_model = full_model.features
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         return base_model

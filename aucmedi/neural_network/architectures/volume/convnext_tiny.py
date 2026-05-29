@@ -25,7 +25,7 @@
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "3D.ConvNeXtTiny"         |
 | Input_shape              | (64, 64, 64, channels)     |
-| Standardization          | None                       |
+| Standardization          | torch                      |
 
 !!! warning
      ConvNeXt models expect their inputs to be float or uint8 tensors of pixels with values in the [0-255] range.
@@ -49,6 +49,7 @@
 # External libraries
 from timm_3d import create_model
 from torch import nn
+import torch
 
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
@@ -63,7 +64,7 @@ class ConvNeXtTiny(Architecture_Base):
     # ---------------------------------------------#
     def __init__(
         self,
-        channels,
+        channels=3,
         input_resolution=(64, 64, 64),
         pretrained_weights=False,
         preprocessing=True,
@@ -71,18 +72,58 @@ class ConvNeXtTiny(Architecture_Base):
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
         self.preprocessing = preprocessing
+        self.channels = channels
+
+    # ---------------------------------------------#
+    #         Architecture Attributes              #
+    # ---------------------------------------------#
 
     def get_output_shape(self):
         # ConvNeXt Tiny has a fixed 32x downsampling ratio
-        # Output channels are typically 384 for the tiny model
+        # Output channels are typically 768 for the tiny model
         h_out = self.input_shape[0] // 32
         w_out = self.input_shape[1] // 32
         d_out = self.input_shape[2] // 32
-        return (h_out, w_out, d_out, 384)
+        return (h_out, w_out, d_out, 768)
 
     # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If input channels differ from 3, replace the first convolutional layer.
+        if self.channels == 3:
+            return model
+        first_conv = model[0][0]  # Access the first convolutional layer
+
+        if first_conv is None:
+            return model
+
+        # Use the same convolution class (Conv2d/Conv3d) as the original layer
+        conv_cls = first_conv.__class__
+
+        new_conv = conv_cls(
+            self.channels,
+            first_conv.out_channels,
+            kernel_size=first_conv.kernel_size,
+            stride=first_conv.stride,
+            padding=first_conv.padding,
+            bias=(first_conv.bias is not None),
+        )
+
+        with torch.no_grad():
+            orig_w = first_conv.weight.data
+            # average over input channel dimension to initialize new input channels
+            avg = orig_w.mean(dim=1, keepdim=True)
+            # avg shape: (out_channels, 1, k1, k2[, k3])
+            # repeat to match new number of input channels
+            repeat_dims = (1, self.channels, 1, 1, 1)
+            new_conv.weight.data = avg.repeat(*repeat_dims)
+            if first_conv.bias is not None:
+                new_conv.bias.data = first_conv.bias.data.clone()
+
+        model[0][0] = new_conv
+        return model
+
     def create_model(self):
         full_model = create_model(
             "convnext_tiny",
@@ -93,4 +134,6 @@ class ConvNeXtTiny(Architecture_Base):
         base_model = nn.Sequential(*list(full_model.children())[:-1])
 
         # Return created model
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
         return base_model

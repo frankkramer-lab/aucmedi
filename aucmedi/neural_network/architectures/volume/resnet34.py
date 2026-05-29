@@ -25,7 +25,7 @@
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "3D.ResNet34"              |
 | Input_shape              | (64, 64, 64)               |
-| Standardization          | "grayscale"                |
+| Standardization          | "torch"                |
 
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
@@ -65,6 +65,11 @@ class ResNet34(Architecture_Base):
     ):
         self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
+
+    # ---------------------------------------------#
+    #         Architecture Attributes              #
+    # ---------------------------------------------#
 
     def get_output_shape(self):
         # ResNet34 has a fixed 32x downsampling ratio
@@ -82,6 +87,7 @@ class ResNet34(Architecture_Base):
         full_model = create_model(
             "resnet34",
             pretrained=self.pretrained_weights,
+            in_chans=self.channels,
             num_classes=0,
             global_pool="",
         )

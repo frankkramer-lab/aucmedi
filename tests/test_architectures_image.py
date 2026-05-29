@@ -75,7 +75,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
 
-        # Create Grayscale Data Generator
+        # Create Grayscale Data Loader
         self.dataloader_GRAY = create_batch_loader(
             self.sampleList_gray,
             self.tmp_data.name,
@@ -84,7 +84,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             grayscale=True,
             batch_size=1,
         )
-        # Create RGB Data Generator
+        # Create RGB Data Loader
         self.dataloader_RGB = create_batch_loader(
             self.sampleList_rgb,
             self.tmp_data.name,

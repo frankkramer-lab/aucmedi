@@ -67,6 +67,10 @@ class DenseNet201(Architecture_Base):
         self.pretrained_weights = pretrained_weights
         self.channels = channels
 
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+
     def get_output_shape(self):
         # DenseNet201 has a fixed 32x downsampling ratio
         return (

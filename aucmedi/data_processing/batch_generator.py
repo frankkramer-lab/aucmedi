@@ -147,12 +147,13 @@ class BatchGenerator(Dataset):
         data_aug=None,
         shuffle=False,
         grayscale=False,
+        two_dim=True,
         sample_weights=None,
         threads=1,
         prepare_images=False,
         loader=image_loader,
         seed=None,
-        **kwargs
+        **kwargs,
     ):
         """Initialization function of the DataGenerator which acts as a configuration hub.
 
@@ -221,6 +222,7 @@ class BatchGenerator(Dataset):
         self.path_imagedir = path_imagedir
         self.image_format = image_format
         self.grayscale = grayscale
+        self.two_dim = two_dim
         self.subfunctions = subfunctions
         self.data_aug = data_aug
         self.standardize_mode = standardize_mode
@@ -240,8 +242,18 @@ class BatchGenerator(Dataset):
             self.sf_standardize = Standardize(mode=standardize_mode)
         else:
             self.sf_standardize = None
-        # Initialize Resizing Subfunction
+        # Validate resize shape against dimensionality and initialize Resizing Subfunction
         if resize is not None:
+            try:
+                rlen = len(resize)
+            except TypeError:
+                raise ValueError("`resize` must be a sequence with 2 or 3 elements")
+            expected_len = 2 if self.two_dim else 3
+            if rlen != expected_len:
+                raise ValueError(
+                    f"Parameter `resize` length {rlen} does not match expected "
+                    f"dimension {expected_len} for two_dim={self.two_dim}: {resize}"
+                )
             self.sf_resize = Resize(shape=resize)
         else:
             self.sf_resize = None
@@ -398,7 +410,8 @@ class BatchGenerator(Dataset):
                 self.path_imagedir,
                 image_format=self.image_format,
                 grayscale=self.grayscale,
-                **self.kwargs
+                two_dim=self.two_dim,
+                **self.kwargs,
             )
             # Apply subfunctions on image
             for sf in self.subfunctions:

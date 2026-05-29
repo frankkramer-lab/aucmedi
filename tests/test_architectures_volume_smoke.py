@@ -37,10 +37,13 @@ def test_volume_architectures_smoke():
 
     for Arch, res in archs:
         print(f"Testing {Arch.__name__} with input resolution {res}...")
-        arch = Arch(channels=3, input_resolution=res, pretrained_weights=False)
+        num_channels = 3
+        arch = Arch(
+            channels=num_channels, input_resolution=res, pretrained_weights=False
+        )
         model = arch.create_model()
         model.eval()
-        x = torch.randn(2, 3, res[0], res[1], res[2])
+        x = torch.randn(2, num_channels, res[0], res[1], res[2])
         with torch.no_grad():
             out = model(x)
 

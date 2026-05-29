@@ -68,6 +68,20 @@ class DenseNet169(Architecture_Base):
         self.channels = channels
 
     # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+
+    def get_output_shape(self):
+        # DenseNet169 has a fixed 32x downsampling ratio
+        return (
+            self.input_shape[0] // 32,
+            self.input_shape[1] // 32,
+            self.input_shape[2] // 32,
+            1664,
+        )
+
+    # ---
+    # ---------------------------------------------#
     #                Create Model                 #
     # ---------------------------------------------#
     def create_model(self):

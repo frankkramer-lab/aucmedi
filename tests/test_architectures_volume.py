@@ -48,7 +48,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
         self.tmp_data = tempfile.TemporaryDirectory(
             prefix="tmp.aucmedi.", suffix=".data"
         )
-        # Create HU data
+        # Create Houndsfield Units data
         self.sampleList_hu = []
         for i in range(0, 1):
             img_hu = (np.random.rand(32, 32, 32) * 2000) - 500
@@ -63,8 +63,8 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
 
-        # Create HU Data Generator
-        self.datagen_HU = DataGenerator(
+        # Create HU Data Loader
+        self.dataloader_HU = create_batch_loader(
             self.sampleList_hu,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -75,7 +75,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             batch_size=1,
         )
 
-        self.datagen_HU_64 = DataGenerator(
+        self.dataloader_HU_64 = create_batch_loader(
             self.sampleList_hu,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -90,11 +90,10 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #              Architecture: Vanilla              #
     # -------------------------------------------------#
     def test_Vanilla(self):
-        arch = Vanilla(
-            Classifier(n_labels=4), channels=1, input_resolution=(32, 32, 32)
-        )
+        print("------------------------ SHAPE of HU:", self.sampleList_hu)
+        arch = Vanilla(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -102,7 +101,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
         self.assertTrue(supported_standardize_mode["Vanilla"] == "z-score")
@@ -112,9 +111,9 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: DenseNet121            #
     # -------------------------------------------------#
     def test_DenseNet121(self):
-        arch = DenseNet121(Classifier(n_labels=4), channels=1, input_shape=(64, 64, 64))
+        arch = DenseNet121(channels=1, input_resolution=(64, 64, 64))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU_64)
+        model.predict(self.dataloader_HU_64)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -122,7 +121,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(64, 64, 64),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet121"] == "torch")
@@ -132,9 +131,9 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: DenseNet169            #
     # -------------------------------------------------#
     def test_DenseNet169(self):
-        arch = DenseNet169(Classifier(n_labels=4), channels=1, input_shape=(64, 64, 64))
+        arch = DenseNet169(channels=1, input_resolution=(64, 64, 64))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU_64)
+        model.predict(self.dataloader_HU_64)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -142,7 +141,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(64, 64, 64),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet169"] == "torch")
@@ -152,9 +151,9 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #            Architecture: DenseNet201            #
     # -------------------------------------------------#
     def test_DenseNet201(self):
-        arch = DenseNet201(Classifier(n_labels=4), channels=1, input_shape=(64, 64, 64))
+        arch = DenseNet201(channels=1, input_resolution=(64, 64, 64))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU_64)
+        model.predict(self.dataloader_HU_64)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -162,7 +161,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(64, 64, 64),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
         self.assertTrue(supported_standardize_mode["DenseNet201"] == "torch")
@@ -172,9 +171,9 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
     #              Architecture: ResNet18             #
     # -------------------------------------------------#
     def test_ResNet18(self):
-        arch = ResNet18(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = ResNet18(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -182,19 +181,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNet18"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNet18"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNet18"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNet18"] == "torch")
 
     # -------------------------------------------------#
     #              Architecture: ResNet34             #
     # -------------------------------------------------#
     def test_ResNet34(self):
-        arch = ResNet34(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = ResNet34(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -202,19 +201,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNet34"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNet34"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNet34"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNet34"] == "torch")
 
     # -------------------------------------------------#
     #              Architecture: ResNet50             #
     # -------------------------------------------------#
     def test_ResNet50(self):
-        arch = ResNet50(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = ResNet50(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -222,19 +221,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNet50"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNet50"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNet50"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNet50"] == "torch")
 
     # -------------------------------------------------#
     #             Architecture: ResNet101             #
     # -------------------------------------------------#
     def test_ResNet101(self):
-        arch = ResNet101(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = ResNet101(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -242,19 +241,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNet101"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNet101"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNet101"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNet101"] == "torch")
 
     # -------------------------------------------------#
     #             Architecture: ResNet152             #
     # -------------------------------------------------#
     def test_ResNet152(self):
-        arch = ResNet152(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = ResNet152(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -262,19 +261,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNet152"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNet152"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNet152"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNet152"] == "torch")
 
     # -------------------------------------------------#
     #             Architecture: ResNeXt50             #
     # -------------------------------------------------#
     def test_ResNeXt50(self):
-        arch = ResNeXt50(Classifier(n_labels=4), channels=1, input_shape=(64, 64, 64))
+        arch = ResNeXt50(channels=1, input_resolution=(64, 64, 64))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU_64)
+        model.predict(self.dataloader_HU_64)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -282,19 +281,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(64, 64, 64),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNeXt50"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNeXt50"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNeXt50"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNeXt50"] == "torch")
 
     # -------------------------------------------------#
     #            Architecture: ResNeXt101             #
     # -------------------------------------------------#
     def test_ResNeXt101(self):
-        arch = ResNeXt101(Classifier(n_labels=4), channels=1, input_shape=(64, 64, 64))
+        arch = ResNeXt101(channels=1, input_resolution=(64, 64, 64))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU_64)
+        model.predict(self.dataloader_HU_64)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -302,19 +301,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(64, 64, 64),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ResNeXt101"] == "grayscale")
-        self.assertTrue(sdm_global["3D.ResNeXt101"] == "grayscale")
+        self.assertTrue(supported_standardize_mode["ResNeXt101"] == "torch")
+        self.assertTrue(sdm_global["3D.ResNeXt101"] == "torch")
 
     # -------------------------------------------------#
     #               Architecture: VGG16               #
     # -------------------------------------------------#
     def test_VGG16(self):
-        arch = VGG16(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = VGG16(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -322,19 +321,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["VGG16"] == "caffe")
-        self.assertTrue(sdm_global["3D.VGG16"] == "caffe")
+        self.assertTrue(supported_standardize_mode["VGG16"] == "torch")
+        self.assertTrue(sdm_global["3D.VGG16"] == "torch")
 
     # -------------------------------------------------#
     #               Architecture: VGG19               #
     # -------------------------------------------------#
     def test_VGG19(self):
-        arch = VGG19(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
+        arch = VGG19(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -342,39 +341,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["VGG19"] == "caffe")
-        self.assertTrue(sdm_global["3D.VGG19"] == "caffe")
-
-    # -------------------------------------------------#
-    #             Architecture: MobileNet             #
-    # -------------------------------------------------#
-    def test_MobileNet(self):
-        arch = MobileNet(Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32))
-        model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
-        model = NeuralNetwork(
-            n_labels=4,
-            channels=3,
-            architecture="3D.MobileNet",
-            input_resolution=(32, 32, 32),
-        )
-        try:
-            model.model.summary()
-        except:
-            raise Exception()
-        self.assertTrue(supported_standardize_mode["MobileNet"] == "tf")
-        self.assertTrue(sdm_global["3D.MobileNet"] == "tf")
+        self.assertTrue(supported_standardize_mode["VGG19"] == "torch")
+        self.assertTrue(sdm_global["3D.VGG19"] == "torch")
 
     # -------------------------------------------------#
     #            Architecture: MobileNetV2            #
     # -------------------------------------------------#
     def test_MobileNetV2(self):
-        arch = MobileNetV2(Classifier(n_labels=4), channels=1, input_shape=(64, 64, 64))
+        arch = MobileNetV2(channels=1, input_resolution=(64, 64, 64))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU_64)
+        model.predict(self.dataloader_HU_64)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -382,21 +361,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(64, 64, 64),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["MobileNetV2"] == "tf")
-        self.assertTrue(sdm_global["3D.MobileNetV2"] == "tf")
+        self.assertTrue(supported_standardize_mode["MobileNetV2"] == "torch")
+        self.assertTrue(sdm_global["3D.MobileNetV2"] == "torch")
 
     # -------------------------------------------------#
     #           Architecture: ConvNeXt Base           #
     # -------------------------------------------------#
     def test_ConvNeXtBase(self):
-        arch = ConvNeXtBase(
-            Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32)
-        )
+        arch = ConvNeXtBase(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -404,21 +381,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtBase"] == None)
-        self.assertTrue(sdm_global["3D.ConvNeXtBase"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtBase"] == "torch")
+        self.assertTrue(sdm_global["3D.ConvNeXtBase"] == "torch")
 
     # -------------------------------------------------#
     #           Architecture: ConvNeXt Tiny           #
     # -------------------------------------------------#
     def test_ConvNeXtTiny(self):
-        arch = ConvNeXtTiny(
-            Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32)
-        )
+        arch = ConvNeXtTiny(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -426,21 +401,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtTiny"] == None)
-        self.assertTrue(sdm_global["3D.ConvNeXtTiny"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtTiny"] == "torch")
+        self.assertTrue(sdm_global["3D.ConvNeXtTiny"] == "torch")
 
     # -------------------------------------------------#
     #          Architecture: ConvNeXt Small           #
     # -------------------------------------------------#
     def test_ConvNeXtSmall(self):
-        arch = ConvNeXtSmall(
-            Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32)
-        )
+        arch = ConvNeXtSmall(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -448,21 +421,19 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtSmall"] == None)
-        self.assertTrue(sdm_global["3D.ConvNeXtSmall"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtSmall"] == "torch")
+        self.assertTrue(sdm_global["3D.ConvNeXtSmall"] == "torch")
 
     # -------------------------------------------------#
     #          Architecture: ConvNeXt Large           #
     # -------------------------------------------------#
     def test_ConvNeXtLarge(self):
-        arch = ConvNeXtLarge(
-            Classifier(n_labels=4), channels=1, input_shape=(32, 32, 32)
-        )
+        arch = ConvNeXtLarge(channels=1, input_resolution=(32, 32, 32))
         model = NeuralNetwork(n_labels=4, channels=1, architecture=arch)
-        model.predict(self.datagen_HU)
+        model.predict(self.dataloader_HU)
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
@@ -470,8 +441,8 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             input_resolution=(32, 32, 32),
         )
         try:
-            model.model.summary()
+            print(model.model)
         except:
             raise Exception()
-        self.assertTrue(supported_standardize_mode["ConvNeXtLarge"] == None)
-        self.assertTrue(sdm_global["3D.ConvNeXtLarge"] == None)
+        self.assertTrue(supported_standardize_mode["ConvNeXtLarge"] == "torch")
+        self.assertTrue(sdm_global["3D.ConvNeXtLarge"] == "torch")

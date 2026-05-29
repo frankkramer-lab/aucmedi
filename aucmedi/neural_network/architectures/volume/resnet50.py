@@ -25,7 +25,7 @@
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "3D.ResNet50"              |
 | Input_shape              | (64, 64, 64)               |
-| Standardization          | "grayscale"                |
+| Standardization          | "torch"                |
 
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
@@ -67,6 +67,10 @@ class ResNet50(Architecture_Base):
         self.pretrained_weights = pretrained_weights
         self.channels = channels
 
+    # ---------------------------------------------#
+    #         Architecture Attributes              #
+    # ---------------------------------------------#
+
     def get_output_shape(self):
         # ResNet50 has a fixed 32x downsampling ratio
         return (
@@ -83,7 +87,7 @@ class ResNet50(Architecture_Base):
         full_model = create_model(
             "resnet50",
             pretrained=self.pretrained_weights,
-            in_chans=self.input_shape[-1],
+            in_chans=self.channels,
             num_classes=0,
             global_pool="",
         )

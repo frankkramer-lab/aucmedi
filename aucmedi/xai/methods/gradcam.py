@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,21 +15,24 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External Libraries
 import numpy as np
 import tensorflow as tf
+import torch
+
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #     Gradient-weighted Class Activation Mapping      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class GradCAM(XAImethod_Base):
-    """ XAI Method for Gradient-weighted Class Activation Mapping (Grad-CAM).
+    """XAI Method for Gradient-weighted Class Activation Mapping (Grad-CAM).
 
     Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
@@ -52,41 +55,48 @@ class GradCAM(XAImethod_Base):
     This class provides functionality for running the compute_heatmap function,
     which computes a Grad-CAM heatmap for an image with a model.
     """
+
     def __init__(self, model, layerName=None):
-        """ Initialization function for creating a Grad-CAM as XAI Method object.
+        """Initialization function for creating a Grad-CAM as XAI Method object.
 
         Args:
-            model (keras.model):               Keras model object.
+            model (torch.nn.Module):               PyTorch model object.
             layerName (str):                   Layer name of the convolutional layer for heatmap computation.
         """
         # Cache class parameters
         self.model = model
         self.layerName = layerName
         # Try to find output layer if not defined
-        if self.layerName is None : self.layerName = self.find_output_layer()
+        if self.layerName is None:
+            self.layerName = self.find_output_layer()
 
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #            Identify Output Layer            #
-    #---------------------------------------------#
+    # ---------------------------------------------#
+    def iterate_layers(module):
+        for name, layer in module.named_children():
+            print(f"Layer Name: {name}, Layer Type: {type(layer)}")
+            iterate_layers(layer)  # Recursively iterate over nested layers
+
     def find_output_layer(self):
-        """ Internal function. Applied if `layerName==None`.
+        """Internal function. Applied if `layerName==None`.
 
         Identify last/final convolutional layer in neural network architecture.
         This layer is used to obtain activation outputs / feature map.
         """
-        # Iterate over all layers
-        for layer in reversed(self.model.layers):
+        # Iterate over all layers (named_modules() may return a generator)
+        for name, layer in reversed(list(self.model.named_modules())):
             # Check to see if the layer has a 4D output -> Return layer
-            if len(layer.output.shape) >= 4:
-                return layer.name
+            if len(layer.weight.shape) >= 4:
+                return name
         # Otherwise, throw exception
         raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM.")
 
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #             Heatmap Computation             #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     def compute_heatmap(self, image, class_index, eps=1e-8):
-        """ Core function for computing the Grad-CAM heatmap for a provided image and for specific classification outcome.
+        """Core function for computing the Grad-CAM heatmap for a provided image and for specific classification outcome.
 
         ???+ attention
             Be aware that the image has to be provided in batch format.
@@ -112,17 +122,19 @@ class GradCAM(XAImethod_Base):
         else:
             outputs = [layer_output, model_output]
 
-        gradModel = tf.keras.models.Model(inputs=self.model.inputs,
-                         outputs=outputs)
+        # gradModel = tf.keras.models.Model(inputs=self.model.inputs, outputs=outputs)
+        gradModel = torch.nn.Module(inputs=self.model.inputs, outputs=outputs)
         # Compute gradient for desired class index
         with tf.GradientTape() as tape:
             inputs = tf.cast(image, tf.float32)
-            (conv_out, preds) = gradModel(inputs)
+            conv_out, preds = gradModel(inputs)
             loss = preds[:, class_index]
         grads = tape.gradient(loss, conv_out)
         # Identify pooling axis
-        if len(image.shape) == 4 : pooling_axis = (0, 1, 2)
-        else : pooling_axis = (0, 1, 2, 3)
+        if len(image.shape) == 4:
+            pooling_axis = (0, 1, 2)
+        else:
+            pooling_axis = (0, 1, 2, 3)
         # Averaged output gradient based on feature map of last conv layer
         pooled_grads = tf.reduce_mean(grads, axis=pooling_axis)
         # Normalize gradients via "importance"

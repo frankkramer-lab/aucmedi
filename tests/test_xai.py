@@ -60,8 +60,8 @@ class xaiTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
 
-        # Create Data Generator
-        self.datagen = DataGenerator(
+        # Create Data Loader
+        self.dataloader = create_batch_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -75,9 +75,11 @@ class xaiTEST(unittest.TestCase):
             n_labels=4, channels=3, input_resolution=(32, 32), architecture="2D.Vanilla"
         )
         # Compute predictions
-        self.preds = self.model.predict(self.datagen)
+        self.preds = self.model.predict(self.dataloader)
         # Initialize testing image
-        self.image = self.datagen[0][0][[0]]
+        # self.image = self.dataloader[0][0][[0]]
+        self.image = next(iter(self.dataloader))[0][[0]]
+        print("DEBUG: self.image.shape:", self.image.shape)
 
         # ----------- 3D TestData -----------
         self.sampleList_hu_3D = []
@@ -101,7 +103,7 @@ class xaiTEST(unittest.TestCase):
             self.labels_ohe_hu_3D[i][class_index] = 1
             self.labels_ohe_rgb_3D[i][class_index] = 1
 
-        self.datagen_hu_3D = DataGenerator(
+        self.dataloader_hu_3D = create_batch_loader(
             self.sampleList_hu_3D,
             self.tmp_data.name,
             labels=self.labels_ohe_hu_3D,
@@ -113,7 +115,7 @@ class xaiTEST(unittest.TestCase):
             batch_size=3,
         )
 
-        self.datagen_rgb_3D = DataGenerator(
+        self.dataloader_rgb_3D = create_batch_loader(
             self.sampleList_rgb_3D,
             self.tmp_data.name,
             labels=self.labels_ohe_rgb_3D,
@@ -139,25 +141,27 @@ class xaiTEST(unittest.TestCase):
             architecture="3D.Vanilla",
         )
 
-        self.preds_hu_3D = self.model_hu_3D.predict(self.datagen_hu_3D)
-        self.image_hu_3D = self.datagen_hu_3D[0][0][[0]]
+        self.preds_hu_3D = self.model_hu_3D.predict(self.dataloader_hu_3D)
+        # self.image_hu_3D = self.dataloader_hu_3D[0][0][[0]]
+        self.image_hu_3D = next(iter(self.dataloader_hu_3D))[0][[0]]
 
-        self.preds_rgb_3D = self.model_rgb_3D.predict(self.datagen_rgb_3D)
-        self.image_rgb_3D = self.datagen_rgb_3D[0][0][[0]]
+        self.preds_rgb_3D = self.model_rgb_3D.predict(self.dataloader_rgb_3D)
+        # self.image_rgb_3D = self.dataloader_rgb_3D[0][0][[0]]
+        self.image_rgb_3D = next(iter(self.dataloader_rgb_3D))[0][[0]]
 
     # -------------------------------------------------#
     #             XAI Functions: Decoder              #
     # -------------------------------------------------#
     def test_Decoder_argmax_output(self):
         imgs, hms = xai_decoder(
-            self.datagen, self.model, preds=self.preds, out_path=None
+            self.dataloader, self.model, preds=self.preds, out_path=None
         )
         self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 32, 32)))
 
     def test_Decoder_argmax_visualize(self):
         path_xai = os.path.join(self.tmp_data.name, "xai")
-        xai_decoder(self.datagen, self.model, preds=self.preds, out_path=path_xai)
+        xai_decoder(self.dataloader, self.model, preds=self.preds, out_path=path_xai)
         for i in range(0, len(self.sampleList)):
             path_xai_file = os.path.join(
                 os.path.join(self.tmp_data.name, "xai"), self.sampleList[i]
@@ -166,24 +170,24 @@ class xaiTEST(unittest.TestCase):
             img = image_loader(
                 sample=self.sampleList[i],
                 path_imagedir=self.tmp_data.name,
-                image_format=self.datagen.image_format,
+                image_format=self.dataloader.image_format,
             )
             hm = image_loader(
                 sample=self.sampleList[i],
                 path_imagedir=os.path.join(self.tmp_data.name, "xai"),
-                image_format=self.datagen.image_format,
+                image_format=self.dataloader.image_format,
             )
             self.assertTrue(np.array_equal(img.shape, hm.shape))
             self.assertFalse(np.array_equal(img, hm))
 
     def test_Decoder_allclasses_output(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, preds=None, out_path=None)
+        imgs, hms = xai_decoder(self.dataloader, self.model, preds=None, out_path=None)
         self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_Decoder_allclasses_visualize(self):
         path_xai = os.path.join(self.tmp_data.name, "xai")
-        xai_decoder(self.datagen, self.model, preds=None, out_path=path_xai)
+        xai_decoder(self.dataloader, self.model, preds=None, out_path=path_xai)
         for i in range(0, len(self.sampleList)):
             sample = self.sampleList[i]
             for c in range(0, 4):
@@ -191,12 +195,12 @@ class xaiTEST(unittest.TestCase):
                 img = image_loader(
                     sample=self.sampleList[i],
                     path_imagedir=self.tmp_data.name,
-                    image_format=self.datagen.image_format,
+                    image_format=self.dataloader.image_format,
                 )
                 hm = image_loader(
                     sample=xai_file,
                     path_imagedir=os.path.join(self.tmp_data.name, "xai"),
-                    image_format=self.datagen.image_format,
+                    image_format=self.dataloader.image_format,
                 )
                 self.assertTrue(np.array_equal(img.shape, hm.shape))
                 self.assertFalse(np.array_equal(img, hm))
@@ -215,9 +219,9 @@ class xaiTEST(unittest.TestCase):
             path_sample = os.path.join(tmp_data.name, label_dir, index)
             img_pillow.save(path_sample)
         ds = input_interface(interface="directory", path_imagedir=tmp_data.name)
-        (index_list, _, nclasses, _, _) = ds
+        index_list, _, nclasses, _, _ = ds
         # Create Data Generator
-        datagen = DataGenerator(
+        dataloader = create_batch_loader(
             index_list,
             tmp_data.name,
             labels=None,
@@ -233,7 +237,7 @@ class xaiTEST(unittest.TestCase):
             architecture="2D.Vanilla",
         )
         path_xai = os.path.join(tmp_data.name, "xai_directory")
-        xai_decoder(datagen, model, preds=None, out_path=path_xai)
+        xai_decoder(dataloader, model, preds=None, out_path=path_xai)
 
     # -------------------------------------------------#
     #              XAI Methods: Grad-Cam              #
@@ -262,17 +266,17 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm_rgb.shape, (2, 2, 2)))
 
     def test_XAImethod_GradCam_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam")
+        imgs, hms = xai_decoder(self.dataloader, self.model, method="gradcam")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GradCam3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(
-            self.datagen_hu_3D, self.model_hu_3D, method="gradcam"
+            self.dataloader_hu_3D, self.model_hu_3D, method="gradcam"
         )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(
-            self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam"
+            self.dataloader_rgb_3D, self.model_rgb_3D, method="gradcam"
         )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
@@ -303,17 +307,17 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm_rgb.shape, (2, 2, 2)))
 
     def test_XAImethod_GradCamPP_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="gradcam++")
+        imgs, hms = xai_decoder(self.dataloader, self.model, method="gradcam++")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GradCamPP3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(
-            self.datagen_hu_3D, self.model_hu_3D, method="gradcam++"
+            self.dataloader_hu_3D, self.model_hu_3D, method="gradcam++"
         )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(
-            self.datagen_rgb_3D, self.model_rgb_3D, method="gradcam++"
+            self.dataloader_rgb_3D, self.model_rgb_3D, method="gradcam++"
         )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
@@ -344,17 +348,17 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
 
     def test_XAImethod_SaliencyMap_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="saliency")
+        imgs, hms = xai_decoder(self.dataloader, self.model, method="saliency")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_SaliencyMap3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(
-            self.datagen_hu_3D, self.model_hu_3D, method="saliency"
+            self.dataloader_hu_3D, self.model_hu_3D, method="saliency"
         )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(
-            self.datagen_rgb_3D, self.model_rgb_3D, method="saliency"
+            self.dataloader_rgb_3D, self.model_rgb_3D, method="saliency"
         )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
@@ -385,17 +389,17 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
 
     def test_XAImethod_GuidedBackprop_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="guidedbackprop")
+        imgs, hms = xai_decoder(self.dataloader, self.model, method="guidedbackprop")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GuidedBackprop3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(
-            self.datagen_hu_3D, self.model_hu_3D, method="guidedbackprop"
+            self.dataloader_hu_3D, self.model_hu_3D, method="guidedbackprop"
         )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(
-            self.datagen_rgb_3D, self.model_rgb_3D, method="guidedbackprop"
+            self.dataloader_rgb_3D, self.model_rgb_3D, method="guidedbackprop"
         )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
@@ -414,7 +418,9 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_IntegratedGradients_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="IntegratedGradients")
+        imgs, hms = xai_decoder(
+            self.dataloader, self.model, method="IntegratedGradients"
+        )
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     # -------------------------------------------------#
@@ -444,17 +450,17 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm_rgb.shape, (32, 32, 32)))
 
     def test_XAImethod_GuidedGradCAM_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="GuidedGradCAM")
+        imgs, hms = xai_decoder(self.dataloader, self.model, method="GuidedGradCAM")
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_XAImethod_GuidedGradCAM3D_decoder(self):
         imgs_hu, hms_hu = xai_decoder(
-            self.datagen_hu_3D, self.model_hu_3D, method="GuidedGradCAM"
+            self.dataloader_hu_3D, self.model_hu_3D, method="GuidedGradCAM"
         )
         self.assertTrue(np.array_equal(np.array(hms_hu).shape, (10, 4, 32, 32, 32)))
 
         imgs_rgb, hms_rgb = xai_decoder(
-            self.datagen_rgb_3D, self.model_rgb_3D, method="GuidedGradCAM"
+            self.dataloader_rgb_3D, self.model_rgb_3D, method="GuidedGradCAM"
         )
         self.assertTrue(np.array_equal(np.array(hms_rgb).shape, (10, 4, 32, 32, 32)))
 
@@ -473,7 +479,9 @@ class xaiTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(hm.shape, (32, 32)))
 
     def test_XAImethod_OcclusionSensitivity_decoder(self):
-        imgs, hms = xai_decoder(self.datagen, self.model, method="OcclusionSensitivity")
+        imgs, hms = xai_decoder(
+            self.dataloader, self.model, method="OcclusionSensitivity"
+        )
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     # -------------------------------------------------#
@@ -492,7 +500,7 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_LimeCon_decoder(self):
         xai_method = LimeCon(self.model.model, num_samples=10)
-        imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
+        imgs, hms = xai_decoder(self.dataloader, self.model, method=xai_method)
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     # -------------------------------------------------#
@@ -511,5 +519,5 @@ class xaiTEST(unittest.TestCase):
 
     def test_XAImethod_LimePro_decoder(self):
         xai_method = LimePro(self.model.model, num_samples=10)
-        imgs, hms = xai_decoder(self.datagen, self.model, method=xai_method)
+        imgs, hms = xai_decoder(self.dataloader, self.model, method=xai_method)
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))

@@ -23,7 +23,13 @@
 import numpy as np
 
 # Internal libraries
-from aucmedi import ImageAugmentation, VolumeAugmentation, DataGenerator
+from aucmedi import (
+    ImageAugmentation,
+    VolumeAugmentation,
+    DataGenerator,
+    WrapperLoader,
+    create_batch_loader,
+)
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.data_processing.io_loader import image_loader
 
@@ -78,7 +84,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
 
     Args:
         model (NeuralNetwork):                 Instance of a AUCMEDI neural network class.
-        prediction_generator (DataGenerator):   A data generator which will be used for Augmenting based inference.
+        prediction_generator (DataGenerator or WrapperLoader):   A data generator or wrapper loader which will be used for Augmenting based inference.
         n_cycles (int):                         Number of image augmentations, which should be created per sample.
         aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
     """
@@ -130,30 +136,54 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     # Multiply sample list for prediction according to number of cycles
     samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 
-    # Re-initialize DataGenerator for inference
-    aug_gen = DataGenerator(
+    loader_args = {}
+    # TODO: DataGenerator support maybe
+    if isinstance(prediction_generator, WrapperLoader):
+        # Fill loader_args with arguments from WrapperLoader.batch_generator_attrs
+        num_workers = getattr(prediction_generator, "num_workers", 0)
+        # batch_generator_attrs is a dict populated in WrapperLoader
+        # copy its contents directly to loader_args
+        if prediction_generator.batch_generator_attrs:
+            loader_args.update(prediction_generator.batch_generator_attrs)
+        # ensure num_workers is available
+        loader_args.setdefault("num_workers", num_workers)
+
+    print("\nDEBUG: Loader args for Augmenting Prediction:", loader_args)
+    # Re-initialize BatchLoader for inference
+    aug_loader = create_batch_loader(
         samples_aug,
-        path_imagedir=prediction_generator.path_imagedir,
+        path_imagedir=loader_args.get("path_imagedir"),
         labels=None,
-        metadata=prediction_generator.metadata,
-        batch_size=prediction_generator.batch_size,
+        metadata=loader_args.get("metadata"),
+        batch_size=loader_args.get("batch_size"),
         data_aug=data_aug,
-        seed=prediction_generator.seed,
-        subfunctions=prediction_generator.subfunctions,
+        seed=loader_args.get("seed"),
+        subfunctions=loader_args.get("subfunctions"),
         shuffle=False,
-        standardize_mode=prediction_generator.standardize_mode,
-        resize=prediction_generator.resize,
-        grayscale=prediction_generator.grayscale,
-        prepare_images=prediction_generator.prepare_images,
+        standardize_mode=loader_args.get("standardize_mode"),
+        resize=loader_args.get("resize"),
+        grayscale=loader_args.get("grayscale"),
+        prepare_images=loader_args.get("prepare_images"),
         sample_weights=None,
-        image_format=prediction_generator.image_format,
-        loader=prediction_generator.sample_loader,
-        num_workers=prediction_generator.workers,
+        image_format=loader_args.get("image_format"),
+        loader=loader_args.get("sample_loader"),
+        two_dim=loader_args.get("two_dim"),
+        num_workers=num_workers,
         **prediction_generator.kwargs
     )
+    """aug_loader = create_batch_loader(
+        samples_aug,
+        labels=None,
+        shuffle=False,
+        data_aug=data_aug,
+        sample_weights=None,
+        num_workers=num_workers,
+        **loader_args,
+        **prediction_generator.kwargs
+    )"""
 
     # Compute predictions with provided model
-    preds_all = model.predict(aug_gen)
+    preds_all = model.predict(aug_loader)
 
     # Ensemble inferences via aggregate function
     preds_ensembled = []

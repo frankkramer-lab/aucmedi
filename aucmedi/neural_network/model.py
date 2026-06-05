@@ -606,6 +606,9 @@ class NeuralNetwork:
             else:
                 data, y = generator_output
                 sample_weights = None
+                if isinstance(y, np.ndarray):
+                    y = torch.from_numpy(y).float()
+                y = y.to(self.device)
         else:
             data = generator_output
             y = None
@@ -624,13 +627,9 @@ class NeuralNetwork:
         # Convert to torch tensors if numpy arrays
         if isinstance(x, np.ndarray):
             x = torch.from_numpy(x).float()
-        if isinstance(y, np.ndarray):
-            y = torch.from_numpy(y).float()
         else:
             x = x.float()
-
         x = x.to(self.device)
-        y = y.to(self.device)
 
         # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
         if (

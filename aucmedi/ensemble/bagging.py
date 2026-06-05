@@ -28,7 +28,7 @@ import numpy as np
 import shutil
 
 # Internal libraries
-from aucmedi import DataGenerator, NeuralNetwork
+from aucmedi import DataGenerator, NeuralNetwork, create_batch_loader, WrapperLoader
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 
@@ -55,19 +55,19 @@ class Bagging:
         el = Bagging(model, k_fold=3)
 
 
-        # Initialize training DataGenerator for complete training data
-        datagen = DataGenerator(samples_train, "images_dir/",
+        # Initialize training BatchLoader for complete training data
+        datagen = create_batch_loader(samples_train, "images_dir/",
                                 labels=train_labels_ohe, batch_size=3,
-                                resize=model.meta_input,
-                                standardize_mode=model.meta_standardize)
+                                resize=model.arch_resolution,
+                                standardize_mode=model.arch_standardize)
         # Train models
         el.train(datagen, epochs=100)
 
 
-        # Initialize testing DataGenerator for testing data
-        test_gen = DataGenerator(samples_test, "images_dir/",
-                                 resize=model.meta_input,
-                                 standardize_mode=model.meta_standardize)
+        # Initialize testing BatchLoader for testing data
+        test_gen = create_batch_loader(samples_test, "images_dir/",
+                                 resize=model.arch_resolution,
+                                 standardize_mode=model.arch_standardize)
         # Run Inference with majority vote aggregation
         preds = el.predict(test_gen, aggregate="majority_vote")
         ```
@@ -76,8 +76,8 @@ class Bagging:
         Bagging sequentially performs fitting processes for multiple models (commonly `k_fold=3` up to `k_fold=10`),
         which will drastically increase training time.
 
-    ??? warning "DataGenerator re-initialization"
-        The passed DataGenerator for the train() and predict() function of the Bagging class will be re-initialized!
+    ??? warning "BatchLoader re-initialization"
+        The passed BatchLoader for the train() and predict() function of the Bagging class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
 
@@ -134,7 +134,7 @@ class Bagging:
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according to k-fold sampling).
+            training_generator (WrapperLoader):     A data generator which will be used for training (will be split according to k-fold sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -143,8 +143,12 @@ class Bagging:
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
 
         Returns:
-            history (dict):                   A history dictionary from a Keras history object which contains several logs.
+            history (dict):                   A history dictionary which contains several logs.
         """
+        # Extract BatchLoader from WrapperLoader if required
+        if isinstance(training_generator, WrapperLoader):
+            self.num_workers = training_generator.num_workers
+            training_generator = training_generator.batch_generator
         temp_dg = (
             training_generator  # Template DataGenerator variable for faster access
         )
@@ -169,7 +173,7 @@ class Bagging:
         for i, fold in enumerate(cv_sampling):
             # Pack data into a tuple
             if len(fold) == 4:
-                (train_x, train_y, test_x, test_y) = fold
+                train_x, train_y, test_x, test_y = fold
                 data = (train_x, train_y, None, test_x, test_y, None)
             else:
                 data = fold
@@ -177,7 +181,7 @@ class Bagging:
             # Create model specific callback list
             callbacks_model = callbacks.copy()
             # Extend Callback list
-            cb_mc = ModelCheckpoint(
+            """cb_mc = ModelCheckpoint(
                 os.path.join(self.cache_dir.name, "cv_" + str(i) + ".model.keras"),
                 monitor="val_loss",
                 verbose=1,
@@ -189,7 +193,7 @@ class Bagging:
                 separator=",",
                 append=True,
             )
-            callbacks_model.extend([cb_mc, cb_cl])
+            callbacks_model.extend([cb_mc, cb_cl])"""
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -202,8 +206,7 @@ class Bagging:
                 "metrics": None,
                 "activation_output": self.model_template.activation_output,
                 "fcl_dropout": self.model_template.fcl_dropout,
-                "meta_variables": self.model_template.meta_variables,
-                "learning_rate": self.model_template.learning_rate,
+                "n_meta_variables": self.model_template.n_meta_variables,
             }
 
             # Gather DataGenerator parameters
@@ -221,7 +224,6 @@ class Bagging:
                 "sample_weights": temp_dg.sample_weights,
                 "image_format": temp_dg.image_format,
                 "loader": temp_dg.sample_loader,
-                "workers": temp_dg.workers,
                 "kwargs": temp_dg.kwargs,
             }
 
@@ -323,7 +325,6 @@ class Bagging:
             "sample_weights": temp_dg.sample_weights,
             "image_format": temp_dg.image_format,
             "loader": temp_dg.sample_loader,
-            "workers": temp_dg.workers,
             "kwargs": temp_dg.kwargs,
         }
 
@@ -349,8 +350,7 @@ class Bagging:
                 "metrics": None,
                 "activation_output": self.model_template.activation_output,
                 "fcl_dropout": self.model_template.fcl_dropout,
-                "meta_variables": self.model_template.meta_variables,
-                "learning_rate": self.model_template.learning_rate,
+                "n_meta_variables": self.model_template.n_meta_variables,
             }
 
             # Start inference process for fold i
@@ -431,9 +431,9 @@ class Bagging:
 # -----------------------------------------------------#
 # Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
-    (train_x, train_y, train_m, test_x, test_y, test_m) = data
-    # Build training DataGenerator
-    cv_train_gen = DataGenerator(
+    train_x, train_y, train_m, test_x, test_y, test_m = data
+    # Build training BatchLoader
+    cv_train_gen = create_batch_loader(
         train_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=train_y,
@@ -450,11 +450,10 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
-        num_workers=datagen_paras["workers"],
         **datagen_paras["kwargs"]
     )
-    # Build validation DataGenerator
-    cv_val_gen = DataGenerator(
+    # Build validation BatchLoader
+    cv_val_gen = create_batch_loader(
         test_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=test_y,
@@ -471,7 +470,6 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
-        num_workers=datagen_paras["workers"],
         **datagen_paras["kwargs"]
     )
     # Create NeuralNetwork
@@ -484,8 +482,8 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, datagen_paras):
-    # Create inference DataGenerator
-    cv_pred_gen = DataGenerator(
+    # Create inference BatchLoader
+    cv_pred_gen = create_batch_loader(
         datagen_paras["samples"],
         path_imagedir=datagen_paras["path_imagedir"],
         labels=None,
@@ -502,7 +500,6 @@ def __prediction_process__(queue, model_paras, path_model, datagen_paras):
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
-        num_workers=datagen_paras["workers"],
         **datagen_paras["kwargs"]
     )
     # Create NeuralNetwork

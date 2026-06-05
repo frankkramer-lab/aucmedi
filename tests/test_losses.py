@@ -25,6 +25,7 @@ import tempfile
 import os
 from PIL import Image
 import numpy as np
+from torch.nn import CrossEntropyLoss
 
 # Internal libraries
 from aucmedi.neural_network.loss_functions import *
@@ -58,8 +59,8 @@ class LossfunctionsTEST(unittest.TestCase):
         for i in range(0, 1):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
-        # Create Data Generator
-        self.datagen = DataGenerator(
+        # Create Data Loader
+        self.dataloader = create_batch_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -69,43 +70,44 @@ class LossfunctionsTEST(unittest.TestCase):
         )
 
     # -------------------------------------------------#
-    #          Keras Categorical Crossentropy         #
+    #                 Categorical Crossentropy         #
     # -------------------------------------------------#
     def test_Keras(self):
+        loss_ce = CrossEntropyLoss()
         model = NeuralNetwork(
             n_labels=4,
             channels=3,
-            loss="categorical_crossentropy",
+            loss=loss_ce,
             input_resolution=(32, 32),
         )
-        model.train(self.datagen, epochs=1)
+        model.train(self.dataloader, epochs=1)
 
     # -------------------------------------------------#
     #                Focal Loss: Binary               #
     # -------------------------------------------------#
     def test_FocalLoss_binary(self):
-        lf = binary_focal_loss(alpha=0.25, gamma=2)
+        lf = BinaryFocalLoss(alpha=0.25, gamma=2)
         model = NeuralNetwork(
             n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
         )
-        model.train(self.datagen, epochs=1)
+        model.train(self.dataloader, epochs=1)
 
     # -------------------------------------------------#
     #             Focal Loss: Categorical             #
     # -------------------------------------------------#
     def test_FocalLoss_categorical(self):
-        lf = categorical_focal_loss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
+        lf = MultiClassFocalLoss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
         model = NeuralNetwork(
             n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
         )
-        model.train(self.datagen, epochs=1)
+        model.train(self.dataloader, epochs=1)
 
     # -------------------------------------------------#
     #             Focal Loss: Multi-Label             #
     # -------------------------------------------------#
     def test_FocalLoss_multilabel(self):
-        lf = multilabel_focal_loss(class_weights=[0.25, 0.25, 0.5, 4.0], gamma=2)
+        lf = MultiLabelFocalLoss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
         model = NeuralNetwork(
             n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
         )
-        model.train(self.datagen, epochs=1)
+        model.train(self.dataloader, epochs=1)

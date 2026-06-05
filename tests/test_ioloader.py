@@ -117,6 +117,7 @@ class IOloaderTEST(unittest.TestCase):
             sample_list.append(index)
         # Test DataLoader
         data_loader = create_batch_loader(
+            sample_list,
             tmp_data.name,
             loader=numpy_loader,
             resize=None,
@@ -219,6 +220,7 @@ class IOloaderTEST(unittest.TestCase):
 
         # Test DataLoader
         data_loader = create_batch_loader(
+            sample_list,
             tmp_data.name,
             loader=sitk_loader,
             resize=None,
@@ -226,8 +228,7 @@ class IOloaderTEST(unittest.TestCase):
             grayscale=True,
             batch_size=1,
         )
-        for i in range(0, 6):
-            batch = data_loader[i]
+        for i, batch in enumerate(data_loader):
             if i < 3:
                 self.assertTrue(np.array_equal(batch[0].shape, (1, 32, 24, 8, 1)))
             else:
@@ -308,6 +309,7 @@ class IOloaderTEST(unittest.TestCase):
             self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
         # Load images via DataLoader
         data_loader = create_batch_loader(
+            sample_list,
             tmp_data.name,
             loader=sitk_loader,
             resampling=(1.75, 0.75, 0.75),
@@ -316,8 +318,9 @@ class IOloaderTEST(unittest.TestCase):
             grayscale=True,
             batch_size=1,
         )
-        for i in range(0, 6):
-            batch = data_loader[i]
+        for batch in data_loader:
+            if i >= 6:
+                break
             self.assertTrue(np.array_equal(batch[0].shape, (1, 18, 10, 10, 1)))
 
     # -------------------------------------------------#
@@ -336,6 +339,7 @@ class IOloaderTEST(unittest.TestCase):
             sample_list.append(index)
         # Test DataLoader
         data_loader = create_batch_loader(
+            sample_list,
             tmp_data.name,
             loader=cache_loader,
             resize=None,

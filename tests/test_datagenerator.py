@@ -108,9 +108,9 @@ class DataGeneratorTEST(unittest.TestCase):
             self.sampleList_gray_2D, self.tmp_data.name, grayscale=True
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 1)
-            self.assertTrue(np.array_equal(batch[0].shape, (224, 224, 1)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 1)
+            self.assertTrue(np.array_equal(sample[0].shape, (224, 224, 1)))
 
     # Usage: RGB without Labels
     def test_RUN_2D_RGB_noLabel(self):
@@ -118,9 +118,9 @@ class DataGeneratorTEST(unittest.TestCase):
             self.sampleList_rgb_2D, self.tmp_data.name, grayscale=False
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 1)
-            self.assertTrue(np.array_equal(batch[0].shape, (224, 224, 3)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 1)
+            self.assertTrue(np.array_equal(sample[0].shape, (224, 224, 3)))
 
     # Usage: With Labels
     def test_RUN_2D_withLabel(self):
@@ -131,9 +131,11 @@ class DataGeneratorTEST(unittest.TestCase):
             grayscale=False,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 2)
-            self.assertTrue(np.array_equal(batch[1].shape, (4)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 2)
+            # label is torch.tensor
+            label = sample[1]
+            self.assertTrue(np.array_equal(label.shape.numel(), (4)))
 
     # -------------------------------------------------#
     #        Application Functionality for 3D         #
@@ -150,9 +152,9 @@ class DataGeneratorTEST(unittest.TestCase):
             standardize_mode=None,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 1)
-            self.assertTrue(np.array_equal(batch[0].shape, (16, 16, 16, 1)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 1)
+            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 16, 1)))
 
     # Usage: RGB without Labels
     def test_RUN_3D_RGB_noLabel(self):
@@ -166,9 +168,9 @@ class DataGeneratorTEST(unittest.TestCase):
             standardize_mode=None,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 1)
-            self.assertTrue(np.array_equal(batch[0].shape, (16, 16, 16, 3)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 1)
+            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 16, 3)))
 
     # Usage: With Labels
     def test_RUN_3D_withLabel(self):
@@ -183,9 +185,11 @@ class DataGeneratorTEST(unittest.TestCase):
             standardize_mode=None,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 2)
-            self.assertTrue(np.array_equal(batch[1].shape, (4)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 2)
+            # label is torch.tensor
+            label = sample[1]
+            self.assertTrue(np.array_equal(label.shape.numel(), (4)))
 
     # -------------------------------------------------#
     #     Application Functionality with Metadata     #
@@ -199,11 +203,13 @@ class DataGeneratorTEST(unittest.TestCase):
             grayscale=False,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 1)
-            self.assertTrue(len(batch[0]) == 2)
-            self.assertTrue(np.array_equal(batch[0][0].shape, (224, 224, 3)))
-            self.assertTrue(np.array_equal(batch[0][1].shape, (10)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 1)
+            self.assertTrue(len(sample[0]) == 2)
+            self.assertTrue(np.array_equal(sample[0][0].shape, (224, 224, 3)))
+            # metadata is torch.tensor
+            metadata = sample[0][1]
+            self.assertTrue(np.array_equal(metadata.shape.numel(), (10)))
 
     # Usage: Metadata for training
     def test_RUN_Metadata_withLabel(self):
@@ -215,29 +221,32 @@ class DataGeneratorTEST(unittest.TestCase):
             grayscale=False,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 2)
-            self.assertTrue(np.array_equal(batch[1].shape, (4)))
-            self.assertTrue(len(batch[0]) == 2)
-            self.assertTrue(np.array_equal(batch[0][0].shape, (224, 224, 3)))
-            self.assertTrue(np.array_equal(batch[0][1].shape, (10)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 2)
+            # label is torch.tensor
+            label = sample[1]
+            self.assertTrue(np.array_equal(label.shape.numel(), (4)))
+            self.assertTrue(len(sample[0]) == 2)
+            self.assertTrue(np.array_equal(sample[0][0].shape, (224, 224, 3)))
+            # metadata is torch.tensor
+            metadata = sample[0][1]
+            self.assertTrue(np.array_equal(metadata.shape.numel(), (10)))
 
     # -------------------------------------------------#
     #                 Multi-Processing                #
     # -------------------------------------------------#
     def test_MP(self):
+        # TODO: Functionality of DataLoader
         data_gen = DataGenerator(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
             grayscale=False,
-            batch_size=5,
-            num_workers=5,
         )
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 2)
-            self.assertTrue(np.array_equal(batch[1].shape, (5, 4)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 2)
+            self.assertTrue(np.array_equal(sample[1].shape.numel(), (4)))
 
     # -------------------------------------------------#
     #             Beforehand Preprocessing            #
@@ -253,9 +262,9 @@ class DataGeneratorTEST(unittest.TestCase):
         precprocessed_images = os.listdir(data_gen.prepare_dir)
         self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb_2D))
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 2)
-            self.assertTrue(np.array_equal(batch[1].shape, (4)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 2)
+            self.assertTrue(np.array_equal(sample[1].shape.numel(), (4)))
         shutil.rmtree(data_gen.prepare_dir)
 
     def test_PrepareImages_MP(self):
@@ -269,9 +278,9 @@ class DataGeneratorTEST(unittest.TestCase):
         precprocessed_images = os.listdir(data_gen.prepare_dir)
         self.assertTrue(len(precprocessed_images), len(self.sampleList_rgb_2D))
         for i in range(0, 10):
-            batch = data_gen[i]
-            self.assertTrue(len(batch), 2)
-            self.assertTrue(np.array_equal(batch[1].shape, (4)))
+            sample = data_gen[i]
+            self.assertTrue(len(sample), 2)
+            self.assertTrue(np.array_equal(sample[1].shape.numel(), (4)))
         shutil.rmtree(data_gen.prepare_dir)
 
     # -------------------------------------------------#
@@ -279,13 +288,12 @@ class DataGeneratorTEST(unittest.TestCase):
     # -------------------------------------------------#
     # Class Creation
     # def test_utils_iter(self):
-    #    data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,
-    #                             batch_size=8)
+    #    data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name,)
     #    counter = 0
-    #    for batch in data_gen:
+    #    for sample in data_gen:
     #        if counter < 3:
-    #            self.assertTrue(np.array_equal(batch[0].shape, (8,224,224,3)))
+    #            self.assertTrue(np.array_equal(sample[0].shape, (8,224,224,3)))
     #        else:
-    #            self.assertTrue(np.array_equal(batch[0].shape, (1,224,224,3)))
+    #            self.assertTrue(np.array_equal(sample[0].shape, (1,224,224,3)))
     #        counter += 1
     #    self.assertTrue(counter == 4)

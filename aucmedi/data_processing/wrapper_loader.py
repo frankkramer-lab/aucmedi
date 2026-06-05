@@ -96,6 +96,7 @@ def create_batch_loader(
         prepare_images=prepare_images,
         loader=loader,
         seed=seed,
+        **kwargs
     )
     # Initialize WrapperLoader
     wrapper_loader = WrapperLoader(batch_gen, num_workers=num_workers, **kwargs)
@@ -108,6 +109,7 @@ def _passthrough_collate(batch):
 
     This function must be defined at module level so it is picklable by multiprocessing.
     """
+    # TODO: investigate why batch_generator returns a list of one batch instead of the batch directly, and if this can be fixed at the source.
     return batch[0]  # Return the single item in the list
 
 
@@ -161,14 +163,28 @@ class WrapperLoader(DataLoader):
                 object which inherits from PyTorch Dataset class and provides
                 functionality to load images/volumes and apply preprocessing steps.
         """
-        # Initialize DataLoader values from batch_generator
+        # Initialize DataLoader values from batch_generator for compatibility and utility access
         self.dataset = batch_generator
+        self.data_aug = batch_generator.data_aug
         self.batch_size = batch_generator.batch_size
         self.shuffle = batch_generator.shuffle
         self.has_labels = batch_generator.has_labels
         self.has_metadata = batch_generator.has_metadata
         self.has_sample_weights = batch_generator.has_sample_weights
-
+        self.kwargs = kwargs
+        # Collect batch_generator attributes for display-only purposes.
+        self.batch_generator_attrs = {}
+        for attr in batch_generator.__dict__.keys():
+            try:
+                self.batch_generator_attrs[attr] = getattr(batch_generator, attr)
+            except Exception:
+                # If accessing the attribute raises, store None to indicate
+                # it's present but not retrievable at construction time.
+                self.batch_generator_attrs[attr] = None
+        print(
+            "\nDEBUG: BatchGenerator attributes collected in WrapperLoader:",
+            self.batch_generator_attrs,
+        )
         # Extract relevant kwargs for DataLoader
         self.num_workers = kwargs.pop("num_workers", 0)
         if self.num_workers <= 1:
@@ -225,6 +241,12 @@ class WrapperLoader(DataLoader):
             batch = self.batch_generator[i]
             # Convert numpy arrays to torch tensors
             batch = _to_torch(batch)
+            # If the underlying BatchGenerator returns a single-item tuple
+            # (e.g., (inputs,)) unwrap it to return the inputs directly so
+            # consumers (like NeuralNetwork.predict) receive the expected
+            # data shape instead of a one-element tuple.
+            if isinstance(batch, (list, tuple)) and len(batch) == 1:
+                batch = batch[0]
             yield batch
 
     def __len__(self):

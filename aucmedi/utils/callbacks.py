@@ -19,6 +19,7 @@
 # -----------------------------------------------------#
 #                   Library imports                   #
 # -----------------------------------------------------#
+import csv
 import logging
 
 
@@ -187,6 +188,80 @@ class ThresholdEarlyStopping:
                 logging.info("Early stopping triggered on epoch %d.", epoch)
                 return True
         return False
+
+
+class ModelCheckpoint:
+    """PyTorch replacement for tf.keras.callbacks.ModelCheckpoint(save_best_only=True).
+
+    Stores the model weights via NeuralNetwork.dump() whenever the monitored
+    metric improves.
+
+    :param filepath: Path to store the best model weights (".pt"/".pth" recommended).
+    :param monitor: Metric within training log to be monitored (e.g., 'val_loss').
+    :param mode: Either "min" or "max", depending on whether the monitored metric
+        should be minimized or maximized.
+    """
+
+    def __init__(self, filepath, monitor="val_loss", mode="min"):
+        self.filepath = filepath
+        self.monitor = monitor
+        self.mode = mode
+        self.best = None
+
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
+        if logs is None or not logs.get(self.monitor):
+            logging.debug(
+                "ModelCheckpoint: monitor '%s' not available on epoch %s.",
+                self.monitor,
+                epoch,
+            )
+            return None
+        current = logs[self.monitor][-1]
+        improved = self.best is None or (
+            current < self.best if self.mode == "min" else current > self.best
+        )
+        if improved:
+            self.best = current
+            model.dump(self.filepath)
+            logging.info(
+                "ModelCheckpoint: saved model with %s=%.6f to %s on epoch %d.",
+                self.monitor,
+                current,
+                self.filepath,
+                epoch,
+            )
+        return None
+
+
+class CSVLogger:
+    """PyTorch replacement for tf.keras.callbacks.CSVLogger.
+
+    Appends a row with the latest values of every logged metric after each epoch.
+
+    :param filename: Path to the CSV file the logs are written to.
+    :param separator: Delimiter used in the CSV file.
+    :param append: If True, append to an existing file; otherwise overwrite it.
+    """
+
+    def __init__(self, filename, separator=",", append=True):
+        self.filename = filename
+        self.separator = separator
+        self.append = append
+        self._header_written = False
+
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
+        if logs is None:
+            return None
+        row = {k: v[-1] for k, v in logs.items() if v}
+        write_header = not self._header_written
+        mode = "a" if (self.append or self._header_written) else "w"
+        with open(self.filename, mode, newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=row.keys(), delimiter=self.separator)
+            if write_header:
+                writer.writeheader()
+                self._header_written = True
+            writer.writerow(row)
+        return None
 
 
 class MinEpochEarlyStopping:

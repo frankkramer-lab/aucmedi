@@ -556,7 +556,7 @@ class NeuralNetwork:
 
             # Callbacks
             for callback in callbacks:
-                print(callback.on_epoch_end(epoch, logs=history))
+                callback.on_epoch_end(epoch, logs=history, model=self)
             if lr_scheduler_callback is not None:
                 # Derive current learning rate from optimizer
                 current_lr = self.optimizer.param_groups[0]["lr"]

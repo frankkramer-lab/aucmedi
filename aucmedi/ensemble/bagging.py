@@ -22,7 +22,7 @@
 # External libraries
 import os
 import tempfile
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
+from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
@@ -181,11 +181,9 @@ class Bagging:
             # Create model specific callback list
             callbacks_model = callbacks.copy()
             # Extend Callback list
-            """cb_mc = ModelCheckpoint(
-                os.path.join(self.cache_dir.name, "cv_" + str(i) + ".model.keras"),
+            cb_mc = ModelCheckpoint(
+                os.path.join(self.cache_dir.name, "cv_" + str(i) + ".model.pt"),
                 monitor="val_loss",
-                verbose=1,
-                save_best_only=True,
                 mode="min",
             )
             cb_cl = CSVLogger(
@@ -193,7 +191,7 @@ class Bagging:
                 separator=",",
                 append=True,
             )
-            callbacks_model.extend([cb_mc, cb_cl])"""
+            callbacks_model.extend([cb_mc, cb_cl])
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -337,7 +335,7 @@ class Bagging:
         # Sequentially iterate over all fold models
         for i in range(self.k_fold):
             # Identify path to fitted model
-            path_model = os.path.join(path_model_dir, "cv_" + str(i) + ".model.keras")
+            path_model = os.path.join(path_model_dir, "cv_" + str(i) + ".model.pt")
 
             # Gather NeuralNetwork parameters
             model_paras = {
@@ -417,7 +415,7 @@ class Bagging:
             )
         # Check model existence
         for i in range(self.k_fold):
-            path_model = os.path.join(directory_path, "cv_" + str(i) + ".model.keras")
+            path_model = os.path.join(directory_path, "cv_" + str(i) + ".model.pt")
             if not os.path.exists(path_model):
                 raise FileNotFoundError(
                     "Bagging model for fold " + str(i) + " does not exist!", path_model

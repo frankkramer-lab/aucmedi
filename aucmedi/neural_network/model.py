@@ -500,6 +500,7 @@ class NeuralNetwork:
                 outputs = self.model(x, metadata)
                 batch_loss = self.loss(outputs, y)
                 batch_loss.backward()
+                self.optimizer.step()
                 epoch_loss += batch_loss.item()
                 batch_count += 1
 
@@ -530,7 +531,6 @@ class NeuralNetwork:
                 avg_val_loss = val_loss / val_batch_count
                 history["val_loss"].append(avg_val_loss)
 
-            self.optimizer.step()
             current_lr = self.optimizer.param_groups[0]["lr"]
             # Update learning rate scheduler if provided
             if self.lr_scheduler_with_fb is not None and avg_val_loss is not None:

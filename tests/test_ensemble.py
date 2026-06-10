@@ -221,24 +221,24 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue("cv_2.loss" in hist and "cv_2.val_loss" in hist)
 
         self.assertTrue(os.path.exists(el.cache_dir.name))
-        """self.assertTrue(
+        self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "cv_0.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_0.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_0.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "cv_1.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_1.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_1.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "cv_2.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_2.model.keras"))
-        )"""
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_2.model.pt"))
+        )
 
         # Delete cached models
         path_tmp_bagging = el.cache_dir.name
@@ -337,9 +337,9 @@ class EnsembleTEST(unittest.TestCase):
         el.load(model_dir.name)
         self.assertTrue(os.path.exists(el.cache_dir))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_0.logs.csv")))
-        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_0.model.keras")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_0.model.pt")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_1.logs.csv")))
-        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_1.model.keras")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_1.model.pt")))
 
     # -------------------------------------------------#
     #                    Stacking                     #
@@ -415,13 +415,13 @@ class EnsembleTEST(unittest.TestCase):
             os.path.exists(os.path.join(el.cache_dir.name, "nn_0.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "nn_0.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "nn_0.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "nn_1.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "nn_1.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "nn_1.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "metalearner.model.pickle"))
@@ -459,13 +459,13 @@ class EnsembleTEST(unittest.TestCase):
             os.path.exists(os.path.join(el.cache_dir.name, "nn_0.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "nn_0.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "nn_0.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "nn_1.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "nn_1.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "nn_1.model.pt"))
         )
         # Delete cached models
         path_tmp_bagging = el.cache_dir.name
@@ -594,9 +594,9 @@ class EnsembleTEST(unittest.TestCase):
         el.load(model_dir.name)
         self.assertTrue(os.path.exists(el.cache_dir))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "nn_0.logs.csv")))
-        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "nn_0.model.keras")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "nn_0.model.pt")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "nn_1.logs.csv")))
-        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "nn_1.model.keras")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "nn_1.model.pt")))
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir, "metalearner.model.pickle"))
         )
@@ -688,13 +688,13 @@ class EnsembleTEST(unittest.TestCase):
             os.path.exists(os.path.join(el.cache_dir.name, "cv_0.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_0.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_0.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "cv_1.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_1.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_1.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "metalearner.model.pickle"))
@@ -734,13 +734,13 @@ class EnsembleTEST(unittest.TestCase):
             os.path.exists(os.path.join(el.cache_dir.name, "cv_0.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_0.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_0.model.pt"))
         )
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir.name, "cv_1.logs.csv"))
         )
         self.assertTrue(
-            os.path.exists(os.path.join(el.cache_dir.name, "cv_1.model.keras"))
+            os.path.exists(os.path.join(el.cache_dir.name, "cv_1.model.pt"))
         )
         # Delete cached models
         path_tmp_bagging = el.cache_dir.name
@@ -871,9 +871,9 @@ class EnsembleTEST(unittest.TestCase):
         el.load(model_dir.name)
         self.assertTrue(os.path.exists(el.cache_dir))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_0.logs.csv")))
-        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_0.model.keras")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_0.model.pt")))
         self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_1.logs.csv")))
-        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_1.model.keras")))
+        self.assertTrue(os.path.exists(os.path.join(el.cache_dir, "cv_1.model.pt")))
         self.assertTrue(
             os.path.exists(os.path.join(el.cache_dir, "metalearner.model.pickle"))
         )

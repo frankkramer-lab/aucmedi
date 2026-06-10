@@ -244,7 +244,7 @@ class Composite:
             # Pack data into a tuple
             fold = cv_sampling[i]
             if len(fold) == 4:
-                (train_x, train_y, test_x, test_y) = fold
+                train_x, train_y, test_x, test_y = fold
                 data = (train_x, train_y, None, test_x, test_y, None)
             else:
                 data = fold
@@ -252,9 +252,7 @@ class Composite:
             # Create model specific callback list
             callbacks_model = callbacks.copy()
             # Extend Callback list
-            path_model = os.path.join(
-                self.cache_dir.name, "cv_" + str(i) + ".model.pt"
-            )
+            path_model = os.path.join(self.cache_dir.name, "cv_" + str(i) + ".model.pt")
             cb_mc = ModelCheckpoint(
                 path_model,
                 monitor="val_loss",
@@ -271,7 +269,6 @@ class Composite:
             model_paras = {
                 "n_labels": self.model_list[i].n_labels,
                 "channels": self.model_list[i].channels,
-                "input_shape": self.model_list[i].input_shape,
                 "architecture": self.model_list[i].architecture,
                 "pretrained_weights": self.model_list[i].pretrained_weights,
                 "loss": self.model_list[i].loss,
@@ -396,7 +393,6 @@ class Composite:
             model_paras = {
                 "n_labels": self.model_list[i].n_labels,
                 "channels": self.model_list[i].channels,
-                "input_shape": self.model_list[i].input_shape,
                 "architecture": self.model_list[i].architecture,
                 "pretrained_weights": self.model_list[i].pretrained_weights,
                 "loss": self.model_list[i].loss,
@@ -453,7 +449,7 @@ class Composite:
 
         # Start training of stacked metalearner
         if isinstance(self.ml_model, Metalearner_Base):
-            (_, y_stack, _) = data_ensemble
+            _, y_stack, _ = data_ensemble
             self.ml_model.train(x_stack, y_stack)
             # Store metalearner model to disk
             path_metalearner = os.path.join(path_model_dir, "metalearner.model.pickle")
@@ -515,7 +511,7 @@ class Composite:
             model_paras = {
                 "n_labels": self.model_list[i].n_labels,
                 "channels": self.model_list[i].channels,
-                "input_shape": self.model_list[i].input_shape,
+                "input_resolution": self.model_template.arch_resolution,
                 "architecture": self.model_list[i].architecture,
                 "pretrained_weights": self.model_list[i].pretrained_weights,
                 "loss": self.model_list[i].loss,
@@ -640,7 +636,7 @@ class Composite:
 # Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
     # Extract data
-    (train_x, train_y, train_m, test_x, test_y, test_m) = data
+    train_x, train_y, train_m, test_x, test_y, test_m = data
     # Build training DataGenerator
     cv_train_gen = DataGenerator(
         train_x,
@@ -694,7 +690,7 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, data_test, datagen_paras):
     # Extract data
-    (test_x, test_y, test_m) = data_test
+    test_x, test_y, test_m = data_test
     # Create inference DataGenerator
     cv_pred_gen = DataGenerator(
         test_x,

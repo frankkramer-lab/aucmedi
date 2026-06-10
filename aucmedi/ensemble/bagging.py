@@ -197,7 +197,6 @@ class Bagging:
             model_paras = {
                 "n_labels": self.model_template.n_labels,
                 "channels": self.model_template.channels,
-                "input_shape": self.model_template.input_shape,
                 "architecture": self.model_template.architecture,
                 "pretrained_weights": self.model_template.pretrained_weights,
                 "loss": self.model_template.loss,
@@ -341,7 +340,7 @@ class Bagging:
             model_paras = {
                 "n_labels": self.model_template.n_labels,
                 "channels": self.model_template.channels,
-                "input_shape": self.model_template.input_shape,
+                "input_resolution": self.model_template.arch_resolution,
                 "architecture": self.model_template.architecture,
                 "pretrained_weights": self.model_template.pretrained_weights,
                 "loss": self.model_template.loss,

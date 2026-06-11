@@ -145,10 +145,12 @@ class Bagging:
         Returns:
             history (dict):                   A history dictionary which contains several logs.
         """
-        # Extract BatchLoader from WrapperLoader if required
+        # Extract BatchGenerator from WrapperLoader if required
         if isinstance(training_generator, WrapperLoader):
             self.num_workers = training_generator.num_workers
             training_generator = training_generator.batch_generator
+        else:
+            self.num_workers = getattr(self, "num_workers", 0)
         temp_dg = (
             training_generator  # Template DataGenerator variable for faster access
         )
@@ -197,6 +199,7 @@ class Bagging:
             model_paras = {
                 "n_labels": self.model_template.n_labels,
                 "channels": self.model_template.channels,
+                "input_resolution": self.model_template.arch_resolution,
                 "architecture": self.model_template.architecture,
                 "pretrained_weights": self.model_template.pretrained_weights,
                 "loss": self.model_template.loss,
@@ -221,6 +224,7 @@ class Bagging:
                 "sample_weights": temp_dg.sample_weights,
                 "image_format": temp_dg.image_format,
                 "loader": temp_dg.sample_loader,
+                "num_workers": self.num_workers,
                 "kwargs": temp_dg.kwargs,
             }
 
@@ -300,6 +304,13 @@ class Bagging:
         else:
             agg_fun = aggregate
 
+        # Extract BatchGenerator from WrapperLoader if required
+        if isinstance(prediction_generator, WrapperLoader):
+            self.num_workers = prediction_generator.num_workers
+            prediction_generator = prediction_generator.batch_generator
+        else:
+            self.num_workers = getattr(self, "num_workers", 0)
+
         # Initialize some variables
         temp_dg = prediction_generator
         preds_ensemble = []
@@ -322,6 +333,7 @@ class Bagging:
             "sample_weights": temp_dg.sample_weights,
             "image_format": temp_dg.image_format,
             "loader": temp_dg.sample_loader,
+            "num_workers": self.num_workers,
             "kwargs": temp_dg.kwargs,
         }
 
@@ -447,6 +459,7 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
+        num_workers=datagen_paras["num_workers"],
         **datagen_paras["kwargs"]
     )
     # Build validation BatchLoader
@@ -467,6 +480,7 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
+        num_workers=datagen_paras["num_workers"],
         **datagen_paras["kwargs"]
     )
     # Create NeuralNetwork
@@ -497,6 +511,7 @@ def __prediction_process__(queue, model_paras, path_model, datagen_paras):
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
+        num_workers=datagen_paras["num_workers"],
         **datagen_paras["kwargs"]
     )
     # Create NeuralNetwork

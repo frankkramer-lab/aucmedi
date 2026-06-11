@@ -28,7 +28,8 @@ import numpy as np
 import shutil
 
 # Internal libraries
-from aucmedi import DataGenerator, NeuralNetwork
+from aucmedi import NeuralNetwork
+from aucmedi.data_processing.wrapper_loader import create_batch_loader, WrapperLoader
 from aucmedi.sampling import sampling_split
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
@@ -192,6 +193,13 @@ class Stacking:
         Returns:
             history (dict):                   A history dictionary from a Keras history object which contains several logs.
         """
+        # Extract BatchGenerator from WrapperLoader if required
+        if isinstance(training_generator, WrapperLoader):
+            self.num_workers = training_generator.num_workers
+            training_generator = training_generator.batch_generator
+        else:
+            self.num_workers = getattr(self, "num_workers", 0)
+
         temp_dg = (
             training_generator  # Template DataGenerator variable for faster access
         )
@@ -254,8 +262,7 @@ class Stacking:
                 "metrics": None,
                 "activation_output": self.model_list[i].activation_output,
                 "fcl_dropout": self.model_list[i].fcl_dropout,
-                "meta_variables": self.model_list[i].meta_variables,
-                "learning_rate": self.model_list[i].learning_rate,
+                "n_meta_variables": self.model_list[i].n_meta_variables,
             }
 
             # Gather DataGenerator parameters
@@ -266,14 +273,14 @@ class Stacking:
                 "seed": temp_dg.seed,
                 "subfunctions": temp_dg.subfunctions,
                 "shuffle": temp_dg.shuffle,
-                "standardize_mode": self.model_list[i].meta_standardize,
-                "resize": self.model_list[i].meta_input,
+                "standardize_mode": self.model_list[i].arch_standardize,
+                "resize": self.model_list[i].arch_resolution,
                 "grayscale": temp_dg.grayscale,
                 "prepare_images": temp_dg.prepare_images,
                 "sample_weights": temp_dg.sample_weights,
                 "image_format": temp_dg.image_format,
                 "loader": temp_dg.sample_loader,
-                "workers": temp_dg.workers,
+                "num_workers": self.num_workers,
                 "kwargs": temp_dg.kwargs,
             }
 
@@ -330,6 +337,13 @@ class Stacking:
         if isinstance(self.ml_model, Aggregate_Base):
             return
 
+        # Extract BatchGenerator from WrapperLoader if required
+        if isinstance(training_generator, WrapperLoader):
+            self.num_workers = training_generator.num_workers
+            training_generator = training_generator.batch_generator
+        else:
+            self.num_workers = getattr(self, "num_workers", 0)
+
         temp_dg = (
             training_generator  # Template DataGenerator variable for faster access
         )
@@ -372,14 +386,14 @@ class Stacking:
             model_paras = {
                 "n_labels": self.model_list[i].n_labels,
                 "channels": self.model_list[i].channels,
+                "input_resolution": self.model_list[i].arch_resolution,
                 "architecture": self.model_list[i].architecture,
                 "pretrained_weights": self.model_list[i].pretrained_weights,
                 "loss": self.model_list[i].loss,
                 "metrics": None,
                 "activation_output": self.model_list[i].activation_output,
                 "fcl_dropout": self.model_list[i].fcl_dropout,
-                "meta_variables": self.model_list[i].meta_variables,
-                "learning_rate": self.model_list[i].learning_rate,
+                "n_meta_variables": self.model_list[i].n_meta_variables,
             }
 
             # Gather DataGenerator parameters
@@ -390,14 +404,14 @@ class Stacking:
                 "seed": temp_dg.seed,
                 "subfunctions": temp_dg.subfunctions,
                 "shuffle": temp_dg.shuffle,
-                "standardize_mode": self.model_list[i].meta_standardize,
-                "resize": self.model_list[i].meta_input,
+                "standardize_mode": self.model_list[i].arch_standardize,
+                "resize": self.model_list[i].arch_resolution,
                 "grayscale": temp_dg.grayscale,
                 "prepare_images": temp_dg.prepare_images,
                 "sample_weights": temp_dg.sample_weights,
                 "image_format": temp_dg.image_format,
                 "loader": temp_dg.sample_loader,
-                "workers": temp_dg.workers,
+                "num_workers": self.num_workers,
                 "kwargs": temp_dg.kwargs,
             }
 
@@ -468,6 +482,13 @@ class Stacking:
                 "Stacking does not have a valid model cache directory!"
             )
 
+        # Extract BatchGenerator from WrapperLoader if required
+        if isinstance(prediction_generator, WrapperLoader):
+            self.num_workers = prediction_generator.num_workers
+            prediction_generator = prediction_generator.batch_generator
+        else:
+            self.num_workers = getattr(self, "num_workers", 0)
+
         # Initialize some variables
         temp_dg = prediction_generator
         preds_ensemble = []
@@ -490,15 +511,14 @@ class Stacking:
             model_paras = {
                 "n_labels": self.model_list[i].n_labels,
                 "channels": self.model_list[i].channels,
-                "input_resolution": self.model_template.arch_resolution,
+                "input_resolution": self.model_list[i].arch_resolution,
                 "architecture": self.model_list[i].architecture,
                 "pretrained_weights": self.model_list[i].pretrained_weights,
                 "loss": self.model_list[i].loss,
                 "metrics": None,
                 "activation_output": self.model_list[i].activation_output,
                 "fcl_dropout": self.model_list[i].fcl_dropout,
-                "meta_variables": self.model_list[i].meta_variables,
-                "learning_rate": self.model_list[i].learning_rate,
+                "n_meta_variables": self.model_list[i].n_meta_variables,
             }
 
             # Gather DataGenerator parameters
@@ -509,14 +529,14 @@ class Stacking:
                 "seed": temp_dg.seed,
                 "subfunctions": temp_dg.subfunctions,
                 "shuffle": temp_dg.shuffle,
-                "standardize_mode": self.model_list[i].meta_standardize,
-                "resize": self.model_list[i].meta_input,
+                "standardize_mode": self.model_list[i].arch_standardize,
+                "resize": self.model_list[i].arch_resolution,
                 "grayscale": temp_dg.grayscale,
                 "prepare_images": temp_dg.prepare_images,
                 "sample_weights": temp_dg.sample_weights,
                 "image_format": temp_dg.image_format,
                 "loader": temp_dg.sample_loader,
-                "workers": temp_dg.workers,
+                "num_workers": self.num_workers,
                 "kwargs": temp_dg.kwargs,
             }
 
@@ -619,8 +639,8 @@ def __training_process__(
     # Extract data
     train_x, train_y, train_m = data_train
     val_x, val_y, val_m = data_val
-    # Build training DataGenerator
-    nn_train_gen = DataGenerator(
+    # Build training BatchLoader
+    nn_train_gen = create_batch_loader(
         train_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=train_y,
@@ -637,11 +657,11 @@ def __training_process__(
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
-        num_workers=datagen_paras["workers"],
+        num_workers=datagen_paras["num_workers"],
         **datagen_paras["kwargs"]
     )
-    # Build validation DataGenerator
-    nn_val_gen = DataGenerator(
+    # Build validation BatchLoader
+    nn_val_gen = create_batch_loader(
         val_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=val_y,
@@ -658,7 +678,7 @@ def __training_process__(
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
-        num_workers=datagen_paras["workers"],
+        num_workers=datagen_paras["num_workers"],
         **datagen_paras["kwargs"]
     )
     # Create NeuralNetwork
@@ -673,8 +693,8 @@ def __training_process__(
 def __prediction_process__(queue, model_paras, path_model, data_test, datagen_paras):
     # Extract data
     test_x, test_y, test_m = data_test
-    # Create inference DataGenerator
-    nn_pred_gen = DataGenerator(
+    # Create inference BatchLoader
+    nn_pred_gen = create_batch_loader(
         test_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=None,
@@ -691,7 +711,7 @@ def __prediction_process__(queue, model_paras, path_model, data_test, datagen_pa
         sample_weights=datagen_paras["sample_weights"],
         image_format=datagen_paras["image_format"],
         loader=datagen_paras["loader"],
-        num_workers=datagen_paras["workers"],
+        num_workers=datagen_paras["num_workers"],
         **datagen_paras["kwargs"]
     )
     # Create NeuralNetwork

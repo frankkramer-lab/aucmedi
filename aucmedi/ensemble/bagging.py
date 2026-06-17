@@ -123,6 +123,12 @@ class Bagging:
         callbacks=[],
         class_weights=None,
         transfer_learning=False,
+        learning_rate=0.0001,
+        transfer_epochs=10,
+        fine_tuning_lr=None,
+        early_stopping_callback=None,
+        lr_scheduler_callback=None,
+        scheduler=None,
     ):
         """Training function for the Bagging models which performs a k-fold cross-validation model fitting.
 
@@ -138,9 +144,15 @@ class Bagging:
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
-            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
+            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation (e.g. ModelCheckpoint).
             class_weights (dictionary or list):     A list or dictionary of float values to handle class imbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
+            learning_rate (float):                  Learning rate passed to the optimizer.
+            transfer_epochs (int):                  Number of epochs used in the frozen transfer learning phase.
+            fine_tuning_lr (float):                 Learning rate used during fine-tuning. Defaults to 0.1 * learning_rate.
+            early_stopping_callback (Callback):     An early stopping callback checked after every epoch.
+            lr_scheduler_callback (Callback):       A learning rate scheduler callback checked after every epoch.
+            scheduler (torch.optim.lr_scheduler):   A PyTorch learning rate scheduler class to be initialized.
 
         Returns:
             history (dict):                   A history dictionary which contains several logs.
@@ -235,6 +247,12 @@ class Bagging:
                 "callbacks": callbacks_model,
                 "class_weights": class_weights,
                 "transfer_learning": transfer_learning,
+                "learning_rate": learning_rate,
+                "transfer_epochs": transfer_epochs,
+                "fine_tuning_lr": fine_tuning_lr,
+                "early_stopping_callback": early_stopping_callback,
+                "lr_scheduler_callback": lr_scheduler_callback,
+                "scheduler": scheduler,
             }
 
             # Start training process

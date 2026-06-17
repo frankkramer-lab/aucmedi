@@ -181,10 +181,7 @@ class WrapperLoader(DataLoader):
                 # If accessing the attribute raises, store None to indicate
                 # it's present but not retrievable at construction time.
                 self.batch_generator_attrs[attr] = None
-        print(
-            "\nDEBUG: BatchGenerator attributes collected in WrapperLoader:",
-            self.batch_generator_attrs,
-        )
+
         # Extract relevant kwargs for DataLoader
         self.num_workers = kwargs.pop("num_workers", 0)
         if self.num_workers <= 1:

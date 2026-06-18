@@ -328,7 +328,9 @@ class Stacking:
             history_stacking = {**history_stacking, **hnn}
 
         # Perform metalearner model training
-        self.train_metalearner(temp_dg)
+        if isinstance(self.ml_model, Metalearner_Base):
+            if metalearner_fitting:
+                self.train_metalearner(temp_dg)
 
         # Return Stacking history object
         return history_stacking

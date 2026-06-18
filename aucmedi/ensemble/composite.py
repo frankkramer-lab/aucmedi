@@ -348,7 +348,8 @@ class Composite:
 
         # Perform metalearner model training
         if isinstance(self.ml_model, Metalearner_Base):
-            self.train_metalearner(temp_dg)
+            if metalearner_fitting:
+                self.train_metalearner(temp_dg)
 
         # Return Composite history object
         return history_composite

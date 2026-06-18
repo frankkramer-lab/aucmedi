@@ -65,40 +65,37 @@ class Composite:
         el = Composite(model_list=[model_a, model_b, model_c],
                        metalearner="logistic_regression", k_fold=3)
 
-        # Initialize training DataGenerator for complete training data
-        datagen = DataGenerator(samples_train, "images_dir/",
-                                labels=train_labels_ohe, batch_size=3,
-                                resize=None, standardize_mode=None)
+        # Initialize training WrapperLoader for complete training data
+        train_loader = create_batch_loader(samples_train, "images_dir/",
+                                           labels=train_labels_ohe, batch_size=3,
+                                           resize=model_a.arch_resolution,
+                                           standardize_mode=model_a.arch_standardize)
         # Train neural network and metalearner models
-        el.train(datagen, epochs=100)
+        el.train(train_loader, epochs=100)
 
-        # Initialize testing DataGenerator for testing data
-        test_gen = DataGenerator(samples_test, "images_dir/",
-                                 resize=None, standardize_mode=None)
+        # Initialize testing WrapperLoader for testing data
+        test_loader = create_batch_loader(samples_test, "images_dir/",
+                                          resize=model_a.arch_resolution,
+                                          standardize_mode=model_a.arch_standardize)
         # Run Inference
-        preds = el.predict(test_gen)
+        preds = el.predict(test_loader)
         ```
 
     !!! warning "Training Time Increase"
         Composite sequentially performs fitting processes for multiple models, which will drastically increase training time.
 
-    ??? warning "DataGenerator re-initialization"
-        The passed DataGenerator for the train() and predict() function of the Composite class will be re-initialized!
+    ??? warning "WrapperLoader re-initialization"
+        The passed WrapperLoader for the train() and predict() function of the Composite class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
 
-        Furthermore, the parameters `resize` and `standardize_mode` are automatically re-initialized with
-        NeuralNetwork model specific values (`model.meta_standardize` for `standardize_mode` and
-        `model.meta_input` for `input_shape`).
+        The `resize` and `standardize_mode` parameters are automatically overridden per model using
+        `model.arch_resolution` and `model.arch_standardize` respectively.
 
-        If desired (but not recommended!), it is possible to modify the meta variables of the NeuralNetwork model as follows:
+        If desired (but not recommended!), these attributes can be set manually:
         ```python
-        # For input_shape
         model_a = NeuralNetwork(n_labels=4, channels=3, architecture="2D.ResNet50",
-                                input_shape=(64,64))
-        # For standardize_mode
-        model_b = NeuralNetwork(n_labels=4, channels=3, architecture="2D.MobileNetV2")
-        model_b.meta_standardize = "torch"
+                                input_resolution=(64, 64))
         ```
 
     ??? warning "NeuralNetwork re-initialization"
@@ -107,12 +104,10 @@ class Composite:
         Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
-        For the training and inference process, each model will create an individual process via the Python multiprocessing package.
+        For the training and inference process, each model is trained in an individual subprocess via the Python multiprocessing package.
 
-        This is crucial as TensorFlow does not fully support the VRAM memory garbage collection in GPUs,
-        which is why more and more redundant data pile up with an increasing number of models.
-
-        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next model.
+        This isolates GPU memory between models, ensuring PyTorch releases VRAM between successive training runs.
+        The subprocess spawn method is used (`mp.set_start_method("spawn")`) for CUDA compatibility.
     """
 
     def __init__(
@@ -185,17 +180,17 @@ class Composite:
     ):
         """Training function for fitting the provided NeuralNetwork models.
 
-        The training data will be sampled according to a percentage split in which
-        [DataGenerators][aucmedi.data_processing.data_generator.DataGenerator] for model training
-        and metalearner training if a metalearner is provided. Else all data is used as model
-        training subset. The model training subset is furthermore sampled via cross-validation.
+        The training data will be sampled according to a percentage split in which WrapperLoaders
+        for model training and metalearner training are created if a metalearner is provided.
+        Otherwise all data is used for model training. The model training subset is furthermore
+        sampled via cross-validation.
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
+            training_generator (WrapperLoader):     A WrapperLoader which will be used for training (will be split according
                                                     to percentage split and k-fold cross-validation sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
@@ -491,7 +486,7 @@ class Composite:
         """Prediction function for Composite.
 
         The fitted models and selected Metalearner/Aggregate function will predict classifications
-        for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+        for the provided [WrapperLoader][aucmedi.data_processing.wrapper_loader.WrapperLoader].
 
         !!! info
             More about Metalearners can be found here: [Metelearner][aucmedi.ensemble.metalearner]
@@ -499,7 +494,7 @@ class Composite:
             More about Aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            prediction_generator (WrapperLoader):   A WrapperLoader which will be used for inference.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:

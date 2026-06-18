@@ -82,17 +82,12 @@ class Bagging:
         This can result in redundant image preparation if `prepare_images=True`.
 
     ??? warning "NeuralNetwork re-initialization"
-        The passed NeuralNetwork for the train() and predict() function of the Composite class will be re-initialized!
+        The passed NeuralNetwork for the train() and predict() function of the Bagging class will be re-initialized!
 
         Attention: Metrics are not passed to the processes due to pickling issues.
 
     ??? info "Technical Details"
         For the training and inference process, each model will create an individual process via the Python multiprocessing package.
-
-        This is crucial as TensorFlow does not fully support the VRAM memory garbage collection in GPUs,
-        which is why more and more redundant data pile up with an increasing number of k-fold.
-
-        Via separate processes, it is possible to clean up the TensorFlow environment and rebuild it again for the next fold model.
 
     ??? reference "Reference for Ensemble Learning Techniques"
         Dominik Müller, Iñaki Soto-Rey and Frank Kramer. (2022).
@@ -133,7 +128,7 @@ class Bagging:
         """Training function for the Bagging models which performs a k-fold cross-validation model fitting.
 
         The training data will be sampled according to a k-fold cross-validation in which a validation
-        [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] will be automatically created.
+        WrapperLoader will be automatically created.
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
@@ -280,7 +275,7 @@ class Bagging:
     def predict(self, prediction_generator, aggregate="mean", return_ensemble=False):
         """Prediction function for the Bagging models.
 
-        The fitted models will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+        The fitted models will predict classifications for the provided [WrapperLoader][aucmedi.data_processing.wrapper_loader.WrapperLoader].
 
         The inclusion of the Aggregate function can be achieved in multiple ways:
 
@@ -293,7 +288,7 @@ class Bagging:
             [Aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            prediction_generator (WrapperLoader):   A batch loader which will be used for inference.
             aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 

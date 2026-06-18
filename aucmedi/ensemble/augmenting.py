@@ -48,15 +48,15 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         from aucmedi.ensemble import predict_augmenting
         from aucmedi import ImageAugmentation, DataGenerator
 
-        # Initialize testing DataGenerator with desired Data Augmentation
-        test_aug = ImageAugmentation(flip=True, rotate=True, brightness=False, contrast=False))
-        test_gen = DataGenerator(samples_test, "images_dir/",
-                                 data_aug=test_aug,
-                                 resize=model.meta_input,
-                                 standardize_mode=model.meta_standardize)
+        # Initialize testing WrapperLoader with desired Data Augmentation
+        test_aug = ImageAugmentation(flip=True, rotate=True, brightness=False, contrast=False)
+        test_loader = create_batch_loader(samples_test, "images_dir/",
+                                          data_aug=test_aug,
+                                          resize=model.arch_resolution,
+                                          standardize_mode=model.arch_standardize)
 
         # Compute predictions via Augmenting
-        preds = predict_augmenting(model, test_gen, n_cycles=15, aggregate="majority_vote")
+        preds = predict_augmenting(model, test_loader, n_cycles=15, aggregate="majority_vote")
         ```
 
     The inclusion of the Aggregate function can be achieved in multiple ways:
@@ -74,7 +74,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     instance is automatically created which applies rotation and flipping augmentations.
 
     ???+ warning
-        The passed DataGenerator will be re-initialized!
+        The passed WrapperLoader will be re-initialized!
         This can result in redundant image preparation if `prepare_images=True`.
 
     ??? reference "Reference for Ensemble Learning Techniques"
@@ -83,10 +83,13 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         arXiv e-print: [https://arxiv.org/abs/2201.11440](https://arxiv.org/abs/2201.11440)
 
     Args:
-        model (NeuralNetwork):                 Instance of a AUCMEDI neural network class.
-        prediction_generator (DataGenerator or WrapperLoader):   A data generator or wrapper loader which will be used for Augmenting based inference.
-        n_cycles (int):                         Number of image augmentations, which should be created per sample.
-        aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
+        model (NeuralNetwork):                  Instance of an AUCMEDI neural network class.
+        prediction_generator (WrapperLoader):   A WrapperLoader which will be used for Augmenting based inference.
+        n_cycles (int):                         Number of augmented copies to generate per sample.
+        aggregate (str or Aggregate):           Aggregate function class instance or a string for an AUCMEDI Aggregate function.
+
+    Returns:
+        preds (numpy.ndarray):                  A NumPy array of ensembled predictions with shape (n_samples, n_labels).
     """
     # Initialize aggregate function if required
     if isinstance(aggregate, str) and aggregate in aggregate_dict:

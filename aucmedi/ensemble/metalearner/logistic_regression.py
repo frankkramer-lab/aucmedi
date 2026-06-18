@@ -49,8 +49,7 @@ class LogisticRegression(Metalearner_Base):
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self):
-        self.model = LRscikit(random_state=0, solver="newton-cg",
-                              multi_class="multinomial")
+        self.model = LRscikit(random_state=0, solver="newton-cg")
 
     #---------------------------------------------#
     #                  Training                   #

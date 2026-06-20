@@ -366,6 +366,9 @@ class BatchGenerator(Dataset):
         if self.sample_weights is not None:
             batch += (np.stack(batch_stack[2], axis=0),)
         # Return generated Batch
+        if len(batch) == 1:
+            # Conventionally, PyTorch DataLoader expects the Dataset to return a single item (the batch), so we unwrap it from the tuple.
+            return batch[0]
         return batch
 
     # -----------------------------------------------------#

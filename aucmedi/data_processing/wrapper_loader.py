@@ -65,6 +65,7 @@ def create_batch_loader(
         data_aug (Augmentation Interface):  Data Augmentation class instance.
         shuffle (bool):                     Boolean, whether dataset should be shuffled.
         grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+        two_dim (bool):                     Boolean, whether images are two-dimensional.
         sample_weights (list of float):     List of weights for samples.
         threads (int):                      Number of workers for image preprocessing.
         prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk
@@ -101,16 +102,6 @@ def create_batch_loader(
     # Initialize WrapperLoader
     wrapper_loader = WrapperLoader(batch_gen, num_workers=num_workers, **kwargs)
     return wrapper_loader
-
-
-# Picklable passthrough collate function used when the Dataset already returns full batches.
-def _passthrough_collate(batch):
-    """Return the single item (already a batch) provided by the Dataset.
-
-    This function must be defined at module level so it is picklable by multiprocessing.
-    """
-    # TODO: investigate why batch_generator returns a list of one batch instead of the batch directly, and if this can be fixed at the source.
-    return batch[0]  # Return the single item in the list
 
 
 # ------------------------------------------------------------------#
@@ -202,8 +193,6 @@ class WrapperLoader(DataLoader):
             warnings.warn(
                 "Custom collate_fn is ignored because BatchGenerator already returns full batches"
             )
-        # Use the picklable module-level passthrough regardless of user input
-        collate_fn = _passthrough_collate
 
         # Initialize PyTorch DataLoader with batch_size=None to avoid re-batching.
         super().__init__(
@@ -238,12 +227,6 @@ class WrapperLoader(DataLoader):
             batch = self.batch_generator[i]
             # Convert numpy arrays to torch tensors
             batch = _to_torch(batch)
-            # If the underlying BatchGenerator returns a single-item tuple
-            # (e.g., (inputs,)) unwrap it to return the inputs directly so
-            # consumers (like NeuralNetwork.predict) receive the expected
-            # data shape instead of a one-element tuple.
-            if isinstance(batch, (list, tuple)) and len(batch) == 1:
-                batch = batch[0]
             yield batch
 
     def __len__(self):

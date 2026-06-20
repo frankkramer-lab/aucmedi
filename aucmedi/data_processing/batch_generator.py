@@ -324,9 +324,8 @@ class BatchGenerator(Dataset):
     # -----------------------------------------------------#
     #              Batch Generation Function              #
     # -----------------------------------------------------#
-    """ Internal function for batch generation given a list of random selected samples. """
-
     def _get_batches_of_transformed_samples(self, index_array):
+        """Internal function for batch generation given a list of random selected samples."""
         # Initialize Batch stack
         batch_stack = ([],)
         if self.labels is not None:
@@ -367,7 +366,7 @@ class BatchGenerator(Dataset):
         if self.sample_weights is not None:
             batch += (np.stack(batch_stack[2], axis=0),)
         # Return generated Batch
-        return batch
+        return batch[0]
 
     # -----------------------------------------------------#
     #                 Image Preprocessing                 #
@@ -437,9 +436,8 @@ class BatchGenerator(Dataset):
     # -----------------------------------------------------#
     #              Sample Generation Function             #
     # -----------------------------------------------------#
-    """ Internal function for calling the batch generation process. """
-
     def __getitem__(self, raw_idx):
+        """Internal function for calling the batch generation process."""
         # Obtain the index based on the passed index offset to allow repetition
         idx = raw_idx % self.max_iterations
         # Build index array for the start
@@ -455,24 +453,20 @@ class BatchGenerator(Dataset):
     # -----------------------------------------------------#
     #                 Generator Functions                 #
     # -----------------------------------------------------#
-    """ Internal function for identifying the generator length. """
-
     def __len__(self):
+        """Internal function for identifying the generator length."""
         return self.iterations
 
-    """ Configuration function for fixing the number of iterations. """
-
     def set_length(self, iterations):
+        """Configuration function for fixing the number of iterations."""
         self.iterations = iterations
 
-    """ Configuration function for reseting the number of iterations. """
-
     def reset_length(self):
+        """Configuration function for reseting the number of iterations."""
         self.iterations = self.max_iterations
 
-    """ Internal function for initializing and shuffling the index array. """
-
     def __set_index_array__(self):
+        """Internal function for initializing and shuffling the index array."""
         # Generate index array
         self.index_array = np.arange(self.n)
         # Shuffle if needed

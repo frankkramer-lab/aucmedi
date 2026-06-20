@@ -46,7 +46,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         ```python
         # Import libraries
         from aucmedi.ensemble import predict_augmenting
-        from aucmedi import ImageAugmentation, DataGenerator
+        from aucmedi import ImageAugmentation, create_batch_loader
 
         # Initialize testing WrapperLoader with desired Data Augmentation
         test_aug = ImageAugmentation(flip=True, rotate=True, brightness=False, contrast=False)
@@ -69,7 +69,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         Description and list of implemented Aggregate functions can be found here:
         [Aggregate][aucmedi.ensemble.aggregate]
 
-    The Data Augmentation class instance from the DataGenerator will be used for inference augmenting.
+    The Data Augmentation class instance from the BatchLoader will be used for inference augmenting.
     It can either be predefined or remain `None`. If the `data_aug` is `None`, a Data Augmentation class
     instance is automatically created which applies rotation and flipping augmentations.
 
@@ -148,10 +148,12 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         # copy its contents directly to loader_args
         if prediction_generator.batch_generator_attrs:
             loader_args.update(prediction_generator.batch_generator_attrs)
-        # ensure num_workers is available
-        loader_args.setdefault("num_workers", num_workers)
+    else:
+        # Assume prediction_generator is a BatchGenerator (Pytorch Dataset) and use its attributes directly
+        loader_args = prediction_generator.__dict__
+        num_workers = getattr(prediction_generator, "num_workers", 0)
+    loader_args.setdefault("num_workers", num_workers)
 
-    print("\nDEBUG: Loader args for Augmenting Prediction:", loader_args)
     # Re-initialize BatchLoader for inference
     aug_loader = create_batch_loader(
         samples_aug,
@@ -174,16 +176,6 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         num_workers=num_workers,
         **prediction_generator.kwargs
     )
-    """aug_loader = create_batch_loader(
-        samples_aug,
-        labels=None,
-        shuffle=False,
-        data_aug=data_aug,
-        sample_weights=None,
-        num_workers=num_workers,
-        **loader_args,
-        **prediction_generator.kwargs
-    )"""
 
     # Compute predictions with provided model
     preds_all = model.predict(aug_loader)

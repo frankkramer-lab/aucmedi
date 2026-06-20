@@ -35,6 +35,7 @@ from aucmedi.neural_network.architectures import (
     supported_standardize_mode,
     Classifier,
 )
+from aucmedi.utils.callbacks import Callback, EarlyStoppingCallback
 
 
 # -----------------------------------------------------#
@@ -283,7 +284,6 @@ class NeuralNetwork:
         transfer_epochs=10,
         fine_tuning_lr=None,
         callbacks=[],
-        early_stopping_callback=None,
         scheduler=None,
         class_weights=None,
     ):
@@ -321,7 +321,6 @@ class NeuralNetwork:
             transfer_epochs (int):                        Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
             fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-            early_stopping_callback (Callback Class): An early stopping callback checked after every epoch that terminates training if condition is met
             scheduler (torch.optim.lr_scheduler):   A PyTorch learning rate scheduler class to be initialized. If None is provided, no learning rate scheduler is used.
             class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
 
@@ -330,6 +329,19 @@ class NeuralNetwork:
         """
         if fine_tuning_lr is None:
             fine_tuning_lr = 0.1 * learning_rate
+
+        early_stopping_callback = None
+        for callback in callbacks:
+            if not isinstance(callback, Callback):
+                raise ValueError(
+                    f"All callbacks must be instances of the Callback class. Found {type(callback)}."
+                )
+            if isinstance(callback, EarlyStoppingCallback):
+                if early_stopping_callback is None:
+                    early_stopping_callback = callback
+                else:
+                    # If multiple EarlyStoppingCallbacks are found, raise a warning and use only the first one
+                    print("Multiple EarlyStoppingCallbacks found. Using the first one.")
 
         # Initialize optimizer
         self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
@@ -551,10 +563,12 @@ class NeuralNetwork:
             # Callbacks
             for callback in callbacks:
                 callback.on_epoch_end(epoch, logs=history, model=self)
-                # TODO: Check if callback is early stopping then break if condition is met
+
             if (
                 early_stopping_callback is not None
-                and early_stopping_callback.on_epoch_end(epoch, logs=history)
+                and early_stopping_callback.on_epoch_end(
+                    epoch, logs=history, model=self
+                )
             ):
                 print(f"Early stopping triggered at epoch {epoch + 1}.")
                 break

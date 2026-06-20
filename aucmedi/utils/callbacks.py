@@ -22,15 +22,59 @@
 import csv
 import logging
 
+
 # -----------------------------------------------------#
 #                   Custom Callbacks                  #
 # -----------------------------------------------------#
+class Callback:
+    """Base class for custom callbacks that can be passed to NeuralNetwork.train().
+
+    Custom callbacks should inherit from this class and implement the on_epoch_end() method.
+
+    The on_epoch_end() method is called at the end of each epoch during training and receives the current epoch number, a logs dictionary containing the latest values of all logged metrics, and the model instance. It can perform any desired actions based on this information, such as logging, saving checkpoints, or implementing early stopping logic.
+
+    Example usage:
+    ```python
+    class MyCustomCallback(Callback):
+        def on_epoch_end(self, epoch=None, logs=None, model=None):
+            # Custom logic here
+            print(f"Epoch {epoch} ended with logs: {logs}")
+    ```
+
+    This callback can then be passed to NeuralNetwork.train() in the callbacks list.
+    """
+
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
+        pass
 
 
 # -----------------------------------------------------#
 #                   Early Stopping                     #
 # -----------------------------------------------------#
-class EarlyStopping:
+class EarlyStoppingCallback(Callback):
+    """Base class for custom early stopping callbacks that can be passed to NeuralNetwork.train()."""
+
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
+        """Checks if training should be stopped based on the provided logs and epoch number.
+
+        This method should return True if training should be stopped, and False otherwise. The logic for determining when to stop training should be implemented in subclasses of EarlyStoppingCallback.
+
+        Example usage:
+        ```python
+        class MyEarlyStopping(EarlyStoppingCallback):
+            def on_epoch_end(self, epoch=None, logs=None, model=None):
+                # Custom early stopping logic here
+                if logs and logs.get('val_loss') and logs['val_loss'][-1] < 0.1:
+                    return True  # Stop training if validation loss is below 0.1
+                return False
+        ```
+
+        This early stopping callback can then be passed to NeuralNetwork.train() in the early_stopping_callback parameter.
+        """
+        return False
+
+
+class EarlyStopping(EarlyStoppingCallback):
     """
     Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).
     :param patience: Number of epochs with no improvement after which training will be stopped.
@@ -44,7 +88,7 @@ class EarlyStopping:
         self.counter = 0
         self.best_loss = None
 
-    def on_epoch_end(self, epoch=None, logs=None):
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
         # Safely get the latest value of the monitored metric
         if logs is None:
             logging.debug("EarlyStopping: logs is None on epoch %s.", epoch)
@@ -80,7 +124,7 @@ class EarlyStopping:
         return False
 
 
-class ThresholdEarlyStopping:
+class ThresholdEarlyStopping(EarlyStoppingCallback):
     """Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).
     The number of patience epochs are only counted when baseline loss is achieved.
     :param patience: Number of epochs with no improvement after which training will be stopped.
@@ -97,7 +141,7 @@ class ThresholdEarlyStopping:
         self.baseline = baseline
         self.baseline_attained = False
 
-    def on_epoch_end(self, epoch=None, logs=None):
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
         # Safely get the latest value of the monitored metric
         if logs is None:
             logging.debug("ThresholdEarlyStopping: logs is None on epoch %s.", epoch)
@@ -140,7 +184,7 @@ class ThresholdEarlyStopping:
         return False
 
 
-class MinEpochEarlyStopping:
+class MinEpochEarlyStopping(EarlyStoppingCallback):
     """Custom early stopping callback that monitors a specified metric and stops training if it doesn't improve for a given number of epochs (patience).
     The number of patience epochs are only counted after a specified minimum epoch is reached.
     :param patience: Number of epochs with no improvement after which training will be stopped.
@@ -156,7 +200,7 @@ class MinEpochEarlyStopping:
         self.best_loss = None
         self.min_epoch = min_epoch
 
-    def on_epoch_end(self, epoch=None, logs=None):
+    def on_epoch_end(self, epoch=None, logs=None, model=None):
         if epoch < self.min_epoch:
             return False  # Don't start counting patience until minimum epoch is reached
         # Safely get the latest value of the monitored metric
@@ -197,7 +241,7 @@ class MinEpochEarlyStopping:
 # -----------------------------------------------------#
 #                   Persistence                        #
 # -----------------------------------------------------#
-class ModelCheckpoint:
+class ModelCheckpoint(Callback):
     """PyTorch replacement for tf.keras.callbacks.ModelCheckpoint(save_best_only=True).
 
     Stores the model weights via NeuralNetwork.dump() whenever the monitored
@@ -240,7 +284,7 @@ class ModelCheckpoint:
         return None
 
 
-class CSVLogger:
+class CSVLogger(Callback):
     """PyTorch replacement for tf.keras.callbacks.CSVLogger.
 
     Appends a row with the latest values of every logged metric after each epoch.

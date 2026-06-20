@@ -70,7 +70,7 @@ class IOloaderTEST(unittest.TestCase):
             if i >= 3:
                 break
             i += 1
-            self.assertTrue(np.array_equal(batch.shape, (2, 16, 16, 3)))
+            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 3)))
 
     # Test for grayscale images
     def test_image_loader_2Dgray(self):
@@ -131,7 +131,7 @@ class IOloaderTEST(unittest.TestCase):
             if i >= 3:
                 break
             i += 1
-            self.assertTrue(np.array_equal(batch.shape, (2, 16, 16, 16, 1)))
+            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
 
     # Test for grayscale 2D images
     def test_numpy_loader_2Dgray(self):
@@ -230,9 +230,9 @@ class IOloaderTEST(unittest.TestCase):
         )
         for i, batch in enumerate(data_loader):
             if i < 3:
-                self.assertTrue(np.array_equal(batch.shape, (1, 32, 24, 8, 1)))
+                self.assertTrue(np.array_equal(batch[0].shape, (1, 32, 24, 8, 1)))
             else:
-                self.assertTrue(np.array_equal(batch.shape, (1, 12, 20, 28, 1)))
+                self.assertTrue(np.array_equal(batch[0].shape, (1, 12, 20, 28, 1)))
 
     # Test for rgb 3D images
     def test_sitk_loader_3Drgb(self):
@@ -321,7 +321,7 @@ class IOloaderTEST(unittest.TestCase):
         for batch in data_loader:
             if i >= 6:
                 break
-            self.assertTrue(np.array_equal(batch.shape, (1, 18, 10, 10, 1)))
+            self.assertTrue(np.array_equal(batch[0].shape, (1, 18, 10, 10, 1)))
 
     # -------------------------------------------------#
     #                  Cache Loader                   #
@@ -353,7 +353,7 @@ class IOloaderTEST(unittest.TestCase):
         for batch in data_loader:
             if i >= 3:
                 break
-            self.assertTrue(np.array_equal(batch.shape, (2, 16, 16, 16, 1)))
+            self.assertTrue(np.array_equal(batch[0].shape, (2, 16, 16, 16, 1)))
 
     # Test for grayscale 2D images
     def test_cache_loader_2Dgray(self):

@@ -366,7 +366,7 @@ class BatchGenerator(Dataset):
         if self.sample_weights is not None:
             batch += (np.stack(batch_stack[2], axis=0),)
         # Return generated Batch
-        return batch[0]
+        return batch
 
     # -----------------------------------------------------#
     #                 Image Preprocessing                 #

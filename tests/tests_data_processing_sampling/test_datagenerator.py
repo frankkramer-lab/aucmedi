@@ -26,6 +26,8 @@ import tempfile
 from PIL import Image
 import os
 import shutil
+import torch
+from torch.utils.data import Dataset, DataLoader
 
 # Internal libraries
 from aucmedi import DataGenerator
@@ -98,6 +100,51 @@ class DataGeneratorTEST(unittest.TestCase):
     def test_BASE_create(self):
         data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name)
         self.assertIsInstance(data_gen, DataGenerator)
+
+    # Pytorch Integration
+    def test_BASE_pytorch(self):
+        # DataGenerator must be a PyTorch Dataset
+        data_gen = DataGenerator(self.sampleList_rgb_2D, self.tmp_data.name)
+        self.assertIsInstance(data_gen, Dataset)
+
+        # len() reflects the number of samples
+        self.assertEqual(len(data_gen), len(self.sampleList_rgb_2D))
+
+        # __getitem__ returns a 1-tuple; image element is a torch.Tensor
+        item = data_gen[0]
+        self.assertIsInstance(item, tuple)
+        self.assertEqual(len(item), 1)
+        self.assertIsInstance(item[0], torch.Tensor)
+
+        # With labels: 2-tuple (input, label), both torch.Tensor
+        data_gen_labeled = DataGenerator(
+            self.sampleList_rgb_2D, self.tmp_data.name, labels=self.labels_ohe
+        )
+        item_labeled = data_gen_labeled[0]
+        self.assertEqual(len(item_labeled), 2)
+        self.assertIsInstance(item_labeled[0], torch.Tensor)
+        self.assertIsInstance(item_labeled[1], torch.Tensor)
+
+        # With metadata: input element is a (img_tensor, metadata_tensor) tuple
+        data_gen_meta = DataGenerator(
+            self.sampleList_rgb_2D, self.tmp_data.name, metadata=self.metadata
+        )
+        item_meta = data_gen_meta[0]
+        self.assertEqual(len(item_meta), 1)
+        self.assertIsInstance(item_meta[0], tuple)
+        self.assertIsInstance(item_meta[0][0], torch.Tensor)
+        self.assertIsInstance(item_meta[0][1], torch.Tensor)
+
+        # Compatible with DataLoader — collation produces batched tensors
+        loader = DataLoader(data_gen_labeled, batch_size=4, shuffle=False)
+        self.assertIsInstance(loader, DataLoader)
+        batch = next(iter(loader))
+        self.assertIsInstance(batch[0], torch.Tensor)
+        self.assertIsInstance(batch[1], torch.Tensor)
+        # Batch dimension is 4
+        self.assertEqual(batch[0].shape[0], 4)
+        # Label batch shape: (4, n_classes)
+        self.assertEqual(batch[1].shape, torch.Size([4, self.labels_ohe.shape[1]]))
 
     # -------------------------------------------------#
     #        Application Functionality for 2D         #
@@ -236,7 +283,6 @@ class DataGeneratorTEST(unittest.TestCase):
     #                 Multi-Processing                #
     # -------------------------------------------------#
     def test_MP(self):
-        # TODO: Functionality of DataLoader
         data_gen = DataGenerator(
             self.sampleList_rgb_2D,
             self.tmp_data.name,

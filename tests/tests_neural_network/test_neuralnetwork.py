@@ -100,7 +100,6 @@ class NeuralNetworkTEST(unittest.TestCase):
 
     def test_training_transferlearning(self):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
-        model.tf_epochs = 2
         hist = model.train(
             training_generator=self.dataloader,
             validation_generator=self.dataloader,
@@ -109,6 +108,27 @@ class NeuralNetworkTEST(unittest.TestCase):
         )
         self.assertTrue("tl_loss" in hist and "tl_val_loss" in hist)
         self.assertTrue("ft_loss" in hist and "ft_val_loss" in hist)
+        self.assertTrue("ft_learning_rate" in hist and "tl_learning_rate" in hist)
+        # Check attributes set automatically
+        # Check that transfer_epochs is set to 0.1 * learning_rate (default)
+        self.assertTrue(
+            hist["ft_learning_rate"][0] == 0.1 * hist["tl_learning_rate"][0]
+        )
+
+        # Run with all parameters set manually
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            iterations=2,
+            epochs=3,
+            learning_rate=0.001,
+            transfer_learning=True,
+            transfer_epochs=5,
+            fine_tuning_lr=0.5,
+            callbacks=[],
+            scheduler=None,
+            class_weights=None,
+        )
 
     # -------------------------------------------------#
     #                 Model Inference                 #

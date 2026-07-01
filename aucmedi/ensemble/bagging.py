@@ -121,7 +121,6 @@ class Bagging:
         learning_rate=0.0001,
         transfer_epochs=10,
         fine_tuning_lr=None,
-        early_stopping_callback=None,
         lr_scheduler_callback=None,
         scheduler=None,
     ):
@@ -145,7 +144,6 @@ class Bagging:
             learning_rate (float):                  Learning rate passed to the optimizer.
             transfer_epochs (int):                  Number of epochs used in the frozen transfer learning phase.
             fine_tuning_lr (float):                 Learning rate used during fine-tuning. Defaults to 0.1 * learning_rate.
-            early_stopping_callback (Callback):     An early stopping callback checked after every epoch.
             lr_scheduler_callback (Callback):       A learning rate scheduler callback checked after every epoch.
             scheduler (torch.optim.lr_scheduler):   A PyTorch learning rate scheduler class to be initialized.
 
@@ -245,7 +243,6 @@ class Bagging:
                 "learning_rate": learning_rate,
                 "transfer_epochs": transfer_epochs,
                 "fine_tuning_lr": fine_tuning_lr,
-                "early_stopping_callback": early_stopping_callback,
                 "lr_scheduler_callback": lr_scheduler_callback,
                 "scheduler": scheduler,
             }

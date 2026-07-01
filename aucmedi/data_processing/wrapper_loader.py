@@ -140,8 +140,10 @@ class WrapperLoader(DataLoader):
 
     Note:
         The wrapped BatchGenerator already returns full batches. To avoid double-
-        batching by torch.utils.data.DataLoader we force `batch_size=None` and
-        use a collate_fn that returns the single dataset item unchanged.
+        batching by torch.utils.data.DataLoader we force `batch_size=None`.
+    Note:
+        The recommended way to initialize this class is to call the [create_batch_loader()][aucmedi.data_processing.wrapper_loader.create_batch_loader]
+        function which initializes the BatchGenerator and wraps it in a WrapperLoader.
     """
 
     def __init__(self, batch_generator: BatchGenerator, **kwargs):

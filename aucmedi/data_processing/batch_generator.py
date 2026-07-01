@@ -432,8 +432,12 @@ class BatchGenerator(Dataset):
             path_img = os.path.join(self.prepare_dir, "img_" + str(index))
             with open(path_img + ".pickle", "wb") as pickle_writer:
                 pickle.dump(img, pickle_writer)
-        # Return preprocessed image
+        # Return preprocessed image in channel-first format (C,H,W) / (C,D,H,W)
         else:
+            if img.ndim == 3:    # 2D: (H, W, C) -> (C, H, W)
+                img = np.transpose(img, (2, 0, 1))
+            elif img.ndim == 4:  # 3D: (D, H, W, C) -> (C, D, H, W)
+                img = np.transpose(img, (3, 0, 1, 2))
             return img
 
     # -----------------------------------------------------#

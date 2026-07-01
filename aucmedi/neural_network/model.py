@@ -189,9 +189,6 @@ class NeuralNetwork:
             However, be aware of unexpected adverse effects (experimental)!
 
         Attributes:
-            tf_epochs (int, default=5):             Transfer Learning configuration: Number of epochs with frozen layers except classification head.
-            tf_lr_start (float, default=1e-4):      Transfer Learning configuration: Starting learning rate for frozen layer fitting.
-            tf_lr_end (float, default=1e-5):        Transfer Learning configuration: Starting learning rate after layer unfreezing.
             arch_resolution (tuple of int):         Meta variable: Input resolution of architecture which can be passed to a DataGenerator. For example: (224, 224).
             arch_standardize (str):                 Meta variable: Recommended standardize_mode of architecture which can be passed to a DataGenerator.
                                                     For example: "torch".
@@ -318,7 +315,7 @@ class NeuralNetwork:
                                                     the complete data set.
             learning_rate (float):                  Learning rate that is passed to the optimizer
             transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 10 epochs will be trained.
-            transfer_epochs (int):                        Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
+            transfer_epochs (int):                  Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
             fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
             scheduler (torch.optim.lr_scheduler):   A PyTorch learning rate scheduler class to be initialized. If None is provided, no learning rate scheduler is used.
@@ -342,6 +339,14 @@ class NeuralNetwork:
                 else:
                     # If multiple EarlyStoppingCallbacks are found, raise a warning and use only the first one
                     print("Multiple EarlyStoppingCallbacks found. Using the first one.")
+
+        if transfer_learning and transfer_epochs >= epochs:
+            print(
+                "transfer_epochs should be lower than epochs when using transfer_learning. "
+                f"Received transfer_epochs={transfer_epochs}, epochs={epochs}. "
+                "Setting transfer_epochs to epochs - 1."
+            )
+            transfer_epochs = max(0, epochs - 1)
 
         # Initialize optimizer
         self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
@@ -629,16 +634,6 @@ class NeuralNetwork:
         else:
             x = x.float()
         x = x.to(self.device)
-
-        # Convert from NHWC/NDHWC format to NCHW/NCDHW format for PyTorch
-        if (
-            x.dim() == 4
-        ):  # 2D: (batch, height, width, channels) -> (batch, channels, height, width)
-            x = x.permute(0, 3, 1, 2)
-        elif (
-            x.dim() == 5
-        ):  # 3D: (batch, depth, height, width, channels) -> (batch, channels, depth, height, width)
-            x = x.permute(0, 4, 1, 2, 3)
 
         return x, y, metadata, sample_weights
 

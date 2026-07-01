@@ -1,4 +1,4 @@
-#==============================================================================#
+# ==============================================================================#
 #  Author:       Dominik Müller                                                #
 #  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
@@ -15,11 +15,11 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" Internal classes to allow iterative stratification in percentage-split and
+# -----------------------------------------------------#
+"""Internal classes to allow iterative stratification in percentage-split and
     k-fold cross-validation for multi-label sampling.
 
 Use the corresponding core functions from [aucmedi.sampling.split][] and [aucmedi.sampling.kfold][]
@@ -45,20 +45,26 @@ with the parameter `iterative=True`.
     <br>
     [https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10](https://link.springer.com/chapter/10.1007/978-3-642-23808-6_10)
 """
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 import numpy as np
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import _num_samples, check_array
 from sklearn.utils.multiclass import type_of_target
-from sklearn.model_selection._split import _BaseKFold, _RepeatedSplits, \
-                                    BaseShuffleSplit, _validate_shuffle_split
+from sklearn.model_selection._split import (
+    _BaseKFold,
+    _RepeatedSplits,
+    BaseShuffleSplit,
+    _validate_shuffle_split,
+)
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #       Subfunction for Iterative Stratification      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def IterativeStratification(labels, r, random_state):
     """This function implements the Iterative Stratification algorithm described
     in the following paper:
@@ -103,6 +109,8 @@ def IterativeStratification(labels, r, random_state):
 
                 if fold_idx.shape[0] > 1:
                     fold_idx = fold_idx[random_state.choice(fold_idx.shape[0])]
+                else:
+                    fold_idx = fold_idx[0]
 
                 test_folds[sample_idx] = fold_idx
                 c_folds[fold_idx] -= 1
@@ -113,7 +121,9 @@ def IterativeStratification(labels, r, random_state):
         if label_idx.shape[0] > 1:
             label_idx = label_idx[random_state.choice(label_idx.shape[0])]
 
-        sample_idxs = np.where(np.logical_and(labels[:, label_idx].flatten(), labels_not_processed_mask))[0]
+        sample_idxs = np.where(
+            np.logical_and(labels[:, label_idx].flatten(), labels_not_processed_mask)
+        )[0]
 
         for sample_idx in sample_idxs:
             # Find the subset(s) with the largest number of desired examples
@@ -123,12 +133,17 @@ def IterativeStratification(labels, r, random_state):
             fold_idx = np.where(label_folds == label_folds.max())[0]
 
             if fold_idx.shape[0] > 1:
-                temp_fold_idx = np.where(c_folds[fold_idx] ==
-                                         c_folds[fold_idx].max())[0]
+                temp_fold_idx = np.where(c_folds[fold_idx] == c_folds[fold_idx].max())[
+                    0
+                ]
                 fold_idx = fold_idx[temp_fold_idx]
 
                 if temp_fold_idx.shape[0] > 1:
                     fold_idx = fold_idx[random_state.choice(temp_fold_idx.shape[0])]
+                else:
+                    fold_idx = fold_idx[0]
+            else:
+                fold_idx = fold_idx[0]
 
             test_folds[sample_idx] = fold_idx
             labels_not_processed_mask[sample_idx] = False
@@ -139,9 +154,10 @@ def IterativeStratification(labels, r, random_state):
 
     return test_folds
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #     KFold Sampling via Iterative Stratification     #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class MultilabelStratifiedKFold(_BaseKFold):
     """Multilabel stratified K-Folds cross-validator.
 
@@ -193,15 +209,20 @@ class MultilabelStratifiedKFold(_BaseKFold):
                                             always uses the random_state since the iterative stratification
                                             algorithm breaks ties randomly.
         """
-        super(MultilabelStratifiedKFold, self).__init__(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
+        super(MultilabelStratifiedKFold, self).__init__(
+            n_splits=n_splits, shuffle=shuffle, random_state=random_state
+        )
 
     def _make_test_folds(self, X, y):
         y = np.asarray(y, dtype=bool)
         type_of_target_y = type_of_target(y)
 
-        if type_of_target_y != 'multilabel-indicator':
+        if type_of_target_y != "multilabel-indicator":
             raise ValueError(
-                'Supported target type is: multilabel-indicator. Got {!r} instead.'.format(type_of_target_y))
+                "Supported target type is: multilabel-indicator. Got {!r} instead.".format(
+                    type_of_target_y
+                )
+            )
 
         num_samples = y.shape[0]
 
@@ -224,7 +245,7 @@ class MultilabelStratifiedKFold(_BaseKFold):
             yield test_folds == i
 
     def split(self, X, y, groups=None):
-        """ Generate indices to split data into training and test set.
+        """Generate indices to split data into training and test set.
 
         ???+ note
             Randomized CV splitters may return different results for each call of
@@ -248,9 +269,10 @@ class MultilabelStratifiedKFold(_BaseKFold):
         y = check_array(y, ensure_2d=False, dtype=None)
         return super(MultilabelStratifiedKFold, self).split(X, y, groups)
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #     Split Sampling via Iterative Stratification     #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class MultilabelStratifiedShuffleSplit(BaseShuffleSplit):
     """Multilabel Stratified ShuffleSplit cross-validator.
 
@@ -289,8 +311,9 @@ class MultilabelStratifiedShuffleSplit(BaseShuffleSplit):
         preference of stratification over perfectly sized folds.
     """
 
-    def __init__(self, n_splits=10, test_size="default", train_size=None,
-                 random_state=None):
+    def __init__(
+        self, n_splits=10, test_size="default", train_size=None, random_state=None
+    ):
         """
         Args:
             n_splits (int):                         Number of re-shuffling & splitting iterations.
@@ -314,7 +337,11 @@ class MultilabelStratifiedShuffleSplit(BaseShuffleSplit):
                                                     algorithm breaks ties randomly.
         """
         super(MultilabelStratifiedShuffleSplit, self).__init__(
-            n_splits=n_splits, test_size=test_size, train_size=train_size, random_state=random_state)
+            n_splits=n_splits,
+            test_size=test_size,
+            train_size=train_size,
+            random_state=random_state,
+        )
 
     def _iter_indices(self, X, y, groups=None):
         n_samples = _num_samples(X)
@@ -322,13 +349,16 @@ class MultilabelStratifiedShuffleSplit(BaseShuffleSplit):
         y = np.asarray(y, dtype=bool)
         type_of_target_y = type_of_target(y)
 
-        if type_of_target_y != 'multilabel-indicator':
+        if type_of_target_y != "multilabel-indicator":
             raise ValueError(
-                'Supported target type is: multilabel-indicator. Got {!r} instead.'.format(
-                    type_of_target_y))
+                "Supported target type is: multilabel-indicator. Got {!r} instead.".format(
+                    type_of_target_y
+                )
+            )
 
-        n_train, n_test = _validate_shuffle_split(n_samples, self.test_size,
-                                                  self.train_size)
+        n_train, n_test = _validate_shuffle_split(
+            n_samples, self.test_size, self.train_size
+        )
 
         n_samples = y.shape[0]
         rng = check_random_state(self.random_state)

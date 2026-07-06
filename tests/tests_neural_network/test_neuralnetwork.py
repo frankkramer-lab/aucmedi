@@ -25,9 +25,11 @@ import tempfile
 import os
 from PIL import Image
 import numpy as np
+from torch.optim import lr_scheduler
 
 # Internal libraries
 from aucmedi import *
+from aucmedi.aucmedi.neural_network.model_old import NeuralNetwork
 
 
 # -----------------------------------------------------#
@@ -129,6 +131,23 @@ class NeuralNetworkTEST(unittest.TestCase):
             scheduler=None,
             class_weights=None,
         )
+
+    def test_training_scheduler(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=3,
+            scheduler=lr_scheduler.StepLR,
+        )
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=3,
+            scheduler=lr_scheduler.ReduceLROnPlateau,
+        )
+        self.assertTrue("loss" in hist and "val_loss" in hist)
+        self.assertTrue("learning_rate" in hist)
 
     # -------------------------------------------------#
     #                 Model Inference                 #

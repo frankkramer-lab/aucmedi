@@ -85,6 +85,8 @@ def evaluate_fitting(train_history,
                         var_name="metric",
                         value_name="score")
 
+    os.makedirs(out_path, exist_ok=True)
+
     # Handle special prefix tags (if split-able by '.')
     if prefix_split is not None:
         for c in selected_cols:

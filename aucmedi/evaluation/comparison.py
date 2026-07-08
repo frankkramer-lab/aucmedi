@@ -121,6 +121,8 @@ def evaluate_comparison(pred_list,
         df_merged (pandas.DataFrame):       Dataframe containing the merged metrics of all models.
         df_gain (pandas.DataFrame):         Dataframe containing performance gain compared to first model.
     """
+    os.makedirs(out_path, exist_ok=True)
+
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold

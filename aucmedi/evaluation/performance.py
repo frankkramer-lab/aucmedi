@@ -123,6 +123,8 @@ def evaluate_performance(
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold
+    os.makedirs(out_path, exist_ok=True)
+
     if multi_label:
         threshold = metrics_threshold
     else:

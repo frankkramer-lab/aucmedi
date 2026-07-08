@@ -89,6 +89,8 @@ def evaluate_dataset(samples,
         df_cf (pandas.DataFrame):           Dataframe containing the class distribution of the dataset.
     """
 
+    os.makedirs(out_path, exist_ok=True)
+
     # Generate barplot
     df_cf = evalby_barplot(labels, out_path, class_names, plot_barplot, show,
                            suffix)

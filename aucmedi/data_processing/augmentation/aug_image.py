@@ -294,7 +294,7 @@ class ImageAugmentation():
         aug_image = self.operator(image=image)["image"]
         # Perform padding & cropping if image shape changed
         if self.refine and aug_image.shape != org_shape:
-            aug_image = ai.PadIfNeeded(min_height=org_shape[0], min_width=org_shape[1], border_mode=cv2.BORDER_REPLICATE, value=0)(image=aug_image)["image"]
+            aug_image = ai.PadIfNeeded(min_height=org_shape[0], min_width=org_shape[1], border_mode=cv2.BORDER_REPLICATE)(image=aug_image)["image"]
                                                                          
             aug_image = ai.RandomCrop(height=org_shape[0], width=org_shape[1])(image=aug_image)["image"]
         # Perform clipping if image is out of grayscale/RGB encodings

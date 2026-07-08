@@ -56,7 +56,7 @@ class Resize(Subfunction_Base):
                                         https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
         """
         # Initialize parameter
-        params = {"p":1.0, "always_apply":True, "interpolation":interpolation}
+        params = {"p":1.0, "interpolation":interpolation}
         # Select augmentation module and add further parameter depending on dimension
         if len(shape) == 2:
             params["height"] = shape[0]

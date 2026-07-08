@@ -28,7 +28,7 @@ import numpy as np
 import shutil
 
 # Internal libraries
-from aucmedi import DataGenerator, NeuralNetwork, create_batch_loader, WrapperLoader
+from aucmedi import NeuralNetwork, create_batch_loader, WrapperLoader
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 
@@ -259,6 +259,10 @@ class Bagging:
             process_train.start()
             process_train.join()
             cv_history = process_queue.get()
+            if isinstance(cv_history, Exception):
+                raise RuntimeError(
+                    f"Training subprocess for fold {i} failed: {cv_history}"
+                ) from cv_history
             # Combine logged history objects
             hcv = {"cv_" + str(i) + "." + k: v for k, v in cv_history.items()}
             history_bagging = {**history_bagging, **hcv}
@@ -378,6 +382,10 @@ class Bagging:
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
+            if isinstance(preds, Exception):
+                raise RuntimeError(
+                    f"Prediction subprocess for fold {i} failed: {preds}"
+                ) from preds
 
             # Append to prediction ensemble
             preds_ensemble.append(preds)
@@ -493,9 +501,11 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     # Create NeuralNetwork
     model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
-    cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
-    # Store result in cache (which will be returned by the process queue)
-    queue.put(cv_history)
+    try:
+        cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
+        queue.put(cv_history)
+    except Exception as exc:
+        queue.put(exc)
 
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
@@ -526,6 +536,8 @@ def __prediction_process__(queue, model_paras, path_model, datagen_paras):
     # Load model weights from disk
     model.load(path_model)
     # Make prediction
-    preds = model.predict(cv_pred_gen)
-    # Store prediction results in cache (which will be returned by the process queue)
-    queue.put(preds)
+    try:
+        preds = model.predict(cv_pred_gen)
+        queue.put(preds)
+    except Exception as exc:
+        queue.put(exc)

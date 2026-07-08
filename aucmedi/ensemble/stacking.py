@@ -317,6 +317,10 @@ class Stacking:
             process_train.start()
             process_train.join()
             nn_history = process_queue.get()
+            if isinstance(nn_history, Exception):
+                raise RuntimeError(
+                    f"Training subprocess for model {i} failed: {nn_history}"
+                ) from nn_history
             # Combine logged history objects
             hnn = {"nn_" + str(i) + "." + k: v for k, v in nn_history.items()}
             history_stacking = {**history_stacking, **hnn}
@@ -440,6 +444,10 @@ class Stacking:
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
+            if isinstance(preds, Exception):
+                raise RuntimeError(
+                    f"Prediction subprocess for model {i} failed: {preds}"
+                ) from preds
 
             # Append preds to ensemble
             preds_ensemble.append(preds)
@@ -559,6 +567,10 @@ class Stacking:
             process_pred.start()
             process_pred.join()
             preds = process_queue.get()
+            if isinstance(preds, Exception):
+                raise RuntimeError(
+                    f"Prediction subprocess for model {i} failed: {preds}"
+                ) from preds
 
             # Append preds to ensemble
             preds_ensemble.append(preds)
@@ -694,9 +706,11 @@ def __training_process__(
     # Create NeuralNetwork
     model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
-    nn_history = model.train(nn_train_gen, nn_val_gen, **train_paras)
-    # Store result in cache (which will be returned by the process queue)
-    queue.put(nn_history)
+    try:
+        nn_history = model.train(nn_train_gen, nn_val_gen, **train_paras)
+        queue.put(nn_history)
+    except Exception as exc:
+        queue.put(exc)
 
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
@@ -729,6 +743,8 @@ def __prediction_process__(queue, model_paras, path_model, data_test, datagen_pa
     # Load model weights from disk
     model.load(path_model)
     # Make prediction
-    preds = model.predict(nn_pred_gen)
-    # Store prediction results in cache (which will be returned by the process queue)
-    queue.put(preds)
+    try:
+        preds = model.predict(nn_pred_gen)
+        queue.put(preds)
+    except Exception as exc:
+        queue.put(exc)

@@ -337,9 +337,8 @@ class NeuralNetwork:
                 if early_stopping_callback is None:
                     early_stopping_callback = callback
                 else:
-                    # TODO: Raise a warning if multiple EarlyStoppingCallbacks are found
-                    # If multiple EarlyStoppingCallbacks are found, raise a warning and use only the first one
-                    print("Multiple EarlyStoppingCallbacks found. Using the first one.")
+                    # If multiple EarlyStoppingCallbacks are found, raise a warning since only the first one will be used
+                    raise ValueError(f"Multiple EarlyStoppingCallbacks found. Using the first one: {early_stopping_callback}.")
 
         if transfer_learning and transfer_epochs >= epochs:
             print(

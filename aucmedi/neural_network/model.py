@@ -337,6 +337,7 @@ class NeuralNetwork:
                 if early_stopping_callback is None:
                     early_stopping_callback = callback
                 else:
+                    # TODO: Raise a warning if multiple EarlyStoppingCallbacks are found
                     # If multiple EarlyStoppingCallbacks are found, raise a warning and use only the first one
                     print("Multiple EarlyStoppingCallbacks found. Using the first one.")
 
@@ -591,6 +592,9 @@ class NeuralNetwork:
 
         Args:
             generator_output (tuple):    Output of a DataGenerator batch.
+            has_labels (bool):            Flag indicating whether the generator output contains labels.
+            has_metadata (bool):          Flag indicating whether the generator output contains metadata.
+            has_sample_weights (bool):    Flag indicating whether the generator output contains sample weights.
 
         Returns:
             x (torch.Tensor):            Input data tensor.

@@ -37,14 +37,11 @@ class Classifier(nn.Module):
         - Multi-class classification
         - Multi-label classification
         - 2D/3D data
-        - Metadata encoded as NumPy arrays (int or float)
+        - Metadata encoded as torch tensors (int or float)
 
     This class provides functionality for building a classification head for an
     [Architecture][aucmedi.neural_network.architectures]
     ([torch.nn.Module](https://pytorch.org/docs/stable/nn.html)).
-    A initialized classifier interface is passed to an architecture class.
-    The `build()` function of the classification head is called in the `create_model()`
-    function of the architecture.
 
     !!! info "Structure of the AUCMEDI Classification Head"
         | Layer                         | Description                                                      |
@@ -71,7 +68,7 @@ class Classifier(nn.Module):
         [https://glassboxmedicine.com/2019/05/26/classification-sigmoid-vs-softmax/](https://glassboxmedicine.com/2019/05/26/classification-sigmoid-vs-softmax/)
 
     The recommended way is to pass all required variables to the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]
-    which automatically creates the Classifier and passes it to the Architecture.
+    which automatically creates the Architecture and passes it to the Classifier.
 
     ???+ example
         ```python
@@ -84,10 +81,13 @@ class Classifier(nn.Module):
         from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.image import Vanilla
 
+        arch = Vanilla(channels=3,
+                       input_shape=(32, 32))
+
         classification_head = Classifier(n_labels=20, fcl_dropout=False,
                                          activation_output="sigmoid")
-        arch = Vanilla(classification_head, channels=3,
-                       input_shape=(32, 32))
+
+        classifier_model = classification_head.build(arch, arch.output_shape)
         ```
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"
@@ -137,11 +137,10 @@ class Classifier(nn.Module):
     #                Create Model                 #
     # ---------------------------------------------#
     def build(self, model_base, arch_output_shape):
-        """Internal function which appends the classification head.
-
-        This function will be called from inside an [Architecture][aucmedi.neural_network.architectures] `create_model()` function
-        and must return a functional PyTorch model.
+        """
         The `build()` function will append a classification head to the provided PyTorch model.
+        This function will be called during initialization of the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] class
+        and returns a functional PyTorch model.
 
         Args:
             model_base (torch.nn.Module):    Base model/feature extractor

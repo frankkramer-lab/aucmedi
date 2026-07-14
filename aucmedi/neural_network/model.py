@@ -26,7 +26,7 @@ import torch
 from torch import nn
 from torch.optim import Adam
 from torch.optim import lr_scheduler
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 import numpy as np
 
 # Internal libraries/scripts
@@ -46,6 +46,7 @@ class NeuralNetwork:
     """ Neural Network class providing functionality for handling all model methods.
 
     This class is the third of the three pillars of AUCMEDI.
+    # TODO: Update to Batchgenerator and Wrapperloader stack
 
     ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
@@ -178,7 +179,7 @@ class NeuralNetwork:
             activation_output (str):                Activation function which is used during prediction.
             fcl_dropout (bool):                     Option whether to utilize an additional Linear & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-            n_meta_variables (int):                   Number of metadata variables, which should be included in the classification head.
+            n_meta_variables (int):                 Number of metadata variables, which should be included in the classification head.
                                                     If `None`is provided, no metadata integration block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
             learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
@@ -286,43 +287,45 @@ class NeuralNetwork:
     ):
         """Fitting function for the Neural Network model performing a training process.
 
-        It is also possible to pass custom Callback classes in order to obtain more information.
+        Accepts a `WrapperLoader` (standard AUCMEDI entry point via `create_batch_loader`),
+        a raw `BatchGenerator`, or any generic PyTorch `DataLoader` whose `dataset` and
+        loader instance expose `has_labels`, `has_metadata`, and `has_sample_weights`
+        boolean attributes.
 
-        If an optional validation [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]
-        is provided, a validation set is analyzed regularly during the training process (after each epoch).
+        If a validation generator is provided, validation loss is computed after each epoch.
 
-        The transfer learning training runs two fitting processes.
-        The first one with frozen base model layers and a high learning rate,
-        whereas the second one with unfrozen layers and a small learning rate.
+        The transfer learning training runs two fitting passes: first with frozen base
+        layers at `learning_rate`, then with all layers unfrozen at `fine_tuning_lr`.
 
         ??? info "History for Transfer Learning"
-            For the transfer learning training, two history dictionaries will be created.
+            Two history dicts are merged and returned as one. Keys are prefixed:
 
-            However, in order to provide consistency with the single training without transfer learning,
-            only a single history dictionary will be returned.
-
-            For differentiation prefixes are added in front of the corresponding logging keys:
             ```
-            - History Start ->  prefix : tl     for "transfer learning"
-            - History End   ->  prefix : ft     for "fine tuning"
+            tl_*  — transfer-learning phase (frozen layers)
+            ft_*  — fine-tuning phase (unfrozen layers)
             ```
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training.
-            validation_generator (DataGenerator):   A data generator which will be used for validation.
-            iterations (int):                       Number of iterations (batches) in a single epoch. If None is provided, the number of iterations is determined by the length of the training_generator.
-            epochs (int):                           Total number of epochs (includes transfer learning). A single epoch is defined as one iteration through
-                                                    the complete data set.
-            learning_rate (float):                  Learning rate that is passed to the optimizer
-            transfer_learning (bool):               Option whether a transfer learning training should be performed. If true, a minimum of 10 epochs will be trained.
-            transfer_epochs (int):                  Number of epochs used in transfer learning before fine tuning. Must be lower than epochs
-            fine_tuning_lr (float):                 Learning rate that is used during fine tuning in case of transfer learning. If None is provided, it is set to 0.1 times learning_rate
-            callbacks (list of Callback classes):   A list of Callback classes for custom evaluation.
-            scheduler (torch.optim.lr_scheduler):   A PyTorch learning rate scheduler class to be initialized. If None is provided, no learning rate scheduler is used.
-            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
+            training_generator (WrapperLoader or BatchGenerator or DataLoader):
+                                                    Generator used for training. Generic PyTorch DataLoaders
+                                                    must expose `has_labels`, `has_metadata`, and
+                                                    `has_sample_weights` on both the loader and its `dataset`.
+            validation_generator (WrapperLoader or BatchGenerator or DataLoader):
+                                                    Optional generator used for validation (same contract as above).
+            iterations (int):                       Number of batches per epoch. Ignored for generic DataLoaders
+                                                    (those without a `set_length` method); use `None` to iterate
+                                                    over all batches.
+            epochs (int):                           Total number of epochs (includes transfer-learning epochs).
+            learning_rate (float):                  Learning rate passed to the Adam optimizer.
+            transfer_learning (bool):               If True, run a two-phase transfer-learning process.
+            transfer_epochs (int):                  Epochs in the frozen phase. Must be less than `epochs`.
+            fine_tuning_lr (float):                 Learning rate for the fine-tuning phase. Defaults to 0.1 × `learning_rate`.
+            callbacks (list of Callback):           Custom Callback instances (e.g. `ModelCheckpoint`, `MinEpochEarlyStopping`).
+            scheduler (torch.optim.lr_scheduler):   LR scheduler class (not instance) to initialize. `None` disables scheduling.
+            class_weights (dict or list):           Per-class weights to handle class imbalance.
 
         Returns:
-            history (dict):                   A history dictionary which contains several logs.
+            history (dict):                         Training history with loss and metric logs per epoch.
         """
         if fine_tuning_lr is None:
             fine_tuning_lr = 0.1 * learning_rate
@@ -362,7 +365,7 @@ class NeuralNetwork:
                 self.lr_scheduler = scheduler(self.optimizer)
 
         # Adjust number of iterations in training DataGenerator to allow repetition
-        if iterations is not None:
+        if iterations is not None and hasattr(training_generator, "set_length"):
             training_generator.set_length(iterations)
 
         ### Running a STANDARD training process
@@ -440,7 +443,7 @@ class NeuralNetwork:
             history_out = {**hs, **he}
 
         # Reset number of iterations of the training DataGenerator
-        if iterations is not None:
+        if iterations is not None and hasattr(training_generator, "reset_length"):
             training_generator.reset_length()
         # Return fitting history
         return history_out
@@ -462,18 +465,17 @@ class NeuralNetwork:
             "epoch_time": [],
             "learning_rate": [],
         }
-        # Check that generator is a torch DataLoader
+        # Check that generator is a torch DataLoader or torch DataSet
         if not isinstance(training_generator, DataLoader):
             raise ValueError(
                 "training_generator must be an instance of torch.utils.data.DataLoader"
             )
 
         # Cache generator flags to avoid repeated getattr() calls in hot loop
-        train_has_labels = getattr(training_generator, "has_labels", True)
-        train_has_metadata = getattr(training_generator, "has_metadata", False)
-        train_has_sample_weights = getattr(
-            training_generator, "has_sample_weights", False
-        )
+        train_set = training_generator.dataset
+        train_has_labels = getattr(train_set, "has_labels", True)
+        train_has_metadata = getattr(train_set, "has_metadata", False)
+        train_has_sample_weights = getattr(train_set, "has_sample_weights", False)
 
         val_has_labels = None
         val_has_metadata = None
@@ -484,11 +486,10 @@ class NeuralNetwork:
                 raise ValueError(
                     "validation_generator must be an instance of torch.utils.data.DataLoader"
                 )
-            val_has_labels = getattr(validation_generator, "has_labels", True)
-            val_has_metadata = getattr(validation_generator, "has_metadata", False)
-            val_has_sample_weights = getattr(
-                validation_generator, "has_sample_weights", False
-            )
+            val_set = validation_generator.dataset
+            val_has_labels = getattr(val_set, "has_labels", True)
+            val_has_metadata = getattr(val_set, "has_metadata", False)
+            val_has_sample_weights = getattr(val_set, "has_sample_weights", False)
 
         for epoch in range(epochs):
             epoch_loss = 0.0
@@ -519,7 +520,7 @@ class NeuralNetwork:
             history["loss"].append(avg_loss)
 
             # Validation loop
-            avg_val_loss = None  # Provide smth for print-out
+            avg_val_loss = None
             if validation_generator is not None:
                 val_loss = 0.0
                 val_batch_count = 0
@@ -646,13 +647,16 @@ class NeuralNetwork:
     def predict(self, prediction_generator):
         """Prediction function for the Neural Network model.
 
-        The fitted model will predict classifications for the provided [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
+        Accepts the same generator types as `train()`: `WrapperLoader`, `BatchGenerator`,
+        or a generic PyTorch `DataLoader` that exposes `has_labels`, `has_metadata`, and
+        `has_sample_weights` directly on the loader instance (not only on `dataset`).
 
         Args:
-            prediction_generator (DataGenerator):   A data generator which will be used for inference.
+            prediction_generator (WrapperLoader or BatchGenerator or DataLoader):
+                                                    Generator used for inference.
 
         Returns:
-            preds (numpy.ndarray):                  A NumPy array of predictions formatted with shape (n_samples, n_labels).
+            preds (numpy.ndarray):                  Predictions with shape (n_samples, n_labels).
         """
         self.model.eval()
         all_preds = []

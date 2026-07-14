@@ -37,81 +37,68 @@ from aucmedi.data_processing.subfunctions import Standardize, Resize
 #                 Torch Data Generator                #
 # -----------------------------------------------------#
 class BatchGenerator(Dataset):
-    """Infinite Data Generator which automatically creates batches from a list of samples.
+    """PyTorch Dataset that pre-forms full batches for AUCMEDI model training and inference.
 
-    The created batches are model ready. This generator can be supplied directly
-    to a [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] train() & predict()
-    function (also compatible to tensorflow.keras.model fit() & predict() function).
+    `BatchGenerator` is the second pillar of AUCMEDI. It handles image loading,
+    subfunction application, resizing, data augmentation, and standardization,
+    returning a ready-to-use batch tensor from each `__getitem__` call.
 
-    # TODO: Update to Batchgenerator and Wrapperloader stack
-    The DataGenerator is the second of the three pillars of AUCMEDI.
+    ??? warning "Non-standard Dataset contract"
+        Unlike a standard PyTorch `Dataset`, `__getitem__` returns a **full pre-formed
+        batch** (shape `(batch_size, C, H, W)`), not a single sample. It must therefore
+        be wrapped in a
+        [WrapperLoader][aucmedi.data_processing.wrapper_loader.WrapperLoader]
+        with `batch_size=None` to prevent PyTorch's `DataLoader` from re-batching.
+
+        Use [create_batch_loader][aucmedi.data_processing.wrapper_loader.create_batch_loader]
+        as the standard entry point — it constructs the `BatchGenerator` and the
+        `WrapperLoader` together.
 
     ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
-        - [aucmedi.data_processing.data_generator.DataGenerator][]
+        - [aucmedi.data_processing.batch_generator.BatchGenerator][]
         - [aucmedi.neural_network.model.NeuralNetwork][]
-
-    The DataGenerator can be used for training, validation as well as for prediction.
 
     ???+ example
         ```python
-        # Import
         from aucmedi import *
+        from aucmedi.data_processing.wrapper_loader import create_batch_loader
 
-        # Initialize model
-        model = NeuralNetwork(
-            n_labels=8,
-            channels=3,
-            architecture="2D.ResNet50"
-        )
+        model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
 
-        # Do some training
-        datagen_train = DataGenerator(
+        train_loader = create_batch_loader(
             samples=samples[:100],
             path_imagedir="images_dir/",
-            image_format=image_format,
             labels=class_ohe[:100],
+            image_format=image_format,
             resize=model.arch_resolution,
-            standardize_mode=model.arch_standardize
+            standardize_mode=model.arch_standardize,
         )
+        model.train(train_loader, epochs=50)
 
-        model.train(datagen_train, epochs=50)
-
-        # Do some predictions
-        datagen_test = DataGenerator(
+        test_loader = create_batch_loader(
             samples=samples[100:150],
             path_imagedir="images_dir/",
             image_format=image_format,
-            labels=None,
             resize=model.arch_resolution,
-            standardize_mode=model.arch_standardize
+            standardize_mode=model.arch_standardize,
         )
-
-        preds = model.predict(datagen_test)
+        preds = model.predict(test_loader)
         ```
 
-    It supports real-time batch generation as well as beforehand preprocessing of images,
-    which are then temporarily stored on disk (requires enough disk space!).
+    The batch pipeline runs in this order:
 
-    The resulting batches are created based the following pipeline:
-
-    1. Image Loading
-    2. Application of Subfunctions
-    3. Resize image
-    4. Application of Data Augmentation
-    5. Standardize image
-    6. Stacking processed images to a batch
+    1. Image loading (via `loader` / IO-loader function)
+    2. Application of `subfunctions` (sequentially)
+    3. Resize to `resize`
+    4. Data augmentation (`data_aug`)
+    5. Standardization (`standardize_mode`)
+    6. Stack samples → batch tensor
 
     ???+ warning
-        When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
-        by the `input_interface()` and the `resize` & `standardize_mode` parameters provided by the
-        `NeuralNetwork` class attributes `arch_resolution` & `arch_standardize`.
-
-        It assures, that the samples contain the expected file extension, input shape and standardization.
-
-    ???+ abstract "Build on top of the library"
-        # TODO: Update to pytorch
-        Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
+        Pass `image_format` from `input_interface()` and `resize` / `standardize_mode`
+        from `model.arch_resolution` / `model.arch_standardize` to ensure correct input
+        shapes and normalization.
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"
         ```python
@@ -207,6 +194,14 @@ class BatchGenerator(Dataset):
             loader (io_loader function):        Function for loading samples/images from disk.
             seed (int):                         Seed to ensure reproducibility for random function.
             **kwargs (dict):                    Additional parameters for the sample loader.
+
+        Attributes:
+            has_labels (bool):              True if `labels` was provided (training / evaluation mode).
+            has_metadata (bool):            True if `metadata` was provided.
+            has_sample_weights (bool):      True if `sample_weights` was provided.
+            samples (list of str):          The sample list as passed in.
+            labels (numpy.ndarray or None): The label array as passed in.
+            metadata (numpy.ndarray or None): The metadata array as passed in.
         """
         # Cache class variables
         self.samples = samples

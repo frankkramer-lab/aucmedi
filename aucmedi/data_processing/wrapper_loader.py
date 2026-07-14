@@ -152,7 +152,7 @@ class WrapperLoader(DataLoader):
             or [NeuralNetwork.predict()][aucmedi.neural_network.model.NeuralNetwork.predict].
 
         Args:
-            batch_generator (Dataset): A [BatchGenerator][aucmedi.data_processing.batch_generator.BatchGenerator]
+            batch_generator (BatchGenerator): A [BatchGenerator][aucmedi.data_processing.batch_generator.BatchGenerator]
                 object which inherits from PyTorch Dataset class and provides
                 functionality to load images/volumes and apply preprocessing steps.
         """
@@ -165,15 +165,6 @@ class WrapperLoader(DataLoader):
         self.has_metadata = batch_generator.has_metadata
         self.has_sample_weights = batch_generator.has_sample_weights
         self.kwargs = kwargs
-        # Collect batch_generator attributes for display-only purposes.
-        self.batch_generator_attrs = {}
-        for attr in batch_generator.__dict__.keys():
-            try:
-                self.batch_generator_attrs[attr] = getattr(batch_generator, attr)
-            except Exception:
-                # If accessing the attribute raises, store None to indicate
-                # it's present but not retrievable at construction time.
-                self.batch_generator_attrs[attr] = None
 
         # Extract relevant kwargs for DataLoader
         self.num_workers = kwargs.pop("num_workers", 0)

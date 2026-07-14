@@ -22,6 +22,7 @@
 # External libraries
 import os
 import tempfile
+from aucmedi.aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
@@ -85,8 +86,8 @@ class Stacking:
     !!! warning "Training Time Increase"
         Stacking sequentially performs fitting processes for multiple models, which will drastically increase training time.
 
-    ??? warning "WrapperLoader re-initialization"
-        The passed WrapperLoader for the train() and predict() function of the Stacking class will be re-initialized!
+    ??? warning "Generator re-initialization"
+        The passed WrapperLoader or BatchGenerator for the train() and predict() functions of the Stacking class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
 
@@ -171,16 +172,17 @@ class Stacking:
         """Training function for fitting the provided Stacking models.
 
         The training data will be sampled according to a percentage split in which
-        WrapperLoaders for model training and validation as well as one for the metalearner
-        training will be automatically created.
+        new loaders for model training, validation, and metalearner fitting will be
+        automatically created from the provided generator.
 
         It is also possible to pass custom Callback classes in order to obtain more information.
 
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (WrapperLoader):     A WrapperLoader which will be used for training (will be split according
-                                                    to percentage split sampling).
+            training_generator (WrapperLoader or BatchGenerator):
+                                                    A generator which will be used for training (will be split according
+                                                    to percentage split sampling). Must be a WrapperLoader or BatchGenerator.
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -200,13 +202,13 @@ class Stacking:
         # Extract BatchGenerator from WrapperLoader if required
         if isinstance(training_generator, WrapperLoader):
             self.num_workers = training_generator.num_workers
-            training_generator = training_generator.batch_generator
-        else:
+            template_generator = training_generator.batch_generator
+        elif isinstance(training_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+            template_generator = training_generator
+        else:
+            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
 
-        temp_dg = (
-            training_generator  # Template DataGenerator variable for faster access
-        )
         history_stacking = {}  # Final history dictionary
 
         # Create temporary model directory
@@ -215,9 +217,9 @@ class Stacking:
         )
 
         # Obtain training data
-        x = training_generator.samples
-        y = training_generator.labels
-        m = training_generator.metadata
+        x = template_generator.samples
+        y = template_generator.labels
+        m = template_generator.metadata
 
         # Apply percentage split sampling
         ps_sampling = sampling_split(
@@ -271,21 +273,21 @@ class Stacking:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
+                "path_imagedir": template_generator.path_imagedir,
+                "batch_size": template_generator.batch_size,
+                "data_aug": template_generator.data_aug,
+                "seed": template_generator.seed,
+                "subfunctions": template_generator.subfunctions,
+                "shuffle": template_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "grayscale": template_generator.grayscale,
+                "prepare_images": template_generator.prepare_images,
+                "sample_weights": template_generator.sample_weights,
+                "image_format": template_generator.image_format,
+                "loader": template_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": template_generator.kwargs,
             }
 
             # Gather training parameters
@@ -328,7 +330,7 @@ class Stacking:
         # Perform metalearner model training
         if isinstance(self.ml_model, Metalearner_Base):
             if metalearner_fitting:
-                self.train_metalearner(temp_dg)
+                self.train_metalearner(template_generator)
 
         # Return Stacking history object
         return history_stacking
@@ -344,29 +346,31 @@ class Stacking:
         re-training of the [NeuralNetwork][aucmedi.neural_network.model] models.
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
-                                                    to percentage split sampling).
+            training_generator (WrapperLoader or BatchGenerator):
+                                                    A generator which will be used for metalearner training (will be split
+                                                    according to percentage split sampling). Must be a WrapperLoader or BatchGenerator.
         """
         # Skipping metalearner training if aggregate function
         if isinstance(self.ml_model, Aggregate_Base):
             return
 
+        
         # Extract BatchGenerator from WrapperLoader if required
         if isinstance(training_generator, WrapperLoader):
             self.num_workers = training_generator.num_workers
-            training_generator = training_generator.batch_generator
-        else:
+            template_generator = training_generator.batch_generator
+        elif isinstance(training_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+            template_generator = training_generator
+        else:
+            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
 
-        temp_dg = (
-            training_generator  # Template DataGenerator variable for faster access
-        )
         preds_ensemble = []
 
         # Obtain training data
-        x = training_generator.samples
-        y = training_generator.labels
-        m = training_generator.metadata
+        x = template_generator.samples
+        y = template_generator.labels
+        m = template_generator.metadata
 
         # Apply percentage split sampling
         ps_sampling = sampling_split(
@@ -412,21 +416,21 @@ class Stacking:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
+                "path_imagedir": template_generator.path_imagedir,
+                "batch_size": template_generator.batch_size,
+                "data_aug": template_generator.data_aug,
+                "seed": template_generator.seed,
+                "subfunctions": template_generator.subfunctions,
+                "shuffle": template_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "grayscale": template_generator.grayscale,
+                "prepare_images": template_generator.prepare_images,
+                "sample_weights": template_generator.sample_weights,
+                "image_format": template_generator.image_format,
+                "loader": template_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": template_generator.kwargs,
             }
 
             # Start inference process for model i
@@ -470,7 +474,7 @@ class Stacking:
         """Prediction function for Stacking.
 
         The fitted models and selected Metalearner will predict classifications for the provided
-        [WrapperLoader][aucmedi.data_processing.wrapper_loader.WrapperLoader].
+        generator.
 
         !!! info
             More about Metalearners can be found here: [Metelearner][aucmedi.ensemble.metalearner]
@@ -478,7 +482,9 @@ class Stacking:
             More about Aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (WrapperLoader):   A WrapperLoader which will be used for inference.
+            prediction_generator (WrapperLoader or BatchGenerator):
+                                                    A generator which will be used for inference.
+                                                    Must be a WrapperLoader or BatchGenerator.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
@@ -500,20 +506,23 @@ class Stacking:
                 "Stacking does not have a valid model cache directory!"
             )
 
+        
         # Extract BatchGenerator from WrapperLoader if required
         if isinstance(prediction_generator, WrapperLoader):
             self.num_workers = prediction_generator.num_workers
-            prediction_generator = prediction_generator.batch_generator
-        else:
+            template_generator = prediction_generator.batch_generator
+        elif isinstance(prediction_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+            template_generator = prediction_generator
+        else:
+            raise ValueError("Invalid prediction_generator type: Must be WrapperLoader or BatchGenerator!")
 
         # Initialize some variables
-        temp_dg = prediction_generator
         preds_ensemble = []
         preds_final = []
 
         # Extract data
-        data_test = (temp_dg.samples, temp_dg.labels, temp_dg.metadata)
+        data_test = (template_generator.samples, template_generator.labels, template_generator.metadata)
 
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
@@ -541,21 +550,21 @@ class Stacking:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
+                "path_imagedir": template_generator.path_imagedir,
+                "batch_size": template_generator.batch_size,
+                "data_aug": template_generator.data_aug,
+                "seed": template_generator.seed,
+                "subfunctions": template_generator.subfunctions,
+                "shuffle": template_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "grayscale": template_generator.grayscale,
+                "prepare_images": template_generator.prepare_images,
+                "sample_weights": template_generator.sample_weights,
+                "image_format": template_generator.image_format,
+                "loader": template_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": template_generator.kwargs,
             }
 
             # Start inference process for model i

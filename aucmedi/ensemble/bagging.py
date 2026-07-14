@@ -29,6 +29,7 @@ import shutil
 
 # Internal libraries
 from aucmedi import NeuralNetwork, create_batch_loader, WrapperLoader
+from aucmedi.aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 
@@ -133,7 +134,7 @@ class Bagging:
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (WrapperLoader):     A data generator which will be used for training (will be split according to k-fold sampling).
+            training_generator (WrapperLoader or BatchGenerator):     A generator which will be used for training (will be split according to k-fold sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -152,11 +153,11 @@ class Bagging:
         if isinstance(training_generator, WrapperLoader):
             self.num_workers = training_generator.num_workers
             training_generator = training_generator.batch_generator
-        else:
+        elif isinstance(training_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
-        temp_dg = (
-            training_generator  # Template DataGenerator variable for faster access
-        )
+        else:
+            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
+
         history_bagging = {}  # Final history dictionary
 
         # Create temporary model directory
@@ -214,21 +215,21 @@ class Bagging:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
-                "standardize_mode": temp_dg.standardize_mode,
-                "resize": temp_dg.resize,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "path_imagedir": training_generator.path_imagedir,
+                "batch_size": training_generator.batch_size,
+                "data_aug": training_generator.data_aug,
+                "seed": training_generator.seed,
+                "subfunctions": training_generator.subfunctions,
+                "shuffle": training_generator.shuffle,
+                "standardize_mode": training_generator.standardize_mode,
+                "resize": training_generator.resize,
+                "grayscale": training_generator.grayscale,
+                "prepare_images": training_generator.prepare_images,
+                "sample_weights": training_generator.sample_weights,
+                "image_format": training_generator.image_format,
+                "loader": training_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": training_generator.kwargs,
             }
 
             # Gather training parameters
@@ -286,7 +287,7 @@ class Bagging:
             [Aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (WrapperLoader):   A batch loader which will be used for inference.
+            prediction_generator (WrapperLoader or BatchGenerator):   A generator which will be used for inference.
             aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
@@ -319,33 +320,34 @@ class Bagging:
         if isinstance(prediction_generator, WrapperLoader):
             self.num_workers = prediction_generator.num_workers
             prediction_generator = prediction_generator.batch_generator
-        else:
+        elif isinstance(prediction_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+        else:
+            raise ValueError("Invalid prediction_generator type: Must be WrapperLoader or BatchGenerator!")
 
         # Initialize some variables
-        temp_dg = prediction_generator
         preds_ensemble = []
         preds_final = []
 
         # Gather DataGenerator parameters
         datagen_paras = {
-            "samples": temp_dg.samples,
-            "metadata": temp_dg.metadata,
-            "path_imagedir": temp_dg.path_imagedir,
-            "batch_size": temp_dg.batch_size,
-            "data_aug": temp_dg.data_aug,
-            "seed": temp_dg.seed,
-            "subfunctions": temp_dg.subfunctions,
-            "shuffle": temp_dg.shuffle,
-            "standardize_mode": temp_dg.standardize_mode,
-            "resize": temp_dg.resize,
-            "grayscale": temp_dg.grayscale,
-            "prepare_images": temp_dg.prepare_images,
-            "sample_weights": temp_dg.sample_weights,
-            "image_format": temp_dg.image_format,
-            "loader": temp_dg.sample_loader,
+            "samples": prediction_generator.samples,
+            "metadata": prediction_generator.metadata,
+            "path_imagedir": prediction_generator.path_imagedir,
+            "batch_size": prediction_generator.batch_size,
+            "data_aug": prediction_generator.data_aug,
+            "seed": prediction_generator.seed,
+            "subfunctions": prediction_generator.subfunctions,
+            "shuffle": prediction_generator.shuffle,
+            "standardize_mode": prediction_generator.standardize_mode,
+            "resize": prediction_generator.resize,
+            "grayscale": prediction_generator.grayscale,
+            "prepare_images": prediction_generator.prepare_images,
+            "sample_weights": prediction_generator.sample_weights,
+            "image_format": prediction_generator.image_format,
+            "loader": prediction_generator.sample_loader,
             "num_workers": self.num_workers,
-            "kwargs": temp_dg.kwargs,
+            "kwargs": prediction_generator.kwargs,
         }
 
         # Identify path to model directory
@@ -392,7 +394,7 @@ class Bagging:
 
         # Aggregate predictions
         preds_ensemble = np.array(preds_ensemble)
-        for i in range(0, len(temp_dg.samples)):
+        for i in range(0, len(prediction_generator.samples)):
             pred_sample = agg_fun.aggregate(preds_ensemble[:, i, :])
             preds_final.append(pred_sample)
 

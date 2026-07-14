@@ -30,6 +30,7 @@ import shutil
 # Internal libraries
 from aucmedi import NeuralNetwork
 from aucmedi.data_processing.wrapper_loader import create_batch_loader, WrapperLoader
+from aucmedi.aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.sampling import sampling_split, sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
@@ -84,8 +85,8 @@ class Composite:
     !!! warning "Training Time Increase"
         Composite sequentially performs fitting processes for multiple models, which will drastically increase training time.
 
-    ??? warning "WrapperLoader re-initialization"
-        The passed WrapperLoader for the train() and predict() function of the Composite class will be re-initialized!
+    ??? warning "Generator re-initialization"
+        The passed generator for the train() and predict() function of the Composite class will be re-initialized!
 
         This can result in redundant image preparation if `prepare_images=True`.
 
@@ -188,8 +189,8 @@ class Composite:
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (WrapperLoader):     A WrapperLoader which will be used for training (will be split according
-                                                    to percentage split and k-fold cross-validation sampling).
+            training_generator (WrapperLoader or BatchGenerator):     A generator which will be used for training (will be split according
+                                                                    to percentage split and k-fold cross-validation sampling).
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -210,12 +211,11 @@ class Composite:
         if isinstance(training_generator, WrapperLoader):
             self.num_workers = training_generator.num_workers
             training_generator = training_generator.batch_generator
-        else:
+        elif isinstance(training_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+        else:
+            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
 
-        temp_dg = (
-            training_generator  # Template DataGenerator variable for faster access
-        )
         history_composite = {}  # Final history dictionary
 
         # Create temporary model directory
@@ -291,21 +291,21 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
+                "path_imagedir": training_generator.path_imagedir,
+                "batch_size": training_generator.batch_size,
+                "data_aug": training_generator.data_aug,
+                "seed": training_generator.seed,
+                "subfunctions": training_generator.subfunctions,
+                "shuffle": training_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "grayscale": training_generator.grayscale,
+                "prepare_images": training_generator.prepare_images,
+                "sample_weights": training_generator.sample_weights,
+                "image_format": training_generator.image_format,
+                "loader": training_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": training_generator.kwargs,
             }
 
             # Gather training parameters
@@ -343,7 +343,7 @@ class Composite:
         # Perform metalearner model training
         if isinstance(self.ml_model, Metalearner_Base):
             if metalearner_fitting:
-                self.train_metalearner(temp_dg)
+                self.train_metalearner(training_generator)
 
         # Return Composite history object
         return history_composite
@@ -359,8 +359,8 @@ class Composite:
         re-training of the [NeuralNetwork][aucmedi.neural_network.model] models.
 
         Args:
-            training_generator (DataGenerator):     A data generator which will be used for training (will be split according
-                                                    to percentage split).
+            training_generator (WrapperLoader or BatchGenerator):     A generator which will be used for training (will be split according
+                                                                    to percentage split).
         """
         # Skipping metalearner training if aggregate function
         if isinstance(self.ml_model, Aggregate_Base):
@@ -370,12 +370,11 @@ class Composite:
         if isinstance(training_generator, WrapperLoader):
             self.num_workers = training_generator.num_workers
             training_generator = training_generator.batch_generator
-        else:
+        elif isinstance(training_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+        else:
+            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
 
-        temp_dg = (
-            training_generator  # Template DataGenerator variable for faster access
-        )
         preds_ensemble = []
 
         # Obtain training data
@@ -427,21 +426,21 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
+                "path_imagedir": training_generator.path_imagedir,
+                "batch_size": training_generator.batch_size,
+                "data_aug": training_generator.data_aug,
+                "seed": training_generator.seed,
+                "subfunctions": training_generator.subfunctions,
+                "shuffle": training_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "grayscale": training_generator.grayscale,
+                "prepare_images": training_generator.prepare_images,
+                "sample_weights": training_generator.sample_weights,
+                "image_format": training_generator.image_format,
+                "loader": training_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": training_generator.kwargs,
             }
 
             # Start inference process for model i
@@ -489,7 +488,7 @@ class Composite:
             More about Aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (WrapperLoader):   A WrapperLoader which will be used for inference.
+            prediction_generator (WrapperLoader or BatchGenerator):   A generator which will be used for inference.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
@@ -515,16 +514,17 @@ class Composite:
         if isinstance(prediction_generator, WrapperLoader):
             self.num_workers = prediction_generator.num_workers
             prediction_generator = prediction_generator.batch_generator
-        else:
+        elif isinstance(prediction_generator, BatchGenerator):
             self.num_workers = getattr(self, "num_workers", 0)
+        else:
+            raise ValueError("Invalid prediction_generator type: Must be WrapperLoader or BatchGenerator!")
 
         # Initialize some variables
-        temp_dg = prediction_generator
         preds_ensemble = []
         preds_final = []
 
         # Extract data
-        data_test = (temp_dg.samples, temp_dg.labels, temp_dg.metadata)
+        data_test = (prediction_generator.samples, prediction_generator.labels, prediction_generator.metadata)
 
         # Identify path to model directory
         if isinstance(self.cache_dir, tempfile.TemporaryDirectory):
@@ -552,21 +552,21 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": temp_dg.path_imagedir,
-                "batch_size": temp_dg.batch_size,
-                "data_aug": temp_dg.data_aug,
-                "seed": temp_dg.seed,
-                "subfunctions": temp_dg.subfunctions,
-                "shuffle": temp_dg.shuffle,
+                "path_imagedir": prediction_generator.path_imagedir,
+                "batch_size": prediction_generator.batch_size,
+                "data_aug": prediction_generator.data_aug,
+                "seed": prediction_generator.seed,
+                "subfunctions": prediction_generator.subfunctions,
+                "shuffle": prediction_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": temp_dg.grayscale,
-                "prepare_images": temp_dg.prepare_images,
-                "sample_weights": temp_dg.sample_weights,
-                "image_format": temp_dg.image_format,
-                "loader": temp_dg.sample_loader,
+                "grayscale": prediction_generator.grayscale,
+                "prepare_images": prediction_generator.prepare_images,
+                "sample_weights": prediction_generator.sample_weights,
+                "image_format": prediction_generator.image_format,
+                "loader": prediction_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": temp_dg.kwargs,
+                "kwargs": prediction_generator.kwargs,
             }
 
             # Start inference process for model i

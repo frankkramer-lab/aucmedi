@@ -74,7 +74,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     instance is automatically created which applies rotation and flipping augmentations.
 
     ???+ warning
-        The passed WrapperLoader will be re-initialized!
+        The passed generator will be re-initialized!
         This can result in redundant image preparation if `prepare_images=True`.
 
     ??? reference "Reference for Ensemble Learning Techniques"
@@ -84,7 +84,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
 
     Args:
         model (NeuralNetwork):                  Instance of an AUCMEDI neural network class.
-        prediction_generator (WrapperLoader):   A WrapperLoader which will be used for Augmenting based inference.
+        prediction_generator (WrapperLoader or BatchGenerator):   A generator which will be used for Augmenting based inference.
         n_cycles (int):                         Number of augmented copies to generate per sample.
         aggregate (str or Aggregate):           Aggregate function class instance or a string for an AUCMEDI Aggregate function.
 
@@ -140,18 +140,12 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 
     loader_args = {}
-    # TODO: DataGenerator support maybe
     if isinstance(prediction_generator, WrapperLoader):
-        # Fill loader_args with arguments from WrapperLoader.batch_generator_attrs
         num_workers = getattr(prediction_generator, "num_workers", 0)
-        # batch_generator_attrs is a dict populated in WrapperLoader
-        # copy its contents directly to loader_args
-        if prediction_generator.batch_generator_attrs:
-            loader_args.update(prediction_generator.batch_generator_attrs)
-    else:
-        # Assume prediction_generator is a BatchGenerator (Pytorch Dataset) and use its attributes directly
-        loader_args = prediction_generator.__dict__
-        num_workers = getattr(prediction_generator, "num_workers", 0)
+        prediction_generator = prediction_generator.batch_generator
+    # Assume prediction_generator is a BatchGenerator (Pytorch Dataset) and use its attributes directly
+    loader_args = prediction_generator.__dict__
+    num_workers = getattr(prediction_generator, "num_workers", 0)
     loader_args.setdefault("num_workers", num_workers)
 
     # Re-initialize BatchLoader for inference

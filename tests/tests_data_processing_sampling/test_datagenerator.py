@@ -30,7 +30,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 # Internal libraries
-from aucmedi import DataGenerator
+from aucmedi import DataGenerator, NeuralNetwork
 from aucmedi.data_processing.io_loader import numpy_loader
 
 
@@ -146,6 +146,17 @@ class DataGeneratorTEST(unittest.TestCase):
         # Label batch shape: (4, n_classes)
         self.assertEqual(batch[1].shape, torch.Size([4, self.labels_ohe.shape[1]]))
 
+        # Without labels: default_collate turns the 1-tuple sample into a
+        # single-element list, NOT a bare Tensor -- this differs from
+        # WrapperLoader/BatchGenerator, which unwrap it themselves.
+        # (Regression: model.predict() used to crash on this shape.)
+        loader_nolabel = DataLoader(data_gen, batch_size=4, shuffle=False)
+        batch_nolabel = next(iter(loader_nolabel))
+        self.assertIsInstance(batch_nolabel, list)
+        self.assertEqual(len(batch_nolabel), 1)
+        self.assertIsInstance(batch_nolabel[0], torch.Tensor)
+        self.assertEqual(batch_nolabel[0].shape[0], 4)
+
     # -------------------------------------------------#
     #        Application Functionality for 2D         #
     # -------------------------------------------------#
@@ -157,7 +168,8 @@ class DataGeneratorTEST(unittest.TestCase):
         for i in range(0, 10):
             sample = data_gen[i]
             self.assertTrue(len(sample), 1)
-            self.assertTrue(np.array_equal(sample[0].shape, (224, 224, 1)))
+            # channel-first: (C, H, W)
+            self.assertTrue(np.array_equal(sample[0].shape, (1, 224, 224)))
 
     # Usage: RGB without Labels
     def test_RUN_2D_RGB_noLabel(self):
@@ -167,7 +179,8 @@ class DataGeneratorTEST(unittest.TestCase):
         for i in range(0, 10):
             sample = data_gen[i]
             self.assertTrue(len(sample), 1)
-            self.assertTrue(np.array_equal(sample[0].shape, (224, 224, 3)))
+            # channel-first: (C, H, W)
+            self.assertTrue(np.array_equal(sample[0].shape, (3, 224, 224)))
 
     # Usage: With Labels
     def test_RUN_2D_withLabel(self):
@@ -201,7 +214,8 @@ class DataGeneratorTEST(unittest.TestCase):
         for i in range(0, 10):
             sample = data_gen[i]
             self.assertTrue(len(sample), 1)
-            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 16, 1)))
+            # channel-first: (C, D, H, W)
+            self.assertTrue(np.array_equal(sample[0].shape, (1, 16, 16, 16)))
 
     # Usage: RGB without Labels
     def test_RUN_3D_RGB_noLabel(self):
@@ -217,7 +231,8 @@ class DataGeneratorTEST(unittest.TestCase):
         for i in range(0, 10):
             sample = data_gen[i]
             self.assertTrue(len(sample), 1)
-            self.assertTrue(np.array_equal(sample[0].shape, (16, 16, 16, 3)))
+            # channel-first: (C, D, H, W)
+            self.assertTrue(np.array_equal(sample[0].shape, (3, 16, 16, 16)))
 
     # Usage: With Labels
     def test_RUN_3D_withLabel(self):
@@ -253,7 +268,8 @@ class DataGeneratorTEST(unittest.TestCase):
             sample = data_gen[i]
             self.assertTrue(len(sample), 1)
             self.assertTrue(len(sample[0]) == 2)
-            self.assertTrue(np.array_equal(sample[0][0].shape, (224, 224, 3)))
+            # channel-first: (C, H, W)
+            self.assertTrue(np.array_equal(sample[0][0].shape, (3, 224, 224)))
             # metadata is torch.tensor
             metadata = sample[0][1]
             self.assertTrue(np.array_equal(metadata.shape.numel(), (10)))
@@ -274,7 +290,8 @@ class DataGeneratorTEST(unittest.TestCase):
             label = sample[1]
             self.assertTrue(np.array_equal(label.shape.numel(), (4)))
             self.assertTrue(len(sample[0]) == 2)
-            self.assertTrue(np.array_equal(sample[0][0].shape, (224, 224, 3)))
+            # channel-first: (C, H, W)
+            self.assertTrue(np.array_equal(sample[0][0].shape, (3, 224, 224)))
             # metadata is torch.tensor
             metadata = sample[0][1]
             self.assertTrue(np.array_equal(metadata.shape.numel(), (10)))
@@ -328,6 +345,84 @@ class DataGeneratorTEST(unittest.TestCase):
             self.assertTrue(len(sample), 2)
             self.assertTrue(np.array_equal(sample[1].shape.numel(), (4)))
         shutil.rmtree(data_gen.prepare_dir)
+
+    # -------------------------------------------------#
+    #      Integration: DataLoader + NeuralNetwork    #
+    # -------------------------------------------------#
+    # End-to-end check that a plain torch DataLoader wrapping a DataGenerator
+    # (no manual has_labels/has_metadata/has_sample_weights on the loader
+    # itself, unlike WrapperLoader) works with both train() and predict() --
+    # this is the exact setup pipeline_torch_dummy.py uses.
+    def _integration_model(self, resolution=(16, 16), n_labels=4, channels=3):
+        return NeuralNetwork(
+            n_labels=n_labels,
+            channels=channels,
+            architecture="2D.Vanilla",
+            input_resolution=resolution,
+            pretrained_weights=False,
+        )
+
+    def test_INTEGRATION_train_with_dataloader(self):
+        data_gen = DataGenerator(
+            self.sampleList_rgb_2D,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=(16, 16),
+            standardize_mode="z-score",
+            grayscale=False,
+        )
+        loader = DataLoader(data_gen, batch_size=5, shuffle=True)
+
+        model = self._integration_model()
+        hist = model.train(training_generator=loader, epochs=2)
+        self.assertIn("loss", hist)
+        self.assertEqual(len(hist["loss"]), 2)
+
+    def test_INTEGRATION_predict_with_dataloader_noLabel(self):
+        # Regression test: predict() must correctly infer has_labels=False
+        # from loader.dataset (not the DataLoader instance) and correctly
+        # unwrap the single-element batch that default_collate produces.
+        data_gen = DataGenerator(
+            self.sampleList_rgb_2D,
+            self.tmp_data.name,
+            labels=None,
+            resize=(16, 16),
+            standardize_mode="z-score",
+            grayscale=False,
+        )
+        loader = DataLoader(data_gen, batch_size=5, shuffle=False)
+
+        model = self._integration_model()
+        preds = model.predict(loader)
+        self.assertEqual(preds.shape, (len(self.sampleList_rgb_2D), 4))
+        for row in preds:
+            self.assertAlmostEqual(float(np.sum(row)), 1.0, places=4)
+
+    def test_INTEGRATION_train_then_predict_roundtrip(self):
+        train_gen = DataGenerator(
+            self.sampleList_rgb_2D,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=(16, 16),
+            standardize_mode="z-score",
+            grayscale=False,
+        )
+        train_loader = DataLoader(train_gen, batch_size=5, shuffle=True)
+
+        test_gen = DataGenerator(
+            self.sampleList_rgb_2D,
+            self.tmp_data.name,
+            labels=None,
+            resize=(16, 16),
+            standardize_mode="z-score",
+            grayscale=False,
+        )
+        test_loader = DataLoader(test_gen, batch_size=5, shuffle=False)
+
+        model = self._integration_model()
+        model.train(training_generator=train_loader, epochs=2)
+        preds = model.predict(test_loader)
+        self.assertEqual(preds.shape, (len(self.sampleList_rgb_2D), 4))
 
     # -------------------------------------------------#
     #                   Utilization                   #

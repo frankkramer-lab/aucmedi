@@ -624,7 +624,13 @@ class NeuralNetwork:
                     y = torch.from_numpy(y).float()
                 y = y.to(self.device)
         else:
-            data = generator_output
+            # A torch DataLoader collates a 1-tuple sample (no labels) into a
+            # single-element list/tuple, unlike WrapperLoader/BatchGenerator
+            # which already unwrap it -- handle both shapes here.
+            if isinstance(generator_output, (list, tuple)) and len(generator_output) == 1:
+                data = generator_output[0]
+            else:
+                data = generator_output
             y = None
             sample_weights = None
 
@@ -654,8 +660,10 @@ class NeuralNetwork:
         """Prediction function for the Neural Network model.
 
         Accepts the same generator types as `train()`: `WrapperLoader`, `BatchGenerator`,
-        or a generic PyTorch `DataLoader` that exposes `has_labels`, `has_metadata`, and
-        `has_sample_weights` directly on the loader instance (not only on `dataset`).
+        or a generic PyTorch `DataLoader` wrapping a `DataGenerator`-like dataset that
+        exposes `has_labels`, `has_metadata`, and `has_sample_weights` (checked on the
+        `DataLoader.dataset` when the generator is a `DataLoader`, otherwise on the
+        generator instance itself).
 
         Args:
             prediction_generator (WrapperLoader or BatchGenerator or DataLoader):
@@ -668,10 +676,15 @@ class NeuralNetwork:
         all_preds = []
 
         # Cache generator flags to avoid repeated getattr() calls in hot loop
-        pred_has_labels = getattr(prediction_generator, "has_labels", True)
-        pred_has_metadata = getattr(prediction_generator, "has_metadata", False)
+        flag_source = (
+            prediction_generator.dataset
+            if isinstance(prediction_generator, DataLoader)
+            else prediction_generator
+        )
+        pred_has_labels = getattr(flag_source, "has_labels", True)
+        pred_has_metadata = getattr(flag_source, "has_metadata", False)
         pred_has_sample_weights = getattr(
-            prediction_generator, "has_sample_weights", False
+            flag_source, "has_sample_weights", False
         )
 
         with torch.no_grad():

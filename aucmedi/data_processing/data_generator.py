@@ -23,8 +23,6 @@
 import torch
 from torch.utils.data import Dataset
 import numpy as np
-from multiprocessing.pool import ThreadPool
-from itertools import repeat
 import tempfile
 import pickle
 import os
@@ -144,11 +142,12 @@ class DataGenerator(Dataset):
         standardize_mode="z-score",
         data_aug=None,
         grayscale=False,
+        two_dim=True,
         sample_weights=None,
         prepare_images=False,
         loader=image_loader,
         seed=None,
-        **kwargs
+        **kwargs,
     ):
         """Initialization function of the DataGenerator which acts as a configuration hub.
 
@@ -200,31 +199,55 @@ class DataGenerator(Dataset):
             loader (io_loader function):        Function for loading samples/images from disk.
             seed (int):                         Seed to ensure reproducibility for random function.
             **kwargs (dict):                    Additional parameters for the sample loader.
+
+        Attributes:
+            has_labels (bool):              True if `labels` was provided (training / evaluation mode).
+            has_metadata (bool):            True if `metadata` was provided.
+            has_sample_weights (bool):      True if `sample_weights` was provided.
+            samples (list of str):          The sample list as passed in.
+            labels (numpy.ndarray or None): The label array as passed in.
+            metadata (numpy.ndarray or None): The metadata array as passed in.
         """
         # Cache class variables
         self.samples = samples
         self.labels = labels
+        self.has_labels = labels is not None
         self.metadata = metadata
+        self.has_metadata = metadata is not None
         self.sample_weights = sample_weights
+        self.has_sample_weights = sample_weights is not None
         self.prepare_images = prepare_images
         self.sample_loader = loader
         self.kwargs = kwargs
         self.path_imagedir = path_imagedir
         self.image_format = image_format
         self.grayscale = grayscale
+        self.two_dim = two_dim
         self.subfunctions = subfunctions
         self.data_aug = data_aug
         self.standardize_mode = standardize_mode
         self.resize = resize
         self.seed = seed
 
+        self.iterations = self.__len__()
+
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
             self.sf_standardize = Standardize(mode=standardize_mode)
         else:
             self.sf_standardize = None
-        # Initialize Resizing Subfunction
+        # Validate resize shape against dimensionality and initialize Resizing Subfunction
         if resize is not None:
+            try:
+                rlen = len(resize)
+            except TypeError:
+                raise ValueError("`resize` must be a sequence with 2 or 3 elements")
+            expected_len = 2 if self.two_dim else 3
+            if rlen != expected_len:
+                raise ValueError(
+                    f"Parameter `resize` length {rlen} does not match expected "
+                    f"dimension {expected_len} for two_dim={self.two_dim}: {resize}"
+                )
             self.sf_resize = Resize(shape=resize)
         else:
             self.sf_resize = None
@@ -352,7 +375,8 @@ class DataGenerator(Dataset):
                 self.path_imagedir,
                 image_format=self.image_format,
                 grayscale=self.grayscale,
-                **self.kwargs
+                two_dim=self.two_dim,
+                **self.kwargs,
             )
             # Apply subfunctions on image
             for sf in self.subfunctions:
@@ -371,7 +395,10 @@ class DataGenerator(Dataset):
             path_img = os.path.join(self.prepare_dir, "img_" + str(index))
             with open(path_img + ".pickle", "wb") as pickle_writer:
                 pickle.dump(img, pickle_writer)
-        # Return preprocessed image
+        # Return preprocessed image in channel-first format (C,H,W) / (C,D,H,W)
         else:
+            if img.ndim == 3:    # 2D: (H, W, C) -> (C, H, W)
+                img = np.transpose(img, (2, 0, 1))
+            elif img.ndim == 4:  # 3D: (D, H, W, C) -> (C, D, H, W)
+                img = np.transpose(img, (3, 0, 1, 2))
             return img
-        # TODO: Channel first conversion

@@ -29,7 +29,7 @@ import shutil
 
 # Internal libraries
 from aucmedi import NeuralNetwork, create_batch_loader, WrapperLoader
-from aucmedi.aucmedi.data_processing.batch_generator import BatchGenerator
+from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 

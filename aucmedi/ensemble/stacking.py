@@ -22,7 +22,7 @@
 # External libraries
 import os
 import tempfile
-from aucmedi.aucmedi.data_processing.batch_generator import BatchGenerator
+from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np

@@ -46,27 +46,29 @@ class NeuralNetwork:
     """ Neural Network class providing functionality for handling all model methods.
 
     This class is the third of the three pillars of AUCMEDI.
-    # TODO: Update to Batchgenerator and Wrapperloader stack
 
     ??? info "Pillars of AUCMEDI"
         - [aucmedi.data_processing.io_data.input_interface][]
-        - [aucmedi.data_processing.data_generator.DataGenerator][]
+        - [aucmedi.data_processing.batch_generator.BatchGenerator][]
         - [aucmedi.neural_network.model.NeuralNetwork][]
 
     With an initialized Neural Network model instance, it is possible to run training and predictions.
 
     ??? example "Example: How to use"
         ```python
+        from aucmedi import *
+        from aucmedi.data_processing.wrapper_loader import create_batch_loader
+
         # Initialize model
         model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
         # Do some training
-        datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100],
-                                      resize=model.arch_resolution, standardize_mode=model.arch_standardize)
-        model.train(datagen_train, epochs=50)
+        train_loader = create_batch_loader(samples[:100], "images_dir/", labels=class_ohe[:100],
+                                           resize=model.arch_resolution, standardize_mode=model.arch_standardize)
+        model.train(train_loader, epochs=50)
         # Do some predictions
-        datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None,
-                                     resize=model.arch_resolution, standardize_mode=model.arch_standardize)
-        preds = model.predict(datagen_test)
+        test_loader = create_batch_loader(samples[100:150], "images_dir/", labels=None,
+                                          resize=model.arch_resolution, standardize_mode=model.arch_standardize)
+        preds = model.predict(test_loader)
         ```
 
     ??? example "Example: How to select an Architecture"
@@ -97,23 +99,26 @@ class NeuralNetwork:
         Defined by the [Classifier][aucmedi.neural_network.architectures.classifier] of an
         [Architecture][aucmedi.neural_network.architectures].
 
-    ??? example "Example: How to obtain required parameters for the DataGenerator?"
+    ??? example "Example: How to obtain required parameters for the BatchGenerator?"
         Be aware that the input_size and standardize_mode are just recommendations and
         can be changed by desire. <br>
         However, the recommended parameter are required for transfer learning.
 
         ```python title="Recommended way"
+        from aucmedi.data_processing.wrapper_loader import create_batch_loader
+
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
-        my_dg = DataGenerator(samples, "images_dir/", labels=None,
-                              resize=my_model.arch_resolution,                  # (224,224)
-                              standardize_mode=my_model.arch_standardize)       # "torch"
+        my_loader = create_batch_loader(samples, "images_dir/", labels=None,
+                                        resize=my_model.arch_resolution,                  # (224,224)
+                                        standardize_mode=my_model.arch_standardize)       # "torch"
         ```
 
         ```python title="Manual way"
         from aucmedi.neural_network.architectures import Classifier, \
                                                          architecture_dict, \
                                                          supported_standardize_mode
+        from aucmedi.data_processing.wrapper_loader import create_batch_loader
 
         my_arch = architecture_dict["3D.DenseNet121"](n_labels=4,
                                                       channels=1,
@@ -123,14 +128,15 @@ class NeuralNetwork:
 
         from aucmedi.neural_network.architectures import supported_standardize_mode
         sf_norm = supported_standardize_mode["3D.DenseNet121"]
-        my_dg = DataGenerator(samples, "images_dir/", labels=None,
-                              resize=(128,128,128),                        # (128,128,128)
-                              standardize_mode=sf_norm)                    # "torch"
+        my_loader = create_batch_loader(samples, "images_dir/", labels=None,
+                                        resize=(128,128,128),                        # (128,128,128)
+                                        standardize_mode=sf_norm)                    # "torch"
         ```
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"
         ```python
         from aucmedi import *
+        from aucmedi.data_processing.wrapper_loader import create_batch_loader
         import numpy as np
 
         my_metadata = np.random.rand(len(samples), 10)
@@ -138,10 +144,10 @@ class NeuralNetwork:
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   n_meta_variables=10)
 
-        my_dg = DataGenerator(samples, "images_dir/",
-                              labels=None, metadata=my_metadata,
-                              resize=my_model.arch_resolution,                  # (224,224)
-                              standardize_mode=my_model.arch_standardize)       # "torch"
+        my_loader = create_batch_loader(samples, "images_dir/",
+                                        labels=None, metadata=my_metadata,
+                                        resize=my_model.arch_resolution,                  # (224,224)
+                                        standardize_mode=my_model.arch_standardize)       # "torch"
         ```
     """
 

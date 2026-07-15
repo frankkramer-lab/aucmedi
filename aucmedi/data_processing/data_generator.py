@@ -374,3 +374,4 @@ class DataGenerator(Dataset):
         # Return preprocessed image
         else:
             return img
+        # TODO: Channel first conversion

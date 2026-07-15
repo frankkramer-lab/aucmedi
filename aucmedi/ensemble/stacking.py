@@ -21,7 +21,9 @@
 # -----------------------------------------------------#
 # External libraries
 import os
+import signal
 import tempfile
+from queue import Empty
 from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
@@ -316,13 +318,9 @@ class Stacking:
                     parameters_training,
                 ),
             )
-            process_train.start()
-            process_train.join()
-            nn_history = process_queue.get()
-            if isinstance(nn_history, Exception):
-                raise RuntimeError(
-                    f"Training subprocess for model {i} failed: {nn_history}"
-                ) from nn_history
+            nn_history = __run_subprocess__(
+                process_train, process_queue, label=f"Training (model {i})"
+            )
             # Combine logged history objects
             hnn = {"nn_" + str(i) + "." + k: v for k, v in nn_history.items()}
             history_stacking = {**history_stacking, **hnn}
@@ -445,13 +443,9 @@ class Stacking:
                     datagen_paras,
                 ),
             )
-            process_pred.start()
-            process_pred.join()
-            preds = process_queue.get()
-            if isinstance(preds, Exception):
-                raise RuntimeError(
-                    f"Prediction subprocess for model {i} failed: {preds}"
-                ) from preds
+            preds = __run_subprocess__(
+                process_pred, process_queue, label=f"Ensemble prediction (model {i})"
+            )
 
             # Append preds to ensemble
             preds_ensemble.append(preds)
@@ -573,13 +567,9 @@ class Stacking:
                 target=__prediction_process__,
                 args=(process_queue, model_paras, path_model, data_test, datagen_paras),
             )
-            process_pred.start()
-            process_pred.join()
-            preds = process_queue.get()
-            if isinstance(preds, Exception):
-                raise RuntimeError(
-                    f"Prediction subprocess for model {i} failed: {preds}"
-                ) from preds
+            preds = __run_subprocess__(
+                process_pred, process_queue, label=f"Prediction (model {i})"
+            )
 
             # Append preds to ensemble
             preds_ensemble.append(preds)
@@ -663,6 +653,39 @@ class Stacking:
 # -----------------------------------------------------#
 #                     Subroutines                     #
 # -----------------------------------------------------#
+# Start, join, and safely retrieve a worker process' queued result.
+#
+# A worker's own try/except only catches regular Python exceptions. If the
+# process instead dies from something that bypasses it (OOM-kill, a CUDA/driver
+# segfault, ...), nothing is ever put on the queue and a bare `queue.get()`
+# blocks forever with no diagnostic. This detects that case via the process'
+# exitcode and raises immediately instead.
+def __run_subprocess__(process, result_queue, label):
+    process.start()
+    process.join()
+    try:
+        result = result_queue.get(timeout=30)
+    except Empty:
+        exitcode = process.exitcode
+        if exitcode is not None and exitcode < 0:
+            try:
+                sig_desc = signal.Signals(-exitcode).name
+            except ValueError:
+                sig_desc = str(-exitcode)
+            raise RuntimeError(
+                f"{label} subprocess (pid={process.pid}) was killed by signal "
+                f"{sig_desc} (exitcode {exitcode}) before returning a result "
+                "-- likely an OOM-kill or a native crash (e.g. CUDA/driver fault)."
+            )
+        raise RuntimeError(
+            f"{label} subprocess (pid={process.pid}) exited with code {exitcode} "
+            "without returning a result."
+        )
+    if isinstance(result, Exception):
+        raise RuntimeError(f"{label} subprocess failed: {result}") from result
+    return result
+
+
 # Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(
     queue, model_paras, data_train, data_val, datagen_paras, train_paras

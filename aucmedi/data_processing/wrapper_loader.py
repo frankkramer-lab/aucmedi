@@ -298,6 +298,12 @@ class WrapperLoader(DataLoader):
         self.timeout = kwargs.pop("timeout", 0)
         self.worker_init_fn = kwargs.pop("worker_init_fn", None)
         self.multiprocessing_context = kwargs.pop("multiprocessing_context", None)
+        if self.num_workers > 0 and self.multiprocessing_context is None:
+            # Forking a process that already initialized a CUDA context hangs
+            # (undefined CUDA driver state in the forked worker). Since NeuralNetwork
+            # moves the model to the GPU before building this DataLoader, "fork"
+            # (the default multiprocessing start method on Linux) is unsafe here.
+            self.multiprocessing_context = "spawn"
         self.generator = kwargs.pop("generator", None)
         self.persistent_workers = kwargs.pop("persistent_workers", False)
         self.pin_memory_device = kwargs.pop("pin_memory_device", "cuda")

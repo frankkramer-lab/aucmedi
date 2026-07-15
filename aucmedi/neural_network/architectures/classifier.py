@@ -25,6 +25,35 @@ import torch.nn as nn
 
 
 # -----------------------------------------------------#
+#              Classification Head Model              #
+# -----------------------------------------------------#
+class Classifier_Model(nn.Module):
+    """Assembled classification model returned by [Classifier.build()][aucmedi.neural_network.architectures.classifier.Classifier.build].
+
+    Defined at module level so that instances remain picklable
+    -- required for `NeuralNetwork.train_distributed()`,
+    which ships the model to each worker process via `torch.multiprocessing.spawn`.
+    """
+
+    def __init__(self, base, pool, head, meta=None):
+        super().__init__()
+        self.base = base
+        self.pool = pool
+        self.meta = meta
+        self.head = head
+
+    def forward(self, x, metadata=None):
+        x = self.base(x)
+        # Head handles pooling and flattening
+        x = self.pool(x)
+        if metadata is not None:
+            x = torch.cat((x, metadata), dim=1)
+            x = self.meta(x)
+        x = self.head(x)
+        return x
+
+
+# -----------------------------------------------------#
 #                 Classification Head                 #
 # -----------------------------------------------------#
 class Classifier(nn.Module):
@@ -200,24 +229,6 @@ class Classifier(nn.Module):
 
         # Create nn.Sequential for the head
         class_head = nn.Sequential(*class_layers)
-
-        class Classifier_Model(nn.Module):
-            def __init__(self, base, pool, head, meta=None):
-                super().__init__()
-                self.base = base
-                self.pool = pool
-                self.meta = meta
-                self.head = head
-
-            def forward(self, x, metadata=None):
-                x = self.base(x)
-                # Head handles pooling and flattening
-                x = self.pool(x)
-                if metadata is not None:
-                    x = torch.cat((x, metadata), dim=1)
-                    x = self.meta(x)
-                x = self.head(x)
-                return x
 
         model = Classifier_Model(model_base, pool, class_head, meta)
 

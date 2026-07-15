@@ -24,6 +24,7 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import torch
 import warnings
+from functools import partial
 
 from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.data_processing.io_loader.image_loader import image_loader
@@ -102,6 +103,127 @@ def create_batch_loader(
     # Initialize WrapperLoader
     wrapper_loader = WrapperLoader(batch_gen, num_workers=num_workers, **kwargs)
     return wrapper_loader
+
+
+def _shard_and_create_batch_loader(
+    rank,
+    world_size,
+    samples,
+    path_imagedir,
+    labels=None,
+    metadata=None,
+    sample_weights=None,
+    **kwargs,
+):
+    """Builds this rank's shard (samples[rank::world_size]) as a WrapperLoader.
+
+    Internal helper behind [create_distributed_loader()][aucmedi.data_processing.wrapper_loader.create_distributed_loader].
+    Must stay a top-level function (not a closure) so torch.multiprocessing.spawn
+    can pickle the `functools.partial` built around it.
+    """
+    return create_batch_loader(
+        samples=samples[rank::world_size],
+        path_imagedir=path_imagedir,
+        labels=labels[rank::world_size] if labels is not None else None,
+        metadata=metadata[rank::world_size] if metadata is not None else None,
+        sample_weights=sample_weights[rank::world_size]
+        if sample_weights is not None
+        else None,
+        **kwargs,
+    )
+
+
+def create_distributed_loader(
+    samples,
+    path_imagedir,
+    labels=None,
+    metadata=None,
+    image_format=None,
+    subfunctions=[],
+    batch_size=32,
+    resize=(224, 224),
+    standardize_mode="z-score",
+    data_aug=None,
+    shuffle=False,
+    grayscale=False,
+    two_dim=True,
+    sample_weights=None,
+    threads=1,
+    prepare_images=False,
+    loader=image_loader,
+    seed=None,
+    num_workers=0,
+    **kwargs,
+):
+    """Builds a `(rank, world_size) -> WrapperLoader` factory for [NeuralNetwork.train_distributed()][aucmedi.neural_network.model.NeuralNetwork.train_distributed].
+
+    Takes the exact same arguments as [create_batch_loader()][aucmedi.data_processing.wrapper_loader.create_batch_loader],
+    but instead of building one loader immediately, it returns a callable that
+    shards `samples`/`labels`/`metadata`/`sample_weights` by `[rank::world_size]`
+    and calls `create_batch_loader()` for that shard only. `train_distributed()`
+    calls this factory once inside each spawned worker process, so every rank
+    builds its own `BatchGenerator`/`ThreadPool`/`WrapperLoader` instead of
+    sharing one (unpicklable) instance across processes.
+
+    ???+ example
+        ```python
+        from aucmedi.data_processing.wrapper_loader import create_distributed_loader
+
+        train_loader_fn = create_distributed_loader(
+            samples, "images_dir/", labels=class_ohe,
+            resize=model.arch_resolution, standardize_mode=model.arch_standardize,
+        )
+        model.train_distributed(generator_fn=train_loader_fn, epochs=50)
+        ```
+
+    Args:
+        samples (list of str):              List of sample/index encoded as Strings.
+        path_imagedir (str):                Path to the directory containing the images.
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding.
+        metadata (numpy.ndarray):           NumPy Array with additional metadata.
+        image_format (str):                 Image format to add at the end of the sample index for image loading.
+        subfunctions (List of Subfunctions):List of Subfunctions class instances.
+        batch_size (int):                   Number of samples inside a single batch.
+        resize (tuple of int):              Resizing shape consisting of a X and Y size.
+        standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+        data_aug (Augmentation Interface):  Data Augmentation class instance.
+        shuffle (bool):                     Boolean, whether dataset should be shuffled.
+        grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+        two_dim (bool):                     Boolean, whether images are two-dimensional.
+        sample_weights (list of float):     List of weights for samples.
+        threads (int):                      Number of workers for image preprocessing.
+        prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk
+                                            before training.
+        loader (io_loader function):        Function for loading samples/images from disk.
+        seed (int):                         Seed to ensure reproducibility for random function.
+        num_workers (int):                  Number of workers for DataLoader.
+        **kwargs (dict):                    Additional parameters for the sample loader.
+    Returns:
+        Callable[[int, int], WrapperLoader]: Factory taking `(rank, world_size)`.
+    """
+    return partial(
+        _shard_and_create_batch_loader,
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        batch_size=batch_size,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        shuffle=shuffle,
+        grayscale=grayscale,
+        two_dim=two_dim,
+        sample_weights=sample_weights,
+        threads=threads,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+        num_workers=num_workers,
+        **kwargs,
+    )
 
 
 # ------------------------------------------------------------------#

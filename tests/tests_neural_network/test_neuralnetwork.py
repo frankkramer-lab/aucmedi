@@ -29,7 +29,7 @@ from torch.optim import lr_scheduler
 
 # Internal libraries
 from aucmedi import *
-from aucmedi.aucmedi.neural_network.model_old import NeuralNetwork
+from aucmedi.neural_network.model_old import NeuralNetwork
 
 
 # -----------------------------------------------------#

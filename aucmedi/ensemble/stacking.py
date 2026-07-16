@@ -29,15 +29,45 @@ from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
+from torch.utils.data import DataLoader, RandomSampler
 
 # Internal libraries
 from aucmedi import NeuralNetwork
+from aucmedi.data_processing.data_generator import DataGenerator as TorchDataGenerator
 from aucmedi.data_processing.wrapper_loader import create_batch_loader, WrapperLoader
 from aucmedi.sampling import sampling_split
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+
+
+# -----------------------------------------------------#
+#              Generator Resolution Helper            #
+# -----------------------------------------------------#
+# Resolves any of the four generator types Stacking accepts (plain torch
+# DataLoader wrapping a DataGenerator, WrapperLoader, BatchGenerator, or an
+# already-unwrapped DataGenerator/BatchGenerator -- the latter occurs when
+# train() hands its resolved template_generator to train_metalearner()
+# internally) into (template_generator, num_workers).
+def __resolve_template_generator__(generator, owner):
+    if isinstance(generator, DataLoader):
+        num_workers = generator.num_workers
+        template_generator = generator.dataset
+        template_generator.batch_size = generator.batch_size
+        template_generator.shuffle = isinstance(generator.sampler, RandomSampler)
+    elif isinstance(generator, WrapperLoader):
+        num_workers = generator.num_workers
+        template_generator = generator.batch_generator
+    elif isinstance(generator, (BatchGenerator, TorchDataGenerator)):
+        num_workers = getattr(owner, "num_workers", 0)
+        template_generator = generator
+    else:
+        raise ValueError(
+            "Invalid generator type: Must be WrapperLoader, BatchGenerator, "
+            "DataLoader, or DataGenerator!"
+        )
+    return template_generator, num_workers
 
 
 # -----------------------------------------------------#
@@ -182,9 +212,10 @@ class Stacking:
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (WrapperLoader or BatchGenerator):
+            training_generator (WrapperLoader, BatchGenerator, or DataLoader):
                                                     A generator which will be used for training (will be split according
-                                                    to percentage split sampling). Must be a WrapperLoader or BatchGenerator.
+                                                    to percentage split sampling). Must be a WrapperLoader, BatchGenerator,
+                                                    or a torch DataLoader wrapping a DataGenerator.
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -201,15 +232,17 @@ class Stacking:
         Returns:
             history (dict):                   A history dictionary which contains several logs.
         """
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(training_generator, WrapperLoader):
-            self.num_workers = training_generator.num_workers
-            template_generator = training_generator.batch_generator
-        elif isinstance(training_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-            template_generator = training_generator
-        else:
-            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
+        if class_weights is not None:
+            print(
+                "Warning: `class_weights` is ignored -- NeuralNetwork.train() (PyTorch "
+                "backend) has no such parameter. Bake class weighting into the loss "
+                "function passed to each model instead (e.g. MultiClassFocalLoss(alpha=...))."
+            )
+
+        # Resolve generator type (DataLoader, WrapperLoader, or BatchGenerator)
+        template_generator, self.num_workers = __resolve_template_generator__(
+            training_generator, self
+        )
 
         history_stacking = {}  # Final history dictionary
 
@@ -293,11 +326,13 @@ class Stacking:
             }
 
             # Gather training parameters
+            # Note: class_weights is not forwarded -- NeuralNetwork.train() (PyTorch
+            # backend) has no such parameter. Bake class weighting into the loss
+            # function instead (e.g. MultiClassFocalLoss(alpha=cw_list)).
             parameters_training = {
                 "epochs": epochs,
                 "iterations": iterations,
                 "callbacks": callbacks_model,
-                "class_weights": class_weights,
                 "transfer_learning": transfer_learning,
                 "learning_rate": learning_rate,
                 "transfer_epochs": transfer_epochs,
@@ -344,24 +379,19 @@ class Stacking:
         re-training of the [NeuralNetwork][aucmedi.neural_network.model] models.
 
         Args:
-            training_generator (WrapperLoader or BatchGenerator):
+            training_generator (WrapperLoader, BatchGenerator, or DataLoader):
                                                     A generator which will be used for metalearner training (will be split
-                                                    according to percentage split sampling). Must be a WrapperLoader or BatchGenerator.
+                                                    according to percentage split sampling). Must be a WrapperLoader, BatchGenerator,
+                                                    or a torch DataLoader wrapping a DataGenerator.
         """
         # Skipping metalearner training if aggregate function
         if isinstance(self.ml_model, Aggregate_Base):
             return
 
-        
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(training_generator, WrapperLoader):
-            self.num_workers = training_generator.num_workers
-            template_generator = training_generator.batch_generator
-        elif isinstance(training_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-            template_generator = training_generator
-        else:
-            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader, WrapperLoader, or BatchGenerator)
+        template_generator, self.num_workers = __resolve_template_generator__(
+            training_generator, self
+        )
 
         preds_ensemble = []
 
@@ -476,9 +506,10 @@ class Stacking:
             More about Aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (WrapperLoader or BatchGenerator):
+            prediction_generator (WrapperLoader, BatchGenerator, or DataLoader):
                                                     A generator which will be used for inference.
-                                                    Must be a WrapperLoader or BatchGenerator.
+                                                    Must be a WrapperLoader, BatchGenerator, or a torch
+                                                    DataLoader wrapping a DataGenerator.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
@@ -500,16 +531,10 @@ class Stacking:
                 "Stacking does not have a valid model cache directory!"
             )
 
-        
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(prediction_generator, WrapperLoader):
-            self.num_workers = prediction_generator.num_workers
-            template_generator = prediction_generator.batch_generator
-        elif isinstance(prediction_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-            template_generator = prediction_generator
-        else:
-            raise ValueError("Invalid prediction_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader, WrapperLoader, or BatchGenerator)
+        template_generator, self.num_workers = __resolve_template_generator__(
+            prediction_generator, self
+        )
 
         # Initialize some variables
         preds_ensemble = []

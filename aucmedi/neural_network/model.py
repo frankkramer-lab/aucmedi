@@ -289,7 +289,6 @@ class NeuralNetwork:
         fine_tuning_lr=None,
         callbacks=[],
         scheduler=None,
-        class_weights=None,
     ):
         """Fitting function for the Neural Network model performing a training process.
 
@@ -328,7 +327,6 @@ class NeuralNetwork:
             fine_tuning_lr (float):                 Learning rate for the fine-tuning phase. Defaults to 0.1 × `learning_rate`.
             callbacks (list of Callback):           Custom Callback instances (e.g. `ModelCheckpoint`, `MinEpochEarlyStopping`).
             scheduler (torch.optim.lr_scheduler):   LR scheduler class (not instance) to initialize. `None` disables scheduling.
-            class_weights (dict or list):           Per-class weights to handle class imbalance.
 
         Returns:
             history (dict):                         Training history with loss and metric logs per epoch.
@@ -381,7 +379,6 @@ class NeuralNetwork:
                 validation_generator,
                 epochs,
                 iterations,
-                class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
             )
@@ -412,7 +409,6 @@ class NeuralNetwork:
                 validation_generator,
                 transfer_epochs,
                 iterations,
-                class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
             )
@@ -438,7 +434,6 @@ class NeuralNetwork:
                 validation_generator,
                 ft_epochs,
                 iterations,
-                class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
             )
@@ -460,7 +455,6 @@ class NeuralNetwork:
         validation_generator,
         epochs,
         iterations,
-        class_weights,
         callbacks=[],
         early_stopping_callback=None,
     ):
@@ -514,6 +508,7 @@ class NeuralNetwork:
                     train_has_metadata,
                     train_has_sample_weights,
                 )
+                # TODO: consider setting to None instead of zeroing for perfomance reasons, see https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide.html
                 self.optimizer.zero_grad()
                 outputs = self.model(x, metadata)
                 batch_loss = self.loss(outputs, y)

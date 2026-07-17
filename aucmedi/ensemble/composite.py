@@ -26,16 +26,44 @@ from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
+from torch.utils.data import DataLoader, RandomSampler
 
 # Internal libraries
 from aucmedi import NeuralNetwork
 from aucmedi.data_processing.wrapper_loader import create_batch_loader, WrapperLoader
-from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.sampling import sampling_split, sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
 from aucmedi.ensemble.metalearner.ml_base import Metalearner_Base
 from aucmedi.ensemble.aggregate.agg_base import Aggregate_Base
+
+
+# -----------------------------------------------------#
+#              Generator Resolution Helper            #
+# -----------------------------------------------------#
+# Resolves the two generator wrapper styles Composite accepts -- a plain torch
+# DataLoader wrapping a DataGenerator, or a WrapperLoader wrapping a
+# BatchGenerator -- into (template_generator, num_workers). A bare/unwrapped
+# DataGenerator or BatchGenerator is NOT accepted: num_workers lives on the
+# wrapper (DataLoader/WrapperLoader), not on the underlying generator, and
+# DataGenerator additionally has no batch_size/shuffle of its own (those are
+# copied down from the DataLoader below) -- both are required downstream to
+# rebuild a per-fold generator.
+def __resolve_template_generator__(generator):
+    if isinstance(generator, DataLoader):
+        num_workers = generator.num_workers
+        template_generator = generator.dataset
+        template_generator.batch_size = generator.batch_size
+        template_generator.shuffle = isinstance(generator.sampler, RandomSampler)
+    elif isinstance(generator, WrapperLoader):
+        num_workers = generator.num_workers
+        template_generator = generator.batch_generator
+    else:
+        raise ValueError(
+            "Invalid generator type: Must be a WrapperLoader or a torch "
+            "DataLoader wrapping a DataGenerator!"
+        )
+    return template_generator, num_workers
 
 
 # -----------------------------------------------------#
@@ -189,8 +217,9 @@ class Composite:
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (WrapperLoader or BatchGenerator):     A generator which will be used for training (will be split according
+            training_generator (WrapperLoader or DataLoader):     A generator which will be used for training (will be split according
                                                                     to percentage split and k-fold cross-validation sampling).
+                                                                    Must be a WrapperLoader or a torch DataLoader wrapping a DataGenerator.
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -207,14 +236,12 @@ class Composite:
         Returns:
             history (dict):                         A history dictionary which contains several logs.
         """
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(training_generator, WrapperLoader):
-            self.num_workers = training_generator.num_workers
-            training_generator = training_generator.batch_generator
-        elif isinstance(training_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-        else:
-            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader or WrapperLoader). Keep the original
+        # training_generator (a real DataLoader/WrapperLoader) untouched -- it is
+        # passed as-is to train_metalearner() below, which resolves it again itself.
+        template_generator, self.num_workers = __resolve_template_generator__(
+            training_generator
+        )
 
         history_composite = {}  # Final history dictionary
 
@@ -224,9 +251,9 @@ class Composite:
         )
 
         # Obtain training data
-        x = training_generator.samples
-        y = training_generator.labels
-        m = training_generator.metadata
+        x = template_generator.samples
+        y = template_generator.labels
+        m = template_generator.metadata
 
         # Apply percentage split sampling for metalearner
         if isinstance(self.ml_model, Metalearner_Base):
@@ -291,21 +318,21 @@ class Composite:
 
             # Gather DataGenerator parameters
             datagen_paras = {
-                "path_imagedir": training_generator.path_imagedir,
-                "batch_size": training_generator.batch_size,
-                "data_aug": training_generator.data_aug,
-                "seed": training_generator.seed,
-                "subfunctions": training_generator.subfunctions,
-                "shuffle": training_generator.shuffle,
+                "path_imagedir": template_generator.path_imagedir,
+                "batch_size": template_generator.batch_size,
+                "data_aug": template_generator.data_aug,
+                "seed": template_generator.seed,
+                "subfunctions": template_generator.subfunctions,
+                "shuffle": template_generator.shuffle,
                 "standardize_mode": self.model_list[i].arch_standardize,
                 "resize": self.model_list[i].arch_resolution,
-                "grayscale": training_generator.grayscale,
-                "prepare_images": training_generator.prepare_images,
-                "sample_weights": training_generator.sample_weights,
-                "image_format": training_generator.image_format,
-                "loader": training_generator.sample_loader,
+                "grayscale": template_generator.grayscale,
+                "prepare_images": template_generator.prepare_images,
+                "sample_weights": template_generator.sample_weights,
+                "image_format": template_generator.image_format,
+                "loader": template_generator.sample_loader,
                 "num_workers": self.num_workers,
-                "kwargs": training_generator.kwargs,
+                "kwargs": template_generator.kwargs,
             }
 
             # Gather training parameters
@@ -359,21 +386,18 @@ class Composite:
         re-training of the [NeuralNetwork][aucmedi.neural_network.model] models.
 
         Args:
-            training_generator (WrapperLoader or BatchGenerator):     A generator which will be used for training (will be split according
-                                                                    to percentage split).
+            training_generator (WrapperLoader or DataLoader):     A generator which will be used for training (will be split according
+                                                                    to percentage split). Must be a WrapperLoader or a torch DataLoader
+                                                                    wrapping a DataGenerator.
         """
         # Skipping metalearner training if aggregate function
         if isinstance(self.ml_model, Aggregate_Base):
             return
 
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(training_generator, WrapperLoader):
-            self.num_workers = training_generator.num_workers
-            training_generator = training_generator.batch_generator
-        elif isinstance(training_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-        else:
-            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader or WrapperLoader)
+        training_generator, self.num_workers = __resolve_template_generator__(
+            training_generator
+        )
 
         preds_ensemble = []
 
@@ -488,7 +512,8 @@ class Composite:
             More about Aggregate functions can be found here: [aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (WrapperLoader or BatchGenerator):   A generator which will be used for inference.
+            prediction_generator (WrapperLoader or DataLoader):   A generator which will be used for inference.
+                                                                Must be a WrapperLoader or a torch DataLoader wrapping a DataGenerator.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
         Returns:
@@ -510,14 +535,10 @@ class Composite:
                 "Composite instance does not have a valid" + "model cache directory!"
             )
 
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(prediction_generator, WrapperLoader):
-            self.num_workers = prediction_generator.num_workers
-            prediction_generator = prediction_generator.batch_generator
-        elif isinstance(prediction_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-        else:
-            raise ValueError("Invalid prediction_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader or WrapperLoader)
+        prediction_generator, self.num_workers = __resolve_template_generator__(
+            prediction_generator
+        )
 
         # Initialize some variables
         preds_ensemble = []

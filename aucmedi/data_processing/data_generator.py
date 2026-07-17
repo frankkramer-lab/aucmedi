@@ -20,8 +20,10 @@
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
+from functools import partial
+
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, DistributedSampler
 import numpy as np
 import tempfile
 import pickle
@@ -38,18 +40,17 @@ def create_batch_loader(
     metadata=None,
     image_format=None,
     subfunctions=[],
-    batch_size=32,
     resize=(224, 224),
     standardize_mode="z-score",
     data_aug=None,
-    shuffle=False,
     grayscale=False,
     two_dim=True,
     sample_weights=None,
-    threads=1,
     prepare_images=False,
     loader=image_loader,
     seed=None,
+    batch_size=32,
+    shuffle=False,
     num_workers=0,
     **kwargs
 ):
@@ -102,6 +103,133 @@ def create_batch_loader(
     data_loader = DataLoader(data_gen, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, **kwargs)
     return data_loader
 
+def _make_distributed_loader(
+        rank,
+        world_size,
+        samples,
+        path_imagedir,
+        labels=None,
+        metadata=None,
+        image_format=None,
+        subfunctions=[],
+        resize=(224, 224),
+        standardize_mode="z-score",
+        data_aug=None,
+        grayscale=False,
+        two_dim=True,
+        sample_weights=None,
+        prepare_images=False,
+        loader=image_loader,
+        seed=None,
+        batch_size=32,
+        shuffle=False,
+        num_workers=0,
+        **kwargs
+    ):
+    """Factory for distributed training: builds this rank's DataLoader over the full
+    sample list, letting DistributedSampler split + shuffle it across ranks (reshuffled
+    every epoch via sampler.set_epoch()) instead of a manual samples[rank::world_size]
+    stride. Must stay a top-level function (not a closure) so torch.multiprocessing.spawn
+    can pickle it. Internal helper behind create_distributed_loader().
+    """
+    # Initialize DataGenerator
+    data_gen = DataGenerator(
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        grayscale=grayscale,
+        two_dim=two_dim,
+        sample_weights=sample_weights,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+        **kwargs
+    )
+    sampler = DistributedSampler(
+        data_gen, num_replicas=world_size, rank=rank, shuffle=shuffle, seed=1337,
+    )
+    return DataLoader(
+        data_gen, batch_size=batch_size, sampler=sampler,
+        num_workers=num_workers, pin_memory=True,
+    )
+
+
+def create_distributed_loader(
+        samples,
+        path_imagedir,
+        labels=None,
+        metadata=None,
+        image_format=None,
+        subfunctions=[],
+        resize=(224, 224),
+        standardize_mode="z-score",
+        data_aug=None,
+        grayscale=False,
+        two_dim=True,
+        sample_weights=None,
+        prepare_images=False,
+        loader=image_loader,
+        seed=None,
+        batch_size=32,
+        shuffle=False,
+        num_workers=0,
+        **kwargs
+    ):
+    """Creates a DataGenerator with specified parameters and wraps it in a DistributedSampler and DataLoader.
+    Args:
+        samples (list of str):              List of sample/index encoded as Strings.
+        path_imagedir (str):                Path to the directory containing the images.
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding.
+        metadata (numpy.ndarray):           NumPy Array with additional metadata.
+        image_format (str):                 Image format to add at the end of the sample index for image loading.
+        subfunctions (List of Subfunctions):List of Subfunctions class instances.
+        batch_size (int):                   Number of samples inside a single batch.
+        resize (tuple of int):              Resizing shape consisting of a X and Y size.
+        standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+        data_aug (Augmentation Interface):  Data Augmentation class instance.
+        shuffle (bool):                     Boolean, whether dataset should be shuffled.
+        grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+        two_dim (bool):                     Boolean, whether images are two-dimensional.
+        sample_weights (list of float):     List of weights for samples.
+        threads (int):                      Number of workers for image preprocessing.
+        prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk
+                                            before training.
+        loader (io_loader function):        Function for loading samples/images from disk.
+        seed (int):                         Seed to ensure reproducibility for random function.
+        num_workers (int):                  Number of workers for DataLoader.
+        **kwargs (dict):                    Additional parameters for the sample loader.
+    Returns:
+        partial function: A partial function that creates a DataLoader wrapping the DataGenerator for distributed training.
+    TODO: example usage of this function in a distributed training context
+    """
+
+    return partial(_make_distributed_loader,
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        grayscale=grayscale,
+        two_dim=two_dim,
+        sample_weights=sample_weights,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers,
+        **kwargs
+    )
 
 # -----------------------------------------------------#
 #                 Torch Data Generator                #

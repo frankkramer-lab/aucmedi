@@ -26,12 +26,40 @@ from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
 import shutil
+from torch.utils.data import DataLoader, RandomSampler
 
 # Internal libraries
 from aucmedi import NeuralNetwork, create_batch_loader, WrapperLoader
-from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
+
+
+# -----------------------------------------------------#
+#              Generator Resolution Helper            #
+# -----------------------------------------------------#
+# Resolves the two generator wrapper styles Bagging accepts -- a plain torch
+# DataLoader wrapping a DataGenerator, or a WrapperLoader wrapping a
+# BatchGenerator -- into (template_generator, num_workers). A bare/unwrapped
+# DataGenerator or BatchGenerator is NOT accepted: num_workers lives on the
+# wrapper (DataLoader/WrapperLoader), not on the underlying generator, and
+# DataGenerator additionally has no batch_size/shuffle of its own (those are
+# copied down from the DataLoader below) -- both are required downstream to
+# rebuild a per-fold generator.
+def __resolve_template_generator__(generator):
+    if isinstance(generator, DataLoader):
+        num_workers = generator.num_workers
+        template_generator = generator.dataset
+        template_generator.batch_size = generator.batch_size
+        template_generator.shuffle = isinstance(generator.sampler, RandomSampler)
+    elif isinstance(generator, WrapperLoader):
+        num_workers = generator.num_workers
+        template_generator = generator.batch_generator
+    else:
+        raise ValueError(
+            "Invalid generator type: Must be a WrapperLoader or a torch "
+            "DataLoader wrapping a DataGenerator!"
+        )
+    return template_generator, num_workers
 
 
 # -----------------------------------------------------#
@@ -134,7 +162,8 @@ class Bagging:
         For more information on the fitting process, check out [NeuralNetwork.train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
         Args:
-            training_generator (WrapperLoader or BatchGenerator):     A generator which will be used for training (will be split according to k-fold sampling).
+            training_generator (WrapperLoader or DataLoader):     A generator which will be used for training (will be split according to k-fold sampling).
+                                                                Must be a WrapperLoader or a torch DataLoader wrapping a DataGenerator.
             epochs (int):                           Number of epochs. A single epoch is defined as one iteration through
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
@@ -149,14 +178,10 @@ class Bagging:
         Returns:
             history (dict):                   A history dictionary which contains several logs.
         """
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(training_generator, WrapperLoader):
-            self.num_workers = training_generator.num_workers
-            training_generator = training_generator.batch_generator
-        elif isinstance(training_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-        else:
-            raise ValueError("Invalid training_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader or WrapperLoader)
+        training_generator, self.num_workers = __resolve_template_generator__(
+            training_generator
+        )
 
         history_bagging = {}  # Final history dictionary
 
@@ -287,7 +312,8 @@ class Bagging:
             [Aggregate][aucmedi.ensemble.aggregate]
 
         Args:
-            prediction_generator (WrapperLoader or BatchGenerator):   A generator which will be used for inference.
+            prediction_generator (WrapperLoader or DataLoader):   A generator which will be used for inference.
+                                                                Must be a WrapperLoader or a torch DataLoader wrapping a DataGenerator.
             aggregate (str or aggregate Function):  Aggregate function class instance or a string for an AUCMEDI Aggregate function.
             return_ensemble (bool):                 Option, whether gathered ensemble of predictions should be returned.
 
@@ -316,14 +342,10 @@ class Bagging:
         else:
             agg_fun = aggregate
 
-        # Extract BatchGenerator from WrapperLoader if required
-        if isinstance(prediction_generator, WrapperLoader):
-            self.num_workers = prediction_generator.num_workers
-            prediction_generator = prediction_generator.batch_generator
-        elif isinstance(prediction_generator, BatchGenerator):
-            self.num_workers = getattr(self, "num_workers", 0)
-        else:
-            raise ValueError("Invalid prediction_generator type: Must be WrapperLoader or BatchGenerator!")
+        # Resolve generator type (DataLoader or WrapperLoader)
+        prediction_generator, self.num_workers = __resolve_template_generator__(
+            prediction_generator
+        )
 
         # Initialize some variables
         preds_ensemble = []

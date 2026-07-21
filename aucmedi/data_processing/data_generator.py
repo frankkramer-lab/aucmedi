@@ -206,7 +206,22 @@ def create_distributed_loader(
         **kwargs (dict):                    Additional parameters for the sample loader.
     Returns:
         partial function: A partial function that creates a DataLoader wrapping the DataGenerator for distributed training.
-    TODO: example usage of this function in a distributed training context
+
+    ???+ example
+        The returned partial already matches the `generator_fn(rank, world_size)` contract
+        expected by [NeuralNetwork.train_distributed()][aucmedi.neural_network.model_distributed.NeuralNetwork.train_distributed] --
+        pass it straight through instead of writing a `samples[rank::world_size]` factory by hand.
+        `DistributedSampler` shards the data across ranks and reshuffles it every epoch
+        (`_train_epoch()` calls `sampler.set_epoch()` for you), so no manual striding is needed.
+        ```python
+        train_loader_fn = create_distributed_loader(
+            samples=samples_train, path_imagedir="images_dir/",
+            labels=class_ohe, resize=model.arch_resolution,
+            standardize_mode=model.arch_standardize, batch_size=32, shuffle=True,
+        )
+
+        model.train_distributed(train_loader_fn, epochs=50)
+        ```
     """
 
     return partial(_make_distributed_loader,

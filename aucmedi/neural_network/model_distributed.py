@@ -314,7 +314,6 @@ class NeuralNetwork:
         fine_tuning_lr=None,
         callbacks=[],
         scheduler=None,
-        class_weights=None,
     ):
         """Distributed (multi-GPU, single-node) counterpart of [train()][aucmedi.neural_network.model.NeuralNetwork.train].
 
@@ -368,8 +367,7 @@ class NeuralNetwork:
             callbacks (list of Callback):           Custom Callback instances. Must be picklable, since they are
                                                     sent to every worker process.
             scheduler (torch.optim.lr_scheduler):   LR scheduler class (not instance) to initialize. `None` disables scheduling.
-            class_weights (dict or list):           Per-class weights to handle class imbalance.
-
+            
         Returns:
             history (dict):                         Training history with loss and metric logs per epoch.
         """
@@ -420,7 +418,6 @@ class NeuralNetwork:
                     fine_tuning_lr,
                     callbacks,
                     scheduler,
-                    class_weights,
                     checkpoint_path,
                 ),
                 nprocs=world_size,
@@ -460,7 +457,6 @@ class NeuralNetwork:
         fine_tuning_lr,
         callbacks,
         scheduler,
-        class_weights,
         checkpoint_path,
     ):
         """Per-process entry point spawned by `train_distributed()`. Not meant to be called directly."""
@@ -499,7 +495,6 @@ class NeuralNetwork:
             fine_tuning_lr,
             callbacks,
             scheduler,
-            class_weights,
             rank=rank,
             world_size=world_size,
         )
@@ -525,7 +520,6 @@ class NeuralNetwork:
         fine_tuning_lr=None,
         callbacks=[],
         scheduler=None,
-        class_weights=None,
     ):
         """Fitting function for the Neural Network model performing a training process.
 
@@ -567,8 +561,7 @@ class NeuralNetwork:
             fine_tuning_lr (float):                 Learning rate for the fine-tuning phase. Defaults to 0.1 × `learning_rate`.
             callbacks (list of Callback):           Custom Callback instances (e.g. `ModelCheckpoint`, `MinEpochEarlyStopping`).
             scheduler (torch.optim.lr_scheduler):   LR scheduler class (not instance) to initialize. `None` disables scheduling.
-            class_weights (dict or list):           Per-class weights to handle class imbalance.
-
+            
         Returns:
             history (dict):                         Training history with loss and metric logs per epoch.
         """
@@ -583,7 +576,6 @@ class NeuralNetwork:
             fine_tuning_lr,
             callbacks,
             scheduler,
-            class_weights,
             rank=0,
             world_size=1,
         )
@@ -600,7 +592,6 @@ class NeuralNetwork:
         fine_tuning_lr,
         callbacks,
         scheduler,
-        class_weights,
         rank=0,
         world_size=1,
     ):
@@ -655,7 +646,6 @@ class NeuralNetwork:
                 validation_generator,
                 epochs,
                 iterations,
-                class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
                 rank=rank,
@@ -688,7 +678,6 @@ class NeuralNetwork:
                 validation_generator,
                 transfer_epochs,
                 iterations,
-                class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
                 rank=rank,
@@ -716,7 +705,6 @@ class NeuralNetwork:
                 validation_generator,
                 ft_epochs,
                 iterations,
-                class_weights,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
                 rank=rank,
@@ -751,7 +739,6 @@ class NeuralNetwork:
         validation_generator,
         epochs,
         iterations,
-        class_weights,
         callbacks=[],
         early_stopping_callback=None,
         rank=0,

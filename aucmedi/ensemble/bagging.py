@@ -21,7 +21,9 @@
 # -----------------------------------------------------#
 # External libraries
 import os
+import signal
 import tempfile
+from queue import Empty
 from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
@@ -145,7 +147,6 @@ class Bagging:
         epochs=20,
         iterations=None,
         callbacks=[],
-        class_weights=None,
         transfer_learning=False,
         learning_rate=0.0001,
         transfer_epochs=10,
@@ -168,7 +169,6 @@ class Bagging:
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation (e.g. ModelCheckpoint).
-            class_weights (dictionary or list):     A list or dictionary of float values to handle class imbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
             learning_rate (float):                  Learning rate passed to the optimizer.
             transfer_epochs (int):                  Number of epochs used in the frozen transfer learning phase.
@@ -262,7 +262,6 @@ class Bagging:
                 "epochs": epochs,
                 "iterations": iterations,
                 "callbacks": callbacks_model,
-                "class_weights": class_weights,
                 "transfer_learning": transfer_learning,
                 "learning_rate": learning_rate,
                 "transfer_epochs": transfer_epochs,
@@ -282,13 +281,9 @@ class Bagging:
                     parameters_training,
                 ),
             )
-            process_train.start()
-            process_train.join()
-            cv_history = process_queue.get()
-            if isinstance(cv_history, Exception):
-                raise RuntimeError(
-                    f"Training subprocess for fold {i} failed: {cv_history}"
-                ) from cv_history
+            cv_history = __run_subprocess__(
+                process_train, process_queue, label=f"Training (fold {i})"
+            )
             # Combine logged history objects
             hcv = {"cv_" + str(i) + "." + k: v for k, v in cv_history.items()}
             history_bagging = {**history_bagging, **hcv}
@@ -403,13 +398,9 @@ class Bagging:
                 target=__prediction_process__,
                 args=(process_queue, model_paras, path_model, datagen_paras),
             )
-            process_pred.start()
-            process_pred.join()
-            preds = process_queue.get()
-            if isinstance(preds, Exception):
-                raise RuntimeError(
-                    f"Prediction subprocess for fold {i} failed: {preds}"
-                ) from preds
+            preds = __run_subprocess__(
+                process_pred, process_queue, label=f"Prediction (fold {i})"
+            )
 
             # Append to prediction ensemble
             preds_ensemble.append(preds)
@@ -477,6 +468,53 @@ class Bagging:
 # -----------------------------------------------------#
 #                     Subroutines                     #
 # -----------------------------------------------------#
+# Start, join, and safely retrieve a worker process' queued result.
+#
+# A worker's own try/except only catches regular Python exceptions. If the
+# process instead dies from something that bypasses it (OOM-kill, a CUDA/driver
+# segfault, ...), nothing is ever put on the queue and a bare `queue.get()`
+# blocks forever with no diagnostic. This detects that case via the process'
+# exitcode and raises immediately instead.
+def __run_subprocess__(process, result_queue, label):
+    process.start()
+    # Drain the queue *before* joining the process. A child that puts a
+    # payload larger than the OS pipe buffer (e.g. predictions for a large
+    # ensemble/test split) blocks inside queue.put() until the parent reads
+    # it -- joining first would wait on a child that can never exit, deadlocking
+    # forever. Poll get() while the child is alive so a crash (OOM-kill, CUDA
+    # fault) that never puts anything is still detected via exitcode.
+    result = None
+    got_result = False
+    while True:
+        try:
+            result = result_queue.get(timeout=1)
+            got_result = True
+            break
+        except Empty:
+            if not process.is_alive():
+                break
+    process.join()
+    if not got_result:
+        exitcode = process.exitcode
+        if exitcode is not None and exitcode < 0:
+            try:
+                sig_desc = signal.Signals(-exitcode).name
+            except ValueError:
+                sig_desc = str(-exitcode)
+            raise RuntimeError(
+                f"{label} subprocess (pid={process.pid}) was killed by signal "
+                f"{sig_desc} (exitcode {exitcode}) before returning a result "
+                "-- likely an OOM-kill or a native crash (e.g. CUDA/driver fault)."
+            )
+        raise RuntimeError(
+            f"{label} subprocess (pid={process.pid}) exited with code {exitcode} "
+            "without returning a result."
+        )
+    if isinstance(result, Exception):
+        raise RuntimeError(f"{label} subprocess failed: {result}") from result
+    return result
+
+
 # Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     train_x, train_y, train_m, test_x, test_y, test_m = data

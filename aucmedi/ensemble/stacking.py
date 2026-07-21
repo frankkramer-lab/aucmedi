@@ -191,7 +191,6 @@ class Stacking:
         epochs=20,
         iterations=None,
         callbacks=[],
-        class_weights=None,
         transfer_learning=False,
         learning_rate=0.0001,
         transfer_epochs=10,
@@ -218,7 +217,6 @@ class Stacking:
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation (e.g. ModelCheckpoint).
-            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
             learning_rate (float):                  Learning rate passed to the optimizer.
             transfer_epochs (int):                  Number of epochs used in the frozen transfer learning phase.
@@ -230,13 +228,6 @@ class Stacking:
         Returns:
             history (dict):                   A history dictionary which contains several logs.
         """
-        if class_weights is not None:
-            print(
-                "Warning: `class_weights` is ignored -- NeuralNetwork.train() (PyTorch "
-                "backend) has no such parameter. Bake class weighting into the loss "
-                "function passed to each model instead (e.g. MultiClassFocalLoss(alpha=...))."
-            )
-
         # Resolve generator type (DataLoader or WrapperLoader)
         template_generator, self.num_workers = __resolve_template_generator__(
             training_generator
@@ -324,9 +315,6 @@ class Stacking:
             }
 
             # Gather training parameters
-            # Note: class_weights is not forwarded -- NeuralNetwork.train() (PyTorch
-            # backend) has no such parameter. Bake class weighting into the loss
-            # function instead (e.g. MultiClassFocalLoss(alpha=cw_list)).
             parameters_training = {
                 "epochs": epochs,
                 "iterations": iterations,
@@ -688,10 +676,24 @@ class Stacking:
 # exitcode and raises immediately instead.
 def __run_subprocess__(process, result_queue, label):
     process.start()
+    # Drain the queue *before* joining the process. A child that puts a
+    # payload larger than the OS pipe buffer (e.g. predictions for a large
+    # ensemble/test split) blocks inside queue.put() until the parent reads
+    # it -- joining first would wait on a child that can never exit, deadlocking
+    # forever. Poll get() while the child is alive so a crash (OOM-kill, CUDA
+    # fault) that never puts anything is still detected via exitcode.
+    result = None
+    got_result = False
+    while True:
+        try:
+            result = result_queue.get(timeout=1)
+            got_result = True
+            break
+        except Empty:
+            if not process.is_alive():
+                break
     process.join()
-    try:
-        result = result_queue.get(timeout=30)
-    except Empty:
+    if not got_result:
         exitcode = process.exitcode
         if exitcode is not None and exitcode < 0:
             try:

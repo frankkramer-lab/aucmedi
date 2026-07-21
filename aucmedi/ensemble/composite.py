@@ -21,7 +21,9 @@
 # -----------------------------------------------------#
 # External libraries
 import os
+import signal
 import tempfile
+from queue import Empty
 from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger
 from pathos.helpers import mp  # instead of 'import multiprocessing as mp'
 import numpy as np
@@ -197,7 +199,6 @@ class Composite:
         epochs=20,
         iterations=None,
         callbacks=[],
-        class_weights=None,
         transfer_learning=False,
         learning_rate=0.0001,
         transfer_epochs=10,
@@ -224,7 +225,6 @@ class Composite:
                                                     the complete data set.
             iterations (int):                       Number of iterations (batches) in a single epoch.
             callbacks (list of Callback classes):   A list of Callback classes for custom evaluation (e.g. ModelCheckpoint).
-            class_weights (dictionary or list):     A list or dictionary of float values to handle class unbalance.
             transfer_learning (bool):               Option whether a transfer learning training should be performed.
             learning_rate (float):                  Learning rate passed to the optimizer.
             transfer_epochs (int):                  Number of epochs used in the frozen transfer learning phase.
@@ -340,7 +340,6 @@ class Composite:
                 "epochs": epochs,
                 "iterations": iterations,
                 "callbacks": callbacks_model,
-                "class_weights": class_weights,
                 "transfer_learning": transfer_learning,
                 "learning_rate": learning_rate,
                 "transfer_epochs": transfer_epochs,
@@ -360,9 +359,9 @@ class Composite:
                     parameters_training,
                 ),
             )
-            process_train.start()
-            process_train.join()
-            cv_history = process_queue.get()
+            cv_history = __run_subprocess__(
+                process_train, process_queue, label=f"Training (fold {i})"
+            )
             # Combine logged history objects
             hnn = {"cv_" + str(i) + "." + k: v for k, v in cv_history.items()}
             history_composite = {**history_composite, **hnn}
@@ -479,9 +478,9 @@ class Composite:
                     datagen_paras,
                 ),
             )
-            process_pred.start()
-            process_pred.join()
-            preds = process_queue.get()
+            preds = __run_subprocess__(
+                process_pred, process_queue, label=f"Ensemble prediction (model {i})"
+            )
 
             # Append preds to ensemble
             preds_ensemble.append(preds)
@@ -596,9 +595,9 @@ class Composite:
                 target=__prediction_process__,
                 args=(process_queue, model_paras, path_model, data_test, datagen_paras),
             )
-            process_pred.start()
-            process_pred.join()
-            preds = process_queue.get()
+            preds = __run_subprocess__(
+                process_pred, process_queue, label=f"Prediction (model {i})"
+            )
 
             # Append preds to ensemble
             preds_ensemble.append(preds)
@@ -682,6 +681,53 @@ class Composite:
 # -----------------------------------------------------#
 #                     Subroutines                     #
 # -----------------------------------------------------#
+# Start, join, and safely retrieve a worker process' queued result.
+#
+# A worker's own try/except only catches regular Python exceptions. If the
+# process instead dies from something that bypasses it (OOM-kill, a CUDA/driver
+# segfault, ...), nothing is ever put on the queue and a bare `queue.get()`
+# blocks forever with no diagnostic. This detects that case via the process'
+# exitcode and raises immediately instead.
+def __run_subprocess__(process, result_queue, label):
+    process.start()
+    # Drain the queue *before* joining the process. A child that puts a
+    # payload larger than the OS pipe buffer (e.g. predictions for a large
+    # ensemble/test split) blocks inside queue.put() until the parent reads
+    # it -- joining first would wait on a child that can never exit, deadlocking
+    # forever. Poll get() while the child is alive so a crash (OOM-kill, CUDA
+    # fault) that never puts anything is still detected via exitcode.
+    result = None
+    got_result = False
+    while True:
+        try:
+            result = result_queue.get(timeout=1)
+            got_result = True
+            break
+        except Empty:
+            if not process.is_alive():
+                break
+    process.join()
+    if not got_result:
+        exitcode = process.exitcode
+        if exitcode is not None and exitcode < 0:
+            try:
+                sig_desc = signal.Signals(-exitcode).name
+            except ValueError:
+                sig_desc = str(-exitcode)
+            raise RuntimeError(
+                f"{label} subprocess (pid={process.pid}) was killed by signal "
+                f"{sig_desc} (exitcode {exitcode}) before returning a result "
+                "-- likely an OOM-kill or a native crash (e.g. CUDA/driver fault)."
+            )
+        raise RuntimeError(
+            f"{label} subprocess (pid={process.pid}) exited with code {exitcode} "
+            "without returning a result."
+        )
+    if isinstance(result, Exception):
+        raise RuntimeError(f"{label} subprocess failed: {result}") from result
+    return result
+
+
 # Internal function for training a NeuralNetwork model in a separate process
 def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
     # Extract data
@@ -731,9 +777,11 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
     # Create NeuralNetwork
     model = NeuralNetwork(**model_paras)
     # Start NeuralNetwork training
-    cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
-    # Store result in cache (which will be returned by the process queue)
-    queue.put(cv_history)
+    try:
+        cv_history = model.train(cv_train_gen, cv_val_gen, **train_paras)
+        queue.put(cv_history)
+    except Exception as exc:
+        queue.put(exc)
 
 
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
@@ -766,6 +814,8 @@ def __prediction_process__(queue, model_paras, path_model, data_test, datagen_pa
     # Load model weights from disk
     model.load(path_model)
     # Make prediction
-    preds = model.predict(cv_pred_gen)
-    # Store prediction results in cache (which will be returned by the process queue)
-    queue.put(preds)
+    try:
+        preds = model.predict(cv_pred_gen)
+        queue.put(preds)
+    except Exception as exc:
+        queue.put(exc)

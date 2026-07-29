@@ -32,7 +32,8 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 # Internal libraries
-from aucmedi import BatchGenerator, create_batch_loader
+from aucmedi import create_batch_loader
+from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.data_processing.io_loader import numpy_loader
 
 

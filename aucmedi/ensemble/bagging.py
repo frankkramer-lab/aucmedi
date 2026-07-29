@@ -31,7 +31,8 @@ import shutil
 from torch.utils.data import DataLoader, RandomSampler
 
 # Internal libraries
-from aucmedi import NeuralNetwork, create_batch_loader, WrapperLoader
+from aucmedi import NeuralNetwork, create_batch_loader
+from aucmedi.data_processing.wrapper_loader import WrapperLoader
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 

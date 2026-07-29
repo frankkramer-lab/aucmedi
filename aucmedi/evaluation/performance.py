@@ -140,7 +140,7 @@ def evaluate_performance(
     if class_names is not None:
         for c in range(len(class_names)):
             class_mapping[c] = class_names[c]
-        metrics["class"].replace(class_mapping, inplace=True)
+        metrics["class"] = metrics["class"].replace(class_mapping)
     if class_names is None:
         metrics["class"] = pd.Categorical(metrics["class"])
 
@@ -308,7 +308,8 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
 # -----------------------------------------------------#
 #          Evaluation Performance - CSV file          #
 # -----------------------------------------------------#
-def evalby_csv(metrics, out_path, class_names, suffix=None):
+def evalby_csv(metrics, out_path, class_names, suffix=None,
+                included_metrics = ["Sensitivity", "Specificity", "Precision", "FPR", "FNR", "FDR", "Accuracy", "F1"]):
     # Obtain filename to
     filename = "metrics.performance"
     if suffix is not None:
@@ -316,5 +317,6 @@ def evalby_csv(metrics, out_path, class_names, suffix=None):
     filename += ".csv"
     path_csv = os.path.join(out_path, filename)
 
+    metrics = metrics[metrics["metric"].isin(included_metrics)]
     # Store file to disk
     metrics.to_csv(path_csv, index=False)

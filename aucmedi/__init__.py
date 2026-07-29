@@ -35,7 +35,6 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     ```python
     # AUCMEDI library
     from aucmedi import *
-    from aucmedi.data_processing.wrapper_loader import create_batch_loader
 
     # Pillar #1: Initialize input data reader
     ds = input_interface(interface="csv",
@@ -74,13 +73,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
 #                   Library imports                   #
 # -----------------------------------------------------#
 from aucmedi.data_processing.io_data import input_interface
-from aucmedi.data_processing.data_generator import DataGenerator
-from aucmedi.data_processing.batch_generator import BatchGenerator
-from aucmedi.data_processing.wrapper_loader import (
-    WrapperLoader,
-    create_batch_loader,
-    create_distributed_loader,
-)
+from aucmedi.data_processing.data_generator import DataGenerator, create_batch_loader, create_distributed_loader
 from aucmedi.data_processing.augmentation import (
     ImageAugmentation,
     VolumeAugmentation,

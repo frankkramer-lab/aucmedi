@@ -21,6 +21,7 @@
 # -----------------------------------------------------#
 # External libraries
 import numpy as np
+from torch.utils.data import DataLoader
 
 # Internal libraries
 from aucmedi import (
@@ -48,7 +49,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         from aucmedi.ensemble import predict_augmenting
         from aucmedi import ImageAugmentation, create_batch_loader
 
-        # Initialize testing WrapperLoader with desired Data Augmentation
+        # Initialize testing DataLoader with desired Data Augmentation
         test_aug = ImageAugmentation(flip=True, rotate=True, brightness=False, contrast=False)
         test_loader = create_batch_loader(samples_test, "images_dir/",
                                           data_aug=test_aug,
@@ -84,7 +85,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
 
     Args:
         model (NeuralNetwork):                  Instance of an AUCMEDI neural network class.
-        prediction_generator (WrapperLoader or BatchGenerator):   A generator which will be used for Augmenting based inference.
+        prediction_generator (DataLoader):      A generator which will be used for Augmenting based inference.
         n_cycles (int):                         Number of augmented copies to generate per sample.
         aggregate (str or Aggregate):           Aggregate function class instance or a string for an AUCMEDI Aggregate function.
 
@@ -140,12 +141,17 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 
     loader_args = {}
-    if isinstance(prediction_generator, WrapperLoader):
+    if isinstance(prediction_generator, DataLoader):
         num_workers = getattr(prediction_generator, "num_workers", 0)
-        prediction_generator = prediction_generator.batch_generator
-    # Assume prediction_generator is a BatchGenerator (Pytorch Dataset) and use its attributes directly
+        batch_size = prediction_generator.batch_size
+        shuffle = prediction_generator.shuffle
+        # TODO: capture sampler
+        prediction_generator = prediction_generator.dataset
+    # Assume prediction_generator is a BatchGenerator or DataGenerator (Pytorch Dataset) and use its attributes directly
     loader_args = prediction_generator.__dict__
-    num_workers = getattr(prediction_generator, "num_workers", 0)
+    num_workers = getattr(prediction_generator, "num_workers", num_workers)
+    batch_size = getattr(prediction_generator, "batch_size", batch_size)
+    shuffle = getattr(prediction_generator, "shuffle", shuffle)
     loader_args.setdefault("num_workers", num_workers)
 
     # Re-initialize BatchLoader for inference

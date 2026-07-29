@@ -65,12 +65,6 @@ class NeuralNetworkDistributedGuardsTEST(unittest.TestCase):
 # -----------------------------------------------------#
 #         Unittest: create_distributed_loader()        #
 # -----------------------------------------------------#
-# Unlike aucmedi.data_processing.wrapper_loader.create_distributed_loader()
-# (BatchGenerator-based, shards via a static samples[rank::world_size] stride),
-# this is the DataGenerator + torch.utils.data.DistributedSampler stack: each
-# rank's DataLoader is built over the FULL sample list, and DistributedSampler
-# hands out the per-rank partition (with padding when the count doesn't divide
-# evenly across ranks).
 class CreateDistributedLoaderTEST(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

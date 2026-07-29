@@ -668,12 +668,6 @@ class Stacking:
 #                     Subroutines                     #
 # -----------------------------------------------------#
 # Start, join, and safely retrieve a worker process' queued result.
-#
-# A worker's own try/except only catches regular Python exceptions. If the
-# process instead dies from something that bypasses it (OOM-kill, a CUDA/driver
-# segfault, ...), nothing is ever put on the queue and a bare `queue.get()`
-# blocks forever with no diagnostic. This detects that case via the process'
-# exitcode and raises immediately instead.
 def __run_subprocess__(process, result_queue, label):
     process.start()
     # Drain the queue *before* joining the process. A child that puts a

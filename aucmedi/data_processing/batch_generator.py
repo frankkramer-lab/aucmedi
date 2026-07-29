@@ -110,10 +110,10 @@ class BatchGenerator(Dataset):
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
-        my_dg = DataGenerator(samples, "images_dir/",
-                              labels=None, metadata=my_metadata,
-                              resize=my_model.arch_resolution,                  # (224,224)
-                              standardize_mode=my_model.arch_standardize)  # "torch"
+        my_dg = create_batch_loader(samples, "images_dir/",
+                                    labels=None, metadata=my_metadata,
+                                    resize=my_model.arch_resolution,                  # (224,224)
+                                    standardize_mode=my_model.arch_standardize)  # "torch"
         ```
     """
 
@@ -186,6 +186,7 @@ class BatchGenerator(Dataset):
                                                 If `None` is provided, no augmentation will be performed.
             shuffle (bool):                     Boolean, whether dataset should be shuffled.
             grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+            two_dim (bool):                     Boolean, whether images are two-dimensional.
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
             workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.

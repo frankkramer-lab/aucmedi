@@ -100,7 +100,7 @@ def create_batch_loader(
         **kwargs
     )
     # Initialize DataLoader
-    data_loader = DataLoader(data_gen, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, **kwargs)
+    data_loader = DataLoader(data_gen, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
     return data_loader
 
 def _make_distributed_loader(
@@ -212,7 +212,7 @@ def create_distributed_loader(
         expected by [NeuralNetwork.train_distributed()][aucmedi.neural_network.model_distributed.NeuralNetwork.train_distributed] --
         pass it straight through instead of writing a `samples[rank::world_size]` factory by hand.
         `DistributedSampler` shards the data across ranks and reshuffles it every epoch
-        (`_train_epoch()` calls `sampler.set_epoch()` for you), so no manual striding is needed.
+        (`_train_epoch()` calls `sampler.set_epoch()`), so no manual striding is needed.
         ```python
         train_loader_fn = create_distributed_loader(
             samples=samples_train, path_imagedir="images_dir/",
@@ -250,11 +250,11 @@ def create_distributed_loader(
 #                 Torch Data Generator                #
 # -----------------------------------------------------#
 class DataGenerator(Dataset):
-    """Infinite Data Generator which automatically creates batches from a list of samples.
+    """Infinite Data Generator which returns individual preprocessed samples.
 
-    The created batches are model ready. This generator can be supplied directly
+    To create shuffled, model-ready batches pass the DataGenerator to a [DataLoader][torch.utils.data.DataLoader]. This DataLoader can be supplied
     to a [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] train() & predict()
-    function (also compatible to tensorflow.keras.model fit() & predict() function).
+    function.
 
     The DataGenerator is the second of the three pillars of AUCMEDI.
 
@@ -302,27 +302,27 @@ class DataGenerator(Dataset):
         preds = model.predict(datagen_test)
         ```
 
-    It supports real-time batch generation as well as beforehand preprocessing of images,
+    It supports beforehand preprocessing of images,
     which are then temporarily stored on disk (requires enough disk space!).
 
-    The resulting batches are created based the following pipeline:
+    The resulting samples are created based the following pipeline:
 
     1. Image Loading
     2. Application of Subfunctions
     3. Resize image
     4. Application of Data Augmentation
     5. Standardize image
-    6. Stacking processed images to a batch
+    6. Stacking processed image, label and metadata to a sample
 
     ???+ warning
         When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
         by the `input_interface()` and the `resize` & `standardize_mode` parameters provided by the
-        `NeuralNetwork` class attributes `meta_input` & `meta_standardize`.
+        `NeuralNetwork` class attributes `arch_resolution` & `arch_standardize`.
 
         It assures, that the samples contain the expected file extension, input shape and standardization.
 
     ???+ abstract "Build on top of the library"
-        Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
+        torch.utils.data Dataset: https://github.com/pytorch/pytorch/blob/main/torch/utils/data/dataset.py
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"
         ```python
@@ -334,10 +334,10 @@ class DataGenerator(Dataset):
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
-        my_dg = DataGenerator(samples, "images_dir/",
-                              labels=None, metadata=my_metadata,
-                              resize=my_model.meta_input,                  # (224,224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+        my_dg = create_batch_loader(samples, "images_dir/",
+                                    labels=None, metadata=my_metadata,
+                                    resize=my_model.arch_resolution,                  # (224,224)
+                                    standardize_mode=my_model.arch_standardize)  # "torch"
         ```
     """
 
@@ -405,6 +405,7 @@ class DataGenerator(Dataset):
             data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation techniques.
                                                 If `None` is provided, no augmentation will be performed.
             grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+            two_dim (bool):                     Boolean, whether images are two-dimensional.
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
             workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.

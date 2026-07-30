@@ -30,9 +30,7 @@ from aucmedi.neural_network.architectures.volume import *
 from aucmedi.neural_network.architectures import (
     supported_standardize_mode as sdm_global,
 )
-from aucmedi.neural_network.architectures import Classifier
 from aucmedi import *
-from aucmedi.data_processing.subfunctions import Resize
 from aucmedi.data_processing.io_loader import numpy_loader
 
 

@@ -27,13 +27,13 @@ from PIL import Image
 import numpy as np
 
 # Internal libraries
+from aucmedi import *
 from aucmedi import NeuralNetwork
 from aucmedi.neural_network.architectures.image import *
 from aucmedi.neural_network.architectures import (
     supported_standardize_mode as sdm_global,
 )
-from aucmedi.neural_network.architectures import Classifier, architecture_dict
-from aucmedi import *
+from aucmedi.neural_network.architectures import architecture_dict
 from aucmedi.data_processing.subfunctions import Resize
 
 

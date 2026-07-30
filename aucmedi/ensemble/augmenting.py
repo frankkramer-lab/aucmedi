@@ -24,7 +24,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 
 # Internal libraries
-from aucmedi import ImageAugmentation, VolumeAugmentation, create_batch_loader,
+from aucmedi import ImageAugmentation, VolumeAugmentation, create_batch_loader
 
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.data_processing.io_loader import image_loader

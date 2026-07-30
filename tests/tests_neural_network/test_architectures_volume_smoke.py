@@ -2,7 +2,6 @@ import warnings
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-import pytest
 import torch
 
 from aucmedi.neural_network.architectures.volume import (

@@ -147,9 +147,7 @@ class DataGeneratorTEST(unittest.TestCase):
         self.assertEqual(batch[1].shape, torch.Size([4, self.labels_ohe.shape[1]]))
 
         # Without labels: default_collate turns the 1-tuple sample into a
-        # single-element list, NOT a bare Tensor -- this differs from
-        # WrapperLoader/BatchGenerator, which unwrap it themselves.
-        # (Regression: model.predict() used to crash on this shape.)
+        # single-element list, NOT a bare Tensor
         loader_nolabel = DataLoader(data_gen, batch_size=4, shuffle=False)
         batch_nolabel = next(iter(loader_nolabel))
         self.assertIsInstance(batch_nolabel, list)
@@ -350,9 +348,6 @@ class DataGeneratorTEST(unittest.TestCase):
     #      Integration: DataLoader + NeuralNetwork    #
     # -------------------------------------------------#
     # End-to-end check that a plain torch DataLoader wrapping a DataGenerator
-    # (no manual has_labels/has_metadata/has_sample_weights on the loader
-    # itself, unlike WrapperLoader) works with both train() and predict() --
-    # this is the exact setup pipeline_torch_dummy.py uses.
     def _integration_model(self, resolution=(16, 16), n_labels=4, channels=3):
         return NeuralNetwork(
             n_labels=n_labels,

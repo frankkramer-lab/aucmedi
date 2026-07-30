@@ -213,7 +213,6 @@ class NeuralNetwork:
             n_meta_variables (int):                 Number of metadata variables, which should be included in the classification head.
                                                     If `None`is provided, no metadata integration block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-            learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
             verbose (int):                          Option (0/1) how much information should be written to stdout.
 
         ???+ danger
@@ -523,7 +522,7 @@ class NeuralNetwork:
     ):
         """Fitting function for the Neural Network model performing a training process.
 
-        Accepts a `WrapperLoader` (standard AUCMEDI entry point via `create_batch_loader`),
+        Accepts a `WrapperLoader`,
         a raw `BatchGenerator`, or any generic PyTorch `DataLoader` whose `dataset` and
         loader instance expose `has_labels`, `has_metadata`, and `has_sample_weights`
         boolean attributes.
@@ -548,7 +547,7 @@ class NeuralNetwork:
             training_generator (WrapperLoader or BatchGenerator or DataLoader):
                                                     Generator used for training. Generic PyTorch DataLoaders
                                                     must expose `has_labels`, `has_metadata`, and
-                                                    `has_sample_weights` on both the loader and its `dataset`.
+                                                    `has_sample_weights` on its `dataset`.
             validation_generator (WrapperLoader or BatchGenerator or DataLoader):
                                                     Optional generator used for validation (same contract as above).
             iterations (int):                       Number of batches per epoch. Ignored for generic DataLoaders

@@ -28,7 +28,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     | ---------------------------------------------------------------------------- | ----------------------------------------------------------------- |
     | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]     | Obtaining general information from the dataset.                   |
     | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]              | Building the deep learning model.                                 |
-    | #3: [BatchGenerator][aucmedi.data_processing.batch_generator.BatchGenerator] | Powerful interface for loading any images/volumes into the model. |
+    | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]   | Powerful interface for loading any images/volumes into the model. |
 
 
 ???+ example "A typical AUCMEDI pipeline"
@@ -48,7 +48,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
                            architecture="2D.DenseNet121",
                            pretrained_weights=True)
 
-    # Pillar #3: Initialize training BatchGenerator for first 1000 samples
+    # Pillar #3: Initialize training DataGenerator for first 1000 samples
     train_loader = create_batch_loader(samples=index_list[:1000],
                                        path_imagedir="dataset/images/",
                                        labels=class_ohe[:1000],
@@ -58,7 +58,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     # Run model training with Transfer Learning
     model.train(train_loader, epochs=20, transfer_learning=True)
 
-    # Pillar #3: Initialize testing BatchGenerator for 500 samples
+    # Pillar #3: Initialize testing DatahGenerator for 500 samples
     test_loader = create_batch_loader(samples=index_list[1000:1500],
                                       path_imagedir="dataset/images/",
                                       labels=None,

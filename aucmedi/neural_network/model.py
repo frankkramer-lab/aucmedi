@@ -47,17 +47,16 @@ class NeuralNetwork:
 
     This class is the third of the three pillars of AUCMEDI.
 
-    ??? info "Pillars of AUCMEDI"
-        - [aucmedi.data_processing.io_data.input_interface][]
-        - [aucmedi.data_processing.batch_generator.BatchGenerator][]
-        - [aucmedi.neural_network.model.NeuralNetwork][]
+    ???+ info "Pillars of AUCMEDI"
+    - [aucmedi.data_processing.io_data.input_interface][]
+    - [aucmedi.data_processing.data_generator.DataGenerator][]
+    - [aucmedi.neural_network.model.NeuralNetwork][]
 
     With an initialized Neural Network model instance, it is possible to run training and predictions.
 
     ??? example "Example: How to use"
         ```python
         from aucmedi import *
-        from aucmedi.data_processing.wrapper_loader import create_batch_loader
 
         # Initialize model
         model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
@@ -105,7 +104,7 @@ class NeuralNetwork:
         However, the recommended parameter are required for transfer learning.
 
         ```python title="Recommended way"
-        from aucmedi.data_processing.wrapper_loader import create_batch_loader
+        from aucmedi import *
 
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
@@ -118,7 +117,7 @@ class NeuralNetwork:
         from aucmedi.neural_network.architectures import Classifier, \
                                                          architecture_dict, \
                                                          supported_standardize_mode
-        from aucmedi.data_processing.wrapper_loader import create_batch_loader
+        from aucmedi import *
 
         my_arch = architecture_dict["3D.DenseNet121"](n_labels=4,
                                                       channels=1,
@@ -136,7 +135,6 @@ class NeuralNetwork:
     ??? example "Example: How to integrate metadata in AUCMEDI?"
         ```python
         from aucmedi import *
-        from aucmedi.data_processing.wrapper_loader import create_batch_loader
         import numpy as np
 
         my_metadata = np.random.rand(len(samples), 10)
@@ -188,7 +186,6 @@ class NeuralNetwork:
             n_meta_variables (int):                 Number of metadata variables, which should be included in the classification head.
                                                     If `None`is provided, no metadata integration block will be added to the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
-            learning_rate (float):                  Learning rate in which weights of the neural network will be updated.
             verbose (int):                          Option (0/1) how much information should be written to stdout.
 
         ???+ danger
@@ -292,7 +289,7 @@ class NeuralNetwork:
     ):
         """Fitting function for the Neural Network model performing a training process.
 
-        Accepts a `WrapperLoader` (standard AUCMEDI entry point via `create_batch_loader`),
+        Accepts a `WrapperLoader`,
         a raw `BatchGenerator`, or any generic PyTorch `DataLoader` whose `dataset` and
         loader instance expose `has_labels`, `has_metadata`, and `has_sample_weights`
         boolean attributes.
@@ -314,7 +311,7 @@ class NeuralNetwork:
             training_generator (WrapperLoader or BatchGenerator or DataLoader):
                                                     Generator used for training. Generic PyTorch DataLoaders
                                                     must expose `has_labels`, `has_metadata`, and
-                                                    `has_sample_weights` on both the loader and its `dataset`.
+                                                    `has_sample_weights` on its `dataset`.
             validation_generator (WrapperLoader or BatchGenerator or DataLoader):
                                                     Optional generator used for validation (same contract as above).
             iterations (int):                       Number of batches per epoch. Ignored for generic DataLoaders

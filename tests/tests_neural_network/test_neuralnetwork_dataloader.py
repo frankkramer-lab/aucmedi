@@ -36,8 +36,6 @@ from aucmedi.data_processing.subfunctions import Standardize
 
 # ==============================================================================#
 #  Minimal generic DataLoader implementation under test                         #
-#  (same pattern as pipeline_torch_dummy.py — reproduced here so the test is   #
-#  self-contained and doesn't depend on pipeline internals)                     #
 # ==============================================================================#
 class _ImageDataset(Dataset):
     """Sample-level Dataset: __getitem__ returns one (image, label) pair.
@@ -77,7 +75,7 @@ class _ImageDataset(Dataset):
 
 
 class _AucmediDataLoader(DataLoader):
-    """DataLoader subclass that mirrors the attribute contract of WrapperLoader.
+    """DataLoader subclass.
 
     model.predict() reads has_* from the loader itself (not dataset), so they
     must be set on the DataLoader instance too.

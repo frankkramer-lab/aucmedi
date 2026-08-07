@@ -308,7 +308,7 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
 # -----------------------------------------------------#
 #          Evaluation Performance - CSV file          #
 # -----------------------------------------------------#
-def evalby_csv(metrics, out_path, class_names, suffix=None,
+def evalby_csv(metrics, out_path, class_names, round_decimals=3, suffix=None,
                 included_metrics = ["Sensitivity", "Specificity", "Precision", "FPR", "FNR", "FDR", "Accuracy", "F1"]):
     # Obtain filename to
     filename = "metrics.performance"
@@ -318,5 +318,7 @@ def evalby_csv(metrics, out_path, class_names, suffix=None,
     path_csv = os.path.join(out_path, filename)
 
     metrics = metrics[metrics["metric"].isin(included_metrics)]
+    # Round metrics to specified decimal places
+    metrics["score"] = metrics["score"].round(decimals=round_decimals)
     # Store file to disk
     metrics.to_csv(path_csv, index=False)

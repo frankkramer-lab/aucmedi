@@ -168,12 +168,12 @@ class MultiLabelFocalLoss(nn.Module):
         # Apply focal loss weight
         loss = focal_weight * bce_loss
 
-        # Sum over classes for each sample
         if self.reduction == "mean":
             return loss.mean()
         elif self.reduction == "sum":
             return loss.sum()
         elif self.reduction == "sum_mean":
+            # Sum over classes for each sample
             loss = loss.sum(dim=1)
             return loss.mean()
         return loss

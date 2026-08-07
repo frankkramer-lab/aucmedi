@@ -93,6 +93,17 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     else:
         agg_fun = aggregate
 
+    # Unwrap DataLoader to access the underlying Dataset/BatchGenerator attributes
+    num_workers = 0
+    batch_size = None
+    shuffle = False
+    if isinstance(prediction_generator, DataLoader):
+        num_workers = getattr(prediction_generator, "num_workers", 0)
+        batch_size = prediction_generator.batch_size
+        shuffle = getattr(prediction_generator, "shuffle", False)
+        # TODO: capture sampler
+        prediction_generator = prediction_generator.dataset
+
     # Initialize image augmentation if none provided (only flip, rotate)
     if prediction_generator.data_aug is None and len(model.input_shape) == 3:
         data_aug = ImageAugmentation(
@@ -135,19 +146,13 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     # Multiply sample list for prediction according to number of cycles
     samples_aug = np.repeat(prediction_generator.samples, n_cycles)
 
-    loader_args = {}
-    if isinstance(prediction_generator, DataLoader):
-        num_workers = getattr(prediction_generator, "num_workers", 0)
-        batch_size = prediction_generator.batch_size
-        shuffle = prediction_generator.shuffle
-        # TODO: capture sampler
-        prediction_generator = prediction_generator.dataset
     # Assume prediction_generator is a BatchGenerator or DataGenerator (Pytorch Dataset) and use its attributes directly
     loader_args = prediction_generator.__dict__
     num_workers = getattr(prediction_generator, "num_workers", num_workers)
     batch_size = getattr(prediction_generator, "batch_size", batch_size)
     shuffle = getattr(prediction_generator, "shuffle", shuffle)
     loader_args.setdefault("num_workers", num_workers)
+    loader_args.setdefault("batch_size", batch_size)
 
     # Re-initialize BatchLoader for inference
     aug_loader = create_batch_loader(

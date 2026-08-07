@@ -58,7 +58,8 @@ class AutoML_block_evaluate(unittest.TestCase):
             data["sample_" + str(i)] = np.random.randint(4)
         self.tmp_csv = tempfile.NamedTemporaryFile(mode="w",
                                                    prefix="tmp.aucmedi.",
-                                                   suffix=".csv")
+                                                   suffix=".csv",
+                                                   delete=False)
         df = pd.DataFrame.from_dict(data, orient="index", columns=["CLASS"])
         df.index.name = "SAMPLE"
         df.to_csv(self.tmp_csv.name, index=True, header=True)
@@ -85,7 +86,8 @@ class AutoML_block_evaluate(unittest.TestCase):
         # Define config
         self.pred_path = tempfile.NamedTemporaryFile(mode="w",
                                                      prefix="tmp.aucmedi.",
-                                                     suffix=".pred.csv")
+                                                     suffix=".pred.csv",
+                                                     delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": self.model_dir.name,
@@ -97,6 +99,14 @@ class AutoML_block_evaluate(unittest.TestCase):
         }
         # Run AutoML inference block
         block_predict(config)
+
+    @classmethod
+    def tearDownClass(self):
+        for path in (self.tmp_csv.name, self.pred_path.name):
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
 
     #-------------------------------------------------#
     #              Performance Evaluation             #

@@ -69,7 +69,8 @@ class AutoML_block_predict(unittest.TestCase):
             data["sample_" + str(i)] = np.random.randint(4)
         self.tmp_csv = tempfile.NamedTemporaryFile(mode="w",
                                                    prefix="tmp.aucmedi.",
-                                                   suffix=".csv")
+                                                   suffix=".csv",
+                                                   delete=False)
         df = pd.DataFrame.from_dict(data, orient="index", columns=["CLASS"])
         df.index.name = "SAMPLE"
         df.to_csv(self.tmp_csv.name, index=True, header=True)
@@ -85,11 +86,20 @@ class AutoML_block_predict(unittest.TestCase):
             data["sample_" + str(i)] = labels_ohe
         self.tmp_csv_ohe = tempfile.NamedTemporaryFile(mode="w",
                                                        prefix="tmp.aucmedi.",
-                                                       suffix=".csv")
+                                                       suffix=".csv",
+                                                       delete=False)
         df = pd.DataFrame.from_dict(data, orient="index",
                                     columns=["a", "b", "c", "d"])
         df.index.name = "SAMPLE"
         df.to_csv(self.tmp_csv_ohe.name, index=True, header=True)
+
+    @classmethod
+    def tearDownClass(self):
+        for path in (self.tmp_csv.name, self.tmp_csv_ohe.name):
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
 
     #-------------------------------------------------#
     #                Analysis: Minimal                #
@@ -120,7 +130,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": input_dir.name,
@@ -130,18 +141,24 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_minimal_multilabel(self):
         # Initialize temporary directory
@@ -168,7 +185,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": input_dir.name,
@@ -178,14 +196,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_minimal_3D(self):
         # Initialize temporary directory
@@ -213,7 +237,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data3D.name,
             "path_modeldir": input_dir.name,
@@ -223,14 +248,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_minimal_xai(self):
         # Initialize temporary directory
@@ -258,7 +289,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         xai_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                               suffix=".xai")
         config = {
@@ -270,20 +302,26 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": "gradcam",
             "xai_directory": xai_dir.name,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
 
-        self.assertTrue(len(os.listdir(xai_dir.name))==25)
+            self.assertTrue(len(os.listdir(xai_dir.name))==25)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     #-------------------------------------------------#
     #                Analysis: Standard               #
@@ -313,7 +351,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": input_dir.name,
@@ -323,14 +362,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_standard_xai(self):
         # Initialize temporary directory
@@ -357,7 +402,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         xai_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                               suffix=".xai")
         config = {
@@ -369,16 +415,22 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": "gradcam",
             "xai_directory": xai_dir.name,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
 
-        self.assertTrue(len(os.listdir(xai_dir.name))==25)
+            self.assertTrue(len(os.listdir(xai_dir.name))==25)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_standard_multilabel(self):
         # Initialize temporary directory
@@ -404,7 +456,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": input_dir.name,
@@ -414,14 +467,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_standard_3D(self):
         # Initialize temporary directory
@@ -449,7 +508,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data3D.name,
             "path_modeldir": input_dir.name,
@@ -459,14 +519,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     #-------------------------------------------------#
     #               Analysis: Composite               #
@@ -496,7 +562,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": input_dir.name,
@@ -506,14 +573,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_composite_multilabel(self):
         # Initialize temporary directory
@@ -540,7 +613,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data2D.name,
             "path_modeldir": input_dir.name,
@@ -550,14 +624,20 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_composite_3D(self):
         # Initialize temporary directory
@@ -585,7 +665,8 @@ class AutoML_block_predict(unittest.TestCase):
         # Define config
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
+                                                 suffix=".pred.csv",
+                                                 delete=False)
         config = {
             "path_imagedir": self.tmp_data3D.name,
             "path_modeldir": input_dir.name,
@@ -595,11 +676,17 @@ class AutoML_block_predict(unittest.TestCase):
             "xai_method": None,
             "xai_directory": None,
         }
-        # Run AutoML inference block
-        block_predict(config)
+        try:
+            # Run AutoML inference block
+            block_predict(config)
 
-        self.assertTrue(os.path.exists(tmp_output.name))
-        preds = pd.read_csv(tmp_output.name)
-        self.assertTrue(isinstance(preds, pd.DataFrame))
-        self.assertTrue(preds.shape[0] == 25)
-        self.assertTrue(preds.shape[1] == 5)
+            self.assertTrue(os.path.exists(tmp_output.name))
+            preds = pd.read_csv(tmp_output.name)
+            self.assertTrue(isinstance(preds, pd.DataFrame))
+            self.assertTrue(preds.shape[0] == 25)
+            self.assertTrue(preds.shape[1] == 5)
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass

@@ -81,7 +81,7 @@ def cli_core():
 #-----------------------------------------------------#
 def cli_training(subparsers):
     """ Parameter overview for the training process.
-
+     # TODO: Add grayscale config argument, consider changing three_dim to two_dim for consistency
     | Category      | Argument               | Type       | Default        | Description |
     | :------------ | :--------------------- | :--------- | :------------- | :---------- |
     | I/O           | `--path_imagedir`      | str        | `training`     | Path to the directory containing the images. |

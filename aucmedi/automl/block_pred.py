@@ -72,12 +72,12 @@ def block_predict(config):
         meta_training = json.load(json_file)
 
     # Define neural network parameters
-    nn_paras = {"n_labels": 1,                                  # placeholder
-                "channels": 1,                                  # placeholder
+    nn_paras = {"n_labels": len(meta_training["class_names"]),
+                "channels": 3,
     }
     # Select input shape for 3D
     if meta_training["three_dim"]:
-        nn_paras["input_shape"] = tuple(meta_training["shape_3D"])
+        nn_paras["input_resolution"] = tuple(meta_training["shape_3D"])
 
     # Subfunctions
     sf_list = []
@@ -88,7 +88,7 @@ def block_predict(config):
         sf_chromer = Chromer(target="rgb")
         sf_list.extend([sf_norm, sf_pad, sf_crop, sf_chromer])
 
-    # Define parameters for DataGenerator
+    # Define parameters for DataLoader
     paras_datagen = {
         "path_imagedir": config["path_imagedir"],
         "batch_size": config["batch_size"],
@@ -98,9 +98,10 @@ def block_predict(config):
         "sample_weights": None,
         "seed": None,
         "image_format": image_format,
-        "workers": config["workers"],
+        "num_workers": config["workers"],
         "shuffle": False,
         "grayscale": False,
+        "two_dim": not meta_training["three_dim"],
     }
     if not meta_training["three_dim"] : paras_datagen["loader"] = image_loader
     else : paras_datagen["loader"] = sitk_loader
@@ -113,14 +114,14 @@ def block_predict(config):
         else : arch_dim = "3D." + meta_training["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
-        # Build DataGenerator
-        pred_gen = DataGenerator(samples=index_list,
+        # Build DataLoader
+        pred_gen = create_batch_loader(samples=index_list,
                                  labels=None,
-                                 resize=model.meta_input,
-                                 standardize_mode=model.meta_standardize,
+                                 resize=model.arch_resolution,
+                                 standardize_mode=model.arch_standardize,
                                  **paras_datagen)
         # Load model
-        path_model = os.path.join(config["path_modeldir"], "model.last.keras")
+        path_model = os.path.join(config["path_modeldir"], "model.last")
         model.load(path_model)
         # Start model inference
         preds = model.predict(prediction_generator=pred_gen)
@@ -131,15 +132,15 @@ def block_predict(config):
         else : arch_dim = "3D." + meta_training["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
-        # Build DataGenerator
-        pred_gen = DataGenerator(samples=index_list,
+        # Build DataLoader
+        pred_gen = create_batch_loader(samples=index_list,
                                  labels=None,
-                                 resize=model.meta_input,
-                                 standardize_mode=model.meta_standardize,
+                                 resize=model.arch_resolution,
+                                 standardize_mode=model.arch_standardize,
                                  **paras_datagen)
         # Load model
         path_model = os.path.join(config["path_modeldir"],
-                                  "model.best_loss.keras")
+                                  "model.best_loss")
         model.load(path_model)
         # Start model inference via Augmenting
         preds = predict_augmenting(model, pred_gen)
@@ -154,8 +155,8 @@ def block_predict(config):
         el = Composite(model_list, metalearner=meta_training["metalearner"],
                        k_fold=len(meta_training["architecture"]))
 
-        # Build DataGenerator
-        pred_gen = DataGenerator(samples=index_list,
+        # Build DataLoader
+        pred_gen = create_batch_loader(samples=index_list,
                                  labels=None,
                                  resize=None,
                                  standardize_mode=None,
@@ -181,5 +182,5 @@ def block_predict(config):
         if not os.path.exists(config["xai_directory"]):
             os.mkdir(config["xai_directory"])
         # Run XAI decoder
-        xai_decoder(pred_gen, model, preds=preds, method=config["xai_method"],
+        xai_decoder(pred_gen.dataset, model, preds=preds, method=config["xai_method"],
                     layerName=None, alpha=0.4, out_path=config["xai_directory"])

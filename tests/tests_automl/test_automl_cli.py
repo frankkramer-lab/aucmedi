@@ -144,14 +144,21 @@ class AutoML_CLI(unittest.TestCase):
         # Prediction
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
-        args = ["aucmedi", "prediction"]
-        args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
-                                                       "class_0"),
-                       "--path_modeldir", self.tmp_model.name,
-                       "--path_pred", tmp_output.name]
-        with patch.object(sys, "argv", args + args_config):
-            main()
+                                                 suffix=".pred.csv",
+                                                 delete=False)
+        try:
+            args = ["aucmedi", "prediction"]
+            args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
+                                                           "class_0"),
+                           "--path_modeldir", self.tmp_model.name,
+                           "--path_pred", tmp_output.name]
+            with patch.object(sys, "argv", args + args_config):
+                main()
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_prediction_args(self):
         if which("aucmedi") is None : return    # only check unittesting for build (install via pip)
@@ -193,23 +200,30 @@ class AutoML_CLI(unittest.TestCase):
         # Prediction
         tmp_output = tempfile.NamedTemporaryFile(mode="w",
                                                  prefix="tmp.aucmedi.",
-                                                 suffix=".pred.csv")
-        args = ["aucmedi", "prediction"]
-        args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
-                                                       "class_0"),
-                       "--path_modeldir", self.tmp_model.name,
-                       "--path_pred", tmp_output.name]
-        with patch.object(sys, "argv", args + args_config):
-            main()
-        # Evaluation
-        tmp_eval = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
-                                               suffix=".eval")
-        args = ["aucmedi", "evaluation"]
-        args_config = ["--path_imagedir", self.tmp_data.name,
-                       "--path_pred", tmp_output.name,
-                       "--path_evaldir", tmp_eval.name]
-        with patch.object(sys, "argv", args + args_config):
-            main()
+                                                 suffix=".pred.csv",
+                                                 delete=False)
+        try:
+            args = ["aucmedi", "prediction"]
+            args_config = ["--path_imagedir", os.path.join(self.tmp_data.name,
+                                                           "class_0"),
+                           "--path_modeldir", self.tmp_model.name,
+                           "--path_pred", tmp_output.name]
+            with patch.object(sys, "argv", args + args_config):
+                main()
+            # Evaluation
+            tmp_eval = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                   suffix=".eval")
+            args = ["aucmedi", "evaluation"]
+            args_config = ["--path_imagedir", self.tmp_data.name,
+                           "--path_pred", tmp_output.name,
+                           "--path_evaldir", tmp_eval.name]
+            with patch.object(sys, "argv", args + args_config):
+                main()
+        finally:
+            try:
+                os.unlink(tmp_output.name)
+            except OSError:
+                pass
 
     def test_evaluation_args(self):
         if which("aucmedi") is None : return    # only check unittesting for build (install via pip)

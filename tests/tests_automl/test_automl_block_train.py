@@ -68,7 +68,8 @@ class AutoML_block_train(unittest.TestCase):
             data["sample_" + str(i)] = np.random.randint(4)
         self.tmp_csv = tempfile.NamedTemporaryFile(mode="w",
                                                    prefix="tmp.aucmedi.",
-                                                   suffix=".csv")
+                                                   suffix=".csv",
+                                                   delete=False)
         df = pd.DataFrame.from_dict(data, orient="index", columns=["CLASS"])
         df.index.name = "SAMPLE"
         df.to_csv(self.tmp_csv.name, index=True, header=True)
@@ -84,7 +85,8 @@ class AutoML_block_train(unittest.TestCase):
             data["sample_" + str(i)] = labels_ohe
         self.tmp_csv_ohe = tempfile.NamedTemporaryFile(mode="w",
                                                        prefix="tmp.aucmedi.",
-                                                       suffix=".csv")
+                                                       suffix=".csv",
+                                                       delete=False)
         df = pd.DataFrame.from_dict(data, orient="index",
                                     columns=["a", "b", "c", "d"])
         df.index.name = "SAMPLE"
@@ -116,7 +118,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -144,7 +146,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -172,7 +174,7 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -202,8 +204,8 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -230,8 +232,8 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
@@ -259,8 +261,8 @@ class AutoML_block_train(unittest.TestCase):
         # Run AutoML training block
         block_train(config)
 
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last.keras")))
-        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss.keras")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))

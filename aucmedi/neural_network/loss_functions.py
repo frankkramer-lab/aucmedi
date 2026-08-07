@@ -64,8 +64,12 @@ class MultiClassFocalLoss(nn.Module):
             hasattr(alpha, "__iter__") and not isinstance(alpha, torch.Tensor)
         ):
             self.alpha = torch.Tensor(alpha)
-        else:
+        elif isinstance(self.alpha, float):
             self.alpha = alpha
+        else:
+            raise ValueError(
+                "alpha must be a float, list, tuple, or tensor of class weights."
+            )
 
     def forward(self, inputs, targets):
         """Focal loss for multi-class classification.
@@ -74,7 +78,14 @@ class MultiClassFocalLoss(nn.Module):
         :param targets: Ground truth labels.
                         Shape: (batch_size, num_classes) one-hot encoded
         """
-        alpha = self.alpha.to(inputs.device)
+        if isinstance(self.alpha, torch.Tensor):
+            alpha = self.alpha.to(inputs.device)
+        elif isinstance(self.alpha, float):
+            alpha = self.alpha
+        else:
+            raise ValueError(
+                "alpha must be a float, list, tuple, or tensor of class weights."
+            )
 
         # Convert logits to probabilities with softmax
         probs = F.softmax(inputs, dim=1)

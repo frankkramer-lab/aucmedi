@@ -72,7 +72,7 @@ class LossfunctionsTEST(unittest.TestCase):
     # -------------------------------------------------#
     #                 Categorical Crossentropy         #
     # -------------------------------------------------#
-    def test_Keras(self):
+    def test_Torch(self):
         loss_ce = CrossEntropyLoss()
         model = NeuralNetwork(
             n_labels=4,
@@ -85,7 +85,7 @@ class LossfunctionsTEST(unittest.TestCase):
     # -------------------------------------------------#
     #                Focal Loss: Binary               #
     # -------------------------------------------------#
-    def test_FocalLoss_binary(self):
+    def test_BinaryFocalLoss(self):
         lf = BinaryFocalLoss(alpha=0.25, gamma=2)
         model = NeuralNetwork(
             n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
@@ -95,7 +95,7 @@ class LossfunctionsTEST(unittest.TestCase):
     # -------------------------------------------------#
     #             Focal Loss: Categorical             #
     # -------------------------------------------------#
-    def test_FocalLoss_categorical(self):
+    def test_MultiClassFocalLoss(self):
         lf = MultiClassFocalLoss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
         model = NeuralNetwork(
             n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)
@@ -105,7 +105,7 @@ class LossfunctionsTEST(unittest.TestCase):
     # -------------------------------------------------#
     #             Focal Loss: Multi-Label             #
     # -------------------------------------------------#
-    def test_FocalLoss_multilabel(self):
+    def test_MultiLabelFocalLoss(self):
         lf = MultiLabelFocalLoss(alpha=[0.25, 0.25, 0.5, 4.0], gamma=2)
         model = NeuralNetwork(
             n_labels=4, channels=3, loss=lf, input_resolution=(32, 32)

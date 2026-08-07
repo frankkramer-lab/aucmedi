@@ -88,7 +88,6 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Will be only returned if `out_path` parameter is `None`.
     """
     # Initialize & access some variables
-    batch_size = data_gen.batch_size
     n_classes = model.n_labels
     sample_list = data_gen.samples
     # Prepare XAI output methods

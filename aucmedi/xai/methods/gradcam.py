@@ -86,6 +86,9 @@ class GradCAM(XAImethod_Base):
         """
         # Iterate over all layers (named_modules() may return a generator)
         for name, layer in reversed(list(self.model.named_modules())):
+            # Skip layers without weights (e.g. Sequential, ReLU, Dropout, pooling)
+            if not hasattr(layer, "weight") or layer.weight is None:
+                continue
             # Check to see if the layer has a 4D output -> Return layer
             if len(layer.weight.shape) >= 4:
                 return name

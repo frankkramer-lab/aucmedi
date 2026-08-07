@@ -38,13 +38,10 @@ def compute_class_weights(ohe_array, method="balanced"):
     ???+ example "Example"
         ```python
         # Compute class weights
-        cw_loss, cw_fit = compute_class_weights(class_ohe)
+        cw_loss = compute_class_weights(class_ohe)
 
         # Provide class weights to loss function
         model = NeuralNetwork(nclasses, channels=3, loss=categorical_focal_loss(cw_loss))
-
-        # Provide class weights to keras fit()
-        model.train(index_list, epochs=50, class_weights=cw_fit)
         ```
 
     ??? abstract "Based on Reference"
@@ -56,8 +53,7 @@ def compute_class_weights(ohe_array, method="balanced"):
         method (str):               Dictionary or modus, how class weights should be computed.
 
     Returns:
-        class_weights_list (numpy.ndarray):     Class weight list which can be feeded to a loss function.
-        class_weights_dict (dict):              Class weight dictionary.
+        class_weights_list (numpy.ndarray):     Class weight list which can be fed to a loss function.
     """
     # Obtain sparse categorical array and number of classes
     class_array = np.argmax(ohe_array, axis=-1)
@@ -66,10 +62,8 @@ def compute_class_weights(ohe_array, method="balanced"):
     class_weights_list = compute_class_weight(
         class_weight=method, classes=n_classes, y=class_array
     )
-    # Convert class weight array to dictionary
-    class_weights_dict = dict(enumerate(class_weights_list))
-    # Return resulting class weights as list and dictionary
-    return class_weights_list, class_weights_dict
+    # Return resulting class weights as list
+    return class_weights_list
 
 
 # -----------------------------------------------------#

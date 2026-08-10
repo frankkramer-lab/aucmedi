@@ -44,6 +44,8 @@ class AutoML_block_train(unittest.TestCase):
                                                       suffix=".data2D")
         self.tmp_data3D = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
                                                     suffix=".data3D")
+        self.tmp_data_gray = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                      suffix=".data_gray")
 
         # Create RGB data
         for i in range(0, 25):
@@ -61,6 +63,14 @@ class AutoML_block_train(unittest.TestCase):
             image_sitk = sitk.GetImageFromArray(img_hu)
             image_sitk.SetSpacing([1.75,1.25,0.75])
             sitk.WriteImage(image_sitk, path_sample)
+            
+        # Create grayscale data
+        for i in range(0, 25):
+            img_gray = np.random.rand(32, 32) * 255
+            imgGray_pillow = Image.fromarray(img_gray.astype(np.uint8))
+            index = "sample_" + str(i) + ".png"
+            path_sampleGray = os.path.join(self.tmp_data_gray.name, index)
+            imgGray_pillow.save(path_sampleGray)
 
         # Create multi-class classification labels
         data = {}
@@ -179,6 +189,33 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
+    def test_minimal_gray(self):
+        # Initialize temporary directory
+        output_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".output")
+        # Define config
+        config = {
+            "interface": "csv",
+            "path_imagedir": self.tmp_data_gray.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": output_dir.name,
+            "analysis": "minimal",
+            "ohe": False,
+            "three_dim": False,
+            "shape_3D": (128,128,128),
+            "epochs": 8,
+            "batch_size": 4,
+            "workers": 1,
+            "metalearner": "logistic_regression",
+            "architecture": "Vanilla"
+        }
+        # Run AutoML training block
+        block_train(config)
+
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
     #-------------------------------------------------#
     #                Analysis: Standard               #
     #-------------------------------------------------#
@@ -267,6 +304,34 @@ class AutoML_block_train(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
         self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
 
+    def test_standard_gray(self):
+        # Initialize temporary directory
+        output_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".output")
+        # Define config
+        config = {
+            "interface": "csv",
+            "path_imagedir": self.tmp_data_gray.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": output_dir.name,
+            "analysis": "standard",
+            "ohe": False,
+            "three_dim": False,
+            "epochs": 8,
+            "batch_size": 4,
+            "workers": 1,
+            "metalearner": "logistic_regression",
+            "architecture": "Vanilla"
+        }
+        # Run AutoML training block
+        block_train(config)
+
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.last")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "model.best_loss")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "logs.training.csv")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "meta.training.json")))
+        self.assertTrue(os.path.exists(os.path.join(output_dir.name, "plot.fitting_course.png")))
+
     #-------------------------------------------------#
     #               Analysis: Composite               #
     #-------------------------------------------------#
@@ -278,6 +343,30 @@ class AutoML_block_train(unittest.TestCase):
         config = {
             "interface": "csv",
             "path_imagedir": self.tmp_data2D.name,
+            "path_gt": self.tmp_csv.name,
+            "path_modeldir": output_dir.name,
+            "analysis": "advanced",
+            "ohe": False,
+            "three_dim": False,
+            "epochs": 8,
+            "batch_size": 1,
+            "workers": 1,
+            "metalearner": "logistic_regression",
+            "architecture": ["Vanilla", "Vanilla"]
+        }
+        # Run AutoML training block
+        block_train(config)
+
+        self.assertTrue(len(os.listdir(output_dir.name))==7)
+
+    def test_composite_gray(self):
+        # Initialize temporary directory
+        output_dir = tempfile.TemporaryDirectory(prefix="tmp.aucmedi.",
+                                                 suffix=".output")
+        # Define config
+        config = {
+            "interface": "csv",
+            "path_imagedir": self.tmp_data_gray.name,
             "path_gt": self.tmp_csv.name,
             "path_modeldir": output_dir.name,
             "analysis": "advanced",

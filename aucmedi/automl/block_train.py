@@ -166,6 +166,7 @@ def block_train(config):
 
     # Subfunctions
     sf_list = []
+    # TODO: Decouple 3D from grayscale
     if config["three_dim"]:
         sf_norm = Standardize(mode="grayscale")
         sf_pad = Padding(mode="constant", shape=config["shape_3D"])

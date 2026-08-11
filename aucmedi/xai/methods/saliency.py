@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
-import tensorflow as tf
+import torch
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
 
@@ -33,17 +33,11 @@ class SaliencyMap(XAImethod_Base):
 
     Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
-    ??? abstract "Reference - Implementation #1"
-        Author: Yasuhiro Kubota <br>
-        GitHub Profile: [https://github.com/keisen](https://github.com/keisen) <br>
-        Date: Aug 11, 2020 <br>
-        [https://github.com/keisen/tf-keras-vis/](https://github.com/keisen/tf-keras-vis/) <br>
-
-    ??? abstract "Reference - Implementation #2"
-        Author: Huynh Ngoc Anh <br>
-        GitHub Profile: [https://github.com/experiencor](https://github.com/experiencor) <br>
-        Date: Jun 23, 2017 <br>
-        [https://github.com/experiencor/deep-viz-keras/](https://github.com/experiencor/deep-viz-keras/) <br>
+    ??? abstract "Reference - Implementation"
+        Author: Jacob Gil <br>
+        GitHub Profile: [https://github.com/jacobgil](https://github.com/jacobgil) <br>
+        Date: 2021 <br>
+        [https://github.com/jacobgil/pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam) <br>
 
     ??? abstract "Reference - Publication"
         Karen Simonyan, Andrea Vedaldi, Andrew Zisserman. 20 Dec 2013.
@@ -58,7 +52,7 @@ class SaliencyMap(XAImethod_Base):
         """ Initialization function for creating a Saliency Map as XAI Method object.
 
         Args:
-            model (keras.model):               Keras model object.
+            model (nn.Module):   PyTorch model object.
             layerName (str):                   Not required in Saliency Maps, but defined by Abstract Base Class.
         """
         # Cache class parameters
@@ -86,17 +80,31 @@ class SaliencyMap(XAImethod_Base):
         Returns:
             heatmap (numpy.ndarray):            Computed Saliency Map for provided image.
         """
-        # Compute gradient for desierd class index
-        with tf.GradientTape() as tape:
-            inputs = tf.cast(image, tf.float32)
-            tape.watch(inputs)
+        # Convert image to a tensor on the same device as the model
+        device = next(self.model.parameters()).device
+        inputs = torch.as_tensor(image, dtype=torch.float32, device=device)
+        # Track the gradient with respect to the image
+        inputs = inputs.detach().clone().requires_grad_(True)
+
+        # Cache & switch training mode for a deterministic forward pass
+        was_training = self.model.training
+        self.model.eval()
+
+        try:
+            # Compute gradient for desierd class index
+            self.model.zero_grad()
             preds = self.model(inputs)
-            loss = preds[:, class_index]
-        gradient = tape.gradient(loss, inputs)
-        # Obtain maximum gradient based on feature map of last conv layer
-        gradient = tf.reduce_max(gradient, axis=-1)
+            loss = preds[:, class_index].sum()
+            loss.backward()
+            gradient = inputs.grad
+        finally:
+            if was_training:
+                self.model.train()
+
+        # Obtain maximum gradient of the channel axis
+        gradient = gradient.max(dim=1)[0]
         # Convert to NumPy & Remove batch axis
-        heatmap = gradient.numpy()[0]
+        heatmap = gradient.detach().cpu().numpy()[0]
 
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)

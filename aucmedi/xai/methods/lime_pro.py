@@ -23,7 +23,7 @@
 import numpy as np
 from lime import lime_image
 # Internal Libraries
-from aucmedi.xai.methods.xai_base import XAImethod_Base
+from aucmedi.xai.methods.xai_base import XAImethod_Base, to_numpy, predict_proba
 
 #-----------------------------------------------------#
 #                  LIME: Pro Features                 #
@@ -50,7 +50,7 @@ class LimePro(XAImethod_Base):
         """ Initialization function for creating a Lime Pro Map as XAI Method object.
 
         Args:
-            model (keras.model):            Keras model object.
+            model (nn.Module):              PyTorch model object.
             layerName (str):                Not required in LIME Pro/Con Maps, but defined by Abstract Base Class.
             num_samples (int):              Number of iterations for LIME instance explanation.
         """
@@ -80,10 +80,17 @@ class LimePro(XAImethod_Base):
         Returns:
             heatmap (numpy.ndarray):            Computed Lime Pro Map for provided image.
         """
+        # LIME operates on channel-last images: (C,H,W) -> (H,W,C)
+        image = np.moveaxis(to_numpy(image)[0], 0, -1)
+
+        def classifier_fn(images):
+            # Convert the channel-last batch of LIME back to channel-first
+            return predict_proba(self.model, np.moveaxis(np.asarray(images), -1, 1))
+
         # Initialize LIME explainer
         explainer = lime_image.LimeImageExplainer()
-        explanation = explainer.explain_instance(image[0].astype("double"),
-                                self.model.predict, hide_color=0,
+        explanation = explainer.explain_instance(image.astype("double"),
+                                classifier_fn, hide_color=0,
                                 labels=(class_index,),
                                 num_samples=self.num_samples)
         # Obtain PRO explanation mask

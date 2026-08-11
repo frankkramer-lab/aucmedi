@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
-import tensorflow as tf
+import torch
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
 
@@ -34,10 +34,8 @@ class IntegratedGradients(XAImethod_Base):
     Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
     ??? abstract "Reference - Implementation"
-        Author: Aakash Kumar Nain <br>
-        GitHub Profile: [https://github.com/AakashKumarNain](https://github.com/AakashKumarNain) <br>
-        Date: Jun 02, 2020 <br>
-        [https://keras.io/examples/vision/integrated_gradients](https://keras.io/examples/vision/integrated_gradients) <br>
+        Captum - Model Interpretability for PyTorch <br>
+        [https://captum.ai/api/integrated_gradients.html](https://captum.ai/api/integrated_gradients.html) <br>
 
     ??? abstract "Reference - Publication"
         Mukund Sundararajan, Ankur Taly, Qiqi Yan. 04 Mar 2017.
@@ -52,7 +50,7 @@ class IntegratedGradients(XAImethod_Base):
         """ Initialization function for creating a Integrated Gradients Map as XAI Method object.
 
         Args:
-            model (keras.model):            Keras model object.
+            model (nn.Module):              PyTorch model object.
             layerName (str):                Not required in Integrated Gradients Maps, but defined by Abstract Base Class.
             num_steps (int):                Number of iterations for interpolation.
         """
@@ -82,38 +80,45 @@ class IntegratedGradients(XAImethod_Base):
         Returns:
             heatmap (numpy.ndarray):            Computed Integrated Gradients Map for provided image.
         """
+        # Convert image to a tensor on the same device as the model
+        device = next(self.model.parameters()).device
+        image = torch.as_tensor(image, dtype=torch.float32, device=device).detach()
         # Perform interpolation
-        baseline = np.zeros(image.shape).astype(np.float32)
-        interpolated_imgs = []
-        for step in range(0, self.num_steps + 1):
-            cii = baseline + (step / self.num_steps) * (image - baseline)
-            interpolated_imgs.append(cii)
-        interpolated_imgs = np.array(interpolated_imgs).astype(np.float32)
+        baseline = torch.zeros_like(image)
+
+        # Cache & switch training mode for a deterministic forward pass
+        was_training = self.model.training
+        self.model.eval()
 
         # Get the gradients for each interpolated image
         grads = []
-        for int_img in interpolated_imgs:
-            # Compute gradient
-            with tf.GradientTape() as tape:
-                inputs = tf.cast(int_img, tf.float32)
-                tape.watch(inputs)
+        try:
+            for step in range(0, self.num_steps + 1):
+                cii = baseline + (step / self.num_steps) * (image - baseline)
+                # Track the gradient with respect to the interpolated image
+                inputs = cii.detach().clone().requires_grad_(True)
+                # Compute gradient
+                self.model.zero_grad()
                 preds = self.model(inputs)
-                loss = preds[:, class_index]
-            gradient = tape.gradient(loss, inputs)
-            # Add to gradient list
-            grads.append(gradient[0])
-        grads = tf.convert_to_tensor(grads, dtype=tf.float32)
+                loss = preds[:, class_index].sum()
+                loss.backward()
+                # Add to gradient list
+                grads.append(inputs.grad[0])
+        finally:
+            if was_training:
+                self.model.train()
+        grads = torch.stack(grads)
 
         # Approximate the integral using the trapezoidal rule
         grads = (grads[:-1] + grads[1:]) / 2.0
-        avg_grads = tf.reduce_mean(grads, axis=0)
+        avg_grads = grads.mean(dim=0)
         # Calculate integrated gradients
         integrated_grads = (image - baseline) * avg_grads
-        # Obtain maximum gradient
-        integrated_grads = tf.reduce_max(integrated_grads, axis=-1)
+        # Obtain maximum gradient of the channel axis
+        integrated_grads = integrated_grads.max(dim=1)[0]
 
         # Convert to NumPy & Remove batch axis
-        heatmap = integrated_grads.numpy()[0,:,:]
+        heatmap = integrated_grads.detach().cpu().numpy()[0]
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)
         denom = (heatmap.max() - heatmap.min()) + eps

@@ -21,7 +21,7 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
-import tensorflow as tf
+import torch
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
 
@@ -34,21 +34,15 @@ class GuidedBackpropagation(XAImethod_Base):
     Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
     ??? abstract "Reference - Implementation #1"
-        Author: Hoa Nguyen <br>
-        GitHub Profile: [https://nguyenhoa93.github.io/](https://nguyenhoa93.github.io/) <br>
-        Date: Jul 29, 2020 <br>
-        [https://stackoverflow.com/questions/55924331/how-to-apply-guided-backprop-in-tensorflow-2-0](https://stackoverflow.com/questions/55924331/how-to-apply-guided-backprop-in-tensorflow-2-0) <br>
+        Author: Conor O'Sullivan <br>
+        Date: Apr 9, 2025 <br>
+        [https://adataodyssey.com/guided-backpropagation/](https://adataodyssey.com/guided-backpropagation/) <br>
 
     ??? abstract "Reference - Implementation #2"
-        Author: Huynh Ngoc Anh <br>
-        GitHub Profile: [https://github.com/experiencor](https://github.com/experiencor) <br>
-        Date: Jun 23, 2017 <br>
-        [https://github.com/experiencor/deep-viz-keras/](https://github.com/experiencor/deep-viz-keras/) <br>
-
-    ??? abstract "Reference - Implementation #3"
-        Author: Tim <br>
-        Date: Jan 25, 2019 <br>
-        [https://stackoverflow.com/questions/54366935/make-a-deep-copy-of-a-keras-model-in-python](https://stackoverflow.com/questions/54366935/make-a-deep-copy-of-a-keras-model-in-python) <br>
+        Author: Jacob Gil <br>
+        GitHub Profile: [https://github.com/jacobgil](https://github.com/jacobgil) <br>
+        Date: 2021 <br>
+        [https://github.com/jacobgil/pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam) <br>
 
     ??? abstract "Reference - Publication"
         Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, Martin Riedmiller. 21 Dec 2014.
@@ -63,28 +57,33 @@ class GuidedBackpropagation(XAImethod_Base):
         """ Initialization function for creating Guided Backpropagation as XAI Method object.
 
         Args:
-            model (keras.model):               Keras model object.
+            model (nn.Module):                  PyTorch model object.
             layerName (str):                   Not required in Guided Backpropagation, but defined by Abstract Base Class.
         """
-        # Create a deep copy of the model
-        model_copy = tf.keras.models.clone_model(model)
-        model_copy.build(model.input.shape)
-        model_copy.compile(optimizer=model.optimizer, loss=model.loss)
-        model_copy.set_weights(model.get_weights())
-
-        # Define custom Relu activation function
-        @tf.custom_gradient
-        def guidedRelu(x):
-            def grad(dy):
-                return tf.cast(dy>0, "float32") * tf.cast(x>0, "float32") * dy
-            return tf.nn.relu(x), grad
-        # Replace Relu activation layers with custom Relu activation layer
-        layer_dict = [layer for layer in model_copy.layers if hasattr(layer, "activation")]
-        for layer in layer_dict:
-            if layer.activation == tf.keras.activations.relu:
-                layer.activation = guidedRelu
         # Cache class parameters
-        self.model = model_copy
+        self.model = model
+
+    #---------------------------------------------#
+    #             Guided ReLU Backward            #
+    #---------------------------------------------#
+    def guided_relu_hook(self, module, grad_input, grad_output):
+        """ Internal function. Backward hook which is applied on all ReLU layers.
+
+        Guided Backpropagation only backpropagates positive gradients. As PyTorch already
+        masked out the gradients of negative layer inputs, clipping the negative gradients
+        results in the guided gradient: `(input > 0) * (gradient > 0) * gradient`.
+
+        Args:
+            module (nn.Module):                 The ReLU layer on which the hook is applied.
+            grad_input (tuple of torch.Tensor): Gradients with respect to the input of the layer.
+            grad_output (tuple of torch.Tensor):Gradients with respect to the output of the layer.
+
+        Returns:
+            grad_input (tuple of torch.Tensor): Guided gradients replacing the original ones.
+        """
+        # Clip negative gradients while preserving unused (None) gradients
+        return tuple(None if grad is None else torch.clamp(grad, min=0.0)
+                     for grad in grad_input)
 
     #---------------------------------------------#
     #             Heatmap Computation             #
@@ -94,6 +93,11 @@ class GuidedBackpropagation(XAImethod_Base):
 
         ???+ attention
             Be aware that the image has to be provided in batch format.
+
+        ???+ attention
+            Guided Backpropagation is applied on all `torch.nn.ReLU` layers of the model.
+            Architectures calling the functional API (`torch.nn.functional.relu`) or
+            utilizing other activation functions result in a plain backpropagation.
 
         Args:
             image (numpy.ndarray):              Image matrix encoded as NumPy Array (provided as one-element batch).
@@ -108,17 +112,45 @@ class GuidedBackpropagation(XAImethod_Base):
         Returns:
             heatmap (numpy.ndarray):            Computed Guided Backpropagation for provided image.
         """
-        # Compute gradient for desierd class index
-        with tf.GradientTape() as tape:
-            inputs = tf.cast(image, tf.float32)
-            tape.watch(inputs)
+        # Convert image to a tensor on the same device as the model
+        device = next(self.model.parameters()).device
+        inputs = torch.as_tensor(image, dtype=torch.float32, device=device)
+        # Track the gradient with respect to the image
+        inputs = inputs.detach().clone().requires_grad_(True)
+
+        # Identify all ReLU layers on which the guided backpropagation is applied
+        relu_layers = [layer for layer in self.model.modules()
+                       if isinstance(layer, torch.nn.ReLU)]
+        # Cache & deactivate in-place computation, which is unsupported by backward hooks
+        inplace_cache = [layer.inplace for layer in relu_layers]
+        handles = []
+        for layer in relu_layers:
+            layer.inplace = False
+            handles.append(layer.register_full_backward_hook(self.guided_relu_hook))
+
+        # Cache & switch training mode for a deterministic forward pass
+        was_training = self.model.training
+        self.model.eval()
+
+        try:
+            # Compute gradient for desired class index
+            self.model.zero_grad()
             preds = self.model(inputs)
-            loss = preds[:, class_index]
-        gradient = tape.gradient(loss, inputs)
-        # Obtain maximum gradient based on feature map of last conv layer
-        gradient = tf.reduce_max(gradient, axis=-1)
+            loss = preds[:, class_index].sum()
+            loss.backward()
+            gradient = inputs.grad
+        finally:
+            for handle in handles:
+                handle.remove()
+            for layer, inplace in zip(relu_layers, inplace_cache):
+                layer.inplace = inplace
+            if was_training:
+                self.model.train()
+
+        # Obtain maximum gradient of the channel axis
+        gradient = gradient.max(dim=1)[0]
         # Convert to NumPy & Remove batch axis
-        heatmap = gradient.numpy()[0]
+        heatmap = gradient.detach().cpu().numpy()[0]
 
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)

@@ -22,6 +22,7 @@
 # External Libraries
 import numpy as np
 import os
+from torch.utils.data import DataLoader
 # AUCMEDI Libraries
 from aucmedi.xai.methods import xai_dict
 from aucmedi.utils.visualizer import *
@@ -56,13 +57,13 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 
     ???+ example "Example"
         ```python
-        # Create a DataGenerator for data I/O
-        datagen = DataGenerator(samples[:3], "images_xray/", labels=None, resize=(299, 299))
+        # Create a DataLoader for data I/O
+        datagen = create_batch_loader(samples[:3], "images_xray/", labels=None, resize=(299, 299))
 
         # Get a model
         model = NeuralNetwork(n_labels=3, channels=3, architecture="Xception",
                                input_shape=(299,299))
-        model.load("model.xray.keras")
+        model.load("model.xray.pt")
 
         # Make some predictions
         preds = model.predict(datagen)
@@ -72,23 +73,32 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
         ```
 
     Args:
-        data_gen (DataGenerator):           A data generator which will be used for inference.
+        data_gen (DataLoader):              A data loader which will be used for inference.
         model (NeuralNetwork):              Instance of a AUCMEDI neural network class.
         preds (numpy.ndarray):              NumPy Array of classification prediction encoded as OHE (output of a AUCMEDI prediction).
         method (str):                       XAI method class instance or index. By default, GradCAM is used as XAI method.
         layerName (str):                    Layer name of the convolutional layer for heatmap computation. If `None`, the last conv layer is used.
         overlay (bool):                     Switch deciding if XAI heatmap should be plotted as overlap on the original image.
-                                            If `False`, only the XAI heatmap will be stroed.
+                                            If `False`, only the XAI heatmap will be stored.
         alpha (float):                      Transparency value for heatmap overlap plotting on input image (range: [0-1]).
-        preprocess_overlay (bool):          Switch for Subfunction application on visualization. Only relevant if heatmaps are saved to disk.
-        out_path (str):                     Output path in which heatmaps are saved to disk as provided `image_format` (DataGenerator).
+        preprocess_overlay (bool):          Switch for subfunction application on visualization. Only relevant if heatmaps are saved to disk.
+        out_path (str):                     Output path in which heatmaps are saved to disk as provided `image_format` (DataLoader).
+
+    ???+ attention
+        Images are handled in the channel-first format of PyTorch: (C,H,W) for images and
+        (C,D,H,W) for volumes. Only the visualizations stored to disk are channel-last,
+        as required by the underlying PIL, matplotlib and ITK visualizers.
 
     Returns:
-        images (numpy.ndarray):             Combined array of images. Will be only returned if `out_path` parameter is `None`.
-        heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Will be only returned if `out_path` parameter is `None`.
+        images (numpy.ndarray):             Combined array of images encoded as channel-first.
+                                            Will be only returned if `out_path` parameter is `None`.
+        heatmaps (numpy.ndarray):           Combined array of XAI heatmaps. Heatmaps have no channel axis.
+                                            Will be only returned if `out_path` parameter is `None`.
     """
     # Initialize & access some variables
     n_classes = model.n_labels
+    # Get generator from loader
+    if isinstance(data_gen, DataLoader) : data_gen = data_gen.dataset
     sample_list = data_gen.samples
     # Prepare XAI output methods
     res_img = []
@@ -101,23 +111,25 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 
     # Iterate over all samples
     for i in range(0, len(sample_list)):
-        # Load overlay image
+        # Load overlay image (already channel-first)
         if preprocess_overlay:
-            img_org = data_gen.preprocess_image(i, 
-                                                run_resize=False, 
-                                                run_aug=False, 
+            img_org = data_gen.preprocess_image(i,
+                                                run_resize=False,
+                                                run_aug=False,
                                                 run_standardize=False)
-            shape_org = img_org.shape[0:-1]
         # Load original image
         else:
-            img_org = data_gen.sample_loader(sample_list[i], 
+            img_org = data_gen.sample_loader(sample_list[i],
                                     data_gen.path_imagedir,
                                     image_format=data_gen.image_format,
                                     grayscale=data_gen.grayscale,
                                     **data_gen.kwargs)
-            shape_org = img_org.shape[0:-1]
+            # Convert to channel-first: (H,W,C) -> (C,H,W) / (D,H,W,C) -> (C,D,H,W)
+            img_org = np.moveaxis(img_org, -1, 0)
+        # Identify spatial shape by dropping the leading channel axis
+        shape_org = img_org.shape[1:]
 
-        # Load processed image
+        # Load processed image as channel-first batch: (1,C,H,W) / (1,C,D,H,W)
         img_prc = data_gen.preprocess_image(i, run_aug=False)
         img_batch = np.expand_dims(img_prc, axis=0)
         # If preds given, compute heatmap only for argmax class
@@ -148,6 +160,10 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
 """ Helper/Subroutine function for XAI Decoder.
 
 Caches heatmap for direct output or generates a visualization as PNG.
+
+The image is passed in channel-first format (C,H,W) / (C,D,H,W) and is only
+converted to channel-last for the visualizers, which are based on PIL,
+matplotlib and ITK.
 """
 def postprocess_output(sample, image, xai_map, n_classes, data_gen,
                        res_img, res_xai, overlay, out_path, alpha):
@@ -157,6 +173,8 @@ def postprocess_output(sample, image, xai_map, n_classes, data_gen,
         res_xai.append(xai_map)
     # Generate XAI heatmap visualization
     else:
+        # Convert to channel-last as required by the visualizers
+        image = np.moveaxis(image, 0, -1)
         # Create XAI path
         if data_gen.image_format:
             xai_file = sample + "." + data_gen.image_format

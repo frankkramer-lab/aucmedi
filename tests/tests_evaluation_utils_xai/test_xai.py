@@ -156,7 +156,7 @@ class xaiTEST(unittest.TestCase):
         imgs, hms = xai_decoder(
             self.dataloader, self.model, preds=self.preds, out_path=None
         )
-        self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
+        self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 3, 32, 32)))
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 32, 32)))
 
     def test_Decoder_argmax_visualize(self):
@@ -170,19 +170,19 @@ class xaiTEST(unittest.TestCase):
             img = image_loader(
                 sample=self.sampleList[i],
                 path_imagedir=self.tmp_data.name,
-                image_format=self.dataloader.image_format,
+                image_format=self.dataloader.dataset.image_format,
             )
             hm = image_loader(
                 sample=self.sampleList[i],
                 path_imagedir=os.path.join(self.tmp_data.name, "xai"),
-                image_format=self.dataloader.image_format,
+                image_format=self.dataloader.dataset.image_format,
             )
             self.assertTrue(np.array_equal(img.shape, hm.shape))
             self.assertFalse(np.array_equal(img, hm))
 
     def test_Decoder_allclasses_output(self):
         imgs, hms = xai_decoder(self.dataloader, self.model, preds=None, out_path=None)
-        self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 32, 32, 3)))
+        self.assertTrue(np.array_equal(np.array(imgs).shape, (10, 3, 32, 32)))
         self.assertTrue(np.array_equal(np.array(hms).shape, (10, 4, 32, 32)))
 
     def test_Decoder_allclasses_visualize(self):
@@ -195,12 +195,12 @@ class xaiTEST(unittest.TestCase):
                 img = image_loader(
                     sample=self.sampleList[i],
                     path_imagedir=self.tmp_data.name,
-                    image_format=self.dataloader.image_format,
+                    image_format=self.dataloader.dataset.image_format,
                 )
                 hm = image_loader(
                     sample=xai_file,
                     path_imagedir=os.path.join(self.tmp_data.name, "xai"),
-                    image_format=self.dataloader.image_format,
+                    image_format=self.dataloader.dataset.image_format,
                 )
                 self.assertTrue(np.array_equal(img.shape, hm.shape))
                 self.assertFalse(np.array_equal(img, hm))

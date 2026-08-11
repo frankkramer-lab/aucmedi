@@ -35,7 +35,7 @@
     # Get a model
     model = NeuralNetwork(n_labels=3, channels=3, architecture="Xception",
                            input_shape=(299,299))
-    model.load("model.xray.keras")
+    model.load("model.xray.pt")
 
     # Make some predictions
     preds = model.predict(datagen)

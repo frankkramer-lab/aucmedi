@@ -43,17 +43,12 @@ class classweightTEST(unittest.TestCase):
     #           Class weights (multi-class)           #
     #-------------------------------------------------#
     def test_classweights_multiclass(self):
-        cwl, cwd = compute_class_weights(self.labels_ohe)
+        cwl = compute_class_weights(self.labels_ohe)
         self.assertEqual(len(cwl), 4)
         self.assertTrue(isinstance(cwl[0], float))
         self.assertTrue(isinstance(cwl[1], float))
         self.assertTrue(isinstance(cwl[2], float))
         self.assertTrue(isinstance(cwl[3], float))
-        self.assertEqual(len(cwd), 4)
-        self.assertTrue(isinstance(cwd[0], float))
-        self.assertTrue(isinstance(cwd[1], float))
-        self.assertTrue(isinstance(cwd[2], float))
-        self.assertTrue(isinstance(cwd[3], float))
 
     #-------------------------------------------------#
     #           Class weights (multi-label)           #

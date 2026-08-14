@@ -57,6 +57,16 @@ class EvaluationTEST(unittest.TestCase):
             index = "image.sample_" + str(i) + ".RGB.png"
             self.sample_list.append(index)
 
+    # Remove plot files from the shared temporary directory, so that tests
+    # asserting the *absence* of a plot do not depend on a sibling test having
+    # cleaned up after itself (which breaks under shuffled/parallel test runs,
+    # or whenever that sibling fails before its os.remove).
+    def discard_plots(self, *filenames):
+        for filename in filenames:
+            path_plot = os.path.join(self.tmp_plot.name, filename)
+            if os.path.exists(path_plot):
+                os.remove(path_plot)
+
     #-------------------------------------------------#
     #            Evaluation - Plot Fitting            #
     #-------------------------------------------------#
@@ -442,6 +452,7 @@ class EvaluationTEST(unittest.TestCase):
     #          Evaluation - Dataset Analysis          #
     #-------------------------------------------------#
     def test_evaluate_dataset(self):
+        self.discard_plots("plot.dataset.heatmap.png", "plot.dataset.barplot.png")
         res = evaluate_dataset(self.sample_list, self.labels_ohe,
                                out_path=self.tmp_plot.name,
                                class_names=["A", "B", "C", "D"])
@@ -455,6 +466,7 @@ class EvaluationTEST(unittest.TestCase):
         self.assertTrue(self.labels_ohe.shape[1] == res.shape[0])
 
     def test_evaluate_dataset_barplot(self):
+        self.discard_plots("plot.dataset.heatmap.png", "plot.dataset.barplot.png")
         res = evaluate_dataset(self.sample_list, self.labels_ohe,
                                out_path=self.tmp_plot.name,
                                class_names=["A", "B", "C", "D"],
@@ -470,6 +482,7 @@ class EvaluationTEST(unittest.TestCase):
         self.assertTrue(self.labels_ohe.shape[1] == res.shape[0])
 
     def test_evaluate_dataset_heatmap(self):
+        self.discard_plots("plot.dataset.heatmap.png", "plot.dataset.barplot.png")
         res = evaluate_dataset(self.sample_list, self.labels_ohe,
                                out_path=self.tmp_plot.name,
                                class_names=["A", "B", "C", "D"],

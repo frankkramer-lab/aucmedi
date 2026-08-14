@@ -124,6 +124,7 @@ class MultiLabelFocalLoss(nn.Module):
         alpha=None,
         class_sparsity_coefficient=None,
         reduction="sum_mean",
+        alpha_pos_only=False
     ):
         """
         Focal Loss class for multi-label classification tasks.
@@ -131,6 +132,7 @@ class MultiLabelFocalLoss(nn.Module):
         :param alpha: Balancing factor, should be a tensor for class-wise weights. If None, no class balancing is used.
         :param class_sparsity_coefficient: Optional factor that is multiplied with the loss for positive samples.
         :param reduction: Specifies the reduction method: 'none' | 'mean' | 'sum' | 'sum_mean'
+        :param alpha_pos_only: If True, alpha is applied only to positive samples.
         """
         super(MultiLabelFocalLoss, self).__init__()
         self.gamma = gamma
@@ -148,6 +150,7 @@ class MultiLabelFocalLoss(nn.Module):
                 "class_weights must be a list, tuple, or tensor of class weights."
             )
         self.class_sparsity_coefficient = class_sparsity_coefficient
+        self.alpha_pos_only = alpha_pos_only
 
     def forward(self, inputs, targets):
         """Focal loss for multi-label classification.
@@ -158,19 +161,24 @@ class MultiLabelFocalLoss(nn.Module):
         """
         probs = torch.sigmoid(inputs)
 
-        # Compute binary cross entropy
-        # https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.binary_cross_entropy_with_logits.html
-        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
-
         # Compute focal weight
         p_t = probs * targets + (1 - probs) * (1 - targets)
         focal_weight = (1 - p_t) ** self.gamma
 
+        # Compute binary cross entropy
+        # https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.binary_cross_entropy_with_logits.html
+        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+
         # Apply alpha if provided
         if self.class_alphas is not None:
-            # TODO: Use pos_weight of BCEWithLogitsLoss instead
-            weights = self.class_alphas.to(inputs.device)
-            bce_loss = weights * bce_loss
+            if self.alpha_pos_only:
+                # Use pos_weight of BCEWithLogitsLoss instead
+                weights = self.class_alphas.to(inputs.device)
+                bce_loss = weights * bce_loss * targets + bce_loss * (1 - targets)
+            else:
+                # Use pos_weight of BCEWithLogitsLoss instead
+                weights = self.class_alphas.to(inputs.device)
+                bce_loss = weights * bce_loss
         if self.class_sparsity_coefficient is not None:
             # Interpret as class_sparsity_coefficient
             sparse_t = self.class_sparsity_coefficient * targets + (1 - targets)

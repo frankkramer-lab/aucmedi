@@ -103,7 +103,8 @@ def evaluate_performance(
                                         [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
-        out_path (str):                 Path to directory in which plotted figures are stored.
+        out_path (str):                 Path to directory in which plotted figures are stored. If `None`, nothing is written to disk
+                                        (useful in combination with `show=True` to only display the charts).
         show (bool):                    Option, whether to also display the generated charts.
         class_names (list of str):      List of names for corresponding classes. Used for evaluation. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
@@ -123,7 +124,8 @@ def evaluate_performance(
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold
-    os.makedirs(out_path, exist_ok=True)
+    if out_path is not None:
+        os.makedirs(out_path, exist_ok=True)
 
     if multi_label:
         threshold = metrics_threshold
@@ -145,7 +147,7 @@ def evaluate_performance(
         metrics["class"] = pd.Categorical(metrics["class"])
 
     # Store metrics to CSV
-    if store_csv:
+    if store_csv and out_path is not None:
         evalby_csv(metrics, out_path, class_names, suffix=suffix)
 
     # Generate bar plot
@@ -207,11 +209,12 @@ def evalby_confusion_matrix(
     )
 
     # Store figure to disk
-    filename = "plot.performance.confusion_matrix"
-    if suffix is not None:
-        filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
+    if out_path is not None:
+        filename = "plot.performance.confusion_matrix"
+        if suffix is not None:
+            filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
     if show:
@@ -246,11 +249,12 @@ def evalby_barplot(metrics, out_path, class_names, show=False, suffix=None):
     )
 
     # Store figure to disk
-    filename = "plot.performance.barplot"
-    if suffix is not None:
-        filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=12, height=9, dpi=200)
+    if out_path is not None:
+        filename = "plot.performance.barplot"
+        if suffix is not None:
+            filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=12, height=9, dpi=200)
 
     # Plot figure
     if show:
@@ -294,11 +298,12 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
     )
 
     # Store figure to disk
-    filename = "plot.performance.roc"
-    if suffix is not None:
-        filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
+    if out_path is not None:
+        filename = "plot.performance.roc"
+        if suffix is not None:
+            filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
     if show:

@@ -21,13 +21,19 @@
 # -----------------------------------------------------#
 # External libraries
 from time import time
+import numpy as np
+import os
+import tempfile
 
 import torch
 from torch import nn
 from torch.optim import Adam
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
-import numpy as np
+import torch.multiprocessing as mp
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.distributed import init_process_group, destroy_process_group
 
 # Internal libraries/scripts
 from aucmedi.neural_network.architectures import (
@@ -36,6 +42,25 @@ from aucmedi.neural_network.architectures import (
     Classifier,
 )
 from aucmedi.utils.callbacks import Callback, EarlyStoppingCallback
+
+def ddp_setup(rank, world_size, device_id, backend="nccl"):
+    """
+    Args:
+        rank: Unique identifier of each process
+        world_size: Total number of processes
+        device_id: CUDA device index this rank should use (may repeat across
+                   ranks when simulating more ranks than physical GPUs)
+        backend: torch.distributed backend. Use "gloo" instead of "nccl" when
+                 multiple ranks share the same GPU (NCCL does not support that).
+    """
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    # Windows PyTorch builds commonly lack libuv support, which TCPStore
+    # defaults to since PyTorch 2.x; disable it so init_process_group works
+    # cross-platform (no effect on builds that do have libuv).
+    os.environ.setdefault("USE_LIBUV", "0")
+    torch.cuda.set_device(device_id)
+    init_process_group(backend=backend, rank=rank, world_size=world_size)
 
 
 # -----------------------------------------------------#
@@ -273,6 +298,212 @@ class NeuralNetwork:
     #                  Training                   #
     # ---------------------------------------------#
 
+    def train_distributed(
+        self,
+        generator_fn,
+        validation_generator_fn=None,
+        world_size=None,
+        iterations=None,
+        epochs=20,
+        learning_rate=0.0001,
+        transfer_learning=False,
+        transfer_epochs=10,
+        fine_tuning_lr=None,
+        callbacks=[],
+        scheduler=None,
+    ):
+        """Distributed (multi-GPU, single-node) counterpart of [train()][aucmedi.neural_network.model.NeuralNetwork.train].
+
+        Spawns `world_size` processes (one per GPU) via `torch.multiprocessing.spawn`, each
+        running DistributedDataParallel (DDP) on its own device. `train()` itself is untouched
+        and remains the entry point for single-GPU/CPU training.
+
+        ??? warning "generator_fn must be a factory, not a generator instance"
+            Because a `BatchGenerator`/`WrapperLoader` holds process-local resources
+            (`ThreadPool`s, open file handles) that cannot be pickled across process
+            boundaries, each worker process must build its own generator. Pass a callable
+            `generator_fn(rank, world_size) -> WrapperLoader/BatchGenerator/DataLoader` that
+            constructs and returns a generator over **this rank's shard of the data**, e.g.:
+
+            ```python
+            def make_train_loader(rank, world_size):
+                return create_batch_loader(samples[rank::world_size], "images_dir/",
+                                           labels=class_ohe[rank::world_size],
+                                           resize=model.arch_resolution,
+                                           standardize_mode=model.arch_standardize)
+
+            model.train_distributed(make_train_loader, epochs=50)
+            ```
+
+        ??? info "What happens to the trained weights"
+            Only rank 0 writes the trained weights (and history) to a temporary checkpoint
+            after training; the parent process loads that checkpoint back into `self.model`
+            once all workers have joined. Per-epoch loss is averaged across ranks via
+            `all_reduce` so it reflects the whole dataset, not one rank's shard. Logging and
+            callbacks run on rank 0 only; the early-stopping decision is broadcast to all
+            ranks so they stop in lockstep.
+
+        Args:
+            generator_fn (Callable[[int, int], WrapperLoader or BatchGenerator or DataLoader]):
+                                                    Factory building the training generator for a given
+                                                    `(rank, world_size)`; called once inside each worker process.
+            validation_generator_fn (Callable[[int, int], WrapperLoader or BatchGenerator or DataLoader]):
+                                                    Optional factory building the validation generator (same contract).
+            world_size (int):                       Number of processes/GPUs to use. Defaults to `torch.cuda.device_count()`.
+                                                    If greater than the number of visible GPUs, ranks share
+                                                    devices (`gloo` backend) purely to smoke-test the distributed
+                                                    code path on a single GPU -- not a real multi-GPU speedup.
+            iterations (int):                       Number of batches per epoch. Ignored for generic DataLoaders
+                                                    (those without a `set_length` method); use `None` to iterate
+                                                    over all batches.
+            epochs (int):                           Total number of epochs (includes transfer-learning epochs).
+            learning_rate (float):                  Learning rate passed to the Adam optimizer.
+            transfer_learning (bool):               If True, run a two-phase transfer-learning process.
+            transfer_epochs (int):                  Epochs in the frozen phase. Must be less than `epochs`.
+            fine_tuning_lr (float):                 Learning rate for the fine-tuning phase. Defaults to 0.1 × `learning_rate`.
+            callbacks (list of Callback):           Custom Callback instances. Must be picklable, since they are
+                                                    sent to every worker process.
+            scheduler (torch.optim.lr_scheduler):   LR scheduler class (not instance) to initialize. `None` disables scheduling.
+            
+        Returns:
+            history (dict):                         Training history with loss and metric logs per epoch.
+        """
+        if not torch.cuda.is_available():
+            raise RuntimeError(
+                "train_distributed() requires CUDA GPUs. Use train() for CPU or single-GPU training."
+            )
+        num_gpus = torch.cuda.device_count()
+        if world_size is None:
+            world_size = num_gpus
+        if world_size < 2:
+            raise ValueError(
+                f"train_distributed() requires world_size >= 2 (got {world_size}). "
+                "Use train() instead for single-GPU training."
+            )
+        if world_size > num_gpus:
+            print(
+                f"Warning: world_size={world_size} exceeds the {num_gpus} visible GPU(s); "
+                f"ranks will share GPUs (device = rank % {num_gpus}) over the 'gloo' backend "
+                "instead of 'nccl'. This only exercises the distributed code path locally for "
+                "testing -- it will not run faster than train() and is not a supported way to "
+                "do real multi-GPU training."
+            )
+
+        # Move the model (and cached init weights) to CPU before spawning: each worker
+        # moves its own copy onto the GPU it owns (cuda:{rank}) instead of relying on
+        # CUDA IPC sharing across processes, which only behaves cleanly when the
+        # source and target device already match.
+        original_device = self.device
+        self.model.to("cpu")
+        self.initialization_weights = [p.to("cpu") for p in self.initialization_weights]
+
+        checkpoint_fd, checkpoint_path = tempfile.mkstemp(suffix=".pt")
+        os.close(checkpoint_fd)
+        try:
+            mp.spawn(
+                self._distributed_worker,
+                args=(
+                    world_size,
+                    num_gpus,
+                    generator_fn,
+                    validation_generator_fn,
+                    iterations,
+                    epochs,
+                    learning_rate,
+                    transfer_learning,
+                    transfer_epochs,
+                    fine_tuning_lr,
+                    callbacks,
+                    scheduler,
+                    checkpoint_path,
+                ),
+                nprocs=world_size,
+                join=True,
+            )
+            # weights_only=False: this checkpoint is our own temp file, not an
+            # untrusted third-party model, and it holds a plain history dict
+            # alongside the state_dict (not tensors only).
+            checkpoint = torch.load(
+                checkpoint_path, map_location=original_device, weights_only=False
+            )
+        finally:
+            if os.path.exists(checkpoint_path):
+                os.remove(checkpoint_path)
+
+        # Restore the trained weights into this (parent-process) model instance
+        self.device = original_device
+        self.model.load_state_dict(checkpoint["state_dict"])
+        self.model.to(self.device)
+        self.initialization_weights = [
+            p.to(self.device) for p in self.initialization_weights
+        ]
+        return checkpoint["history"]
+
+    def _distributed_worker(
+        self,
+        rank,
+        world_size,
+        num_gpus,
+        generator_fn,
+        validation_generator_fn,
+        iterations,
+        epochs,
+        learning_rate,
+        transfer_learning,
+        transfer_epochs,
+        fine_tuning_lr,
+        callbacks,
+        scheduler,
+        checkpoint_path,
+    ):
+        """Per-process entry point spawned by `train_distributed()`. Not meant to be called directly."""
+        # Map rank -> physical GPU. When world_size > num_gpus (local simulation),
+        # multiple ranks share a device and must use "gloo" instead of "nccl".
+        device_id = rank % num_gpus
+        backend = "nccl" if world_size <= num_gpus else "gloo"
+        ddp_setup(rank, world_size, device_id, backend=backend)
+        self.device = torch.device(f"cuda:{device_id}")
+        # transfer_learning freezes/unfreezes parameters via requires_grad between
+        # phases, so the set of parameters that actually receive gradients changes
+        # across iterations. Without find_unused_parameters=True, DDP's reducer
+        # (built assuming every parameter participates every iteration) errors as
+        # soon as frozen ones stop producing gradients.
+        self.model = DDP(
+            self.model.to(self.device),
+            device_ids=[device_id],
+            find_unused_parameters=transfer_learning,
+        )
+
+        training_generator = generator_fn(rank, world_size)
+        validation_generator = (
+            validation_generator_fn(rank, world_size)
+            if validation_generator_fn is not None
+            else None
+        )
+
+        history = self._fit(
+            training_generator,
+            validation_generator,
+            iterations,
+            epochs,
+            learning_rate,
+            transfer_learning,
+            transfer_epochs,
+            fine_tuning_lr,
+            callbacks,
+            scheduler,
+            rank=rank,
+            world_size=world_size,
+        )
+
+        if rank == 0:
+            torch.save(
+                {"state_dict": self.model.module.state_dict(), "history": history},
+                checkpoint_path,
+            )
+
+        destroy_process_group()
+
     # Training the Neural Network model
     def train(
         self,
@@ -299,6 +530,9 @@ class NeuralNetwork:
         The transfer learning training runs two fitting passes: first with frozen base
         layers at `learning_rate`, then with all layers unfrozen at `fine_tuning_lr`.
 
+        For multi-GPU data-parallel training, see
+        [train_distributed()][aucmedi.neural_network.model.NeuralNetwork.train_distributed] instead.
+
         ??? info "History for Transfer Learning"
             Two history dicts are merged and returned as one. Keys are prefixed:
 
@@ -324,10 +558,42 @@ class NeuralNetwork:
             fine_tuning_lr (float):                 Learning rate for the fine-tuning phase. Defaults to 0.1 × `learning_rate`.
             callbacks (list of Callback):           Custom Callback instances (e.g. `ModelCheckpoint`, `MinEpochEarlyStopping`).
             scheduler (torch.optim.lr_scheduler):   LR scheduler class (not instance) to initialize. `None` disables scheduling.
-
+            
         Returns:
             history (dict):                         Training history with loss and metric logs per epoch.
         """
+        return self._fit(
+            training_generator,
+            validation_generator,
+            iterations,
+            epochs,
+            learning_rate,
+            transfer_learning,
+            transfer_epochs,
+            fine_tuning_lr,
+            callbacks,
+            scheduler,
+            rank=0,
+            world_size=1,
+        )
+
+    def _fit(
+        self,
+        training_generator,
+        validation_generator,
+        iterations,
+        epochs,
+        learning_rate,
+        transfer_learning,
+        transfer_epochs,
+        fine_tuning_lr,
+        callbacks,
+        scheduler,
+        rank=0,
+        world_size=1,
+    ):
+        """Internal fitting routine shared by `train()` (rank=0, world_size=1) and the
+        per-process worker spawned by `train_distributed()`."""
         if fine_tuning_lr is None:
             fine_tuning_lr = 0.1 * learning_rate
 
@@ -345,11 +611,12 @@ class NeuralNetwork:
                     raise ValueError(f"Multiple EarlyStoppingCallbacks found. Using the first one: {early_stopping_callback}.")
 
         if transfer_learning and transfer_epochs >= epochs:
-            print(
-                "transfer_epochs should be lower than epochs when using transfer_learning. "
-                f"Received transfer_epochs={transfer_epochs}, epochs={epochs}. "
-                "Setting transfer_epochs to epochs - 1."
-            )
+            if rank == 0:
+                print(
+                    "transfer_epochs should be lower than epochs when using transfer_learning. "
+                    f"Received transfer_epochs={transfer_epochs}, epochs={epochs}. "
+                    "Setting transfer_epochs to epochs - 1."
+                )
             transfer_epochs = max(0, epochs - 1)
 
         # Initialize optimizer
@@ -378,6 +645,8 @@ class NeuralNetwork:
                 iterations,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
+                rank=rank,
+                world_size=world_size,
             )
 
         ### Running a TRANSFER LEARNING training process
@@ -408,6 +677,8 @@ class NeuralNetwork:
                 iterations,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
+                rank=rank,
+                world_size=world_size,
             )
 
             # Unfreeze base model layers again
@@ -433,8 +704,9 @@ class NeuralNetwork:
                 iterations,
                 callbacks=callbacks,
                 early_stopping_callback=early_stopping_callback,
+                rank=rank,
+                world_size=world_size,
             )
-
             # Combine history dictionaries
             hs = {"tl_" + k: v for k, v in history_start.items()}
             he = {"ft_" + k: v for k, v in history_end.items()}
@@ -446,6 +718,18 @@ class NeuralNetwork:
         # Return fitting history
         return history_out
 
+    def _reduce_average(self, total, count, world_size):
+        """Average a (sum, count) pair across ranks via all_reduce.
+
+        Ensures reported loss reflects the whole dataset instead of just one
+        rank's shard; a no-op reduction to `total / count` when world_size <= 1.
+        """
+        if world_size <= 1:
+            return total / count
+        stats = torch.tensor([total, float(count)], device=self.device)
+        dist.all_reduce(stats, op=dist.ReduceOp.SUM)
+        return (stats[0] / stats[1]).item()
+
     def _train_epoch(
         self,
         training_generator,
@@ -454,8 +738,17 @@ class NeuralNetwork:
         iterations,
         callbacks=[],
         early_stopping_callback=None,
+        rank=0,
+        world_size=1,
     ):
-        """Internal function for training for a number of epochs."""
+        """Internal function for training for a number of epochs.
+
+        When `world_size > 1`, per-rank losses are averaged across ranks (see
+        `_reduce_average`), logging/callbacks only run on rank 0, and the
+        early-stopping decision is broadcast from rank 0 so all ranks stop in
+        lockstep (a rank that stops alone would otherwise hang the others on
+        the next collective all_reduce/broadcast call).
+        """
         history = {
             "loss": [],
             "val_loss": [],
@@ -492,6 +785,14 @@ class NeuralNetwork:
             epoch_loss = 0.0
             batch_count = 0
 
+            # DistributedSampler reshuffles deterministically off of a fixed seed;
+            # without advancing its epoch counter every rank would draw the exact
+            # same permutation every epoch instead of a fresh shuffle.
+            for gen in (training_generator, validation_generator):
+                sampler = getattr(gen, "sampler", None)
+                if sampler is not None and hasattr(sampler, "set_epoch"):
+                    sampler.set_epoch(epoch)
+
             # Training loop
             self.model.train(True)
             self.epoch_start_time = time()
@@ -505,7 +806,6 @@ class NeuralNetwork:
                     train_has_metadata,
                     train_has_sample_weights,
                 )
-                # TODO: consider setting to None instead of zeroing for perfomance reasons, see https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide.html
                 self.optimizer.zero_grad()
                 outputs = self.model(x, metadata)
                 batch_loss = self.loss(outputs, y)
@@ -514,7 +814,7 @@ class NeuralNetwork:
                 epoch_loss += batch_loss.item()
                 batch_count += 1
 
-            avg_loss = epoch_loss / batch_count
+            avg_loss = self._reduce_average(epoch_loss, batch_count, world_size)
             history["loss"].append(avg_loss)
 
             # Validation loop
@@ -538,7 +838,7 @@ class NeuralNetwork:
                         val_loss += val_batch_loss.item()
                         val_batch_count += 1
 
-                avg_val_loss = val_loss / val_batch_count
+                avg_val_loss = self._reduce_average(val_loss, val_batch_count, world_size)
                 history["val_loss"].append(avg_val_loss)
 
             current_lr = self.optimizer.param_groups[0]["lr"]
@@ -554,7 +854,7 @@ class NeuralNetwork:
             ELAPSED_TIME = time() - self.epoch_start_time
             history["epoch_time"].append(ELAPSED_TIME)
             history["learning_rate"].append(current_lr)
-            if self.verbose:
+            if rank == 0 and self.verbose:
                 if avg_val_loss is not None:
                     print(
                         f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f},  Val Loss: {avg_val_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
@@ -564,17 +864,30 @@ class NeuralNetwork:
                         f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}, Time: {ELAPSED_TIME:.2f}s"
                     )
 
-            # Callbacks
-            for callback in callbacks:
-                callback.on_epoch_end(epoch, logs=history, model=self)
+            # Callbacks and early stopping only run on rank 0 to avoid duplicate
+            # logs/checkpoints; the stop decision is then broadcast to all ranks.
+            should_stop = False
+            if rank == 0:
+                for callback in callbacks:
+                    callback.on_epoch_end(epoch, logs=history, model=self)
 
-            if (
-                early_stopping_callback is not None
-                and early_stopping_callback.on_epoch_end(
-                    epoch, logs=history, model=self
+                if (
+                    early_stopping_callback is not None
+                    and early_stopping_callback.on_epoch_end(
+                        epoch, logs=history, model=self
+                    )
+                ):
+                    print(f"Early stopping triggered at epoch {epoch + 1}.")
+                    should_stop = True
+
+            if world_size > 1:
+                stop_tensor = torch.tensor(
+                    1 if should_stop else 0, device=self.device
                 )
-            ):
-                print(f"Early stopping triggered at epoch {epoch + 1}.")
+                dist.broadcast(stop_tensor, src=0)
+                should_stop = bool(stop_tensor.item())
+
+            if should_stop:
                 break
         return history
 

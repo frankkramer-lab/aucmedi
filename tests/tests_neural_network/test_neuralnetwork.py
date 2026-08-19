@@ -20,6 +20,7 @@
 #                   Library imports                   #
 # -----------------------------------------------------#
 # External libraries
+from functools import partial
 import unittest
 import tempfile
 import os
@@ -129,16 +130,17 @@ class NeuralNetworkTEST(unittest.TestCase):
             fine_tuning_lr=0.5,
             callbacks=[],
             scheduler=None,
-            class_weights=None,
         )
 
     def test_training_scheduler(self):
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        def create_steplr_scheduler(optimizer):
+            return lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
         hist = model.train(
             training_generator=self.dataloader,
             validation_generator=self.dataloader,
             epochs=3,
-            scheduler=lr_scheduler.StepLR,
+            scheduler=partial(create_steplr_scheduler),
         )
         hist = model.train(
             training_generator=self.dataloader,

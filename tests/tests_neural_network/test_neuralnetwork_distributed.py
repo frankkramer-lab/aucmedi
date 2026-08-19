@@ -35,7 +35,7 @@ from aucmedi.data_processing.data_generator import (
     create_batch_loader,
     create_distributed_loader,
 )
-from aucmedi.neural_network.model_distributed import NeuralNetwork
+from aucmedi.aucmedi.neural_network.model import NeuralNetwork
 from aucmedi.utils.callbacks import MinEpochEarlyStopping
 
 

@@ -1,6 +1,6 @@
-# ==============================================================================#
+﻿# ==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #

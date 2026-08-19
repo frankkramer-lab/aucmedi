@@ -59,7 +59,7 @@ we use our fitted model to classify 500 unknown ct slides.
 
 ```python
 # Pillar #3: Initialize training Data Generator for first 1000 samples
-train_gen = DataGenerator(samples=index_list[:1000],
+train_gen = create_batch_generator(samples=index_list[:1000],
                           path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                           labels=class_ohe[:1000],
                           image_format=image_format,
@@ -69,7 +69,7 @@ train_gen = DataGenerator(samples=index_list[:1000],
 model.train(train_gen, epochs=20, transfer_learning=True)
 
 # Pillar #3: Initialize testing Data Generator for 500 samples
-test_gen = DataGenerator(samples=index_list[1000:1500],
+test_gen = create_batch_generator(samples=index_list[1000:1500],
                          path_imagedir="/home/muellerdo/COVdataset/ct_slides/",
                          labels=None,
                          image_format=image_format,

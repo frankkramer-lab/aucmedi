@@ -204,7 +204,7 @@ class NeuralNetwork:
             loss (Metric Function):                 The loss function which is used for training.
                                                     Any loss function defined in PyTorch or aucmedi.neural_network.loss_functions can be used.
             metrics (list of Metric Functions):     List of one or multiple metric functions for evaluation.
-                                                    Any metric function defined in PyTorch or custom functions can be used.
+                                                    Any metric function defined in PyTorch or custom functions can be used (planned feature).
             activation_output (str):                Activation function which is used during prediction.
             fcl_dropout (bool):                     Option whether to utilize an additional Linear & Dropout layer in the classification head
                                                     ([Classifier][aucmedi.neural_network.architectures.classifier]).
@@ -598,6 +598,12 @@ class NeuralNetwork:
             fine_tuning_lr = 0.1 * learning_rate
 
         early_stopping_callback = None
+        if callbacks is None:
+            callbacks = []
+        if not isinstance(callbacks, list):
+            raise ValueError(
+                f"Callbacks must be provided as a list. Received {type(callbacks)}."
+            )
         for callback in callbacks:
             if not isinstance(callback, Callback):
                 raise ValueError(
@@ -816,6 +822,7 @@ class NeuralNetwork:
 
             avg_loss = self._reduce_average(epoch_loss, batch_count, world_size)
             history["loss"].append(avg_loss)
+            # TODO: support metrics
 
             # Validation loop
             avg_val_loss = None

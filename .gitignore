@@ -29,3 +29,5 @@ model/
 # Data directories created by examples
 output/
 data/
+alldata/
+labels.csv

@@ -1,5 +1,5 @@
 ﻿#==============================================================================#
-#  Author:       Dominik Müller                                                #
+#  Author:       Fabian Wehr                                                   #
 #  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #

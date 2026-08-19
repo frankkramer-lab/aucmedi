@@ -1,5 +1,5 @@
-﻿# ==============================================================================#
-#  Author:       Dominik Müller                                                #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
 #  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
@@ -15,7 +15,7 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-# ==============================================================================#
+#==============================================================================#
 # ---------------------------------------------#
 #                    Documentation             #
 # ---------------------------------------------#

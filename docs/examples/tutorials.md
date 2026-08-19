@@ -1,7 +1,7 @@
 The first steps to build complex medical image classification pipelines can be difficult.
 
 Here, several Jupyter Notebooks that aim to give an introduction into the core functionality of AUCMEDI, are presented.
-Even though deep learning models are easier to setup with AUCMEDI compared to TensorFlow, AUCMEDI is not less flexible.
+Even though deep learning models are easier to setup with AUCMEDI compared to PyTorch, AUCMEDI is not less flexible.
 For this reason, rather than creating one huge “demonstration Notebook” several small Notebooks were created, so that the reader can pick the sections of interest.
 
 ## Overview

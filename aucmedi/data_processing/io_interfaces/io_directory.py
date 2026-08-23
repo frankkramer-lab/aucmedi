@@ -106,7 +106,7 @@ def directory_loader(path_imagedir, allowed_image_formats, training=True):
                 classes_sparse.append(c)
         # Parse sparse categorical annotations to One-Hot Encoding
         class_n = len(class_names)
-        class_ohe = pd.get_dummies(classes_sparse).to_numpy()
+        class_ohe = pd.get_dummies(classes_sparse, dtype=np.uint8).to_numpy()
         # Return parsing
         return index_list, class_ohe, class_n, class_names, image_format
     # Format - excluding class annotations -> only testing images

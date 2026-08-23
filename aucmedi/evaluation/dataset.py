@@ -173,6 +173,12 @@ def evalby_heatmap(samples, labels, out_path, class_names, show=False,
                + theme_classic()
                + theme(legend_position="none"))
 
+    # Hide sample axis labels if there are too many samples to render legibly
+    # (they otherwise overlap into unreadable clutter)
+    if len(samples) > 50:
+        fig += theme(axis_text_y=element_blank(),
+                     axis_ticks_major_y=element_blank())
+
     # Store figure to disk
     filename = "plot.dataset.heatmap"
     if suffix is not None : filename += "." + str(suffix)

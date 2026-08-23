@@ -26,6 +26,9 @@ model/
 # Pictures
 *.png
 
+# Models
+*.pt
+
 # Data directories created by examples
 output/
 data/

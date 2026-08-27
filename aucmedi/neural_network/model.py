@@ -86,11 +86,11 @@ class NeuralNetwork:
         # Initialize model
         model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.ResNet50")
         # Do some training
-        train_loader = create_batch_loader(samples[:100], "images_dir/", labels=class_ohe[:100],
+        train_loader = create_data_loader(samples[:100], "images_dir/", labels=class_ohe[:100],
                                            resize=model.arch_resolution, standardize_mode=model.arch_standardize)
         model.train(train_loader, epochs=50)
         # Do some predictions
-        test_loader = create_batch_loader(samples[100:150], "images_dir/", labels=None,
+        test_loader = create_data_loader(samples[100:150], "images_dir/", labels=None,
                                           resize=model.arch_resolution, standardize_mode=model.arch_standardize)
         preds = model.predict(test_loader)
         ```
@@ -133,7 +133,7 @@ class NeuralNetwork:
 
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121")
 
-        my_loader = create_batch_loader(samples, "images_dir/", labels=None,
+        my_loader = create_data_loader(samples, "images_dir/", labels=None,
                                         resize=my_model.arch_resolution,                  # (224,224)
                                         standardize_mode=my_model.arch_standardize)       # "torch"
         ```
@@ -152,7 +152,7 @@ class NeuralNetwork:
 
         from aucmedi.neural_network.architectures import supported_standardize_mode
         sf_norm = supported_standardize_mode["3D.DenseNet121"]
-        my_loader = create_batch_loader(samples, "images_dir/", labels=None,
+        my_loader = create_data_loader(samples, "images_dir/", labels=None,
                                         resize=(128,128,128),                        # (128,128,128)
                                         standardize_mode=sf_norm)                    # "torch"
         ```
@@ -167,7 +167,7 @@ class NeuralNetwork:
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   n_meta_variables=10)
 
-        my_loader = create_batch_loader(samples, "images_dir/",
+        my_loader = create_data_loader(samples, "images_dir/",
                                         labels=None, metadata=my_metadata,
                                         resize=my_model.arch_resolution,                  # (224,224)
                                         standardize_mode=my_model.arch_standardize)       # "torch"
@@ -327,7 +327,7 @@ class NeuralNetwork:
 
             ```python
             def make_train_loader(rank, world_size):
-                return create_batch_loader(samples[rank::world_size], "images_dir/",
+                return create_data_loader(samples[rank::world_size], "images_dir/",
                                            labels=class_ohe[rank::world_size],
                                            resize=model.arch_resolution,
                                            standardize_mode=model.arch_standardize)

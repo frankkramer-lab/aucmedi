@@ -31,7 +31,7 @@ from PIL import Image
 from torch.utils.data import DataLoader
 
 # Internal libraries
-from aucmedi import create_batch_loader
+from aucmedi import create_data_loader
 from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.data_processing.io_loader import numpy_loader
 from aucmedi.data_processing.wrapper_loader import WrapperLoader
@@ -92,7 +92,7 @@ class WrapperLoaderTEST(unittest.TestCase):
     #           Initialization Functionality          #
     # -------------------------------------------------#
     def test_BASE_create(self):
-        loader = create_batch_loader(self.sampleList_rgb_2D, self.tmp_data.name)
+        loader = create_data_loader(self.sampleList_rgb_2D, self.tmp_data.name)
         self.assertIsInstance(loader, WrapperLoader)
         self.assertIsInstance(loader, DataLoader)
 
@@ -103,22 +103,22 @@ class WrapperLoaderTEST(unittest.TestCase):
 
     def test_BASE_flags_proxied(self):
         # Flags from BatchGenerator must be visible on WrapperLoader
-        loader = create_batch_loader(self.sampleList_rgb_2D, self.tmp_data.name)
+        loader = create_data_loader(self.sampleList_rgb_2D, self.tmp_data.name)
         self.assertFalse(loader.has_labels)
         self.assertFalse(loader.has_metadata)
         self.assertFalse(loader.has_sample_weights)
 
-        loader_l = create_batch_loader(
+        loader_l = create_data_loader(
             self.sampleList_rgb_2D, self.tmp_data.name, labels=self.labels_ohe
         )
         self.assertTrue(loader_l.has_labels)
 
-        loader_m = create_batch_loader(
+        loader_m = create_data_loader(
             self.sampleList_rgb_2D, self.tmp_data.name, metadata=self.metadata
         )
         self.assertTrue(loader_m.has_metadata)
 
-        loader_w = create_batch_loader(
+        loader_w = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -127,7 +127,7 @@ class WrapperLoaderTEST(unittest.TestCase):
         self.assertTrue(loader_w.has_sample_weights)
 
     def test_BASE_properties(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -139,14 +139,14 @@ class WrapperLoaderTEST(unittest.TestCase):
 
     def test_BASE_len(self):
         batch_size = 8
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D, self.tmp_data.name, batch_size=batch_size
         )
         expected = math.ceil(len(self.sampleList_rgb_2D) / batch_size)
         self.assertEqual(len(loader), expected)
 
     def test_BASE_set_length(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D, self.tmp_data.name, batch_size=8
         )
         original_len = len(loader)
@@ -160,7 +160,7 @@ class WrapperLoaderTEST(unittest.TestCase):
     # -------------------------------------------------#
     def test_TENSOR_type_and_dtype(self):
         # All yielded image tensors must be float32
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -174,14 +174,14 @@ class WrapperLoaderTEST(unittest.TestCase):
 
     def test_TENSOR_noLabel_bare(self):
         # No labels: bare tensor (not wrapped in a tuple)
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D, self.tmp_data.name, batch_size=8
         )
         batch = next(iter(loader))
         self.assertIsInstance(batch, torch.Tensor)
 
     def test_TENSOR_withLabel_tuple(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -194,7 +194,7 @@ class WrapperLoaderTEST(unittest.TestCase):
         self.assertIsInstance(batch[1], torch.Tensor)
 
     def test_TENSOR_withWeights_triple(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -211,7 +211,7 @@ class WrapperLoaderTEST(unittest.TestCase):
     #        Application Functionality for 2D         #
     # -------------------------------------------------#
     def test_RUN_2D_GRAYSCALE_noLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_gray_2D,
             self.tmp_data.name,
             grayscale=True,
@@ -225,7 +225,7 @@ class WrapperLoaderTEST(unittest.TestCase):
             self.assertEqual(batch.shape[3], 224)
 
     def test_RUN_2D_RGB_noLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             grayscale=False,
@@ -239,7 +239,7 @@ class WrapperLoaderTEST(unittest.TestCase):
             self.assertEqual(batch.shape[3], 224)
 
     def test_RUN_2D_withLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -257,7 +257,7 @@ class WrapperLoaderTEST(unittest.TestCase):
     #        Application Functionality for 3D         #
     # -------------------------------------------------#
     def test_RUN_3D_GRAYSCALE_noLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_gray_3D,
             self.tmp_data.name,
             grayscale=True,
@@ -273,7 +273,7 @@ class WrapperLoaderTEST(unittest.TestCase):
             self.assertEqual(batch.shape[1], 1)       # grayscale
 
     def test_RUN_3D_RGB_noLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_3D,
             self.tmp_data.name,
             grayscale=False,
@@ -289,7 +289,7 @@ class WrapperLoaderTEST(unittest.TestCase):
             self.assertEqual(batch.shape[1], 3)
 
     def test_RUN_3D_withLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_3D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -311,7 +311,7 @@ class WrapperLoaderTEST(unittest.TestCase):
     # -------------------------------------------------#
     def test_RUN_Metadata_noLabel(self):
         # No labels + metadata: unwrapped to (image_tensor, meta_tensor)
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             metadata=self.metadata,
@@ -330,7 +330,7 @@ class WrapperLoaderTEST(unittest.TestCase):
 
     def test_RUN_Metadata_withLabel(self):
         # Labels + metadata: ((image_tensor, meta_tensor), label_tensor)
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -352,7 +352,7 @@ class WrapperLoaderTEST(unittest.TestCase):
     # -------------------------------------------------#
     def test_ITER_covers_all_batches(self):
         batch_size = 8
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -363,7 +363,7 @@ class WrapperLoaderTEST(unittest.TestCase):
         self.assertEqual(actual_batches, expected_batches)
 
     def test_ITER_set_length_limits_batches(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,

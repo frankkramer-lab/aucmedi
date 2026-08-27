@@ -115,7 +115,7 @@ def block_predict(config):
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Build DataLoader
-        pred_gen = create_batch_loader(samples=index_list,
+        pred_gen = create_data_loader(samples=index_list,
                                  labels=None,
                                  resize=model.arch_resolution,
                                  standardize_mode=model.arch_standardize,
@@ -133,7 +133,7 @@ def block_predict(config):
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Build DataLoader
-        pred_gen = create_batch_loader(samples=index_list,
+        pred_gen = create_data_loader(samples=index_list,
                                  labels=None,
                                  resize=model.arch_resolution,
                                  standardize_mode=model.arch_standardize,
@@ -156,7 +156,7 @@ def block_predict(config):
                        k_fold=len(meta_training["architecture"]))
 
         # Build DataLoader
-        pred_gen = create_batch_loader(samples=index_list,
+        pred_gen = create_data_loader(samples=index_list,
                                  labels=None,
                                  resize=None,
                                  standardize_mode=None,

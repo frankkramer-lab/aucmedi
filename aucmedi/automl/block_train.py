@@ -207,7 +207,7 @@ def block_train(config):
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
         # Build DataLoader
-        train_gen = create_batch_loader(samples=index_list,
+        train_gen = create_data_loader(samples=index_list,
                                   labels=class_ohe,
                                   shuffle=True,
                                   resize=model.arch_resolution,
@@ -232,13 +232,13 @@ def block_train(config):
                                      seed=0)
 
         # Build DataLoader
-        train_gen = create_batch_loader(samples=ps_sampling[0][0],
+        train_gen = create_data_loader(samples=ps_sampling[0][0],
                                   labels=ps_sampling[0][1],
                                   shuffle=True,
                                   resize=model.arch_resolution,
                                   standardize_mode=model.arch_standardize,
                                   **paras_datagen)
-        val_gen = create_batch_loader(samples=ps_sampling[1][0],
+        val_gen = create_data_loader(samples=ps_sampling[1][0],
                                 labels=ps_sampling[1][1],
                                 shuffle=False,
                                 resize=model.arch_resolution,
@@ -268,7 +268,7 @@ def block_train(config):
                        k_fold=len(config["architecture"]))
 
         # Build DataLoader
-        train_gen = create_batch_loader(samples=index_list,
+        train_gen = create_data_loader(samples=index_list,
                                   labels=class_ohe,
                                   shuffle=True,
                                   resize=None,

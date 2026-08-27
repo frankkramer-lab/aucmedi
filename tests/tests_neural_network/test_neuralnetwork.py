@@ -63,7 +63,7 @@ class NeuralNetworkTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create RGB Data Generator
-        self.dataloader = create_batch_loader(
+        self.dataloader = create_data_loader(
             self.sampleList_rgb,
             self.tmp_data.name,
             labels=self.labels_ohe,

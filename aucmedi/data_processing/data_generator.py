@@ -33,7 +33,7 @@ import os
 from aucmedi.data_processing.io_loader import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
 
-def create_batch_loader(
+def create_data_loader(
     samples,
     path_imagedir,
     labels=None,
@@ -334,7 +334,7 @@ class DataGenerator(Dataset):
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
-        my_dg = create_batch_loader(samples, "images_dir/",
+        my_dg = create_data_loader(samples, "images_dir/",
                                     labels=None, metadata=my_metadata,
                                     resize=my_model.arch_resolution,                  # (224,224)
                                     standardize_mode=my_model.arch_standardize)  # "torch"

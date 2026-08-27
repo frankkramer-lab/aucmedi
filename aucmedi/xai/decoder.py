@@ -58,7 +58,7 @@ def xai_decoder(data_gen, model, preds=None, method="gradcam", layerName=None,
     ???+ example "Example"
         ```python
         # Create a DataLoader for data I/O
-        datagen = create_batch_loader(samples[:3], "images_xray/", labels=None, resize=(299, 299))
+        datagen = create_data_loader(samples[:3], "images_xray/", labels=None, resize=(299, 299))
 
         # Get a model
         model = NeuralNetwork(n_labels=3, channels=3, architecture="Xception",

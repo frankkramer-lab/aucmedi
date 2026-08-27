@@ -28,7 +28,7 @@ import numpy as np
 
 # Internal libraries
 from aucmedi import (
-    create_batch_loader,
+    create_data_loader,
     NeuralNetwork,
     ImageAugmentation,
     VolumeAugmentation,
@@ -58,7 +58,7 @@ class EnsembleTEST(unittest.TestCase):
             path_sample = os.path.join(self.tmp_data.name, index)
             img_pillow.save(path_sample)
             self.sampleList2D.append(index)
-        # Create 3D data and create_batch_loaders
+        # Create 3D data and create_data_loaders
         self.sampleList3D = []
         for i in range(0, 3):
             img_gray = np.random.rand(16, 16, 16) * 255
@@ -87,7 +87,7 @@ class EnsembleTEST(unittest.TestCase):
     # -------------------------------------------------#
     def test_Augmenting_2D_functionality(self):
         # Test functionality with batch_size 10 and n_cycles = 1
-        datagen = create_batch_loader(
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             batch_size=10,
@@ -101,7 +101,7 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
         # Test functionality with batch_size 10 and n_cycles = 5
-        datagen = create_batch_loader(
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             batch_size=10,
@@ -119,7 +119,7 @@ class EnsembleTEST(unittest.TestCase):
     def test_Augmenting_2D_customAug(self):
         # Test functionality with batch_size 10 and n_cycles = 1
         my_aug = ImageAugmentation()
-        datagen = create_batch_loader(
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             batch_size=10,
@@ -134,7 +134,7 @@ class EnsembleTEST(unittest.TestCase):
 
     def test_Augmenting_3D_functionality(self):
         # Test functionality with batch_size 3 and n_cycles = 1
-        datagen = create_batch_loader(
+        datagen = create_data_loader(
             self.sampleList3D,
             self.tmp_data.name,
             batch_size=3,
@@ -150,7 +150,7 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(preds.shape, (3, 2)))
 
         # Test functionality with batch_size 8 and n_cycles = 5
-        datagen = create_batch_loader(
+        datagen = create_data_loader(
             self.sampleList3D,
             self.tmp_data.name,
             batch_size=8,
@@ -170,7 +170,7 @@ class EnsembleTEST(unittest.TestCase):
     def test_Augmenting_3D_customAug(self):
         # Test functionality with self provided augmentation
         my_aug = VolumeAugmentation()
-        datagen = create_batch_loader(
+        datagen = create_data_loader(
             self.sampleList3D,
             self.tmp_data.name,
             batch_size=3,
@@ -197,8 +197,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(el.model_template == self.model2D)
 
     def test_Bagging_training(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -246,8 +246,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertFalse(os.path.exists(path_tmp_bagging))
 
     def test_Bagging_predict(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -278,8 +278,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(ensemble.shape, (2, 3, 2)))
 
     def test_Bagging_dump(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -312,8 +312,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(os.path.exists(target_dir))
 
     def test_Bagging_load(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             self.sampleList2D,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -388,8 +388,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(self.model2D in el.model_list)
 
     def test_Stacking_training_metalearner(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 4),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 4, axis=0),
@@ -432,8 +432,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertFalse(os.path.exists(path_tmp_bagging))
 
     def test_Stacking_training_aggregate(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 4),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 4, axis=0),
@@ -473,8 +473,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertFalse(os.path.exists(path_tmp_bagging))
 
     def test_Stacking_predict_metalearner(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 4),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 4, axis=0),
@@ -504,8 +504,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(ensemble.shape, (2, 12, 2)))
 
     def test_Stacking_predict_aggregate(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 4),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 4, axis=0),
@@ -535,8 +535,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(ensemble.shape, (2, 12, 2)))
 
     def test_Stacking_dump(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 4),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 4, axis=0),
@@ -569,8 +569,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(os.path.exists(target_dir))
 
     def test_Stacking_load(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 4),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 4, axis=0),
@@ -661,8 +661,8 @@ class EnsembleTEST(unittest.TestCase):
             Composite(model_list=[self.model2D], k_fold=3)
 
     def test_Composite_training_metalearner(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 6),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 6, axis=0),
@@ -705,8 +705,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertFalse(os.path.exists(path_tmp_bagging))
 
     def test_Composite_training_aggregate(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 6),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 6, axis=0),
@@ -748,8 +748,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertFalse(os.path.exists(path_tmp_bagging))
 
     def test_Composite_predict_metalearner(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 6),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 6, axis=0),
@@ -779,8 +779,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(ensemble.shape, (2, 18, 2)))
 
     def test_Composite_predict_aggregate(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 6),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 6, axis=0),
@@ -812,8 +812,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(np.array_equal(ensemble.shape, (2, 18, 2)))
 
     def test_Composite_dump(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 6),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 6, axis=0),
@@ -846,8 +846,8 @@ class EnsembleTEST(unittest.TestCase):
         self.assertTrue(os.path.exists(target_dir))
 
     def test_Composite_load(self):
-        # Initialize training create_batch_loader
-        datagen = create_batch_loader(
+        # Initialize training create_data_loader
+        datagen = create_data_loader(
             np.repeat(self.sampleList2D, 6),
             self.tmp_data.name,
             labels=np.repeat(self.labels_ohe, 6, axis=0),

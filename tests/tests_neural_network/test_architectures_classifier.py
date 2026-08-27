@@ -68,7 +68,7 @@ class ClassifierTEST(unittest.TestCase):
             self.metadata[i][class_index] = 1
 
         # Create Data Generator
-        self.dataloader = create_batch_loader(
+        self.dataloader = create_data_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -78,7 +78,7 @@ class ClassifierTEST(unittest.TestCase):
         )
 
         # Create Data Generator with Metadata
-        self.dataloader_meta = create_batch_loader(
+        self.dataloader_meta = create_data_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,

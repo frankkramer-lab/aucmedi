@@ -24,7 +24,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 
 # Internal libraries
-from aucmedi import ImageAugmentation, VolumeAugmentation, create_batch_loader
+from aucmedi import ImageAugmentation, VolumeAugmentation, create_data_loader
 
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.data_processing.io_loader import image_loader
@@ -42,11 +42,11 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
         ```python
         # Import libraries
         from aucmedi.ensemble import predict_augmenting
-        from aucmedi import ImageAugmentation, create_batch_loader
+        from aucmedi import ImageAugmentation, create_data_loader
 
         # Initialize testing DataLoader with desired Data Augmentation
         test_aug = ImageAugmentation(flip=True, rotate=True, brightness=False, contrast=False)
-        test_loader = create_batch_loader(samples_test, "images_dir/",
+        test_loader = create_data_loader(samples_test, "images_dir/",
                                           data_aug=test_aug,
                                           resize=model.arch_resolution,
                                           standardize_mode=model.arch_standardize)
@@ -155,7 +155,7 @@ def predict_augmenting(model, prediction_generator, n_cycles=10, aggregate="mean
     loader_args.setdefault("batch_size", batch_size)
 
     # Re-initialize BatchLoader for inference
-    aug_loader = create_batch_loader(
+    aug_loader = create_data_loader(
         samples_aug,
         path_imagedir=loader_args.get("path_imagedir"),
         labels=None,

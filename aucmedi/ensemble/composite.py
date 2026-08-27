@@ -32,7 +32,7 @@ from torch.utils.data import DataLoader, RandomSampler
 
 # Internal libraries
 from aucmedi import NeuralNetwork
-from aucmedi.data_processing.wrapper_loader import create_batch_loader, WrapperLoader
+from aucmedi.data_processing.wrapper_loader import create_data_loader, WrapperLoader
 from aucmedi.sampling import sampling_split, sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
 from aucmedi.ensemble.metalearner import metalearner_dict
@@ -97,7 +97,7 @@ class Composite:
                        metalearner="logistic_regression", k_fold=3)
 
         # Initialize training WrapperLoader for complete training data
-        train_loader = create_batch_loader(samples_train, "images_dir/",
+        train_loader = create_data_loader(samples_train, "images_dir/",
                                            labels=train_labels_ohe, batch_size=3,
                                            resize=model_a.arch_resolution,
                                            standardize_mode=model_a.arch_standardize)
@@ -105,7 +105,7 @@ class Composite:
         el.train(train_loader, epochs=100)
 
         # Initialize testing WrapperLoader for testing data
-        test_loader = create_batch_loader(samples_test, "images_dir/",
+        test_loader = create_data_loader(samples_test, "images_dir/",
                                           resize=model_a.arch_resolution,
                                           standardize_mode=model_a.arch_standardize)
         # Run Inference
@@ -736,7 +736,7 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
     # Extract data
     train_x, train_y, train_m, test_x, test_y, test_m = data
     # Build training BatchLoader
-    cv_train_gen = create_batch_loader(
+    cv_train_gen = create_data_loader(
         train_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=train_y,
@@ -758,7 +758,7 @@ def __training_process__(queue, data, model_paras, datagen_paras, train_paras):
         **datagen_paras["kwargs"]
     )
     # Build validation BatchLoader
-    cv_val_gen = create_batch_loader(
+    cv_val_gen = create_data_loader(
         test_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=test_y,
@@ -794,7 +794,7 @@ def __prediction_process__(queue, model_paras, path_model, data_test, datagen_pa
     # Extract data
     test_x, test_y, test_m = data_test
     # Create inference BatchLoader
-    cv_pred_gen = create_batch_loader(
+    cv_pred_gen = create_data_loader(
         test_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=None,

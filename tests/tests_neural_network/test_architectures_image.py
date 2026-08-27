@@ -76,7 +76,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create Grayscale Data Loader
-        self.dataloader_GRAY = create_batch_loader(
+        self.dataloader_GRAY = create_data_loader(
             self.sampleList_gray,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -85,7 +85,7 @@ class ArchitecturesImageTEST(unittest.TestCase):
             batch_size=1,
         )
         # Create RGB Data Loader
-        self.dataloader_RGB = create_batch_loader(
+        self.dataloader_RGB = create_data_loader(
             self.sampleList_rgb,
             self.tmp_data.name,
             labels=self.labels_ohe,

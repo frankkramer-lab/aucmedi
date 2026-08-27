@@ -62,7 +62,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create HU Data Loader
-        self.dataloader_HU = create_batch_loader(
+        self.dataloader_HU = create_data_loader(
             self.sampleList_hu,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -73,7 +73,7 @@ class ArchitecturesVolumeTEST(unittest.TestCase):
             batch_size=1,
         )
 
-        self.dataloader_HU_64 = create_batch_loader(
+        self.dataloader_HU_64 = create_data_loader(
             self.sampleList_hu,
             self.tmp_data.name,
             labels=self.labels_ohe,

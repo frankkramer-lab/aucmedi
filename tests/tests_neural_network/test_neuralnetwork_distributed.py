@@ -32,7 +32,7 @@ from torch.utils.data import DataLoader
 
 # Internal libraries
 from aucmedi.data_processing.data_generator import (
-    create_batch_loader,
+    create_data_loader,
     create_distributed_loader,
 )
 from aucmedi.aucmedi.neural_network.model import NeuralNetwork
@@ -300,7 +300,7 @@ class NeuralNetworkDistributedTEST(unittest.TestCase):
         # since only the per-rank worker copies were ever DDP-wrapped.
         self.assertNotIsInstance(model.model, torch.nn.parallel.DistributedDataParallel)
 
-        test_loader = create_batch_loader(
+        test_loader = create_data_loader(
             self.sampleList_rgb, self.tmp_data.name, resize=(32, 32), batch_size=4,
             num_workers=0,
         )
@@ -316,7 +316,7 @@ class NeuralNetworkDistributedTEST(unittest.TestCase):
         # Regression test: model_distributed.NeuralNetwork.train() must remain
         # unaffected by the train_distributed()/_fit() refactor.
         model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb, self.tmp_data.name, labels=self.labels_ohe,
             resize=(32, 32), batch_size=3, num_workers=0,
         )

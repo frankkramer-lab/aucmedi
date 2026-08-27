@@ -31,7 +31,7 @@ import shutil
 from torch.utils.data import DataLoader, RandomSampler
 
 # Internal libraries
-from aucmedi import NeuralNetwork, create_batch_loader
+from aucmedi import NeuralNetwork, create_data_loader
 from aucmedi.data_processing.wrapper_loader import WrapperLoader
 from aucmedi.sampling import sampling_kfold
 from aucmedi.ensemble.aggregate import aggregate_dict
@@ -88,7 +88,7 @@ class Bagging:
 
 
         # Initialize training BatchLoader for complete training data
-        datagen = create_batch_loader(samples_train, "images_dir/",
+        datagen = create_data_loader(samples_train, "images_dir/",
                                 labels=train_labels_ohe, batch_size=3,
                                 resize=model.arch_resolution,
                                 standardize_mode=model.arch_standardize)
@@ -97,7 +97,7 @@ class Bagging:
 
 
         # Initialize testing BatchLoader for testing data
-        test_gen = create_batch_loader(samples_test, "images_dir/",
+        test_gen = create_data_loader(samples_test, "images_dir/",
                                  resize=model.arch_resolution,
                                  standardize_mode=model.arch_standardize)
         # Run Inference with majority vote aggregation
@@ -520,7 +520,7 @@ def __run_subprocess__(process, result_queue, label):
 def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
     train_x, train_y, train_m, test_x, test_y, test_m = data
     # Build training BatchLoader
-    cv_train_gen = create_batch_loader(
+    cv_train_gen = create_data_loader(
         train_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=train_y,
@@ -541,7 +541,7 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
         **datagen_paras["kwargs"]
     )
     # Build validation BatchLoader
-    cv_val_gen = create_batch_loader(
+    cv_val_gen = create_data_loader(
         test_x,
         path_imagedir=datagen_paras["path_imagedir"],
         labels=test_y,
@@ -574,7 +574,7 @@ def __training_process__(queue, model_paras, data, datagen_paras, train_paras):
 # Internal function for inference with a fitted NeuralNetwork model in a separate process
 def __prediction_process__(queue, model_paras, path_model, datagen_paras):
     # Create inference BatchLoader
-    cv_pred_gen = create_batch_loader(
+    cv_pred_gen = create_data_loader(
         datagen_paras["samples"],
         path_imagedir=datagen_paras["path_imagedir"],
         labels=None,

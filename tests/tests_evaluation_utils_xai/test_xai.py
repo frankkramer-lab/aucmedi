@@ -61,7 +61,7 @@ class xaiTEST(unittest.TestCase):
             self.labels_ohe[i][class_index] = 1
 
         # Create Data Loader
-        self.dataloader = create_batch_loader(
+        self.dataloader = create_data_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,
@@ -103,7 +103,7 @@ class xaiTEST(unittest.TestCase):
             self.labels_ohe_hu_3D[i][class_index] = 1
             self.labels_ohe_rgb_3D[i][class_index] = 1
 
-        self.dataloader_hu_3D = create_batch_loader(
+        self.dataloader_hu_3D = create_data_loader(
             self.sampleList_hu_3D,
             self.tmp_data.name,
             labels=self.labels_ohe_hu_3D,
@@ -115,7 +115,7 @@ class xaiTEST(unittest.TestCase):
             batch_size=3,
         )
 
-        self.dataloader_rgb_3D = create_batch_loader(
+        self.dataloader_rgb_3D = create_data_loader(
             self.sampleList_rgb_3D,
             self.tmp_data.name,
             labels=self.labels_ohe_rgb_3D,
@@ -221,7 +221,7 @@ class xaiTEST(unittest.TestCase):
         ds = input_interface(interface="directory", path_imagedir=tmp_data.name)
         index_list, _, nclasses, _, _ = ds
         # Create Data Generator
-        dataloader = create_batch_loader(
+        dataloader = create_data_loader(
             index_list,
             tmp_data.name,
             labels=None,

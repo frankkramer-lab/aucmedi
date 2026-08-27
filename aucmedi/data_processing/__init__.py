@@ -48,12 +48,12 @@ With an initialized Neural Network instance, it is possible to run training and 
     model = NeuralNetwork(n_labels=nclasses, channels=3, architecture="2D.ResNet50")
 
     # Do some training
-    dataloader_train = create_batch_loader(samples[:100], "images_dir/", labels=class_ohe[:100], image_format=image_format,
+    dataloader_train = create_data_loader(samples[:100], "images_dir/", labels=class_ohe[:100], image_format=image_format,
                                         resize=model.meta_input, standardize_mode=model.meta_standardize)
     model.train(dataloader_train, epochs=50)
 
     # Do some predictions
-    dataloader_test = create_batch_loader(samples[100:150], "images_dir/", labels=None, image_format=image_format,
+    dataloader_test = create_data_loader(samples[100:150], "images_dir/", labels=None, image_format=image_format,
                                         resize=model.meta_input, standardize_mode=model.meta_standardize)
     preds = model.predict(dataloader_test)
     ```

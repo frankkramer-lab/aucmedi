@@ -29,7 +29,7 @@ import os
 
 # Internal libraries
 from aucmedi.data_processing.io_loader import *
-from aucmedi import create_batch_loader
+from aucmedi import create_data_loader
 
 
 # -----------------------------------------------------#
@@ -62,7 +62,7 @@ class IOloaderTEST(unittest.TestCase):
             img_pillow.save(path_sample)
             sample_list.append(index)
         # Test DataLoader
-        data_loader = create_batch_loader(
+        data_loader = create_data_loader(
             sample_list, tmp_data.name, resize=None, grayscale=False, batch_size=2
         )
         i = 0
@@ -116,7 +116,7 @@ class IOloaderTEST(unittest.TestCase):
             np.save(path_sample, self.img_3d_gray)
             sample_list.append(index)
         # Test DataLoader
-        data_loader = create_batch_loader(
+        data_loader = create_data_loader(
             sample_list,
             tmp_data.name,
             loader=numpy_loader,
@@ -219,7 +219,7 @@ class IOloaderTEST(unittest.TestCase):
             sample_list.append(index)
 
         # Test DataLoader
-        data_loader = create_batch_loader(
+        data_loader = create_data_loader(
             sample_list,
             tmp_data.name,
             loader=sitk_loader,
@@ -308,7 +308,7 @@ class IOloaderTEST(unittest.TestCase):
             img = sitk_loader(index, tmp_data.name, image_format=None, resampling=None)
             self.assertTrue(np.array_equal(img.shape, (16, 16, 16, 1)))
         # Load images via DataLoader
-        data_loader = create_batch_loader(
+        data_loader = create_data_loader(
             sample_list,
             tmp_data.name,
             loader=sitk_loader,
@@ -338,7 +338,7 @@ class IOloaderTEST(unittest.TestCase):
             cache[index] = self.img_3d_gray
             sample_list.append(index)
         # Test DataLoader
-        data_loader = create_batch_loader(
+        data_loader = create_data_loader(
             sample_list,
             tmp_data.name,
             loader=cache_loader,

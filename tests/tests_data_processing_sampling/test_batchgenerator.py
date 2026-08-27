@@ -32,7 +32,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 # Internal libraries
-from aucmedi import create_batch_loader
+from aucmedi import create_data_loader
 from aucmedi.data_processing.batch_generator import BatchGenerator
 from aucmedi.data_processing.io_loader import numpy_loader
 
@@ -420,7 +420,7 @@ class BatchGeneratorTEST(unittest.TestCase):
     #              WrapperLoader Integration          #
     # -------------------------------------------------#
     def test_WrapperLoader_noLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             grayscale=False,
@@ -434,7 +434,7 @@ class BatchGeneratorTEST(unittest.TestCase):
             self.assertEqual(batch.shape[1], 3)
 
     def test_WrapperLoader_withLabel(self):
-        loader = create_batch_loader(
+        loader = create_data_loader(
             self.sampleList_rgb_2D,
             self.tmp_data.name,
             labels=self.labels_ohe,

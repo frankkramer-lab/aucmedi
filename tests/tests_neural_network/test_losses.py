@@ -60,7 +60,7 @@ class LossfunctionsTEST(unittest.TestCase):
             class_index = np.random.randint(0, 4)
             self.labels_ohe[i][class_index] = 1
         # Create Data Loader
-        self.dataloader = create_batch_loader(
+        self.dataloader = create_data_loader(
             self.sampleList,
             self.tmp_data.name,
             labels=self.labels_ohe,

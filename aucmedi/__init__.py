@@ -49,7 +49,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
                            pretrained_weights=True)
 
     # Pillar #3: Initialize training DataGenerator for first 1000 samples
-    train_loader = create_batch_loader(samples=index_list[:1000],
+    train_loader = create_data_loader(samples=index_list[:1000],
                                        path_imagedir="dataset/images/",
                                        labels=class_ohe[:1000],
                                        image_format=image_format,
@@ -59,7 +59,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
     model.train(train_loader, epochs=20, transfer_learning=True)
 
     # Pillar #3: Initialize testing DatahGenerator for 500 samples
-    test_loader = create_batch_loader(samples=index_list[1000:1500],
+    test_loader = create_data_loader(samples=index_list[1000:1500],
                                       path_imagedir="dataset/images/",
                                       labels=None,
                                       image_format=image_format,
@@ -73,7 +73,7 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
 #                   Library imports                   #
 # -----------------------------------------------------#
 from aucmedi.data_processing.io_data import input_interface
-from aucmedi.data_processing.data_generator import DataGenerator, create_batch_loader, create_distributed_loader
+from aucmedi.data_processing.data_generator import DataGenerator, create_data_loader, create_distributed_loader
 from aucmedi.data_processing.augmentation import (
     ImageAugmentation,
     VolumeAugmentation,

@@ -29,8 +29,10 @@ model/
 # Models
 *.pt
 
-# Data directories created by examples
+# Data directories created by tutorials
 output/
 data/
 alldata/
+xai_gradcam/
+xai_lime/
 labels.csv

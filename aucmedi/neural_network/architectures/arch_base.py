@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,48 +16,52 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
 from abc import ABC, abstractmethod
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #     Abstract Interface for an Architecture class    #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class Architecture_Base(ABC):
-    """ An abstract base class for an Architecture class.
+    """An abstract base class for an Architecture class.
 
     This class provides functionality for running the create_model function,
-    which returns a [tensorflow.keras model](https://www.tensorflow.org/api_docs/python/tf/keras/Model).
+    which returns a [torch.nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).
 
     ???+ example "Create a custom Architecture"
         ```python
         from aucmedi.neural_network.architectures import Architecture_Base
-        from tensorflow.keras import Input
-        from tensorflow.keras.layers import Conv2D, MaxPooling2D
+        from torchvision.models import convnext_base as BaseModel
+        from torchvision.models import ConvNeXt_Base_Weights
 
         class My_custom_Architecture(Architecture_Base):
-            def __init__(self, classification_head, channels, input_shape=(224, 224),
+            def __init__(self, channels, input_resolution=(224, 224),
                          pretrained_weights=False):
-                self.classifier = classification_head
-                self.input = input_shape + (channels,)
+                self.input = input_resolution + (channels,)
                 self.pretrained_weights = pretrained_weights
 
+            def get_output_shape(self):
+                # ConvNeXt Base has a fixed 32x downsampling ratio
+                # Output channels are always 1024 for the base model
+                h_out = self.input_shape[0] // 32
+                w_out = self.input_shape[1] // 32
+                return (h_out, w_out, 1024)
+
             def create_model(self):
-                # Initialize input layer
-                model_input = Input(shape=self.input)
+                # Get pretrained image weights from imagenet if desired
+                if self.pretrained_weights:
+                    model_weights = "DEFAULT"
+                else:
+                    model_weights = None
 
-                # Add whatever architecture you want
-                model_base = Conv2D(filters=32)(model_input)
-                model_base = Conv2D(filters=64)(model_base)
-                model_base = MaxPooling2D(pool_size=2)(model_base)
-
-                # Add classification head via Classifier
-                my_keras_model = self.classifier.build(model_input=model_input,
-                                                      model_output=model_base)
-                # Return created model
-                return my_keras_model
+                # Obtain base model (omit classification head)
+                full_model = BaseModel(weights=model_weights)
+                base_model = full_model.features
+                return base_model
         ```
 
     ???+ info "Required Functions"
@@ -66,45 +70,61 @@ class Architecture_Base(ABC):
         | `__init__()`        | Object creation function.                      |
         | `create_model()`    | Creating and returning the architecture model. |
     """
-    #---------------------------------------------#
+
+    # ---------------------------------------------#
     #                Initialization               #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     @abstractmethod
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        """ Functions which will be called during the Architecture object creation.
+    def __init__(
+        self,
+        channels,
+        input_resolution=(224, 224),
+        pretrained_weights=False,
+    ):
+        """Functions which will be called during the Architecture object creation.
 
         This function can be used to pass variables and options in the Architecture instance.
 
-        There are some mandatory required parameters for the initialization: The classification head as
-        [Classifier][aucmedi.neural_network.architectures.classifier], the number of channels, and the
-        input shape (x, y) for an image architecture or (x, y, z) for a volume architecture.
+        There are some mandatory required parameters for the initialization: the number of channels, and the
+        input resolution (x, y) for an image architecture or (x, y, z) for a volume architecture.
 
         Args:
-            classification_head (Classifier):   Classifier object for building the classification head of the model.
             channels (int):                     Number of channels. For example: Grayscale->1 or RGB->3.
-            input_shape (tuple):                Input shape of the image data for the first model layer (excluding channel axis).
+            input_resolution (tuple):           Input resolution of the image data for the first model layer (excluding channel axis).
             pretrained_weights (bool):          Option whether to utilize pretrained weights e.g. for ImageNet.
         """
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
+        self.input = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
 
-    #---------------------------------------------#
-    #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
+    #         Architecture Attributes              #
+    # ---------------------------------------------#
     @abstractmethod
-    def create_model(self):
-        """ Create the deep learning or convolutional neural network model.
+    def get_output_shape(self):
+        """Return the output shape of the architecture before the classification head.
 
-        This function will be called inside the AUCMEDI model class and have to return a functional
-        Keras model. The model itself should be created here or in a subfunction called
-        by this function.
-
-        At the end of the model building process, the classification head must be appended
-        via calling the `build()` function of a [Classifier][aucmedi.neural_network.architectures.classifier].
+        This function will be called inside the AUCMEDI model class to determine the input shape
+        for building the classification head.
 
         Returns:
-            model (tf.keras model):            A Keras model.
+            output_shape (tuple):            A tuple representing the output shape (height, width, channels)
+                                             for image architectures or (depth, height, width, channels)
+                                             for volume architectures.
+        """
+        return None
+
+    # ---------------------------------------------#
+    #                Create Model                 #
+    # ---------------------------------------------#
+    @abstractmethod
+    def create_model(self):
+        """Create the deep learning or convolutional neural network model.
+
+        This function will be called inside the AUCMEDI model class and have to return a functional
+        base model (without the classification head). The model itself should be created here or in a subfunction called
+        by this function.
+
+        Returns:
+            model (torch.nn.Module):            A PyTorch model.
         """
         return None

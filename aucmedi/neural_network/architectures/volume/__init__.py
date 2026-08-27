@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -19,39 +19,44 @@
 # Abstract Base Class for Architectures
 from aucmedi.neural_network.architectures.arch_base import Architecture_Base
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Architectures                    #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Vanilla Classifier
 from aucmedi.neural_network.architectures.volume.vanilla import Vanilla
+
 # DenseNet
 from aucmedi.neural_network.architectures.volume.densenet121 import DenseNet121
 from aucmedi.neural_network.architectures.volume.densenet169 import DenseNet169
 from aucmedi.neural_network.architectures.volume.densenet201 import DenseNet201
+
 # ResNet
 from aucmedi.neural_network.architectures.volume.resnet18 import ResNet18
 from aucmedi.neural_network.architectures.volume.resnet34 import ResNet34
 from aucmedi.neural_network.architectures.volume.resnet50 import ResNet50
 from aucmedi.neural_network.architectures.volume.resnet101 import ResNet101
 from aucmedi.neural_network.architectures.volume.resnet152 import ResNet152
+
 # ResNeXt
 from aucmedi.neural_network.architectures.volume.resnext50 import ResNeXt50
 from aucmedi.neural_network.architectures.volume.resnext101 import ResNeXt101
+
 # MobileNet
-from aucmedi.neural_network.architectures.volume.mobilenet import MobileNet
 from aucmedi.neural_network.architectures.volume.mobilenetv2 import MobileNetV2
+
 # VGG
 from aucmedi.neural_network.architectures.volume.vgg16 import VGG16
 from aucmedi.neural_network.architectures.volume.vgg19 import VGG19
+
 # ConvNeXt
 from aucmedi.neural_network.architectures.volume.convnext_tiny import ConvNeXtTiny
 from aucmedi.neural_network.architectures.volume.convnext_small import ConvNeXtSmall
 from aucmedi.neural_network.architectures.volume.convnext_base import ConvNeXtBase
 from aucmedi.neural_network.architectures.volume.convnext_large import ConvNeXtLarge
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #       Access Functions to Architecture Classes      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Architecture Dictionary
 architecture_dict = {
     "Vanilla": Vanilla,
@@ -65,7 +70,6 @@ architecture_dict = {
     "ResNet152": ResNet152,
     "ResNeXt50": ResNeXt50,
     "ResNeXt101": ResNeXt101,
-    "MobileNet": MobileNet,
     "MobileNetV2": MobileNetV2,
     "VGG16": VGG16,
     "VGG19": VGG19,
@@ -81,27 +85,22 @@ architecture_dict = {
     ???+ example "Example"
         ```python title="Recommended via NeuralNetwork class"
         my_model = NeuralNetwork(n_labels=4, channels=1, architecture="3D.ResNet50",
-                                  input_shape(128,128,128), activation_output="softmax")
+                                  input_resolution=(128,128,128), activation_output="softmax")
         ```
 
         ```python title="Manual via architecture_dict import"
-        from aucmedi.neural_network.architectures import Classifier, architecture_dict
+        from aucmedi.neural_network.architectures import architecture_dict
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = architecture_dict["3D.ResNet50"](classification_head,
-                                                   channels=1, input_shape=(128,128,128))
-        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
+        my_arch = architecture_dict["3D.ResNet50"](channels=1, input_resolution=(128,128,128))
+        my_model = NeuralNetwork(n_labels=4, channels=1, architecture=my_arch, activation_output="softmax")
         ```
 
         ```python title="Manual via module import"
-        from aucmedi.neural_network.architectures import Classifier
         from aucmedi.neural_network.architectures.volume import ResNet50
 
-        classification_head = Classifier(n_labels=4, activation_output="softmax")
-        my_arch = ResNet50(classification_head,
-                                        channels=1, input_shape=(128,128,128))
+        my_arch = ResNet50(channels=1, input_resolution=(128,128,128))
 
-        my_model = NeuralNetwork(n_labels=None, channels=None, architecture=my_arch)
+        my_model = NeuralNetwork(n_labels=4, channels=1, architecture=my_arch, activation_output="softmax")
         ```
 
     ???+ warning
@@ -119,30 +118,29 @@ architecture_dict = {
 # List of implemented architectures
 architectures = list(architecture_dict.keys())
 
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #       Meta Information of Architecture Classes      #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # Utilized standardize mode of architectures required for Transfer Learning
 supported_standardize_mode = {
     "Vanilla": "z-score",
     "DenseNet121": "torch",
     "DenseNet169": "torch",
     "DenseNet201": "torch",
-    "ResNet18": "grayscale",
-    "ResNet34": "grayscale",
-    "ResNet50": "grayscale",
-    "ResNet101": "grayscale",
-    "ResNet152": "grayscale",
-    "ResNeXt50": "grayscale",
-    "ResNeXt101": "grayscale",
-    "MobileNet": "tf",
-    "MobileNetV2": "tf",
-    "VGG16": "caffe",
-    "VGG19": "caffe",
-    "ConvNeXtTiny": None,
-    "ConvNeXtSmall": None,
-    "ConvNeXtBase": None,
-    "ConvNeXtLarge": None,
+    "ResNet18": "torch",
+    "ResNet34": "torch",
+    "ResNet50": "torch",
+    "ResNet101": "torch",
+    "ResNet152": "torch",
+    "ResNeXt50": "torch",
+    "ResNeXt101": "torch",
+    "MobileNetV2": "torch",
+    "VGG16": "torch",
+    "VGG19": "torch",
+    "ConvNeXtTiny": "torch",
+    "ConvNeXtSmall": "torch",
+    "ConvNeXtBase": "torch",
+    "ConvNeXtLarge": "torch",
 }
 """ Dictionary of recommended [Standardize][aucmedi.data_processing.subfunctions.standardize] techniques for 3D Architectures Methods in AUCMEDI.
 
@@ -158,7 +156,7 @@ supported_standardize_mode = {
 
         my_dg = DataGenerator(samples, "images_dir/", labels=None,
                               resize=my_model.meta_input,                  # (64, 64, 64)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+                              standardize_mode=my_model.arch_standardize)  # "torch"
         ```
 
         ```python title="Manual via supported_standardize_mode import"

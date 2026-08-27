@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,10 +16,10 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the Vision Transformer (ViT) version B16 architecture.
+# -----------------------------------------------------#
+"""The classification variant of the Vision Transformer (ViT) version B16 architecture.
 
 !!! warning
     The ViT architectures only work for RGB encoding (channel size = 3).
@@ -28,17 +28,13 @@
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "2D.ViT_B16"               |
 | Input_shape              | (224, 224)                 |
-| Standardization          | "tf"                       |
+| Standardization          | "torch"                    |
+
+Choose pretrained weights via the torchvision `ViT_B_16_Weights` enum and use
+the `get_preprocess()` helper to obtain the correct preprocessing transforms.
 
 ???+ abstract "Reference - Implementation"
-    Fausto Morales; [https://github.com/faustomorales](https://github.com/faustomorales) <br>
-    [https://github.com/faustomorales/vit-keras](https://github.com/faustomorales/vit-keras) <br>
-
-    Vo Van Tu; [https://github.com/tuvovan](https://github.com/tuvovan) <br>
-    [https://github.com/tuvovan/Vision_Transformer_Keras](https://github.com/tuvovan/Vision_Transformer_Keras) <br>
-
-    Original: Google Research <br>
-    [https://github.com/google-research/vision_transformer](https://github.com/google-research/vision_transformer) <br>
+  [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.vit_b_16.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.vit_b_16.html) <br>
 
 ???+ abstract "Reference - Publication"
     ```
@@ -78,46 +74,89 @@
     }
     ```
 """
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from vit_keras import vit
+from torchvision.models import vit_b_16 as TorchvisionModel
+from torchvision.models import ViT_B_16_Weights
+import torch
+import torch.nn as nn
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #     Architecture class: Vision Transformer (ViT)    #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class ViT_B16(Architecture_Base):
-    #---------------------------------------------#
-    #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
+    def __init__(self, channels, input_resolution=(224, 224), pretrained_weights=False):
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
 
-    #---------------------------------------------#
-    #                Create Model                 #
-    #---------------------------------------------#
+    def get_output_shape(self):
+        # ViT-B embed dim is 768; we expose it as a (1,1,channels) feature map
+        return (1, 1, 768)
+
+    def get_preprocess(self):
+        weights = ViT_B_16_Weights.DEFAULT
+        return weights.transforms()
+
     def create_model(self):
-        # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : pretrained = True
-        else : pretrained = False
+        if self.pretrained_weights:
+            weights_arg = ViT_B_16_Weights.DEFAULT
+        else:
+            weights_arg = None
+        # Instantiate model with the configured image size so the Vision
+        # Transformer accepts the provided input resolution and then remove
+        # the classification head by replacing it with an identity module.
+        # This returns the encoder features directly.
+        # Determine a patch size (ViT-B/16 uses 16). We pad inputs up to the
+        # next multiple of the patch size and instantiate the model with that
+        # image size so the underlying VisionTransformer accepts the data.
+        patch_size = 16
+        h_in = self.input_shape[0]
+        w_in = self.input_shape[1]
+        target_h = ((h_in + patch_size - 1) // patch_size) * patch_size
+        target_w = ((w_in + patch_size - 1) // patch_size) * patch_size
+        # VisionTransformer expects a single image_size (square); use max
+        target_size = max(target_h, target_w)
 
-        # Obtain ViT B16 as base model
-        base_model = vit.vit_b16(image_size=self.input[:-1],
-                                 classes=self.classifier.n_labels,
-                                 include_top=False,
-                                 pretrained=pretrained,
-                                 pretrained_top=False)
-        top_model = base_model.output
+        full_model = TorchvisionModel(weights=weights_arg, image_size=target_size)
+        # remove classification head
+        try:
+            full_model.heads = nn.Identity()
+        except Exception:
+            if hasattr(full_model, "heads") and hasattr(full_model.heads, "head"):
+                full_model.heads.head = nn.Identity()
 
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
+        class _PadAndRun(nn.Module):
+            def __init__(self, model, target_h, target_w):
+                super().__init__()
+                self.model = model
+                self.target_h = target_h
+                self.target_w = target_w
 
-        # Return created model
-        return model
+            def forward(self, x):
+                # x: (B, C, H, W) -> pad to (target_h, target_w)
+                _, _, h, w = x.shape
+                pad_h = max(0, self.target_h - h)
+                pad_w = max(0, self.target_w - w)
+                # pad format: (left, right, top, bottom)
+                if pad_h != 0 or pad_w != 0:
+                    import torch.nn.functional as F
+
+                    x = F.pad(x, (0, pad_w, 0, pad_h))
+                out = self.model(x)
+                # model may return (B, C) for features; normalize to (B, C, 1, 1)
+                if isinstance(out, dict):
+                    # if a dict is returned, pick the first tensor
+                    out = list(out.values())[0]
+                if hasattr(out, "ndim") and out.ndim == 2:
+                    out = out.unsqueeze(-1).unsqueeze(-1)
+                return out
+
+        return _PadAndRun(full_model, target_size, target_size)

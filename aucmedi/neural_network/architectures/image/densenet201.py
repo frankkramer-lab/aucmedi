@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,10 +16,10 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the DenseNet201 architecture.
+# -----------------------------------------------------#
+"""The classification variant of the DenseNet201 architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
@@ -28,7 +28,7 @@
 | Standardization          | "torch"                    |
 
 ???+ abstract "Reference - Implementation"
-    [https://keras.io/applications/#densenet](https://keras.io/applications/#densenet) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.densenet201.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.densenet201.html) <br>
 
 ???+ abstract "Reference - Publication"
     Gao Huang, Zhuang Liu, Laurens van der Maaten, Kilian Q. Weinberger. 25 Aug 2016.
@@ -36,44 +36,125 @@
     <br>
     [https://arxiv.org/abs/1608.06993](https://arxiv.org/abs/1608.06993)
 """
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications import DenseNet201 as BaseModel
+import torch
+from torch import nn
+from torchvision.models import densenet201 as TorchvisionModel
+from torchvision.models import DenseNet201_Weights
+import torchvision.transforms as transforms_module
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
-#           Architecture class: DenseNet201           #
-#-----------------------------------------------------#
-class DenseNet201(Architecture_Base):
-    #---------------------------------------------#
-    #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
-        self.pretrained_weights = pretrained_weights
 
-    #---------------------------------------------#
+# -----------------------------------------------------#
+#           Architecture class: DenseNet201           #
+# -----------------------------------------------------#
+class DenseNet201(Architecture_Base):
+    # ---------------------------------------------#
+    #                Initialization               #
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        channels,
+        input_resolution=(224, 224),
+        pretrained_weights=False,
+    ):
+        self.input_shape = input_resolution + (channels,)
+        self.pretrained_weights = pretrained_weights
+        self.channels = channels
+
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+
+    def get_output_shape(self):
+        # DenseNet reduces spatial resolution by a factor of 32
+        # Output channels are 1920 for DenseNet201
+        # Hybrid: fast-path for common size, otherwise compute via one-time
+        # non-pretrained forward pass and cache the result.
+        if hasattr(self, "_cached_output_shape") and self._cached_output_shape:
+            return self._cached_output_shape
+
+        common = {(224, 224): (7, 7, 1920)}
+        res = (self.input_shape[0], self.input_shape[1])
+        if res in common:
+            self._cached_output_shape = common[res]
+            return self._cached_output_shape
+
+        import torch
+
+        full_model = TorchvisionModel(weights=None)
+        base_model = getattr(full_model, "features", None)
+        if base_model is None:
+            modules = list(full_model.children())[:-1]
+            base_model = torch.nn.Sequential(*modules)
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
+        base_model = base_model.cpu()
+        base_model.eval()
+        with torch.no_grad():
+            x = torch.zeros(1, self.channels, self.input_shape[0], self.input_shape[1])
+            out = base_model(x)
+
+        if isinstance(out, dict):
+            out = next(v for v in out.values() if hasattr(v, "ndim"))
+
+        h_out = int(out.shape[2])
+        w_out = int(out.shape[3])
+        c_out = int(out.shape[1])
+        self._cached_output_shape = (h_out, w_out, c_out)
+        return self._cached_output_shape
+
+    def get_preprocess(self):
+        weights = DenseNet201_Weights.DEFAULT
+        return weights.transforms()
+
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If input channels differ from 3, replace the first convolutional layer.
+        if self.channels == 3:
+            return model
+
+        first_conv = model[0]  # Access the first convolutional layer
+
+        if first_conv is None:
+            return model
+
+        new_conv = nn.Conv2d(
+            self.channels,
+            first_conv.out_channels,
+            kernel_size=first_conv.kernel_size,
+            stride=first_conv.stride,
+            padding=first_conv.padding,
+            bias=(first_conv.bias is not None),
+        )
+        with torch.no_grad():
+            orig_w = first_conv.weight.data
+            avg = orig_w.mean(dim=1, keepdim=True)
+            new_conv.weight.data = avg.repeat(1, self.channels, 1, 1)
+            if first_conv.bias is not None:
+                new_conv.bias.data = first_conv.bias.data.clone()
+
+        model[0] = new_conv
+        return model
+
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "DEFAULT"
+        else:
+            model_weights = None
 
-        # Obtain DenseNet201 as base model
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
-
-        # Return created model
-        return model
+        # Obtain base model (omit classification head)
+        full_model = TorchvisionModel(weights=model_weights)
+        base_model = full_model.features
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
+        return base_model

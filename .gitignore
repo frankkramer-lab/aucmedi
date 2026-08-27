@@ -16,3 +16,23 @@ debug.py
 
 # Visual Studio Code
 .vscode
+
+# Virtual environments
+.venv/
+
+# Created model artifacts
+model/
+
+# Pictures
+*.png
+
+# Models
+*.pt
+
+# Data directories created by tutorials
+output/
+data/
+alldata/
+xai_gradcam/
+xai_lime/
+labels.csv

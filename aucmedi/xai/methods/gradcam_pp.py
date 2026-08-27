@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -21,23 +21,27 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
-import tensorflow as tf
+import torch
 # Internal Libraries
-from aucmedi.xai.methods.xai_base import XAImethod_Base
+from aucmedi.xai.methods.gradcam import GradCAM
 
 #-----------------------------------------------------#
 #                XAI Method: Grad-Cam++               #
 #-----------------------------------------------------#
-class GradCAMpp(XAImethod_Base):
+class GradCAMpp(GradCAM):
     """ XAI Method for Grad-CAM++.
 
     Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
+    Grad-CAM++ only differs from [GradCAM][aucmedi.xai.methods.gradcam.GradCAM] in how the
+    gradient is weighted, which is why the identification of the output layer as well as the
+    feature map computation are inherited.
+
     ??? abstract "Reference - Implementation"
-        Author: Samson Woof <br>
-        GitHub Profile: [https://github.com/samson6460](https://github.com/samson6460) <br>
-        Date: May 21, 2020 <br>
-        [https://github.com/samson6460/tf_keras_gradcamplusplus](https://github.com/samson6460/tf_keras_gradcamplusplus) <br>
+        Author: Jacob Gil <br>
+        GitHub Profile: [https://github.com/jacobgil](https://github.com/jacobgil) <br>
+        Date: 2021 <br>
+        [https://github.com/jacobgil/pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam) <br>
 
     ??? abstract "Reference - Publication"
         Aditya Chattopadhay; Anirban Sarkar; Prantik Howlader; Vineeth N Balasubramanian. 07 May 2018.
@@ -52,31 +56,10 @@ class GradCAMpp(XAImethod_Base):
         """ Initialization function for creating a Grad-CAM++ as XAI Method object.
 
         Args:
-            model (keras.model):               Keras model object.
+            model (nn.Module):              PyTorch model object.
             layerName (str):                   Layer name of the convolutional layer for heatmap computation.
         """
-        # Cache class parameters
-        self.model = model
-        self.layerName = layerName
-        # Try to find output layer if not defined
-        if self.layerName is None : self.layerName = self.find_output_layer()
-
-    #---------------------------------------------#
-    #            Identify Output Layer            #
-    #---------------------------------------------#
-    def find_output_layer(self):
-        """ Internal function. Applied if `layerName==None`.
-
-        Identify last/final convolutional layer in neural network architecture.
-        This layer is used to obtain activation outputs / feature map.
-        """
-        # Iterate over all layers
-        for layer in reversed(self.model.layers):
-            # Check to see if the layer has a 4D output -> Return layer
-            if len(layer.output.shape) >= 4:
-                return layer.name
-        # Otherwise, throw exception
-        raise ValueError("Could not find 4D layer. Cannot apply Grad-CAM++.")
+        super().__init__(model, layerName)
 
     #---------------------------------------------#
     #             Heatmap Computation             #
@@ -100,41 +83,34 @@ class GradCAMpp(XAImethod_Base):
         Returns:
             heatmap (numpy.ndarray):            Computed Grad-CAM++ for provided image.
         """
-        # Gradient model construction
-        layer_output = self.model.get_layer(self.layerName).output
-        model_output = self.model.output
-        if isinstance(model_output, list):
-            outputs = [layer_output] + model_output
-        else:
-            outputs = [layer_output, model_output]
+        # Obtain feature map of the last conv layer and its gradient
+        conv_out, grads = self.compute_feature_gradient(image, class_index)
 
-        gradModel = tf.keras.models.Model(inputs=self.model.inputs,
-                         outputs=outputs)
-
-        # Compute gradient for desierd class index
-        with tf.GradientTape() as gtape1:
-            with tf.GradientTape() as gtape2:
-                with tf.GradientTape() as gtape3:
-                    inputs = tf.cast(image, tf.float32)
-                    (conv_output, preds) = gradModel(inputs)
-                    output = preds[:, class_index]
-                    conv_first_grad = gtape3.gradient(output, conv_output)
-                conv_second_grad = gtape2.gradient(conv_first_grad, conv_output)
-            conv_third_grad = gtape1.gradient(conv_second_grad, conv_output)
-        global_sum = np.sum(conv_output, axis=(0, 1, 2))
+        # Identify spatial axis (keep batch & channel axis)
+        spatial_axis = tuple(range(2, grads.dim()))
+        # Derive the second and third order derivative from the first one. Following the
+        # publication, the class score is modeled as an exponential, which reduces the
+        # higher order derivatives to powers of the first order gradient. Backpropagating
+        # them instead would return zeros for the piecewise linear ReLU architectures.
+        conv_second_grad = grads.pow(2)
+        conv_third_grad = conv_second_grad * grads
 
         # Normalize constants
-        alpha_num = conv_second_grad[0]
-        alpha_denom = conv_second_grad[0]*2.0 + conv_third_grad[0]*global_sum
-        alpha_denom = np.where(alpha_denom != 0.0, alpha_denom, eps)
-        alphas = alpha_num / alpha_denom
-        alpha_normalization_constant = np.sum(alphas, axis=(0,1))
-        alphas /= alpha_normalization_constant
+        global_sum = conv_out.sum(dim=spatial_axis, keepdim=True)
+        alpha_denom = conv_second_grad * 2.0 + conv_third_grad * global_sum
+        alpha_denom = torch.where(alpha_denom != 0.0, alpha_denom,
+                                  torch.full_like(alpha_denom, eps))
+        alphas = conv_second_grad / alpha_denom
 
         # Deep Linearization weighting
-        weights = np.maximum(conv_first_grad[0], 0.0)
-        deep_linearization_weights = np.sum(weights*alphas, axis=(0,1))
-        heatmap = np.sum(deep_linearization_weights*conv_output[0], axis=-1)
+        weights = torch.clamp(grads, min=0.0)
+        deep_linearization_weights = (weights * alphas).sum(dim=spatial_axis)
+        # Normalize gradients via "importance"
+        conv_out = conv_out[0]
+        deep_linearization_weights = deep_linearization_weights[0].view(
+            -1, *([1] * (conv_out.dim() - 1)))
+        heatmap = (conv_out * deep_linearization_weights).sum(dim=0)
+        heatmap = heatmap.detach().cpu().numpy()
 
         # Intensity normalization to [0,1]
         numer = heatmap - np.min(heatmap)

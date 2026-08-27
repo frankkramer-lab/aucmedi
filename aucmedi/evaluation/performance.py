@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿# ==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -15,34 +15,38 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External Libraries
 import numpy as np
 import pandas as pd
 import os
 from plotnine import *
+
 # Internal libraries/scripts
 from aucmedi.evaluation.metrics import *
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #            Evaluation - Plot Performance            #
-#-----------------------------------------------------#
-def evaluate_performance(preds,
-                         labels,
-                         out_path,
-                         show=False,
-                         class_names=None,
-                         multi_label=False,
-                         metrics_threshold=0.5,
-                         suffix=None,
-                         store_csv=True,
-                         plot_barplot=True,
-                         plot_confusion_matrix=True,
-                         plot_roc_curve=True):
-    """ Function for automatic performance evaluation based on model predictions.
+# -----------------------------------------------------#
+def evaluate_performance(
+    preds,
+    labels,
+    out_path,
+    show=False,
+    class_names=None,
+    multi_label=False,
+    metrics_threshold=0.5,
+    suffix=None,
+    store_csv=True,
+    plot_barplot=True,
+    plot_confusion_matrix=True,
+    plot_roc_curve=True,
+):
+    """Function for automatic performance evaluation based on model predictions.
 
     ???+ example
         ```python
@@ -99,7 +103,8 @@ def evaluate_performance(preds,
                                         [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):         Classification list with One-Hot Encoding. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
-        out_path (str):                 Path to directory in which plotted figures are stored.
+        out_path (str):                 Path to directory in which plotted figures are stored. If `None`, nothing is written to disk
+                                        (useful in combination with `show=True` to only display the charts).
         show (bool):                    Option, whether to also display the generated charts.
         class_names (list of str):      List of names for corresponding classes. Used for evaluation. Provided by
                                         [input_interface][aucmedi.data_processing.io_data.input_interface].
@@ -119,8 +124,13 @@ def evaluate_performance(preds,
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold
-    if multi_label : threshold = metrics_threshold
-    else : threshold = None
+    if out_path is not None:
+        os.makedirs(out_path, exist_ok=True)
+
+    if multi_label:
+        threshold = metrics_threshold
+    else:
+        threshold = None
 
     # Compute metrics
     metrics = compute_metrics(preds, labels, n_labels, threshold)
@@ -132,11 +142,12 @@ def evaluate_performance(preds,
     if class_names is not None:
         for c in range(len(class_names)):
             class_mapping[c] = class_names[c]
-        metrics["class"].replace(class_mapping, inplace=True)
-    if class_names is None : metrics["class"] = pd.Categorical(metrics["class"])
+        metrics["class"] = metrics["class"].replace(class_mapping)
+    if class_names is None:
+        metrics["class"] = pd.Categorical(metrics["class"])
 
     # Store metrics to CSV
-    if store_csv:
+    if store_csv and out_path is not None:
         evalby_csv(metrics, out_path, class_names, suffix=suffix)
 
     # Generate bar plot
@@ -149,17 +160,20 @@ def evaluate_performance(preds,
 
     # Generate ROC curve
     if plot_roc_curve:
-        evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=show, suffix=suffix)
+        evalby_rocplot(
+            fpr_list, tpr_list, out_path, class_names, show=show, suffix=suffix
+        )
 
     # Return metrics
     return metrics
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #      Evaluation Performance - Confusion Matrix      #
-#-----------------------------------------------------#
-def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
-                            show=False,
-                            suffix=None):
+# -----------------------------------------------------#
+def evalby_confusion_matrix(
+    confusion_matrix, out_path, class_names, show=False, suffix=None
+):
 
     # Convert confusion matrix to a Pandas dataframe
     rawcm = pd.DataFrame(confusion_matrix)
@@ -177,63 +191,79 @@ def evalby_confusion_matrix(confusion_matrix, out_path, class_names,
     dt.rename(columns={"index": "gt"}, inplace=True)
 
     # Generate confusion matrix
-    fig = (ggplot(dt, aes("pd", "gt", fill="score"))
-                  + geom_tile(color="white", size=1.5)
-                  + geom_text(aes("pd", "gt", label="score"), color="black")
-                  + ggtitle("Performance Evaluation: Confusion Matrix")
-                  + xlab("Prediction")
-                  + ylab("Ground Truth")
-                  + scale_fill_gradient(low="white", high="royalblue",
-                                        limits=[0, 100])
-                  + guides(fill = guide_colourbar(title="%",
-                                                  barwidth=10,
-                                                  barheight=50))
-                  + theme_bw()
-                  + theme(axis_text_x = element_text(angle = 45, vjust = 1,
-                                                     hjust = 1)))
+    fig = (
+        ggplot(dt, aes(x="pd", y="gt", fill="score"))
+        + geom_tile(color="white", size=1.5)
+        + geom_text(aes(label="score"), color="black")
+        + ggtitle("Performance Evaluation: Confusion Matrix")
+        + xlab("Prediction")
+        + ylab("Ground Truth")
+        + scale_fill_gradient(low="white", high="royalblue", limits=(0, 100))
+        + guides(fill=guide_colorbar(title="%"))
+        + theme_bw()
+        + theme(
+            axis_text_x=element_text(rotation=45, va="top", ha="right"),
+            legend_key_width=10,
+            legend_key_height=50,
+        )
+    )
 
     # Store figure to disk
-    filename = "plot.performance.confusion_matrix"
-    if suffix is not None : filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
+    if out_path is not None:
+        filename = "plot.performance.confusion_matrix"
+        if suffix is not None:
+            filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #          Evaluation Performance - Barplots          #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def evalby_barplot(metrics, out_path, class_names, show=False, suffix=None):
     # Remove confusion matrix from metric dataframe
     df_metrics = metrics[~metrics["metric"].isin(["TN", "FN", "FP", "TP"])]
     df_metrics["class"] = pd.Categorical(df_metrics["class"])
 
     # Generate metric results
-    fig = (ggplot(df_metrics, aes("class", "score", fill="class"))
-              + geom_col(stat='identity', width=0.6, color="black",
-                         position = position_dodge(width=0.6))
-              + ggtitle("Performance Evaluation: Metric Overview")
-              + facet_wrap("metric")
-              + coord_flip()
-              + xlab("")
-              + ylab("Score")
-              + scale_y_continuous(limits=[0, 1], breaks=np.arange(0, 1.1, 0.1))
-              + scale_fill_discrete(name="Classes")
-              + theme_bw())
+    fig = (
+        ggplot(df_metrics, aes("class", "score", fill="class"))
+        + geom_col(
+            stat="identity",
+            width=0.6,
+            color="black",
+            position=position_dodge(width=0.6),
+        )
+        + ggtitle("Performance Evaluation: Metric Overview")
+        + facet_wrap("metric")
+        + coord_flip()
+        + xlab("")
+        + ylab("Score")
+        + scale_y_continuous(limits=[0, 1], breaks=np.arange(0, 1.1, 0.1))
+        + scale_fill_discrete(name="Classes")
+        + theme_bw()
+    )
 
     # Store figure to disk
-    filename = "plot.performance.barplot"
-    if suffix is not None : filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=12, height=9, dpi=200)
+    if out_path is not None:
+        filename = "plot.performance.barplot"
+        if suffix is not None:
+            filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=12, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #          Evaluation Performance - ROC plot          #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix=None):
     # Initialize result dataframe
     df_roc = pd.DataFrame(data=[fpr_list, tpr_list], dtype=object)
@@ -254,36 +284,46 @@ def evalby_rocplot(fpr_list, tpr_list, out_path, class_names, show=False, suffix
     df_roc["TPR"] = df_roc["TPR"].astype(float)
 
     # Generate roc results
-    fig = (ggplot(df_roc, aes("FPR", "TPR", color="class"))
-               + geom_line(size=1.0)
-               + geom_abline(intercept=0, slope=1, color="black",
-                             linetype="dashed")
-               + ggtitle("Performance Evaluation: ROC Curves")
-               + xlab("False Positive Rate")
-               + ylab("True Positive Rate")
-               + scale_x_continuous(limits=[0, 1], breaks=np.arange(0,1.1,0.1))
-               + scale_y_continuous(limits=[0, 1], breaks=np.arange(0,1.1,0.1))
-               + scale_color_discrete(name="Classes")
-               + theme_bw())
+    fig = (
+        ggplot(df_roc, aes("FPR", "TPR", color="class"))
+        + geom_line(size=1.0)
+        + geom_abline(intercept=0, slope=1, color="black", linetype="dashed")
+        + ggtitle("Performance Evaluation: ROC Curves")
+        + xlab("False Positive Rate")
+        + ylab("True Positive Rate")
+        + scale_x_continuous(limits=[0, 1], breaks=np.arange(0, 1.1, 0.1))
+        + scale_y_continuous(limits=[0, 1], breaks=np.arange(0, 1.1, 0.1))
+        + scale_color_discrete(name="Classes")
+        + theme_bw()
+    )
 
     # Store figure to disk
-    filename = "plot.performance.roc"
-    if suffix is not None : filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
+    if out_path is not None:
+        filename = "plot.performance.roc"
+        if suffix is not None:
+            filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=10, height=9, dpi=200)
 
     # Plot figure
-    if show : print(fig)
+    if show:
+        print(fig)
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #          Evaluation Performance - CSV file          #
-#-----------------------------------------------------#
-def evalby_csv(metrics, out_path, class_names, suffix=None):
+# -----------------------------------------------------#
+def evalby_csv(metrics, out_path, class_names, round_decimals=3, suffix=None,
+                included_metrics = ["Sensitivity", "Specificity", "Precision", "FPR", "FNR", "FDR", "Accuracy", "F1"]):
     # Obtain filename to
     filename = "metrics.performance"
-    if suffix is not None : filename += "." + str(suffix)
+    if suffix is not None:
+        filename += "." + str(suffix)
     filename += ".csv"
     path_csv = os.path.join(out_path, filename)
 
+    metrics = metrics[metrics["metric"].isin(included_metrics)]
+    # Round metrics to specified decimal places
+    metrics["score"] = metrics["score"].round(decimals=round_decimals)
     # Store file to disk
     metrics.to_csv(path_csv, index=False)

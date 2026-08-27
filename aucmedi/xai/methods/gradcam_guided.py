@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -21,7 +21,6 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
-import tensorflow as tf
 # Internal Libraries
 from aucmedi.xai.methods.xai_base import XAImethod_Base
 from aucmedi.xai.methods import GuidedBackpropagation, GradCAM
@@ -36,9 +35,10 @@ class GuidedGradCAM(XAImethod_Base):
     Normally, this class is used internally in the [aucmedi.xai.decoder.xai_decoder][] in the AUCMEDI XAI module.
 
     ??? abstract "Reference - Implementation"
-        Author: Swapnil Ahlawat <br>
-        Date: Jul 06, 2020 <br>
-        [https://github.com/swapnil-ahlawat/Guided-GradCAM-Keras](https://github.com/swapnil-ahlawat/Guided-GradCAM-Keras) <br>
+        Author: Jacob Gil <br>
+        GitHub Profile: [https://github.com/jacobgil](https://github.com/jacobgil) <br>
+        Date: 2021 <br>
+        [https://github.com/jacobgil/pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam) <br>
 
     ??? abstract "Reference - Publication #1"
         Jost Tobias Springenberg, Alexey Dosovitskiy, Thomas Brox, Martin Riedmiller. 21 Dec 2014.
@@ -59,7 +59,7 @@ class GuidedGradCAM(XAImethod_Base):
         """ Initialization function for creating a Guided Grad-CAM as XAI Method object.
 
         Args:
-            model (keras.model):               Keras model object.
+            model (nn.Module):              PyTorch model object.
             layerName (str):                   Layer name of the convolutional layer for heatmap computation.
         """
         # Initialize XAI methods
@@ -92,7 +92,8 @@ class GuidedGradCAM(XAImethod_Base):
         hm_bp = self.bp.compute_heatmap(image, class_index, eps)
         # Compute Grad-CAM
         hm_gc = self.gc.compute_heatmap(image, class_index, eps)
-        hm_gc = Resize(shape=image.shape[1:-1]).transform(hm_gc)
+        # Upsample Grad-CAM to the spatial shape of the channel-first batch (N,C,...)
+        hm_gc = Resize(shape=tuple(image.shape[2:])).transform(hm_gc)
         # Combine both XAI methods
         heatmap = hm_bp * hm_gc
         # Intensity normalization to [0,1]

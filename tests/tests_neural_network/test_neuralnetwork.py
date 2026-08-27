@@ -1,0 +1,162 @@
+﻿# ==============================================================================#
+#  Author:       Dominik Müller                                                #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
+#                University of Augsburg                                        #
+#                                                                              #
+#  This program is free software: you can redistribute it and/or modify        #
+#  it under the terms of the GNU General Public License as published by        #
+#  the Free Software Foundation, either version 3 of the License, or           #
+#  (at your option) any later version.                                         #
+#                                                                              #
+#  This program is distributed in the hope that it will be useful,             #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
+#  GNU General Public License for more details.                                #
+#                                                                              #
+#  You should have received a copy of the GNU General Public License           #
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
+# ==============================================================================#
+# -----------------------------------------------------#
+#                   Library imports                   #
+# -----------------------------------------------------#
+# External libraries
+from functools import partial
+import unittest
+import tempfile
+import os
+from PIL import Image
+import numpy as np
+from torch.optim import lr_scheduler
+
+# Internal libraries
+from aucmedi import *
+from aucmedi.neural_network.model import NeuralNetwork
+
+
+# -----------------------------------------------------#
+#              Unittest: NeuralNetwork               #
+# -----------------------------------------------------#
+class NeuralNetworkTEST(unittest.TestCase):
+    # Create random imaging and classification data
+    @classmethod
+    def setUpClass(self):
+        np.random.seed(1234)
+        # Initialize temporary directory
+        self.tmp_data = tempfile.TemporaryDirectory(
+            prefix="tmp.aucmedi.", suffix=".data"
+        )
+
+        # Create RGB data
+        self.sampleList_rgb = []
+        for i in range(0, 10):
+            img_rgb = np.random.rand(32, 32, 3) * 255
+            imgRGB_pillow = Image.fromarray(img_rgb.astype(np.uint8))
+            index = "image.sample_" + str(i) + ".RGB.png"
+            path_sampleRGB = os.path.join(self.tmp_data.name, index)
+            imgRGB_pillow.save(path_sampleRGB)
+            self.sampleList_rgb.append(index)
+
+        # Create classification labels
+        self.labels_ohe = np.zeros((10, 4), dtype=np.uint8)
+        for i in range(0, 10):
+            class_index = np.random.randint(0, 4)
+            self.labels_ohe[i][class_index] = 1
+
+        # Create RGB Data Generator
+        self.dataloader = create_data_loader(
+            self.sampleList_rgb,
+            self.tmp_data.name,
+            labels=self.labels_ohe,
+            resize=(32, 32),
+            shuffle=True,
+            grayscale=False,
+            batch_size=3,
+            num_workers=0,
+        )
+
+    # -------------------------------------------------#
+    #                  Model Training                 #
+    # -------------------------------------------------#
+    def test_training_pure(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(training_generator=self.dataloader, epochs=3)
+        self.assertTrue("loss" in hist)
+
+    def test_training_iterations(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(training_generator=self.dataloader, epochs=5, iterations=10)
+        self.assertTrue("loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 5)
+
+        hist = model.train(training_generator=self.dataloader, epochs=3, iterations=2)
+        self.assertTrue("loss" in hist)
+        self.assertTrue(len(hist["loss"]) == 3)
+
+    def test_training_validation(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=4,
+        )
+        self.assertTrue("loss" in hist and "val_loss" in hist)
+
+    def test_training_transferlearning(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=3,
+            transfer_learning=True,
+        )
+        self.assertTrue("tl_loss" in hist and "tl_val_loss" in hist)
+        self.assertTrue("ft_loss" in hist and "ft_val_loss" in hist)
+        self.assertTrue("ft_learning_rate" in hist and "tl_learning_rate" in hist)
+        # Check attributes set automatically
+        # Check that transfer_epochs is set to 0.1 * learning_rate (default)
+        self.assertTrue(
+            hist["ft_learning_rate"][0] == 0.1 * hist["tl_learning_rate"][0]
+        )
+
+        # Run with all parameters set manually
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            iterations=2,
+            epochs=3,
+            learning_rate=0.001,
+            transfer_learning=True,
+            transfer_epochs=5,
+            fine_tuning_lr=0.5,
+            callbacks=[],
+            scheduler=None,
+        )
+
+    def test_training_scheduler(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        def create_steplr_scheduler(optimizer):
+            return lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=3,
+            scheduler=partial(create_steplr_scheduler),
+        )
+        hist = model.train(
+            training_generator=self.dataloader,
+            validation_generator=self.dataloader,
+            epochs=3,
+            scheduler=lr_scheduler.ReduceLROnPlateau,
+        )
+        self.assertTrue("loss" in hist and "val_loss" in hist)
+        self.assertTrue("learning_rate" in hist)
+
+    # -------------------------------------------------#
+    #                 Model Inference                 #
+    # -------------------------------------------------#
+    def test_predict(self):
+        model = NeuralNetwork(n_labels=4, channels=3, input_resolution=(32, 32))
+        preds = model.predict(self.dataloader)
+        self.assertTrue(preds.shape == (10, 4))
+        for i in range(0, 10):
+            self.assertTrue(np.sum(preds[i]) >= 0.99 and np.sum(preds[i]) <= 1.01)

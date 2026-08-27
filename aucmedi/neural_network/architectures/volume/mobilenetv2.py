@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,10 +16,10 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the MobileNetV2 architecture.
+# -----------------------------------------------------#
+"""The classification variant of the MobileNetV2 architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
@@ -30,7 +30,7 @@
 ???+ abstract "Reference - Implementation"
     Solovyev, Roman & Kalinin, Alexandr & Gabruseva, Tatiana. (2021). <br>
     3D Convolutional Neural Networks for Stalled Brain Capillary Detection. <br>
-    [https://github.com/ZFTurbo/classification_models_3D](https://github.com/ZFTurbo/classification_models_3D) <br>
+    [https://github.com/ZFTurbo/timm_3d](https://github.com/ZFTurbo/timm_3d) <br>
 
 ???+ abstract "Reference - Publication"
     Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, Liang-Chieh Chen. 13 Jan 2018.
@@ -38,45 +38,59 @@
     <br>
     [https://arxiv.org/abs/1801.04381](https://arxiv.org/abs/1801.04381)
 """
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from classification_models_3D.tfkeras import Classifiers
+from timm_3d import create_model
+from torch import nn
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #           Architecture class: MobileNetV2           #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 class MobileNetV2(Architecture_Base):
-    #---------------------------------------------#
+    # ---------------------------------------------#
     #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(64, 64, 64),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        channels=3,
+        input_resolution=(64, 64, 64),
+        pretrained_weights=False,
+    ):
+        self.input_shape = input_resolution + (channels,)
         self.pretrained_weights = pretrained_weights
+        self.channels = channels
 
-    #---------------------------------------------#
+    def get_output_shape(self):
+        # MobileNetV2 has a fixed 32x downsampling ratio
+        output_shape = (
+            self.input_shape[0] // 32,
+            self.input_shape[1] // 32,
+            self.input_shape[2] // 32,
+            1280,  # MobileNetV2's final feature map has 1280 channels
+        )
+        return output_shape
+
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
     def create_model(self):
-        # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
-
-        # Obtain MobileNetV2 as base model
-        BaseModel, preprocess_input = Classifiers.get("mobilenetv2")
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
+        # Create model
+        full_model = create_model(
+            "mobilenetv2_100",
+            pretrained=self.pretrained_weights,
+            in_chans=self.input_shape[-1],
+            num_classes=0,
+            global_pool="",
+        )
+        # Remove classification head
+        model = nn.Sequential(*list(full_model.children())[:-1])
 
         # Return created model
         return model

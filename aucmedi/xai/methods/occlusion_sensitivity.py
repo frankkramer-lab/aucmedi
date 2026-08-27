@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -21,9 +21,8 @@
 #-----------------------------------------------------#
 # External Libraries
 import numpy as np
-import tensorflow as tf
 # Internal Libraries
-from aucmedi.xai.methods.xai_base import XAImethod_Base
+from aucmedi.xai.methods.xai_base import XAImethod_Base, to_numpy, predict_proba
 
 #-----------------------------------------------------#
 #                Occlusion Sensitivity                #
@@ -46,7 +45,7 @@ class OcclusionSensitivity(XAImethod_Base):
         """ Initialization function for creating a Occlusion Sensitivity Map as XAI Method object.
 
         Args:
-            model (keras.model):            Keras model object.
+            model (nn.Module):   PyTorch model object.
             layerName (str):                Not required in Occlusion Sensitivity Maps, but defined by Abstract Base Class.
         """
         # Cache class parameters
@@ -76,42 +75,44 @@ class OcclusionSensitivity(XAImethod_Base):
             heatmap (numpy.ndarray):            Computed Occlusion Sensitivity Map for provided image.
         """
         # Utilize only image matrix instead of batch
-        image = image[0]
+        image = to_numpy(image)[0]
+        # Identify spatial shape by dropping the leading channel axis
+        shape = image.shape[1:]
         # Create empty sensitivity map
-        sensitivity_map = np.zeros((image.shape[0], image.shape[1]))
+        sensitivity_map = np.zeros(shape)
+        # Identify number of patches for each spatial axis
+        n_patches = [int(np.ceil(axis / self.patch_size)) for axis in shape]
         # Iterate the patch over the image
-        for top_left_x in range(0, image.shape[0], self.patch_size):
-            for top_left_y in range(0, image.shape[1], self.patch_size):
-                patch = apply_grey_patch(image, top_left_x, top_left_y,
-                                         self.patch_size)
-                prediction = self.model.predict(np.array([patch]))[0]
-                confidence = prediction[class_index]
+        for patch_index in np.ndindex(*n_patches):
+            # Compute the region which is covered by the current patch
+            patch_region = tuple(slice(i * self.patch_size,
+                                       (i + 1) * self.patch_size)
+                                 for i in patch_index)
+            patch = apply_grey_patch(image, patch_region)
+            prediction = predict_proba(self.model, np.array([patch]))[0]
+            confidence = prediction[class_index]
 
-                # Save confidence for this specific patch in the map
-                sensitivity_map[
-                    top_left_y:top_left_y + self.patch_size,
-                    top_left_x:top_left_x + self.patch_size,
-                ] = 1 - confidence
+            # Save confidence for this specific patch in the map
+            sensitivity_map[patch_region] = 1 - confidence
         # Return the resulting sensitivity map (automatically a heatmap)
         return sensitivity_map
 
 #-----------------------------------------------------#
 #                     Subroutines                     #
 #-----------------------------------------------------#
-def apply_grey_patch(image, top_left_x, top_left_y, patch_size):
+def apply_grey_patch(image, patch_region):
     """ Internal function.
 
     Replace a part of the image with a grey patch.
 
     Args:
-        image (numpy.ndarray):                  Input image
-        top_left_x (int):                       Top Left X position of the applied box
-        top_left_y (int):                       Top Left Y position of the applied box
-        patch_size (int):                       Size of patch to apply
+        image (numpy.ndarray):                  Input image encoded channel-first: (C,H,W) / (C,D,H,W)
+        patch_region (tuple of slice):          Spatial region which is covered by the patch
 
     Returns:
         patched_image (numpy.ndarray):          Patched image
     """
     patched_image = np.array(image, copy=True)
-    patched_image[top_left_y:top_left_y + patch_size, top_left_x:top_left_x + patch_size, :] = 127.5
+    # Apply the patch on all channels of the covered region
+    patched_image[(slice(None),) + patch_region] = 127.5
     return patched_image

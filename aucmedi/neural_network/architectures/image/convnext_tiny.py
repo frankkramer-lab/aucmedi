@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,23 +16,21 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" The classification variant of the ConvNeXt Tiny architecture.
+# -----------------------------------------------------#
+"""The classification variant of the ConvNeXt Tiny architecture.
 
 | Architecture Variable    | Value                      |
 | ------------------------ | -------------------------- |
 | Key in architecture_dict | "2D.ConvNeXtTiny"          |
 | Input_shape              | (224, 224)                 |
-| Standardization          | None                       |
+| Standardization          | "torch"                   |
 
-!!! warning
-     ConvNeXt models expect their inputs to be float or uint8 tensors of pixels with values in the [0-255] range.
-     Standardization is applied inside the architecture.
+Recommended alternative `Input_shape` is 384x384 pixels.
 
 ???+ abstract "Reference - Implementation"
-    [https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext](https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext) <br>
+    [https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_tiny.html](https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_tiny.html) <br>
 
 ???+ abstract "Reference - Publication"
     Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell, Saining Xie.
@@ -40,44 +38,90 @@
     <br>
     [https://arxiv.org/abs/2201.03545](https://arxiv.org/abs/2201.03545)
 """
-#-----------------------------------------------------#
+
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.applications.convnext import ConvNeXtTiny as BaseModel
+from torch import nn
+from torchvision.models import convnext_tiny as TorchvisionModel
+from torchvision.models import ConvNeXt_Tiny_Weights
+
 # Internal libraries
 from aucmedi.neural_network.architectures import Architecture_Base
 
-#-----------------------------------------------------#
-#          Architecture class: ConvNeXtTiny           #
-#-----------------------------------------------------#
-class ConvNeXtTiny(Architecture_Base):
-    #---------------------------------------------#
-    #                Initialization               #
-    #---------------------------------------------#
-    def __init__(self, classification_head, channels, input_shape=(224, 224),
-                 pretrained_weights=False):
-        self.classifier = classification_head
-        self.input = input_shape + (channels,)
-        self.pretrained_weights = pretrained_weights
 
-    #---------------------------------------------#
+# -----------------------------------------------------#
+#          Architecture class: ConvNeXtTiny           #
+# -----------------------------------------------------#
+class ConvNeXtTiny(Architecture_Base):
+    # ---------------------------------------------#
+    #                Initialization               #
+    # ---------------------------------------------#
+    def __init__(
+        self,
+        channels=3,
+        input_resolution=(224, 224),
+        pretrained_weights=False,
+    ):
+        self.input_shape = input_resolution + (channels,)
+        self.pretrained_weights = pretrained_weights
+        self.channels = channels
+
+    # ---------------------------------------------#
+    #         Architecture Attributes             #
+    # ---------------------------------------------#
+
+    def get_output_shape(self):
+        # ConvNeXt Tiny has a fixed 32x downsampling ratio
+        # Output channels are 768 for the tiny model
+        h_out = self.input_shape[0] // 32
+        w_out = self.input_shape[1] // 32
+        return (h_out, w_out, 768)
+
+    def get_preprocess(self):
+        # Return the weights transforms which include all preprocessing
+        weights = ConvNeXt_Tiny_Weights.DEFAULT
+        return weights.transforms()
+
+    # ---------------------------------------------#
     #                Create Model                 #
-    #---------------------------------------------#
+    # ---------------------------------------------#
+    def rechannel_first_layer(self, model):
+        # If the number of input channels is not 3, we need to rechannel the first layer
+        if self.channels == 3:
+            return model
+        first_layer = model[0][0]  # Access the first convolutional layer
+        # Extract the first conv layer's parameters
+        num_filters = model[0][0].out_channels
+        kernel_size = model[0][0].kernel_size
+        stride = model[0][0].stride
+        padding = model[0][0].padding
+        # initialize a new convolutional layer
+        new_first_layer = nn.Conv2d(
+            self.channels,
+            num_filters,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+        )
+        # Initialize the new conv1 layer's weights by averaging the pretrained weights across the channel dimension
+        original_weights = model[0][0].weight.data.mean(dim=1, keepdim=True)
+        # Expand the averaged weights to the number of input channels of the new dataset
+        new_first_layer.weight.data = original_weights.repeat(1, self.channels, 1, 1)
+        model[0][0] = new_first_layer
+        return model
+
     def create_model(self):
         # Get pretrained image weights from imagenet if desired
-        if self.pretrained_weights : model_weights = "imagenet"
-        else : model_weights = None
+        if self.pretrained_weights:
+            model_weights = "DEFAULT"
+        else:
+            model_weights = None
 
-        # Obtain ResNet50 as base model
-        base_model = BaseModel(include_top=False, weights=model_weights,
-                               input_tensor=None, input_shape=self.input,
-                               pooling=None)
-        top_model = base_model.output
-
-        # Add classification head
-        model = self.classifier.build(model_input=base_model.input,
-                                      model_output=top_model)
-
-        # Return created model
-        return model
+        # Obtain base model (omit classification head)
+        full_model = TorchvisionModel(weights=model_weights)
+        base_model = full_model.features
+        if self.channels != 3:
+            base_model = self.rechannel_first_layer(base_model)
+        return base_model

@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -89,6 +89,8 @@ def evaluate_dataset(samples,
         df_cf (pandas.DataFrame):           Dataframe containing the class distribution of the dataset.
     """
 
+    os.makedirs(out_path, exist_ok=True)
+
     # Generate barplot
     df_cf = evalby_barplot(labels, out_path, class_names, plot_barplot, show,
                            suffix)
@@ -170,6 +172,12 @@ def evalby_heatmap(samples, labels, out_path, class_names, show=False,
                + scale_fill_gradient(low="white", high="#3399FF")
                + theme_classic()
                + theme(legend_position="none"))
+
+    # Hide sample axis labels if there are too many samples to render legibly
+    # (they otherwise overlap into unreadable clutter)
+    if len(samples) > 50:
+        fig += theme(axis_text_y=element_blank(),
+                     axis_ticks_major_y=element_blank())
 
     # Store figure to disk
     filename = "plot.dataset.heatmap"

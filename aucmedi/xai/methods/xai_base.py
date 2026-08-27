@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -21,6 +21,8 @@
 #-----------------------------------------------------#
 # External libraries
 from abc import ABC, abstractmethod
+import numpy as np
+import torch
 
 #-----------------------------------------------------#
 #         Abstract Base Class for XAI Methods         #
@@ -63,7 +65,7 @@ class XAImethod_Base(ABC):
         ```
 
         Args:
-            model (keras.model):               Keras model object.
+            model (nn.Module):   PyTorch model object.
             layerName (str):                Layer name of the convolutional layer for heatmap computation.
         """
         pass
@@ -91,3 +93,49 @@ class XAImethod_Base(ABC):
             heatmap (numpy.ndarray):            Computed XAI heatmap for provided image.
         """
         pass
+
+#-----------------------------------------------------#
+#                     Subroutines                     #
+#-----------------------------------------------------#
+def to_numpy(image):
+    """ Internal function. Converts an image batch into a NumPy matrix.
+
+    Args:
+        image (numpy.ndarray or torch.Tensor):  Image matrix provided as one-element batch.
+
+    Returns:
+        image (numpy.ndarray):                  Image matrix encoded as NumPy Array.
+    """
+    if torch.is_tensor(image):
+        return image.detach().cpu().numpy()
+    return np.asarray(image)
+
+def predict_proba(model, batch):
+    """ Internal function. Computes the class probabilities for a batch of images.
+
+    Perturbation based XAI methods (e.g. Occlusion Sensitivity or LIME) require class
+    confidences instead of gradients. As the AUCMEDI architectures return raw logits,
+    a softmax normalization is applied, which corresponds to the default
+    `activation_output` of the [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork].
+
+    Args:
+        model (nn.Module):              PyTorch model object.
+        batch (numpy.ndarray):          Batch of images encoded channel-first: (N,C,H,W) / (N,C,D,H,W).
+
+    Returns:
+        preds (numpy.ndarray):          Class probabilities with shape (N, n_labels).
+    """
+    # Convert batch to a tensor on the same device as the model
+    device = next(model.parameters()).device
+    inputs = torch.as_tensor(np.asarray(batch), dtype=torch.float32, device=device)
+    # Cache & switch training mode for a deterministic forward pass
+    was_training = model.training
+    model.eval()
+    try:
+        with torch.no_grad():
+            preds = torch.softmax(model(inputs), dim=1)
+    finally:
+        if was_training:
+            model.train()
+    # Return the class probabilities
+    return preds.cpu().numpy()

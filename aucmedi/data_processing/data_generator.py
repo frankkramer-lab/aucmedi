@@ -1,6 +1,6 @@
 #==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -16,30 +16,245 @@
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 #==============================================================================#
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 # External libraries
-from tensorflow.keras.utils import Sequence
+from functools import partial
+
+import torch
+from torch.utils.data import Dataset, DataLoader, DistributedSampler
 import numpy as np
-from multiprocessing.pool import ThreadPool
-from itertools import repeat
 import tempfile
 import pickle
 import os
+
 # Internal libraries
 from aucmedi.data_processing.io_loader import image_loader
 from aucmedi.data_processing.subfunctions import Standardize, Resize
 
-#-----------------------------------------------------#
-#                 Keras Data Generator                #
-#-----------------------------------------------------#
-class DataGenerator(Sequence):
-    """ Infinite Data Generator which automatically creates batches from a list of samples.
+def create_data_loader(
+    samples,
+    path_imagedir,
+    labels=None,
+    metadata=None,
+    image_format=None,
+    subfunctions=[],
+    resize=(224, 224),
+    standardize_mode="z-score",
+    data_aug=None,
+    grayscale=False,
+    two_dim=True,
+    sample_weights=None,
+    prepare_images=False,
+    loader=image_loader,
+    seed=None,
+    batch_size=32,
+    shuffle=False,
+    num_workers=0,
+    **kwargs
+):
+    """Creates a DataGenerator with specified parameters and wraps it in a DataLoader.
+    Args:
+        samples (list of str):              List of sample/index encoded as Strings.
+        path_imagedir (str):                Path to the directory containing the images.
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding.
+        metadata (numpy.ndarray):           NumPy Array with additional metadata.
+        image_format (str):                 Image format to add at the end of the sample index for image loading.
+        subfunctions (List of Subfunctions):List of Subfunctions class instances.
+        batch_size (int):                   Number of samples inside a single batch.
+        resize (tuple of int):              Resizing shape consisting of a X and Y size.
+        standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+        data_aug (Augmentation Interface):  Data Augmentation class instance.
+        shuffle (bool):                     Boolean, whether dataset should be shuffled.
+        grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+        two_dim (bool):                     Boolean, whether images are two-dimensional.
+        sample_weights (list of float):     List of weights for samples.
+        threads (int):                      Number of workers for image preprocessing.
+        prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk
+                                            before training.
+        loader (io_loader function):        Function for loading samples/images from disk.
+        seed (int):                         Seed to ensure reproducibility for random function.
+        num_workers (int):                  Number of workers for DataLoader.
+        **kwargs (dict):                    Additional parameters for the sample loader.
+    Returns:
+        DataLoader: A DataLoader wrapping the DataGenerator.
+    """
+    # Initialize DataGenerator
+    data_gen = DataGenerator(
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        grayscale=grayscale,
+        two_dim=two_dim,
+        sample_weights=sample_weights,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+        **kwargs
+    )
+    # Initialize DataLoader
+    data_loader = DataLoader(data_gen, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
+    return data_loader
 
-    The created batches are model ready. This generator can be supplied directly
+def _make_distributed_loader(
+        rank,
+        world_size,
+        samples,
+        path_imagedir,
+        labels=None,
+        metadata=None,
+        image_format=None,
+        subfunctions=[],
+        resize=(224, 224),
+        standardize_mode="z-score",
+        data_aug=None,
+        grayscale=False,
+        two_dim=True,
+        sample_weights=None,
+        prepare_images=False,
+        loader=image_loader,
+        seed=None,
+        batch_size=32,
+        shuffle=False,
+        num_workers=0,
+        **kwargs
+    ):
+    """Factory for distributed training: builds this rank's DataLoader over the full
+    sample list, letting DistributedSampler split + shuffle it across ranks (reshuffled
+    every epoch via sampler.set_epoch()) instead of a manual samples[rank::world_size]
+    stride. Must stay a top-level function (not a closure) so torch.multiprocessing.spawn
+    can pickle it. Internal helper behind create_distributed_loader().
+    """
+    # Initialize DataGenerator
+    data_gen = DataGenerator(
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        grayscale=grayscale,
+        two_dim=two_dim,
+        sample_weights=sample_weights,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+        **kwargs
+    )
+    sampler = DistributedSampler(
+        data_gen, num_replicas=world_size, rank=rank, shuffle=shuffle, seed=1337,
+    )
+    return DataLoader(
+        data_gen, batch_size=batch_size, sampler=sampler,
+        num_workers=num_workers, pin_memory=True,
+    )
+
+
+def create_distributed_loader(
+        samples,
+        path_imagedir,
+        labels=None,
+        metadata=None,
+        image_format=None,
+        subfunctions=[],
+        resize=(224, 224),
+        standardize_mode="z-score",
+        data_aug=None,
+        grayscale=False,
+        two_dim=True,
+        sample_weights=None,
+        prepare_images=False,
+        loader=image_loader,
+        seed=None,
+        batch_size=32,
+        shuffle=False,
+        num_workers=0,
+        **kwargs
+    ):
+    """Creates a DataGenerator with specified parameters and wraps it in a DistributedSampler and DataLoader.
+    Args:
+        samples (list of str):              List of sample/index encoded as Strings.
+        path_imagedir (str):                Path to the directory containing the images.
+        labels (numpy.ndarray):             Classification list with One-Hot Encoding.
+        metadata (numpy.ndarray):           NumPy Array with additional metadata.
+        image_format (str):                 Image format to add at the end of the sample index for image loading.
+        subfunctions (List of Subfunctions):List of Subfunctions class instances.
+        batch_size (int):                   Number of samples inside a single batch.
+        resize (tuple of int):              Resizing shape consisting of a X and Y size.
+        standardize_mode (str):             Standardization modus in which image intensity values are scaled.
+        data_aug (Augmentation Interface):  Data Augmentation class instance.
+        shuffle (bool):                     Boolean, whether dataset should be shuffled.
+        grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+        two_dim (bool):                     Boolean, whether images are two-dimensional.
+        sample_weights (list of float):     List of weights for samples.
+        threads (int):                      Number of workers for image preprocessing.
+        prepare_images (bool):              Boolean, whether all images should be prepared and backup to disk
+                                            before training.
+        loader (io_loader function):        Function for loading samples/images from disk.
+        seed (int):                         Seed to ensure reproducibility for random function.
+        num_workers (int):                  Number of workers for DataLoader.
+        **kwargs (dict):                    Additional parameters for the sample loader.
+    Returns:
+        partial function: A partial function that creates a DataLoader wrapping the DataGenerator for distributed training.
+
+    ???+ example
+        The returned partial already matches the `generator_fn(rank, world_size)` contract
+        expected by [NeuralNetwork.train_distributed()][aucmedi.neural_network.model_distributed.NeuralNetwork.train_distributed] --
+        pass it straight through instead of writing a `samples[rank::world_size]` factory by hand.
+        `DistributedSampler` shards the data across ranks and reshuffles it every epoch
+        (`_train_epoch()` calls `sampler.set_epoch()`), so no manual striding is needed.
+        ```python
+        train_loader_fn = create_distributed_loader(
+            samples=samples_train, path_imagedir="images_dir/",
+            labels=class_ohe, resize=model.arch_resolution,
+            standardize_mode=model.arch_standardize, batch_size=32, shuffle=True,
+        )
+
+        model.train_distributed(train_loader_fn, epochs=50)
+        ```
+    """
+
+    return partial(_make_distributed_loader,
+        samples=samples,
+        path_imagedir=path_imagedir,
+        labels=labels,
+        metadata=metadata,
+        image_format=image_format,
+        subfunctions=subfunctions,
+        resize=resize,
+        standardize_mode=standardize_mode,
+        data_aug=data_aug,
+        grayscale=grayscale,
+        two_dim=two_dim,
+        sample_weights=sample_weights,
+        prepare_images=prepare_images,
+        loader=loader,
+        seed=seed,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers,
+        **kwargs
+    )
+
+# -----------------------------------------------------#
+#                 Torch Data Generator                #
+# -----------------------------------------------------#
+class DataGenerator(Dataset):
+    """Infinite Data Generator which returns individual preprocessed samples.
+
+    To create shuffled, model-ready batches pass the DataGenerator to a [DataLoader][torch.utils.data.DataLoader]. This DataLoader can be supplied
     to a [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork] train() & predict()
-    function (also compatible to tensorflow.keras.model fit() & predict() function).
+    function.
 
     The DataGenerator is the second of the three pillars of AUCMEDI.
 
@@ -87,27 +302,27 @@ class DataGenerator(Sequence):
         preds = model.predict(datagen_test)
         ```
 
-    It supports real-time batch generation as well as beforehand preprocessing of images,
+    It supports beforehand preprocessing of images,
     which are then temporarily stored on disk (requires enough disk space!).
 
-    The resulting batches are created based the following pipeline:
+    The resulting samples are created based the following pipeline:
 
     1. Image Loading
     2. Application of Subfunctions
     3. Resize image
     4. Application of Data Augmentation
     5. Standardize image
-    6. Stacking processed images to a batch
+    6. Stacking processed image, label and metadata to a sample
 
     ???+ warning
         When instantiating a `DataGenerator`, it is highly recommended, to pass the `image_format` parameter provided
         by the `input_interface()` and the `resize` & `standardize_mode` parameters provided by the
-        `NeuralNetwork` class attributes `meta_input` & `meta_standardize`.
+        `NeuralNetwork` class attributes `arch_resolution` & `arch_standardize`.
 
         It assures, that the samples contain the expected file extension, input shape and standardization.
 
     ???+ abstract "Build on top of the library"
-        Tensorflow.Keras Iterator: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/Iterator
+        torch.utils.data Dataset: https://github.com/pytorch/pytorch/blob/main/torch/utils/data/dataset.py
 
     ??? example "Example: How to integrate metadata in AUCMEDI?"
         ```python
@@ -119,22 +334,36 @@ class DataGenerator(Sequence):
         my_model = NeuralNetwork(n_labels=8, channels=3, architecture="2D.DenseNet121",
                                   meta_variables=10)
 
-        my_dg = DataGenerator(samples, "images_dir/",
-                              labels=None, metadata=my_metadata,
-                              resize=my_model.meta_input,                  # (224,224)
-                              standardize_mode=my_model.meta_standardize)  # "torch"
+        my_dg = create_data_loader(samples, "images_dir/",
+                                    labels=None, metadata=my_metadata,
+                                    resize=my_model.arch_resolution,                  # (224,224)
+                                    standardize_mode=my_model.arch_standardize)  # "torch"
         ```
     """
-    #-----------------------------------------------------#
+
+    # -----------------------------------------------------#
     #                    Initialization                   #
-    #-----------------------------------------------------#
-    def __init__(self, samples, path_imagedir, labels=None, metadata=None,
-                 image_format=None, subfunctions=[], batch_size=32,
-                 resize=(224, 224), standardize_mode="z-score", data_aug=None,
-                 shuffle=False, grayscale=False, sample_weights=None, workers=1,
-                 prepare_images=False, loader=image_loader, seed=None,
-                 **kwargs):
-        """ Initialization function of the DataGenerator which acts as a configuration hub.
+    # -----------------------------------------------------#
+    def __init__(
+        self,
+        samples,
+        path_imagedir,
+        labels=None,
+        metadata=None,
+        image_format=None,
+        subfunctions=[],
+        resize=(224, 224),
+        standardize_mode="z-score",
+        data_aug=None,
+        grayscale=False,
+        two_dim=True,
+        sample_weights=None,
+        prepare_images=False,
+        loader=image_loader,
+        seed=None,
+        **kwargs,
+    ):
+        """Initialization function of the DataGenerator which acts as a configuration hub.
 
         If using for prediction, the 'labels' parameter has to be `None`.
 
@@ -170,14 +399,13 @@ class DataGenerator(Sequence):
             image_format (str):                 Image format to add at the end of the sample index for image loading.
                                                 Provided by [input_interface][aucmedi.data_processing.io_data.input_interface].
             subfunctions (List of Subfunctions):List of Subfunctions class instances which will be SEQUENTIALLY executed on the data set.
-            batch_size (int):                   Number of samples inside a single batch.
             resize (tuple of int):              Resizing shape consisting of a X and Y size. (optional Z size for Volumes)
             standardize_mode (str):             Standardization modus in which image intensity values are scaled.
                                                 Calls the [Standardize][aucmedi.data_processing.subfunctions.standardize] Subfunction.
             data_aug (Augmentation Interface):  Data Augmentation class instance which performs diverse augmentation techniques.
                                                 If `None` is provided, no augmentation will be performed.
-            shuffle (bool):                     Boolean, whether dataset should be shuffled.
             grayscale (bool):                   Boolean, whether images are grayscale or RGB.
+            two_dim (bool):                     Boolean, whether images are two-dimensional.
             sample_weights (list of float):     List of weights for samples. Can be computed via
                                                 [compute_sample_weights()][aucmedi.utils.class_weights.compute_sample_weights].
             workers (int):                      Number of workers. If n_workers > 1 = use multi-threading for image preprocessing.
@@ -186,139 +414,154 @@ class DataGenerator(Sequence):
             loader (io_loader function):        Function for loading samples/images from disk.
             seed (int):                         Seed to ensure reproducibility for random function.
             **kwargs (dict):                    Additional parameters for the sample loader.
+
+        Attributes:
+            has_labels (bool):              True if `labels` was provided (training / evaluation mode).
+            has_metadata (bool):            True if `metadata` was provided.
+            has_sample_weights (bool):      True if `sample_weights` was provided.
+            samples (list of str):          The sample list as passed in.
+            labels (numpy.ndarray or None): The label array as passed in.
+            metadata (numpy.ndarray or None): The metadata array as passed in.
         """
         # Cache class variables
         self.samples = samples
         self.labels = labels
+        self.has_labels = labels is not None
         self.metadata = metadata
+        self.has_metadata = metadata is not None
         self.sample_weights = sample_weights
+        self.has_sample_weights = sample_weights is not None
         self.prepare_images = prepare_images
-        self.workers = workers
         self.sample_loader = loader
         self.kwargs = kwargs
         self.path_imagedir = path_imagedir
         self.image_format = image_format
         self.grayscale = grayscale
+        self.two_dim = two_dim
         self.subfunctions = subfunctions
-        self.batch_size = batch_size
         self.data_aug = data_aug
         self.standardize_mode = standardize_mode
         self.resize = resize
-        self.shuffle = shuffle
         self.seed = seed
-        # Cache keras.Sequence class variables
-        self.n = len(samples)
-        self.max_iterations = (self.n + self.batch_size - 1) // self.batch_size
-        self.iterations = self.max_iterations
-        self.seed_walk = 0
-        self.index_array = None
+
+        self.iterations = self.__len__()
 
         # Initialize Standardization Subfunction
         if standardize_mode is not None:
             self.sf_standardize = Standardize(mode=standardize_mode)
-        else : self.sf_standardize = None
-        # Initialize Resizing Subfunction
-        if resize is not None : self.sf_resize = Resize(shape=resize)
-        else : self.sf_resize = None
+        else:
+            self.sf_standardize = None
+        # Validate resize shape against dimensionality and initialize Resizing Subfunction
+        if resize is not None:
+            try:
+                rlen = len(resize)
+            except TypeError:
+                raise ValueError("`resize` must be a sequence with 2 or 3 elements")
+            expected_len = 2 if self.two_dim else 3
+            if rlen != expected_len:
+                raise ValueError(
+                    f"Parameter `resize` length {rlen} does not match expected "
+                    f"dimension {expected_len} for two_dim={self.two_dim}: {resize}"
+                )
+            self.sf_resize = Resize(shape=resize)
+        else:
+            self.sf_resize = None
         # Sanity check for full sample list
         if samples is not None and len(samples) == 0:
             raise ValueError("Provided sample list is empty!", len(samples))
         # Sanity check for label correctness
         if labels is not None and len(samples) != len(labels):
-            raise ValueError("Samples and labels do not have same size!",
-                             len(samples), len(labels))
+            raise ValueError(
+                "Samples and labels do not have same size!", len(samples), len(labels)
+            )
         # Sanity check for metadata correctness
         if metadata is not None and len(samples) != len(metadata):
-            raise ValueError("Samples and metadata do not have same size!",
-                             len(samples), len(metadata))
+            raise ValueError(
+                "Samples and metadata do not have same size!",
+                len(samples),
+                len(metadata),
+            )
         # Sanity check for sample weights correctness
         if sample_weights is not None and len(samples) != len(sample_weights):
-            raise ValueError("Samples and sample weights do not have same size!",
-                             len(samples), len(sample_weights))
+            raise ValueError(
+                "Samples and sample weights do not have same size!",
+                len(samples),
+                len(sample_weights),
+            )
         # Verify that labels, metadata and sample weights are NumPy arrays
         if labels is not None and not isinstance(labels, np.ndarray):
             self.labels = np.asarray(self.labels)
         if metadata is not None and not isinstance(metadata, np.ndarray):
             self.metadata = np.asarray(self.metadata)
-        if sample_weights is not None and not isinstance(sample_weights,
-                                                         np.ndarray):
+        if sample_weights is not None and not isinstance(sample_weights, np.ndarray):
             self.sample_weights = np.asarray(self.sample_weights)
 
         # If prepare_image modus activated
         # -> Preprocess images beforehand and store them to disk for fast usage later
         if self.prepare_images:
             self.prepare_dir_object = tempfile.TemporaryDirectory(
-                                               prefix="aucmedi.tmp.",
-                                               suffix=".data")
+                prefix="aucmedi.tmp.", suffix=".data"
+            )
             self.prepare_dir = self.prepare_dir_object.name
 
             # Preprocess image for each index - Sequential
-            if self.workers == 0 or self.workers == 1:
-                for i in range(0, len(samples)):
-                    self.preprocess_image(index=i, prepared_image=False,
-                                          run_resize=True, run_aug=False,
-                                          run_standardize=False,
-                                          dump_pickle=True)
-            # Preprocess image for each index - Multi-threading
-            else:
-                with ThreadPool(self.workers) as pool:
-                    index_array = list(range(0, len(samples)))
-                    mp_params = zip(index_array, repeat(False), repeat(True),
-                                    repeat(False), repeat(False), repeat(True))
-                    pool.starmap(self.preprocess_image, mp_params)
-            print("A directory for image preparation was created:",
-                  self.prepare_dir)
+            for i in range(0, len(samples)):
+                self.preprocess_image(
+                    index=i,
+                    prepared_image=False,
+                    run_resize=True,
+                    run_aug=False,
+                    run_standardize=False,
+                    dump_pickle=True,
+                )
+            print("A directory for image preparation was created:", self.prepare_dir)
 
-    #-----------------------------------------------------#
-    #              Batch Generation Function              #
-    #-----------------------------------------------------#
-    """ Internal function for batch generation given a list of random selected samples. """
-    def _get_batches_of_transformed_samples(self, index_array):
-        # Initialize Batch stack
-        batch_stack = ([],)
-        if self.labels is not None : batch_stack += ([],)
-        if self.sample_weights is not None : batch_stack += ([],)
+    def __len__(self):
+        return len(self.samples)
 
-        # Process image for each index - Sequential
-        if self.workers == 0 or self.workers == 1:
-            for i in index_array:
-                batch_img = self.preprocess_image(index=i,
-                                                  prepared_image=self.prepare_images)
-                batch_stack[0].append(batch_img)
-        # Process image for each index - Multi-threading
-        else:
-            with ThreadPool(self.workers) as pool:
-                mp_params = zip(index_array, repeat(self.prepare_images))
-                batches_img = pool.starmap(self.preprocess_image, mp_params)
-            batch_stack[0].extend(batches_img)
+    # -----------------------------------------------------#
+    #              Sample Generation Function             #
+    # -----------------------------------------------------#
 
-        # Add classification to batch if available
-        if self.labels is not None:
-            batch_stack[1].extend(self.labels[index_array])
-        # Add sample weight to batch if available
-        if self.sample_weights is not None:
-            batch_stack[2].extend(self.sample_weights[index_array])
+    def __getitem__(self, index: int):
+        """Return a single preprocessed sample (and optional label/metadata/sample_weight)."""
+        # Preprocess / load the image
+        img = self.preprocess_image(index=index, prepared_image=self.prepare_images)
 
-        # Stack images and optional metadata together into a batch
-        input_stack = np.stack(batch_stack[0], axis=0)
+        # Convert numpy array to torch tensor
+        img = torch.from_numpy(img).float()
+
+        # Build input (include metadata if available)
         if self.metadata is not None:
-            input_stack = (input_stack, self.metadata[index_array])
-        batch = (input_stack, )
-        # Stack classifications together into a batch if available
-        if self.labels is not None:
-            batch += (np.stack(batch_stack[1], axis=0), )
-        # Stack sample weights together into a batch if available
-        if self.sample_weights is not None:
-            batch += (np.stack(batch_stack[2], axis=0), )
-        # Return generated Batch
-        return batch
+            metadata = torch.from_numpy(self.metadata[index]).float()
+            input_item = (img, metadata)
+        else:
+            input_item = img
 
-    #-----------------------------------------------------#
+        # Assemble return tuple similar to batch output structure
+        result = (input_item,)
+        if self.labels is not None:
+            label = torch.from_numpy(self.labels[index]).float()
+            result += (label,)
+        if self.sample_weights is not None:
+            weight = torch.tensor(self.sample_weights[index], dtype=torch.float)
+            result += (weight,)
+
+        return result
+
+    # -----------------------------------------------------#
     #                 Image Preprocessing                 #
-    #-----------------------------------------------------#
-    def preprocess_image(self, index, prepared_image=False, run_resize=True,
-                         run_aug=True, run_standardize=True, dump_pickle=False):
-        """ Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
+    # -----------------------------------------------------#
+    def preprocess_image(
+        self,
+        index,
+        prepared_image=False,
+        run_resize=True,
+        run_aug=True,
+        run_standardize=True,
+        dump_pickle=False,
+    ):
+        """Internal preprocessing function for applying Subfunctions, augmentation, resizing and standardization
         on an image given its index.
 
         Activating the prepared_image option also allows loading a beforehand preprocessed image from disk.
@@ -342,10 +585,14 @@ class DataGenerator(Sequence):
         # Preprocess image during runtime
         else:
             # Load image from disk
-            img = self.sample_loader(self.samples[index], self.path_imagedir,
-                                     image_format=self.image_format,
-                                     grayscale=self.grayscale,
-                                     **self.kwargs)
+            img = self.sample_loader(
+                self.samples[index],
+                self.path_imagedir,
+                image_format=self.image_format,
+                grayscale=self.grayscale,
+                two_dim=self.two_dim,
+                **self.kwargs,
+            )
             # Apply subfunctions on image
             for sf in self.subfunctions:
                 img = sf.transform(img)
@@ -363,54 +610,10 @@ class DataGenerator(Sequence):
             path_img = os.path.join(self.prepare_dir, "img_" + str(index))
             with open(path_img + ".pickle", "wb") as pickle_writer:
                 pickle.dump(img, pickle_writer)
-        # Return preprocessed image
-        else : return img
-
-    #-----------------------------------------------------#
-    #              Sample Generation Function             #
-    #-----------------------------------------------------#
-    """ Internal function for calling the batch generation process. """
-    def __getitem__(self, raw_idx):
-        # Obtain the index based on the passed index offset to allow repetition
-        idx = raw_idx % self.max_iterations
-        # Build index array for the start
-        if self.index_array is None:
-            self.__set_index_array__()
-        # Select samples for next batch
-        index_array = self.index_array[
-            self.batch_size * idx : self.batch_size * (idx + 1)
-        ]
-        # Generate batch
-        return self._get_batches_of_transformed_samples(index_array)
-
-    #-----------------------------------------------------#
-    #                 Generator Functions                 #
-    #-----------------------------------------------------#
-    """ Internal function for identifying the generator length. """
-    def __len__(self):
-        return self.iterations
-
-    """ Configuration function for fixing the number of iterations. """
-    def set_length(self, iterations):
-        self.iterations = iterations
-
-    """ Configuration function for reseting the number of iterations. """
-    def reset_length(self):
-        self.iterations = self.max_iterations
-
-    """ Internal function for initializing and shuffling the index array. """
-    def __set_index_array__(self):
-        # Generate index array
-        self.index_array = np.arange(self.n)
-        # Shuffle if needed
-        if self.shuffle:
-            # Update seed for repeated permutation of the index_array
-            if self.seed is not None:
-                np.random.seed(self.seed + self.seed_walk)
-                self.seed_walk += 1
-            # Permutate index array
-            self.index_array = np.random.permutation(self.n)
-
-    """ Internal function at the end of an epoch. """
-    def on_epoch_end(self):
-        self.__set_index_array__()
+        # Return preprocessed image in channel-first format (C,H,W) / (C,D,H,W)
+        else:
+            if img.ndim == 3:    # 2D: (H, W, C) -> (C, H, W)
+                img = np.transpose(img, (2, 0, 1))
+            elif img.ndim == 4:  # 3D: (D, H, W, C) -> (C, D, H, W)
+                img = np.transpose(img, (3, 0, 1, 2))
+            return img

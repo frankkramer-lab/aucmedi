@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -32,7 +32,7 @@ class Subfunction_Base(ABC):
     and be passed to a [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator].
 
     This class provides functionality for running the transform function,
-    which preprocesses an image during the processing (batch preparation) of the DataGenerator.
+    which preprocesses an image during the processing of the DataGenerator.
 
     ???+ example "Create a custom Subfunction"
         ```python

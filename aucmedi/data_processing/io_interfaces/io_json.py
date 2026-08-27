@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -124,7 +124,7 @@ def json_loader(path_data, path_imagedir, allowed_image_formats, training=True,
         if class_names is None : class_names = np.unique(classes_sparse).tolist()
         class_n = len(class_names)
         # Parse sparse categorical annotations to One-Hot Encoding
-        class_ohe = pd.get_dummies(classes_sparse).to_numpy()
+        class_ohe = pd.get_dummies(classes_sparse, dtype=np.uint8).to_numpy()
     # Try parsing one-hot encoded format
     else:
         # Parse information

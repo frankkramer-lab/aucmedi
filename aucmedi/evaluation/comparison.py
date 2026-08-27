@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -105,7 +105,7 @@ def evaluate_comparison(pred_list,
                                             (n_models, n_samples, n_labels). Provided by [NeuralNetwork][aucmedi.neural_network.model].
         labels (numpy.ndarray):             Classification list with One-Hot Encoding. Provided by
                                             [input_interface][aucmedi.data_processing.io_data.input_interface].
-        out_path (str):                     Path to directory in which plotted figures are stored.
+        out_path (str):                     Path to directory in which plotted figures are stored. If `None`, nothing is written to disk.
         model_names (list of str):          List of names for corresponding models which are for visualization. If not provided (`None`
                                             provided), model index of `pred_list` will be used.
         class_names (list of str):          List of names for corresponding classes. Used for evaluation. Provided by
@@ -121,6 +121,9 @@ def evaluate_comparison(pred_list,
         df_merged (pandas.DataFrame):       Dataframe containing the merged metrics of all models.
         df_gain (pandas.DataFrame):         Dataframe containing performance gain compared to first model.
     """
+    if out_path is not None:
+        os.makedirs(out_path, exist_ok=True)
+
     # Identify number of labels
     n_labels = labels.shape[-1]
     # Identify prediction threshold
@@ -199,10 +202,11 @@ def evalby_beside(df, out_path, suffix=None):
                   + theme(legend_position="none"))
 
     # Store figure to disk
-    filename = "plot.comparison.beside"
-    if suffix is not None : filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
+    if out_path is not None:
+        filename = "plot.comparison.beside"
+        if suffix is not None : filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
 
 #-----------------------------------------------------#
 #            Evaluation Comparison - Gain             #
@@ -258,10 +262,11 @@ def evalby_gain(df, out_path, suffix=None):
                   + theme(legend_position="none"))
 
     # Store figure to disk
-    filename = "plot.comparison.gain"
-    if suffix is not None : filename += "." + str(suffix)
-    filename += ".png"
-    fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
+    if out_path is not None:
+        filename = "plot.comparison.gain"
+        if suffix is not None : filename += "." + str(suffix)
+        filename += ".png"
+        fig.save(filename=filename, path=out_path, width=18, height=9, dpi=300)
 
     # Return gain dataframe
     return df

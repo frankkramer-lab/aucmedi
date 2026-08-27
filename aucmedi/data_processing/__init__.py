@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -48,13 +48,13 @@ With an initialized Neural Network instance, it is possible to run training and 
     model = NeuralNetwork(n_labels=nclasses, channels=3, architecture="2D.ResNet50")
 
     # Do some training
-    datagen_train = DataGenerator(samples[:100], "images_dir/", labels=class_ohe[:100], image_format=image_format,
-                                  resize=model.meta_input, standardize_mode=model.meta_standardize)
-    model.train(datagen_train, epochs=50)
+    dataloader_train = create_data_loader(samples[:100], "images_dir/", labels=class_ohe[:100], image_format=image_format,
+                                        resize=model.meta_input, standardize_mode=model.meta_standardize)
+    model.train(dataloader_train, epochs=50)
 
     # Do some predictions
-    datagen_test = DataGenerator(samples[100:150], "images_dir/", labels=None, image_format=image_format,
-                                 resize=model.meta_input, standardize_mode=model.meta_standardize)
-    preds = model.predict(datagen_test)
+    dataloader_test = create_data_loader(samples[100:150], "images_dir/", labels=None, image_format=image_format,
+                                        resize=model.meta_input, standardize_mode=model.meta_standardize)
+    preds = model.predict(dataloader_test)
     ```
 """

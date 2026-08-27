@@ -1,6 +1,6 @@
-#==============================================================================#
-#  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+﻿#==============================================================================#
+#  Author:       Fabian Wehr                                                   #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -49,8 +49,7 @@ class LogisticRegression(Metalearner_Base):
     #                Initialization               #
     #---------------------------------------------#
     def __init__(self):
-        self.model = LRscikit(random_state=0, solver="newton-cg",
-                              multi_class="multinomial")
+        self.model = LRscikit(random_state=0, solver="newton-cg")
 
     #---------------------------------------------#
     #                  Training                   #

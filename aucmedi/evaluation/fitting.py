@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -84,6 +84,8 @@ def evaluate_fitting(train_history,
                         value_vars=selected_cols,
                         var_name="metric",
                         value_name="score")
+
+    os.makedirs(out_path, exist_ok=True)
 
     # Handle special prefix tags (if split-able by '.')
     if prefix_split is not None:

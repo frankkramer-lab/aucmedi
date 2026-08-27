@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿# ==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -15,20 +15,20 @@
 #                                                                              #
 #  You should have received a copy of the GNU General Public License           #
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
-#==============================================================================#
-#-----------------------------------------------------#
+# ==============================================================================#
+# -----------------------------------------------------#
 #                    Documentation                    #
-#-----------------------------------------------------#
-""" This is the API reference for the AUCMEDI framework.
+# -----------------------------------------------------#
+"""This is the API reference for the AUCMEDI framework.
 
 Build your state-of-the-art medical image classification pipeline with the 3 AUCMEDI pillars:
 
 !!! info "Pillars of AUCMEDI"
-    | Pillar                                                                    | Description                                                       |
-    | ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-    | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]  | Obtaining general information from the dataset.                   |
-    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]           | Building the deep learning model.                                 |
-    | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator] | Powerful interface for loading any images/volumes into the model. |
+    | Pillar                                                                       | Description                                                       |
+    | ---------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+    | #1: [input_interface()][aucmedi.data_processing.io_data.input_interface]     | Obtaining general information from the dataset.                   |
+    | #2: [NeuralNetwork][aucmedi.neural_network.model.NeuralNetwork]              | Building the deep learning model.                                 |
+    | #3: [DataGenerator][aucmedi.data_processing.data_generator.DataGenerator]   | Powerful interface for loading any images/volumes into the model. |
 
 
 ???+ example "A typical AUCMEDI pipeline"
@@ -48,33 +48,35 @@ Build your state-of-the-art medical image classification pipeline with the 3 AUC
                            architecture="2D.DenseNet121",
                            pretrained_weights=True)
 
-    # Pillar #3: Initialize training Data Generator for first 1000 samples
-    train_gen = DataGenerator(samples=index_list[:1000],
-                              path_imagedir="dataset/images/",
-                              labels=class_ohe[:1000],
-                              image_format=image_format,
-                              resize=model.meta_input,
-                              standardize_mode=model.meta_standardize)
+    # Pillar #3: Initialize training DataGenerator for first 1000 samples
+    train_loader = create_data_loader(samples=index_list[:1000],
+                                       path_imagedir="dataset/images/",
+                                       labels=class_ohe[:1000],
+                                       image_format=image_format,
+                                       resize=model.arch_resolution,
+                                       standardize_mode=model.arch_standardize)
     # Run model training with Transfer Learning
-    model.train(train_gen, epochs=20, transfer_learning=True)
+    model.train(train_loader, epochs=20, transfer_learning=True)
 
-    # Pillar #3: Initialize testing Data Generator for 500 samples
-    test_gen = DataGenerator(samples=index_list[1000:1500],
-                             path_imagedir="dataset/images/",
-                             labels=None,
-                             image_format=image_format,
-                             resize=model.meta_input,
-                             standardize_mode=model.meta_standardize)
+    # Pillar #3: Initialize testing DatahGenerator for 500 samples
+    test_loader = create_data_loader(samples=index_list[1000:1500],
+                                      path_imagedir="dataset/images/",
+                                      labels=None,
+                                      image_format=image_format,
+                                      resize=model.arch_resolution,
+                                      standardize_mode=model.arch_standardize)
     # Run model inference for unknown samples
-    preds = model.predict(test_gen)
+    preds = model.predict(test_loader)
     ```
 """
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 #                   Library imports                   #
-#-----------------------------------------------------#
+# -----------------------------------------------------#
 from aucmedi.data_processing.io_data import input_interface
-from aucmedi.data_processing.data_generator import DataGenerator
-from aucmedi.data_processing.augmentation import ImageAugmentation, \
-                                                 VolumeAugmentation, \
-                                                 BatchgeneratorsAugmentation
+from aucmedi.data_processing.data_generator import DataGenerator, create_data_loader, create_distributed_loader
+from aucmedi.data_processing.augmentation import (
+    ImageAugmentation,
+    VolumeAugmentation,
+    BatchgeneratorsAugmentation,
+)
 from aucmedi.neural_network.model import NeuralNetwork

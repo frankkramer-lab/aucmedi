@@ -1,6 +1,6 @@
-#==============================================================================#
+﻿#==============================================================================#
 #  Author:       Dominik Müller                                                #
-#  Copyright:    2024 IT-Infrastructure for Translational Medical Research,    #
+#  Copyright:    2026 IT-Infrastructure for Translational Medical Research,    #
 #                University of Augsburg                                        #
 #                                                                              #
 #  This program is free software: you can redistribute it and/or modify        #
@@ -23,9 +23,10 @@
 import os
 import numpy as np
 import json
-from tensorflow.keras.metrics import AUC
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, \
-                                       ReduceLROnPlateau, EarlyStopping
+#from tensorflow.keras.metrics import AUC
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+# from torchmetrics import AUROC as AUC
+
 # Internal libraries
 from aucmedi import *
 from aucmedi.data_processing.io_loader import image_loader, sitk_loader
@@ -35,6 +36,7 @@ from aucmedi.data_processing.subfunctions import *
 from aucmedi.neural_network.loss_functions import *
 from aucmedi.ensemble import *
 from aucmedi.evaluation import evaluate_fitting
+from aucmedi.utils.callbacks import ModelCheckpoint, CSVLogger, EarlyStopping
 
 #-----------------------------------------------------#
 #            Building Blocks for Training             #
@@ -103,45 +105,44 @@ def block_train(config):
 
     # Define Callbacks
     callbacks = []
+    scheduler = None
     if config["analysis"] == "standard":
-        cb_loss = ModelCheckpoint(os.path.join(config["path_modeldir"],
-                                               "model.best_loss.keras"),
-                                  monitor="val_loss", verbose=1,
-                                  save_best_only=True)
-        callbacks.append(cb_loss)
+        cb_check = ModelCheckpoint(os.path.join(config["path_modeldir"],
+                                               "model.best_loss"),
+                                  monitor="val_loss",)
+        callbacks.append(cb_check)
     if config["analysis"] in ["minimal", "standard"]:
-        cb_cl = CSVLogger(os.path.join(config["path_modeldir"],
+        cb_log = CSVLogger(os.path.join(config["path_modeldir"],
                                        "logs.training.csv"),
                           separator=',', append=True)
-        callbacks.append(cb_cl)
+        callbacks.append(cb_log)
     if config["analysis"] != "minimal":
-        cb_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5,
-                              verbose=1, mode='min', min_lr=1e-7)
-        cb_es = EarlyStopping(monitor='val_loss', patience=12, verbose=1)
-        callbacks.extend([cb_lr, cb_es])
+        cb_es = EarlyStopping(monitor='val_loss', patience=12)
+        callbacks.extend([cb_es])
+        scheduler = ReduceLROnPlateau
 
     # Initialize loss function for multi-class
     if not config["multi_label"]:
         # Compute class weights
-        class_weights, _ = compute_class_weights(ohe_array=class_ohe)
+        class_weights = compute_class_weights(ohe_array=class_ohe)
         # Initialize focal loss
-        loss = categorical_focal_loss(class_weights)
+        loss = MultiClassFocalLoss(alpha=class_weights)
     # Initialize loss function for multi-label
     else:
         # Compute class weights
         class_weights = compute_multilabel_weights(ohe_array=class_ohe)
         # Initialize focal loss
-        loss = multilabel_focal_loss(class_weights)
+        loss = MultiLabelFocalLoss(alpha=class_weights)
 
     # Define neural network parameters
     nn_paras = {"n_labels": class_n,
                 "channels": 3,
                 "loss": loss,
-                "metrics": [AUC(100)],
+                # "metrics": [AUC(100)],
                 "pretrained_weights": True,
     }
     # Select input shape for 3D
-    if config["three_dim"] : nn_paras["input_shape"] = config["shape_3D"]
+    if config["three_dim"] : nn_paras["input_resolution"] = config["shape_3D"]
     # Select task type
     if config["multi_label"] : nn_paras["activation_output"] = "sigmoid"
     else : nn_paras["activation_output"] = "softmax"
@@ -165,6 +166,7 @@ def block_train(config):
 
     # Subfunctions
     sf_list = []
+    # TODO: Decouple 3D from grayscale
     if config["three_dim"]:
         sf_norm = Standardize(mode="grayscale")
         sf_pad = Padding(mode="constant", shape=config["shape_3D"])
@@ -172,7 +174,7 @@ def block_train(config):
         sf_chromer = Chromer(target="rgb")
         sf_list.extend([sf_norm, sf_pad, sf_crop, sf_chromer])
 
-    # Define parameters for DataGenerator
+    # Define parameters for DataLoader
     paras_datagen = {
         "path_imagedir": config["path_imagedir"],
         "batch_size": config["batch_size"],
@@ -182,7 +184,8 @@ def block_train(config):
         "sample_weights": None,
         "seed": None,
         "image_format": image_format,
-        "workers": config["workers"],
+        "num_workers": config["workers"],
+        "two_dim": not config["three_dim"],
     }
     if not config["three_dim"] : paras_datagen["loader"] = image_loader
     else : paras_datagen["loader"] = sitk_loader
@@ -192,8 +195,8 @@ def block_train(config):
         "epochs": config["epochs"],
         "iterations": None,
         "callbacks": callbacks,
-        "class_weights": None,
         "transfer_learning": True,
+        "scheduler": scheduler,
     }
 
     # Apply MIC pipelines
@@ -203,18 +206,18 @@ def block_train(config):
         else : arch_dim = "3D." + config["architecture"]
         model = NeuralNetwork(architecture=arch_dim, **nn_paras)
 
-        # Build DataGenerator
-        train_gen = DataGenerator(samples=index_list,
+        # Build DataLoader
+        train_gen = create_data_loader(samples=index_list,
                                   labels=class_ohe,
                                   shuffle=True,
-                                  resize=model.meta_input,
-                                  standardize_mode=model.meta_standardize,
+                                  resize=model.arch_resolution,
+                                  standardize_mode=model.arch_standardize,
                                   **paras_datagen)
 
         # Start model training
         hist = model.train(training_generator=train_gen, **paras_train)
         # Store model
-        path_model = os.path.join(config["path_modeldir"], "model.last.keras")
+        path_model = os.path.join(config["path_modeldir"], "model.last")
         model.dump(path_model)
     elif config["analysis"] == "standard":
         # Setup neural network
@@ -228,18 +231,18 @@ def block_train(config):
                                      stratified=True, iterative=True,
                                      seed=0)
 
-        # Build DataGenerator
-        train_gen = DataGenerator(samples=ps_sampling[0][0],
+        # Build DataLoader
+        train_gen = create_data_loader(samples=ps_sampling[0][0],
                                   labels=ps_sampling[0][1],
                                   shuffle=True,
-                                  resize=model.meta_input,
-                                  standardize_mode=model.meta_standardize,
+                                  resize=model.arch_resolution,
+                                  standardize_mode=model.arch_standardize,
                                   **paras_datagen)
-        val_gen = DataGenerator(samples=ps_sampling[1][0],
+        val_gen = create_data_loader(samples=ps_sampling[1][0],
                                 labels=ps_sampling[1][1],
                                 shuffle=False,
-                                resize=model.meta_input,
-                                standardize_mode=model.meta_standardize,
+                                resize=model.arch_resolution,
+                                standardize_mode=model.arch_standardize,
                                 **paras_datagen)
 
         # Start model training
@@ -247,7 +250,7 @@ def block_train(config):
                            validation_generator=val_gen,
                            **paras_train)
         # Store model
-        path_model = os.path.join(config["path_modeldir"], "model.last.keras")
+        path_model = os.path.join(config["path_modeldir"], "model.last")
         model.dump(path_model)
     else:
         # Sanity check of architecutre config
@@ -264,8 +267,8 @@ def block_train(config):
         el = Composite(model_list, metalearner=config["metalearner"],
                        k_fold=len(config["architecture"]))
 
-        # Build DataGenerator
-        train_gen = DataGenerator(samples=index_list,
+        # Build DataLoader
+        train_gen = create_data_loader(samples=index_list,
                                   labels=class_ohe,
                                   shuffle=True,
                                   resize=None,
